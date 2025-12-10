@@ -1,6 +1,12 @@
 {
   "name": "eyepiece",
   "private": true,
+  "author": "Christopher Anderson <src@christopheranderson.net>",
+  "description": "Web UI for the NASA images API",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christopher-r-anderson/eyepiece.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
