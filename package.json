@@ -11,6 +11,9 @@
     "format": "prettier",
     "check": "prettier --write . && eslint --fix"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@netlify/vite-plugin-tanstack-start": "^1.0.2",
     "@tanstack/react-devtools": "^0.7.0",
