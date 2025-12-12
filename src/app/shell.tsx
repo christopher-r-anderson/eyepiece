@@ -1,6 +1,6 @@
 import { Outlet } from '@tanstack/react-router'
-import { AppProviders } from './AppProviders'
-import { AppLayout } from './layout/AppLayout'
+import { AppProviders } from './providers'
+import { AppLayout } from './layout/layout'
 
 export function App() {
   return (

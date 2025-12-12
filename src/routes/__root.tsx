@@ -11,8 +11,8 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
-import { App } from '@/app/App'
-import { ErrorBoundary } from '@/app/layout/ErrorBoundary'
+import { App } from '@/app/shell'
+import { ErrorBoundary } from '@/app/layout/error'
 
 interface MyRouterContext {
   queryClient: QueryClient

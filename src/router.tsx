@@ -3,7 +3,7 @@ import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query
 import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 
 import { routeTree } from './routeTree.gen'
-import { NotFoundPage } from './app/layout/NotFoundPage'
+import { NotFoundPage } from './app/layout/not-found'
 
 export const getRouter = () => {
   const rqContext = TanstackQuery.getContext()
