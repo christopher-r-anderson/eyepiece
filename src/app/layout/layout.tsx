@@ -1,14 +1,28 @@
-import type { ReactNode } from 'react'
 import { Header } from './header'
 import { Footer } from './footer'
-import { SidebarNav } from './site-nav'
+import type { ReactNode } from 'react'
 
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div>
+    <div
+      css={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--background)',
+        color: 'var(--text)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Header />
-      <SidebarNav />
-      <main>{children}</main>
+
+      <main
+        css={{
+          flexGrow: 1,
+        }}
+      >
+        {children}
+      </main>
+
       <Footer />
     </div>
   )

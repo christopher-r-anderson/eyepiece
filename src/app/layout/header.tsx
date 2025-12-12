@@ -1,11 +1,17 @@
-import { Link } from '@tanstack/react-router'
+import { useRouterState } from '@tanstack/react-router'
+import { SiteNav } from './site-nav'
+import type { ComponentPropsWithoutRef } from 'react'
+import { SearchBar } from '@/features/search/components/search-bar'
 
-export function Header() {
+export function Header(props: ComponentPropsWithoutRef<'header'>) {
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  })
   return (
-    <header>
-      <p>
-        <Link to="/">eyepiece: NASA Media Explorer</Link>
-      </p>
+    <header {...props}>
+      <SiteNav>
+        {pathname !== '/' && <SearchBar css={{ marginRight: 'auto' }} />}
+      </SiteNav>
     </header>
   )
 }

@@ -1,0 +1,9 @@
+Font: Manjari
+Link: https://github.com/smc/manjari
+License: Copyright 2018 The Manjari Project Authors - SIL Open Font License, Version 1.1 
+
+conversion to svg: https://danmarshall.github.io/google-font-to-svg-path/?font-select=Manjari&font-variant=regular&input-union=true&input-filled=true&input-kerning=true&input-separate=false&input-text=eyepiece&input-bezier-accuracy=0.25&dxf-units=cm&input-size=50&input-fill=%23000&input-stroke=%23000000&input-strokeWidth=0mm&input-fill-rule=evenodd
+
+modified to remove unnecessary attributes, rename group id, and specify currentColor
+group id rename is required to correspond with the url hash referenced in the nav
+currentColor is required for light mode / dark mode color switching

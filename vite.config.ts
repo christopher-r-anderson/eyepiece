@@ -4,6 +4,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import optimizeLocales from '@react-aria/optimize-locales-plugin'
 
 const config = defineConfig({
   plugins: [
@@ -15,6 +16,12 @@ const config = defineConfig({
     }),
     tanstackStart(),
     viteReact(),
+    {
+      ...optimizeLocales.vite({
+        locales: ['en-US'],
+      }),
+      enforce: 'pre',
+    },
   ],
 })
 
