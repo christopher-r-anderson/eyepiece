@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+export const YEAR_MIN = 1920
+export const YEAR_MAX = new Date().getFullYear()
+
 const nasaMediaSchema = z.enum(['image', 'video', 'audio'])
-const yearPattern = /^\d{4}$/
 const commaListTransform = (val: string) => val.split(',').map((s) => s.trim())
 
 export const nasaSearchParamsSchema = z.object({
@@ -22,8 +24,8 @@ export const nasaSearchParamsSchema = z.object({
   photographer: z.string().optional(),
   secondary_creator: z.string().optional(),
   title: z.string().optional(),
-  year_start: z.string().regex(yearPattern).optional(),
-  year_end: z.string().regex(yearPattern).optional(),
+  year_start: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
+  year_end: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
 })
 
 export interface NasaSearchParams extends z.infer<

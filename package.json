@@ -37,7 +37,8 @@
     "react-aria": "^3.44.0",
     "react-aria-components": "^1.13.0",
     "react-dom": "^19.2.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@tanstack/devtools-vite": "^0.3.12",
