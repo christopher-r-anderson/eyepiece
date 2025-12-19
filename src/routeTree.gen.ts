@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
+import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as ApiAssetAssetIdRouteImport } from './routes/api/asset/$assetId'
+import { Route as ApiAlbumsAlbumIdRouteImport } from './routes/api/albums/$albumId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +25,74 @@ const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
   path: '/collections/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSearchRoute = ApiSearchRouteImport.update({
+  id: '/api/search',
+  path: '/api/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAssetAssetIdRoute = ApiAssetAssetIdRouteImport.update({
+  id: '/api/asset/$assetId',
+  path: '/api/asset/$assetId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAlbumsAlbumIdRoute = ApiAlbumsAlbumIdRouteImport.update({
+  id: '/api/albums/$albumId',
+  path: '/api/albums/$albumId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/search': typeof ApiSearchRoute
   '/collections': typeof CollectionsIndexRoute
+  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/search': typeof ApiSearchRoute
   '/collections': typeof CollectionsIndexRoute
+  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/search': typeof ApiSearchRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/collections'
+  fullPaths:
+    | '/'
+    | '/api/search'
+    | '/collections'
+    | '/api/albums/$albumId'
+    | '/api/asset/$assetId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/collections'
-  id: '__root__' | '/' | '/collections/'
+  to:
+    | '/'
+    | '/api/search'
+    | '/collections'
+    | '/api/albums/$albumId'
+    | '/api/asset/$assetId'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/search'
+    | '/collections/'
+    | '/api/albums/$albumId'
+    | '/api/asset/$assetId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiSearchRoute: typeof ApiSearchRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
+  ApiAlbumsAlbumIdRoute: typeof ApiAlbumsAlbumIdRoute
+  ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +111,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/search': {
+      id: '/api/search'
+      path: '/api/search'
+      fullPath: '/api/search'
+      preLoaderRoute: typeof ApiSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/asset/$assetId': {
+      id: '/api/asset/$assetId'
+      path: '/api/asset/$assetId'
+      fullPath: '/api/asset/$assetId'
+      preLoaderRoute: typeof ApiAssetAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/albums/$albumId': {
+      id: '/api/albums/$albumId'
+      path: '/api/albums/$albumId'
+      fullPath: '/api/albums/$albumId'
+      preLoaderRoute: typeof ApiAlbumsAlbumIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiSearchRoute: ApiSearchRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
+  ApiAlbumsAlbumIdRoute: ApiAlbumsAlbumIdRoute,
+  ApiAssetAssetIdRoute: ApiAssetAssetIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
