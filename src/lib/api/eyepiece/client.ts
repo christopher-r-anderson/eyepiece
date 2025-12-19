@@ -6,11 +6,13 @@ import {
   eyepieceAssetItemSchema,
 } from './types'
 
-const HOST = 'http://localhost:3000'
+const API_HOST = import.meta.env.SSR
+  ? import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  : ''
 
 export async function getAlbum(id: string, params?: EyepieceAlbumParams) {
   const res = await fetch(
-    `${HOST}/api/albums/${id}?` +
+    `${API_HOST}/api/albums/${id}?` +
       new URLSearchParams(Object.entries(params || {})),
   )
   if (!res.ok) {
@@ -34,7 +36,7 @@ export function getAlbumOptions(id: string, params: EyepieceAlbumParams = {}) {
 }
 
 export async function getAsset(id: string) {
-  const res = await fetch(`${HOST}/api/asset/${id}`)
+  const res = await fetch(`${API_HOST}/api/asset/${id}`)
   if (!res.ok) {
     throw new Error(`Error fetching asset: ${res.statusText}`)
   }
@@ -55,7 +57,7 @@ export function getAssetOptions(id: string) {
 
 export async function searchImages(params: EyepieceSearchParams) {
   const res = await fetch(
-    `${HOST}/api/search?` + new URLSearchParams(Object.entries(params)),
+    `${API_HOST}/api/search?` + new URLSearchParams(Object.entries(params)),
   )
   if (!res.ok) {
     throw new Error(`Error searching assets: ${res.statusText}`)

@@ -1,5 +1,5 @@
 [build]
-  command = "vite build"
+  command = "VITE_API_URL=$DEPLOY_PRIME_URL vite build"
   dir = "dist/client"
 [dev]
   command = "vite dev"
