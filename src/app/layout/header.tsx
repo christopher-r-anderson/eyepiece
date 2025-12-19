@@ -10,7 +10,9 @@ export function Header(props: ComponentPropsWithoutRef<'header'>) {
   return (
     <header {...props}>
       <SiteNav>
-        {pathname !== '/' && <SearchBar css={{ marginRight: 'auto' }} />}
+        {pathname !== '/' && (
+          <SearchBar css={{ marginRight: 'auto' }} allowDateRange={false} />
+        )}
       </SiteNav>
     </header>
   )
