@@ -28,9 +28,7 @@ export const nasaSearchParamsSchema = z.object({
   year_end: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
 })
 
-export interface NasaSearchParams extends z.infer<
-  typeof nasaSearchParamsSchema
-> {}
+export type NasaSearchParams = z.infer<typeof nasaSearchParamsSchema>
 
 export const nasaMediaLinkSchema = z.object({
   href: z.url(),
@@ -40,7 +38,7 @@ export const nasaMediaLinkSchema = z.object({
   height: z.number().optional(),
 })
 
-export interface NasaMediaLink extends z.infer<typeof nasaMediaLinkSchema> {}
+export type NasaMediaLink = z.infer<typeof nasaMediaLinkSchema>
 
 const collectionLinkSchema = z.object({
   rel: z.string(),
@@ -48,9 +46,7 @@ const collectionLinkSchema = z.object({
   prompt: z.string(),
 })
 
-export interface NasaCollectionLink extends z.infer<
-  typeof collectionLinkSchema
-> {}
+export type NasaCollectionLink = z.infer<typeof collectionLinkSchema>
 
 const createCollectionSchema = <T extends z.ZodTypeAny>(itemDataSchema: T) =>
   z.object({
@@ -97,6 +93,4 @@ export const nasaAlbumParamsSchema = z.object({
   page: z.number().min(1).optional(),
 })
 
-export interface NasaAlbumParams extends z.infer<
-  typeof nasaAlbumParamsSchema
-> {}
+export type NasaAlbumParams = z.infer<typeof nasaAlbumParamsSchema>

@@ -6,18 +6,6 @@ export const NOT_FOUND_IMAGE = {
   height: 480,
 }
 
-export function urlSearchParamsFromEntries(
-  entries: [string, string | number | undefined | null][],
-) {
-  const urlSearchParams = new URLSearchParams()
-  for (const [key, value] of entries) {
-    if (value !== undefined && value !== null) {
-      urlSearchParams.append(key, String(value))
-    }
-  }
-  return urlSearchParams
-}
-
 function getThumbnail(links: NasaMediaLink[]): NasaMediaLink | undefined {
   return links.find((link) => link.render === 'image' && link.rel === 'preview')
 }

@@ -22,9 +22,7 @@ export const eyepieceSearchParamsSchema = z.object({
   ...eyepiecePaginationParamsSchema.shape,
 })
 
-export interface EyepieceSearchParams extends z.infer<
-  typeof eyepieceSearchParamsSchema
-> {}
+export type EyepieceSearchParams = z.infer<typeof eyepieceSearchParamsSchema>
 
 const eyepieceImageSchema = z.object({
   href: z.string(),
@@ -44,9 +42,7 @@ export const eyepieceAssetItemSchema = z.object({
   mediaType: eyepieceMediaSchema,
 })
 
-export interface EyepieceImageItem extends z.infer<
-  typeof eyepieceAssetItemSchema
-> {}
+export type EyepieceImageItem = z.infer<typeof eyepieceAssetItemSchema>
 
 export const eyepieceAssetCollectionResponseSchema = z.object({
   assets: z.array(eyepieceAssetItemSchema),
@@ -56,14 +52,12 @@ export const eyepieceAssetCollectionResponseSchema = z.object({
   }),
 })
 
-export interface EyepieceAssetCollectionResponse extends z.infer<
+export type EyepieceAssetCollectionResponse = z.infer<
   typeof eyepieceAssetCollectionResponseSchema
-> {}
+>
 
 export const eyepieceAlbumParamsSchema = z.object({
   ...eyepiecePaginationParamsSchema.shape,
 })
 
-export interface EyepieceAlbumParams extends z.infer<
-  typeof eyepieceAlbumParamsSchema
-> {}
+export type EyepieceAlbumParams = z.infer<typeof eyepieceAlbumParamsSchema>
