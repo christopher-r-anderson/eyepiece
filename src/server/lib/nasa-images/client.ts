@@ -10,9 +10,8 @@ const HOST = 'https://images-api.nasa.gov'
 export const NASA_ALBUM_PAGE_SIZE = 100
 
 export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
-  const response = await fetch(
-    `${HOST}/album/${id}${defaultStringifySearch(params)}`,
-  )
+  const url = `${HOST}/album/${id}${defaultStringifySearch(params)}`
+  const response = await fetch(url)
   if (!response.ok) {
     let reason = response.statusText
     try {
@@ -21,7 +20,7 @@ export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
         reason = errorData.reason
       }
     } catch (_) {}
-    throw new Error(`Error fetching NASA media: ${reason}`)
+    throw new Error(`Error fetching NASA media: ${reason} ${url}`)
   }
   const data = await response.json()
 
@@ -29,9 +28,8 @@ export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
 }
 
 export async function search(params: NasaSearchParams) {
-  const response = await fetch(
-    `${HOST}/search${defaultStringifySearch(params)}`,
-  )
+  const url = `${HOST}/search${defaultStringifySearch(params)}`
+  const response = await fetch(url)
   if (!response.ok) {
     let reason = response.statusText
     try {
@@ -40,7 +38,7 @@ export async function search(params: NasaSearchParams) {
         reason = errorData.reason
       }
     } catch (_) {}
-    throw new Error(`Error fetching NASA media: ${reason}`)
+    throw new Error(`Error fetching NASA media: ${reason} ${url}`)
   }
   const data = await response.json()
   return nasaMediaCollectionResponseSchema.parse(data)

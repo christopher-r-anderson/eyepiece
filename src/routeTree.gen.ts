@@ -9,17 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as pagessearchIndexRouteImport } from './routes/(pages)/(search)/index'
 import { Route as ApiAssetAssetIdRouteImport } from './routes/api/asset/$assetId'
 import { Route as ApiAlbumsAlbumIdRouteImport } from './routes/api/albums/$albumId'
+import { Route as pagesAssetsAssetIdRouteImport } from './routes/(pages)/assets/$assetId'
+import { Route as pagesAlbumsAlbumIdRouteImport } from './routes/(pages)/albums/$albumId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
   id: '/collections/',
   path: '/collections/',
@@ -28,6 +25,11 @@ const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const pagessearchIndexRoute = pagessearchIndexRouteImport.update({
+  id: '/(pages)/(search)/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAssetAssetIdRoute = ApiAssetAssetIdRouteImport.update({
@@ -40,70 +42,87 @@ const ApiAlbumsAlbumIdRoute = ApiAlbumsAlbumIdRouteImport.update({
   path: '/api/albums/$albumId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const pagesAssetsAssetIdRoute = pagesAssetsAssetIdRouteImport.update({
+  id: '/(pages)/assets/$assetId',
+  path: '/assets/$assetId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const pagesAlbumsAlbumIdRoute = pagesAlbumsAlbumIdRouteImport.update({
+  id: '/(pages)/albums/$albumId',
+  path: '/albums/$albumId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/api/search': typeof ApiSearchRoute
   '/collections': typeof CollectionsIndexRoute
+  '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
+  '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/': typeof pagessearchIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/api/search': typeof ApiSearchRoute
   '/collections': typeof CollectionsIndexRoute
+  '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
+  '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/': typeof pagessearchIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/api/search': typeof ApiSearchRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/(pages)/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
+  '/(pages)/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/(pages)/(search)/': typeof pagessearchIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/api/search'
     | '/collections'
+    | '/albums/$albumId'
+    | '/assets/$assetId'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/api/search'
     | '/collections'
+    | '/albums/$albumId'
+    | '/assets/$assetId'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
+    | '/'
   id:
     | '__root__'
-    | '/'
     | '/api/search'
     | '/collections/'
+    | '/(pages)/albums/$albumId'
+    | '/(pages)/assets/$assetId'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
+    | '/(pages)/(search)/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   ApiSearchRoute: typeof ApiSearchRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
+  pagesAlbumsAlbumIdRoute: typeof pagesAlbumsAlbumIdRoute
+  pagesAssetsAssetIdRoute: typeof pagesAssetsAssetIdRoute
   ApiAlbumsAlbumIdRoute: typeof ApiAlbumsAlbumIdRoute
   ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRoute
+  pagessearchIndexRoute: typeof pagessearchIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/collections/': {
       id: '/collections/'
       path: '/collections'
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/api/search'
       fullPath: '/api/search'
       preLoaderRoute: typeof ApiSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(pages)/(search)/': {
+      id: '/(pages)/(search)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof pagessearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/asset/$assetId': {
@@ -132,15 +158,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAlbumsAlbumIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(pages)/assets/$assetId': {
+      id: '/(pages)/assets/$assetId'
+      path: '/assets/$assetId'
+      fullPath: '/assets/$assetId'
+      preLoaderRoute: typeof pagesAssetsAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(pages)/albums/$albumId': {
+      id: '/(pages)/albums/$albumId'
+      path: '/albums/$albumId'
+      fullPath: '/albums/$albumId'
+      preLoaderRoute: typeof pagesAlbumsAlbumIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   ApiSearchRoute: ApiSearchRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
+  pagesAlbumsAlbumIdRoute: pagesAlbumsAlbumIdRoute,
+  pagesAssetsAssetIdRoute: pagesAssetsAssetIdRoute,
   ApiAlbumsAlbumIdRoute: ApiAlbumsAlbumIdRoute,
   ApiAssetAssetIdRoute: ApiAssetAssetIdRoute,
+  pagessearchIndexRoute: pagessearchIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

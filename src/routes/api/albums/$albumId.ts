@@ -2,21 +2,26 @@ import { getAlbum } from '@/server/lib/nasa-images/client'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
-import { eyepieceAlbumParamsSchema } from '@/lib/api/eyepiece/types'
+import {
+  eyepieceApiAlbumParamsSchema,
+  EyepieceAssetCollectionResponse,
+  eyepiecePaginationSchema,
+} from '@/lib/api/eyepiece/types'
 import { mapMediaItem } from '@/server/lib/util'
 import { calculateNasaAlbumRequests } from '@/server/lib/nasa-images/pagination'
+import { calculateNextPage } from '../-util'
 
-export const DEFAULT_PAGE_SIZE = 20
+export const DEFAULT_PAGE_SIZE = 24
 
 export const Route = createFileRoute('/api/albums/$albumId')({
   server: {
-    middleware: [buildUrlSearchParamsMiddleware(eyepieceAlbumParamsSchema)],
+    middleware: [buildUrlSearchParamsMiddleware(eyepieceApiAlbumParamsSchema)],
     handlers: {
       GET: async ({ params, context }) => {
-        const pagination = {
-          page: context.searchParams.page || 1,
-          pageSize: context.searchParams.pageSize || DEFAULT_PAGE_SIZE,
-        }
+        const pagination = eyepiecePaginationSchema.parse({
+          page: context.searchParams.page,
+          pageSize: context.searchParams.pageSize,
+        })
         // NASA Albums do not support page size, instead always returning 100 items per page
         // Therefore, we need to calculate which NASA album pages to fetch
         // and slice the results accordingly
@@ -38,14 +43,12 @@ export const Route = createFileRoute('/api/albums/$albumId')({
               .map(mapMediaItem),
           )
         }
-        const next =
-          total > (pagination.page - 1) * pagination.pageSize + assets.length
-            ? pagination.page + 1
-            : undefined
-        return json({
+        const next = calculateNextPage(pagination, assets.length, total)
+        const response: EyepieceAssetCollectionResponse = {
           assets,
           pagination: { next, total },
-        })
+        }
+        return json(response)
       },
     },
   },

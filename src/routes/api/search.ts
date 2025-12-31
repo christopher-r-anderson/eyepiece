@@ -3,43 +3,45 @@ import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import {
-  type EyepieceSearchParams,
-  eyepieceSearchParamsSchema,
+  eyepiecePaginationSchema,
+  type EyepieceApiSearchParams,
+  eyepieceApiSearchParamsSchema,
+  EyepieceAssetCollectionResponse,
 } from '@/lib/api/eyepiece/types'
 import type { NasaSearchParams } from '@/server/lib/nasa-images/types'
 import { mapMediaItem } from '@/server/lib/util'
-
-export const DEFAULT_PAGE_SIZE = 20
+import { calculateNextPage } from './-util'
 
 export const Route = createFileRoute('/api/search')({
   server: {
-    middleware: [buildUrlSearchParamsMiddleware(eyepieceSearchParamsSchema)],
+    middleware: [buildUrlSearchParamsMiddleware(eyepieceApiSearchParamsSchema)],
     handlers: {
       GET: async ({ context }) => {
+        const pagination = eyepiecePaginationSchema.parse({
+          page: context.searchParams.page,
+          pageSize: context.searchParams.pageSize,
+        })
         const searchParams = {
           ...context.searchParams,
-          page: context.searchParams.page || 1,
-          pageSize: context.searchParams.pageSize || DEFAULT_PAGE_SIZE,
+          ...pagination,
         }
         const nasaSearchParams = eyepieceToNasaSearchParams(searchParams)
         const nasaResponse = await search(nasaSearchParams)
         const assets = nasaResponse.collection.items.map(mapMediaItem)
         const total = nasaResponse.collection.metadata.total_hits
-        const next =
-          total > searchParams.pageSize * searchParams.page + assets.length
-            ? searchParams.page + 1
-            : undefined
-        return json({
+        const next = calculateNextPage(pagination, assets.length, total)
+        const response: EyepieceAssetCollectionResponse = {
           assets,
           pagination: { next, total },
-        })
+        }
+        return json(response)
       },
     },
   },
 })
 
 function eyepieceToNasaSearchParams(
-  params: EyepieceSearchParams,
+  params: EyepieceApiSearchParams,
 ): NasaSearchParams {
   const { q, mediaType, page, pageSize, yearStart, yearEnd } = params
   return {
