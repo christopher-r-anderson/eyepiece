@@ -1,0 +1,73 @@
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
+import { useMemo } from 'react'
+import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
+import {
+  HybridGrid,
+  ItemGridSkeleton,
+} from '@/features/listing/item-grid/hybrid-grid'
+import {
+  Thumbnail,
+  ThumbnailSkeleton,
+} from '@/features/assets/components/thumbnail'
+import { useAlbumAssets } from '@/lib/api/eyepiece/album-queries'
+import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+
+export interface AlbumAssetsProps {
+  albumId: string
+}
+
+export function AlbumAssets({ albumId }: AlbumAssetsProps) {
+  const {
+    data,
+    isPending,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAlbumAssets(albumId)
+
+  const uiResetKey = useMemo(() => paramsToUiResetKey({ albumId }), [albumId])
+
+  if (isPending) {
+    return <ItemGridSkeleton>{() => <ThumbnailSkeleton />}</ItemGridSkeleton>
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <p>Error loading album assets</p>
+        <pre>{JSON.stringify(error, null, 2)}</pre>
+      </div>
+    )
+  }
+
+  return (
+    <InfiniteLoader
+      isFetchingNextPage={isFetchingNextPage}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
+      loadedCount={data.assets.length}
+      uiResetKey={uiResetKey}
+      css={{ width: '100%' }}
+    >
+      <HybridGrid
+        css={{ width: '100%' }}
+        items={data.assets}
+        navigateToDetail={(id) => {
+          console.log('navigating to', id)
+        }}
+      >
+        {(item, itemProps) => (
+          <HybridGridItem
+            item={item}
+            // onRowAction={() => navigateToDetail(item.id)}
+            {...itemProps}
+          >
+            <Thumbnail asset={item} />
+          </HybridGridItem>
+        )}
+      </HybridGrid>
+    </InfiniteLoader>
+  )
+}

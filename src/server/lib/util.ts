@@ -1,7 +1,8 @@
 import { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
 
 export const NOT_FOUND_IMAGE = {
-  href: '',
+  // A 1x1 transparent GIF
+  href: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   width: 640,
   height: 480,
 }

@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+export const DEFAULT_PAGE_SIZE = 24
+export const DEFAULT_PAGE = 1
 export const YEAR_MIN = 1920
 export const YEAR_MAX = new Date().getFullYear()
 
@@ -7,22 +9,43 @@ const eyepieceMediaSchema = z.enum(['image', 'video', 'audio'])
 
 export type EyepieceMedia = z.infer<typeof eyepieceMediaSchema>
 
-const eyepiecePaginationParamsSchema = z.object({
+export const eyepiecePaginationSchema = z.object({
+  page: z.coerce.number().min(1).default(DEFAULT_PAGE),
+  pageSize: z.coerce.number().min(1).max(100).default(DEFAULT_PAGE_SIZE),
+})
+
+export type EyepiecePagination = z.infer<typeof eyepiecePaginationSchema>
+
+export const eyepiecePaginationParamsSchema = z.object({
   page: z.coerce.number().min(1).optional(),
   pageSize: z.coerce.number().min(1).max(100).optional(),
 })
 
-export type EyepiecePaginationParams = z.infer<typeof eyepiecePaginationParamsSchema>
+export type EyepiecePaginationParams = z.infer<
+  typeof eyepiecePaginationParamsSchema
+>
 
-export const eyepieceSearchParamsSchema = z.object({
+const eyepieceCoreSearchParamsSchema = z.object({
   q: z.string().optional(),
   mediaType: eyepieceMediaSchema.optional(),
   yearStart: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
   yearEnd: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
-  ...eyepiecePaginationParamsSchema.shape,
 })
 
-export type EyepieceSearchParams = z.infer<typeof eyepieceSearchParamsSchema>
+export const eyepiecePageSearchParamsSchema = eyepieceCoreSearchParamsSchema
+
+export type EyepiecePageSearchParams = z.infer<
+  typeof eyepiecePageSearchParamsSchema
+>
+
+export const eyepieceApiSearchParamsSchema =
+  eyepieceCoreSearchParamsSchema.extend({
+    ...eyepiecePaginationParamsSchema.shape,
+  })
+
+export type EyepieceApiSearchParams = z.infer<
+  typeof eyepieceApiSearchParamsSchema
+>
 
 const eyepieceImageSchema = z.object({
   href: z.string(),
@@ -42,7 +65,11 @@ export const eyepieceAssetItemSchema = z.object({
   mediaType: eyepieceMediaSchema,
 })
 
-export type EyepieceImageItem = z.infer<typeof eyepieceAssetItemSchema>
+export type EyepieceAssetItem = z.infer<typeof eyepieceAssetItemSchema>
+
+export const eyepieceAssetResponseSchema = eyepieceAssetItemSchema
+
+export type EyepieceAssetResponse = z.infer<typeof eyepieceAssetResponseSchema>
 
 export const eyepieceAssetCollectionResponseSchema = z.object({
   assets: z.array(eyepieceAssetItemSchema),
@@ -56,8 +83,13 @@ export type EyepieceAssetCollectionResponse = z.infer<
   typeof eyepieceAssetCollectionResponseSchema
 >
 
-export const eyepieceAlbumParamsSchema = z.object({
-  ...eyepiecePaginationParamsSchema.shape,
-})
+const eyepieceCoreAlbumParamsSchema = z.object({})
 
-export type EyepieceAlbumParams = z.infer<typeof eyepieceAlbumParamsSchema>
+export const eyepieceApiAlbumParamsSchema =
+  eyepieceCoreAlbumParamsSchema.extend({
+    ...eyepiecePaginationParamsSchema.shape,
+  })
+
+export type EyepieceApiAlbumParams = z.infer<
+  typeof eyepieceApiAlbumParamsSchema
+>

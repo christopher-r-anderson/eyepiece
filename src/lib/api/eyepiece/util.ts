@@ -1,5 +1,5 @@
-import { EyepieceSearchParams } from './types'
+import { EyepiecePageSearchParams } from './types'
 
-export function hasSearchFields(params: EyepieceSearchParams): boolean {
+export function hasSearchFields(params: EyepiecePageSearchParams): boolean {
   return Boolean(params.q)
 }

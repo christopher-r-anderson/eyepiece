@@ -80,6 +80,9 @@ export function MediaTypeField({
                 borderRadius: '0.25em',
                 background: 'var(--secondary-bg)',
                 color: 'var(--secondary-text)',
+                // NOTE: this is critical because the default text wraps which breaks the accuracy of scroll restoration
+                // users never see the default text because no selection matches our 'all', but it still invisibly flashes
+                whiteSpace: 'nowrap',
               })}
             >
               <SelectValue
