@@ -5,6 +5,12 @@ import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
 
+declare module '@tanstack/react-router' {
+  interface HistoryState {
+    returnUrl?: string
+  }
+}
+
 export const getRouter = () => {
   const rqContext = TanstackQuery.getContext()
 
@@ -21,6 +27,7 @@ export const getRouter = () => {
         </TanstackQuery.Provider>
       )
     },
+    defaultViewTransition: true,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })

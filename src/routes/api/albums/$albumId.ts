@@ -1,4 +1,5 @@
 import { getAlbum } from '@/server/lib/nasa-images/client'
+import { mapMediaItem } from '@/server/lib/util'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
@@ -7,7 +8,6 @@ import {
   EyepieceAssetCollectionResponse,
   eyepiecePaginationSchema,
 } from '@/lib/api/eyepiece/types'
-import { mapMediaItem } from '@/server/lib/util'
 import { calculateNasaAlbumRequests } from '@/server/lib/nasa-images/pagination'
 import { calculateNextPage } from '../-util'
 

@@ -16,6 +16,7 @@ import { Route as ApiAssetAssetIdRouteImport } from './routes/api/asset/$assetId
 import { Route as ApiAlbumsAlbumIdRouteImport } from './routes/api/albums/$albumId'
 import { Route as pagesAssetsAssetIdRouteImport } from './routes/(pages)/assets/$assetId'
 import { Route as pagesAlbumsAlbumIdRouteImport } from './routes/(pages)/albums/$albumId'
+import { Route as ApiAssetAssetIdMetadataRouteImport } from './routes/api/asset/$assetId.metadata'
 
 const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
   id: '/collections/',
@@ -52,6 +53,11 @@ const pagesAlbumsAlbumIdRoute = pagesAlbumsAlbumIdRouteImport.update({
   path: '/albums/$albumId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssetAssetIdMetadataRoute = ApiAssetAssetIdMetadataRouteImport.update({
+  id: '/metadata',
+  path: '/metadata',
+  getParentRoute: () => ApiAssetAssetIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/api/search': typeof ApiSearchRoute
@@ -59,8 +65,9 @@ export interface FileRoutesByFullPath {
   '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/': typeof pagessearchIndexRoute
+  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
 }
 export interface FileRoutesByTo {
   '/api/search': typeof ApiSearchRoute
@@ -68,8 +75,9 @@ export interface FileRoutesByTo {
   '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/': typeof pagessearchIndexRoute
+  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +86,9 @@ export interface FileRoutesById {
   '/(pages)/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/(pages)/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRoute
+  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/(pages)/(search)/': typeof pagessearchIndexRoute
+  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/'
+    | '/api/asset/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/search'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/'
+    | '/api/asset/$assetId/metadata'
   id:
     | '__root__'
     | '/api/search'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/(pages)/(search)/'
+    | '/api/asset/$assetId/metadata'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,7 +129,7 @@ export interface RootRouteChildren {
   pagesAlbumsAlbumIdRoute: typeof pagesAlbumsAlbumIdRoute
   pagesAssetsAssetIdRoute: typeof pagesAssetsAssetIdRoute
   ApiAlbumsAlbumIdRoute: typeof ApiAlbumsAlbumIdRoute
-  ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRoute
+  ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRouteWithChildren
   pagessearchIndexRoute: typeof pagessearchIndexRoute
 }
 
@@ -172,8 +184,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof pagesAlbumsAlbumIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/asset/$assetId/metadata': {
+      id: '/api/asset/$assetId/metadata'
+      path: '/metadata'
+      fullPath: '/api/asset/$assetId/metadata'
+      preLoaderRoute: typeof ApiAssetAssetIdMetadataRouteImport
+      parentRoute: typeof ApiAssetAssetIdRoute
+    }
   }
 }
+
+interface ApiAssetAssetIdRouteChildren {
+  ApiAssetAssetIdMetadataRoute: typeof ApiAssetAssetIdMetadataRoute
+}
+
+const ApiAssetAssetIdRouteChildren: ApiAssetAssetIdRouteChildren = {
+  ApiAssetAssetIdMetadataRoute: ApiAssetAssetIdMetadataRoute,
+}
+
+const ApiAssetAssetIdRouteWithChildren = ApiAssetAssetIdRoute._addFileChildren(
+  ApiAssetAssetIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   ApiSearchRoute: ApiSearchRoute,
@@ -181,7 +212,7 @@ const rootRouteChildren: RootRouteChildren = {
   pagesAlbumsAlbumIdRoute: pagesAlbumsAlbumIdRoute,
   pagesAssetsAssetIdRoute: pagesAssetsAssetIdRoute,
   ApiAlbumsAlbumIdRoute: ApiAlbumsAlbumIdRoute,
-  ApiAssetAssetIdRoute: ApiAssetAssetIdRoute,
+  ApiAssetAssetIdRoute: ApiAssetAssetIdRouteWithChildren,
   pagessearchIndexRoute: pagessearchIndexRoute,
 }
 export const routeTree = rootRouteImport

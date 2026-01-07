@@ -2,15 +2,17 @@ import {
   type NasaSearchParams,
   nasaMediaCollectionResponseSchema,
   type NasaAlbumParams,
+  nasaMetadataSchema,
 } from './types'
 import { defaultStringifySearch } from '@tanstack/react-router'
 
-const HOST = 'https://images-api.nasa.gov'
+const IMAGE_HOST = 'https://images-api.nasa.gov'
+const ASSET_HOST = 'https://images-assets.nasa.gov'
 // NASA Albums do not support page size, instead always returning 100 items per page
 export const NASA_ALBUM_PAGE_SIZE = 100
 
 export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
-  const url = `${HOST}/album/${id}${defaultStringifySearch(params)}`
+  const url = `${IMAGE_HOST}/album/${id}${defaultStringifySearch(params)}`
   const response = await fetch(url)
   if (!response.ok) {
     let reason = response.statusText
@@ -28,7 +30,7 @@ export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
 }
 
 export async function search(params: NasaSearchParams) {
-  const url = `${HOST}/search${defaultStringifySearch(params)}`
+  const url = `${IMAGE_HOST}/search${defaultStringifySearch(params)}`
   const response = await fetch(url)
   if (!response.ok) {
     let reason = response.statusText
@@ -42,4 +44,21 @@ export async function search(params: NasaSearchParams) {
   }
   const data = await response.json()
   return nasaMediaCollectionResponseSchema.parse(data)
+}
+
+export async function metadata(id: string) {
+  const url = `${ASSET_HOST}/image/${id}/metadata.json`
+  const response = await fetch(url)
+  if (!response.ok) {
+    let reason = response.statusText
+    try {
+      const errorData = await response.json()
+      if (errorData.reason) {
+        reason = errorData.reason
+      }
+    } catch (_) {}
+    throw new Error(`Error fetching NASA asset metadata: ${reason} ${url}`)
+  }
+  const data = await response.json()
+  return nasaMetadataSchema.parse(data)
 }

@@ -15,7 +15,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     >
       <Header />
 
-      <main style={{ flex: 1 }}>{children}</main>
+      {children}
 
       <Footer />
     </div>

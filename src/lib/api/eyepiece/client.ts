@@ -6,6 +6,7 @@ import {
   type EyepieceApiAlbumParams,
   eyepieceAssetItemSchema,
   EyepieceAssetItem,
+  eyepieceMetadataSchema,
 } from './types'
 
 const API_HOST = import.meta.env.SSR
@@ -42,6 +43,15 @@ export async function getAsset(id: string) {
   }
   const data = await res.json()
   return eyepieceAssetItemSchema.parse(data)
+}
+
+export async function getMetadata(id: string) {
+  const res = await fetch(`${API_HOST}/api/asset/${id}/metadata`)
+  if (!res.ok) {
+    throw new Error(`Error fetching asset metadata: ${res.statusText}`)
+  }
+  const data = await res.json()
+  return eyepieceMetadataSchema.parse(data)
 }
 
 export async function searchImages(params: EyepieceApiSearchParams) {
