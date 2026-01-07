@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import { Form } from 'react-aria-components'
-import type { FormProps, Key } from 'react-aria-components'
 import { useNavigate } from '@tanstack/react-router'
 import { DateButton } from './date-button'
-import { ALL_MEDIA, MEDIA_TYPES, MediaTypeField } from './media-type-field'
+import {
+  ALL_MEDIA,
+  MEDIA_TYPES,
+  MediaTypeField,
+  getMediaTypeOption,
+} from './media-type-field'
 import { SubmitButton } from './submit-button'
 import { YearRangeSlider } from './year-range-slider'
 import { SearchField } from './search-field'
-import { EyepieceMedia, YEAR_MAX, YEAR_MIN } from '@/lib/api/eyepiece/types'
+import type { FormProps } from 'react-aria-components'
+import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
+import { YEAR_MAX, YEAR_MIN } from '@/lib/api/eyepiece/types'
 
 interface SearchBarProps extends FormProps {
   allowDateRange?: boolean
@@ -24,7 +30,9 @@ export function SearchBar({
   defaultYears,
   ...props
 }: SearchBarProps) {
-  const [mediaType, setMediaType] = useState<Key>(defaultMediaType || ALL_MEDIA)
+  const [mediaType, setMediaType] = useState<EyepieceMedia | typeof ALL_MEDIA>(
+    defaultMediaType || ALL_MEDIA,
+  )
   const [searchText, setSearchText] = useState<string>(defaultSearchText || '')
   const [years, setYears] = useState<[number, number]>(
     defaultYears || [YEAR_MIN, YEAR_MAX],
@@ -54,6 +62,7 @@ export function SearchBar({
       }}
       {...props}
     >
+      ;
       <div
         css={{
           background: 'var(--primary-bg)',
@@ -81,8 +90,9 @@ export function SearchBar({
         <MediaTypeField
           defaultValue={mediaType}
           onChange={(value) => {
-            if (value !== null) {
-              setMediaType(value)
+            const option = getMediaTypeOption(value)
+            if (option !== undefined) {
+              setMediaType(option.id)
             }
           }}
           items={MEDIA_TYPES}
@@ -103,7 +113,7 @@ export function SearchBar({
           maxValue={YEAR_MAX}
           onChange={(newYears) => {
             if (Array.isArray(newYears) && newYears.length === 2) {
-              let [start, end] = newYears
+              const [start, end] = newYears
               setYears([start, end])
             }
           }}

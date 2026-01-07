@@ -1,9 +1,11 @@
-import { HybridGridItemProvidedProps } from './hybrid-grid-item'
+import { Fragment } from 'react'
 import { StaticGrid } from './static-grid'
 import { VirtualGrid } from './virtual-grid'
-import { GridItem, useGridListState } from './hooks/use-grid-list-state'
-import { ComponentPropsWithoutRef, Fragment, ReactNode } from 'react'
+import { useGridListState } from './hooks/use-grid-list-state'
 import { useVirtualizeMeasurements } from './hooks/use-virtualize-measurements'
+import type { GridItem } from './hooks/use-grid-list-state'
+import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
+import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
 export function HybridGrid<T extends GridItem>({
   children,
@@ -14,7 +16,7 @@ export function HybridGrid<T extends GridItem>({
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   children: (item: T, itemProps: HybridGridItemProvidedProps<T>) => ReactNode
-  items: T[]
+  items: Array<T>
   navigateToDetail: (id: string) => void
   gap?: number
   minTileWidth?: number

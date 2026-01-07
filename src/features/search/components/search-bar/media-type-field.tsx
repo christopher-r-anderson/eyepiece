@@ -1,32 +1,45 @@
 import { ClassNames } from '@emotion/react'
 import {
-  ImagesIcon,
+  CaretDownIcon,
   ImageIcon,
+  ImagesIcon,
   VideoIcon,
   WaveformIcon,
-  CaretDownIcon,
 } from '@phosphor-icons/react/dist/ssr'
 import {
-  SelectProps,
-  Select,
+  Button,
   Label,
-  SelectValue,
-  Popover,
   ListBox,
   ListBoxItem,
+  Popover,
+  Select,
+  SelectValue,
   // purposely using ReactAria's Button to avoid hydration errors
-  Button,
   Text,
 } from 'react-aria-components'
+import type { Key, SelectProps } from 'react-aria-components'
+import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
 
 export const ALL_MEDIA = 'all'
 
-export const MEDIA_TYPES = [
+interface MediaTypeOption {
+  id: EyepieceMedia | typeof ALL_MEDIA
+  label: string
+  icon: React.ComponentType
+}
+
+export const MEDIA_TYPES: Array<MediaTypeOption> = [
   { id: ALL_MEDIA, label: 'All', icon: ImagesIcon },
   { id: 'image', label: 'Image', icon: ImageIcon },
   { id: 'video', label: 'Video', icon: VideoIcon },
   { id: 'audio', label: 'Audio', icon: WaveformIcon },
 ]
+
+export function getMediaTypeOption(
+  key: Key | null | undefined,
+): MediaTypeOption | undefined {
+  return MEDIA_TYPES.find((option) => option.id === key)
+}
 
 interface MediaTypeFieldProps extends SelectProps {
   // FIXME: should we be overriding this?

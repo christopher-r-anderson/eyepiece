@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { SearchResults } from './-components/search-results'
 import {
-  eyepiecePageSearchParamsSchema,
   YEAR_MAX,
   YEAR_MIN,
+  eyepiecePageSearchParamsSchema,
 } from '@/lib/api/eyepiece/types'
 import { hasSearchFields } from '@/lib/api/eyepiece/util'
 import { SearchBar } from '@/features/search/components/search-bar'
-import { SearchResults } from './-components/search-results'
 import { searchImagesOptions } from '@/features/search/api/search-queries'
 import { getTitleText } from '@/lib/util'
 
@@ -62,10 +62,10 @@ export function SearchView() {
       <SearchBar
         fontSize="1.5rem"
         css={{ maxWidth: '640px', margin: '3rem auto' }}
-        defaultMediaType={searchParams?.mediaType}
-        defaultSearchText={searchParams?.q}
+        defaultMediaType={searchParams.mediaType}
+        defaultSearchText={searchParams.q}
         defaultYears={
-          searchParams?.yearStart || searchParams?.yearEnd
+          searchParams.yearStart || searchParams.yearEnd
             ? [
                 searchParams.yearStart || YEAR_MIN,
                 searchParams.yearEnd || YEAR_MAX,

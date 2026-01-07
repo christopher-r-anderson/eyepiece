@@ -1,7 +1,7 @@
-import { metadata } from '@/server/lib/nasa-images/client'
-import { NasaMetadata } from '@/server/lib/nasa-images/types'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
+import type { NasaMetadata } from '@/server/lib/nasa-images/types'
+import { metadata } from '@/server/lib/nasa-images/client'
 
 export const DEFAULT_PAGE_SIZE = 24
 

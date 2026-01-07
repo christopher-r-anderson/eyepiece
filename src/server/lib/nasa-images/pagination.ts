@@ -15,7 +15,7 @@ export function calculateNasaAlbumRequests(
   page: number,
   pageSize: number,
   nasaPageSize: number = NASA_ALBUM_PAGE_SIZE,
-): NasaAlbumRequestPlan[] {
+): Array<NasaAlbumRequestPlan> {
   const startIndex = pageSize * (page - 1)
   const endIndex = startIndex + pageSize
 

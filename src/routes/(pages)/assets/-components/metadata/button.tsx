@@ -2,9 +2,9 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { Button } from 'react-aria-components'
 import { useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
-import { getMetadataOptions } from '@/features/assets/api/asset-queries'
-import { MetadataModal } from './modal'
 import { useCallback } from 'react'
+import { MetadataModal } from './modal'
+import { getMetadataOptions } from '@/features/assets/api/asset-queries'
 
 const METADATA_HASH = 'metadata'
 

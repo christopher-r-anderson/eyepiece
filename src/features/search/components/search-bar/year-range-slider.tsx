@@ -1,12 +1,12 @@
 import { CircleIcon } from '@phosphor-icons/react/dist/ssr'
 import {
-  SliderProps,
-  Slider,
   Label,
-  SliderTrack,
-  SliderThumb,
+  Slider,
   SliderOutput,
+  SliderThumb,
+  SliderTrack,
 } from 'react-aria-components'
+import type { SliderProps } from 'react-aria-components'
 
 const Thumb = ({
   name,

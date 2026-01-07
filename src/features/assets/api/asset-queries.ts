@@ -1,5 +1,5 @@
-import { getAsset, getMetadata } from '@/lib/api/eyepiece/client'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { getAsset, getMetadata } from '@/lib/api/eyepiece/client'
 
 type AssetCacheKey = ['assets', string]
 

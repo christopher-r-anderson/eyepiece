@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
-import { ButtonProps, Button } from 'react-aria-components'
+import { Button } from 'react-aria-components'
+import type { ButtonProps } from 'react-aria-components'
 
 export function SubmitButton(props: ButtonProps) {
   return (

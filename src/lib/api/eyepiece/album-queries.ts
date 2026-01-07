@@ -1,9 +1,6 @@
-import {
-  InfiniteData,
-  infiniteQueryOptions,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
-import { getAlbum, flattenAssetsSelector } from './client'
+import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { flattenAssetsSelector, getAlbum } from './client'
+import type { InfiniteData } from '@tanstack/react-query'
 
 type AlbumCacheKey = ['albums', string]
 

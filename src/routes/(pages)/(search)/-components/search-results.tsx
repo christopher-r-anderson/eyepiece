@@ -1,6 +1,6 @@
-import { useSearchResults } from '@/features/search/api/search-queries'
-import { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
 import { useMemo } from 'react'
+import type { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
+import { useSearchResults } from '@/features/search/api/search-queries'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
 import {

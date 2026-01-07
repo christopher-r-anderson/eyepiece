@@ -1,14 +1,14 @@
-import { useMetadata } from '@/features/assets/api/asset-queries'
-import { MetadataTable } from '@/features/assets/components/metadata'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
-import { ComponentPropsWithoutRef } from 'react'
 import {
-  ModalOverlay,
-  Modal,
+  Button,
   Dialog,
   Heading,
-  Button,
+  Modal,
+  ModalOverlay,
 } from 'react-aria-components'
+import type { ComponentPropsWithoutRef } from 'react'
+import { MetadataTable } from '@/features/assets/components/metadata'
+import { useMetadata } from '@/features/assets/api/asset-queries'
 
 export function MetadataModal({
   id,
