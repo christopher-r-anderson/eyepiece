@@ -1,9 +1,9 @@
-import { getTitleText, NOT_FOUND_IMAGE } from '@/lib/util'
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
-import { getAssetOptions, useAsset } from '@/features/assets/api/asset-queries'
-import { Link } from '@/components/ui/link'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
+import { NOT_FOUND_IMAGE, getTitleText } from '@/lib/util'
+import { getAssetOptions, useAsset } from '@/features/assets/api/asset-queries'
+import { Link } from '@/components/ui/link'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetView,
@@ -18,7 +18,7 @@ export function AssetView() {
   const { assetId } = Route.useParams()
   const { data, isPending, isError, error } = useAsset(assetId)
   const returnUrl = useRouterState({
-    select: (s) => s?.resolvedLocation?.state.returnUrl,
+    select: (s) => s.resolvedLocation?.state.returnUrl,
   })
 
   if (isPending) {

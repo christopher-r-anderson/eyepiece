@@ -1,10 +1,10 @@
-import { EyepieceMetadata } from '@/lib/api/eyepiece/types'
 import { useMemo } from 'react'
 import { VisuallyHidden } from 'react-aria'
+import type { EyepieceMetadata } from '@/lib/api/eyepiece/types'
 
 type Row = { key: string; value: unknown }
 
-function objectToRows(obj: EyepieceMetadata): Row[] {
+function objectToRows(obj: EyepieceMetadata): Array<Row> {
   return Object.entries(obj)
     .map(([key, value]) => ({ key, value }))
     .sort((a, b) => a.key.localeCompare(b.key))

@@ -1,5 +1,5 @@
-import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { useMemo } from 'react'
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
 import {
   HybridGrid,

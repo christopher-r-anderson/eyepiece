@@ -1,10 +1,6 @@
-import {
-  type NasaSearchParams,
-  nasaMediaCollectionResponseSchema,
-  type NasaAlbumParams,
-  nasaMetadataSchema,
-} from './types'
 import { defaultStringifySearch } from '@tanstack/react-router'
+import { nasaMediaCollectionResponseSchema, nasaMetadataSchema } from './types'
+import type { NasaAlbumParams, NasaSearchParams } from './types'
 
 const IMAGE_HOST = 'https://images-api.nasa.gov'
 const ASSET_HOST = 'https://images-assets.nasa.gov'

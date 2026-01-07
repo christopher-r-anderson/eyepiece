@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
+import type { RefObject } from 'react'
 
 // avoid potential `useLayoutEffect`s are noops warnings during SSR - we want a noop
 const useIsomorphicLayoutEffect =

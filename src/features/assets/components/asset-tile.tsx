@@ -1,12 +1,9 @@
-import { EyepieceAssetItem } from '@/lib/api/eyepiece/types'
+import { useState } from 'react'
+import { useLocation } from '@tanstack/react-router'
+import type { ComponentPropsWithRef, ComponentPropsWithoutRef } from 'react'
+import type { EyepieceAssetItem } from '@/lib/api/eyepiece/types'
 import { NOT_FOUND_IMAGE } from '@/lib/util'
 import { Link } from '@/components/ui/link'
-import {
-  ComponentPropsWithoutRef,
-  ComponentPropsWithRef,
-  useState,
-} from 'react'
-import { useLocation } from '@tanstack/react-router'
 
 interface AssetTileProps extends Omit<
   ComponentPropsWithRef<'div'>,

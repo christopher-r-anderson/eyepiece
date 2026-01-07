@@ -1,5 +1,6 @@
-import { RefObject, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useElementLayout } from './use-element-layout'
+import type { RefObject } from 'react'
 
 export function useVirtualizeMeasurements(
   ref: RefObject<HTMLElement | null>,

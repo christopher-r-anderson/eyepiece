@@ -4,8 +4,8 @@ import {
   FieldError,
   Input,
   SearchField as ReactAriaSearchField,
-  SearchFieldProps,
 } from 'react-aria-components'
+import type { SearchFieldProps } from 'react-aria-components'
 
 export function SearchField(props: SearchFieldProps) {
   return (

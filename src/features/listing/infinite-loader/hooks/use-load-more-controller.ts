@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useLoadMoreController(options: {
   hasNextPage: boolean
@@ -36,7 +36,6 @@ export function useLoadMoreController(options: {
     const io = new IntersectionObserver(
       async (entries) => {
         if (!entries[0]?.isIntersecting) return
-        if (!hasNextPage || isFetchingNextPage) return
 
         await fetchNextPage()
         setAutoRemaining((n) => n - 1)

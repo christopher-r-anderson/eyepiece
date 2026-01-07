@@ -5,6 +5,7 @@ import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import optimizeLocales from '@react-aria/optimize-locales-plugin'
+import { configDefaults } from 'vitest/config'
 
 const config = defineConfig({
   plugins: [
@@ -23,6 +24,9 @@ const config = defineConfig({
       enforce: 'pre',
     },
   ],
+  test: {
+    exclude: [...configDefaults.exclude, '**/.pnpm-store/**'],
+  },
 })
 
 export default config

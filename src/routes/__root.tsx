@@ -6,6 +6,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
+import { useEffect } from 'react'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
@@ -13,7 +14,6 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import { App } from '@/app/shell'
 import { ErrorBoundary } from '@/app/layout/error'
-import { useEffect } from 'react'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
 interface MyRouterContext {

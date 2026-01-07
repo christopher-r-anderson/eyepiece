@@ -1,7 +1,8 @@
-import { createElement, RefObject } from 'react'
+import { createElement } from 'react'
 import { useGridList, useObjectRef } from 'react-aria'
 import { useListState } from '@react-stately/list'
 import { Item as StatelyItem } from '@react-stately/collections'
+import type { RefObject } from 'react'
 
 export interface GridItem {
   id: string
@@ -9,7 +10,7 @@ export interface GridItem {
 }
 
 export function useGridListState<T extends GridItem>(
-  items: T[],
+  items: Array<T>,
   ref?: RefObject<HTMLDivElement | null>,
 ) {
   const gridRef = useObjectRef(ref)

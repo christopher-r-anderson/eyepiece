@@ -1,10 +1,7 @@
-import { searchImages, flattenAssetsSelector } from '@/lib/api/eyepiece/client'
-import { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
-import {
-  InfiniteData,
-  infiniteQueryOptions,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import type { InfiniteData } from '@tanstack/react-query'
+import type { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
+import { flattenAssetsSelector, searchImages } from '@/lib/api/eyepiece/client'
 
 type SearchCacheKey = ['search', EyepiecePageSearchParams]
 

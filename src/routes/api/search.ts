@@ -1,16 +1,18 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { json } from '@tanstack/react-start'
+import { calculateNextPage } from './-util'
+import type { NasaSearchParams } from '@/server/lib/nasa-images/types'
+import type {
+  EyepieceApiSearchParams,
+  EyepieceAssetCollectionResponse,
+} from '@/lib/api/eyepiece/types'
+import {
+  eyepieceApiSearchParamsSchema,
+  eyepiecePaginationSchema,
+} from '@/lib/api/eyepiece/types'
 import { search } from '@/server/lib/nasa-images/client'
 import { mapMediaItem } from '@/server/lib/util'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-import {
-  eyepiecePaginationSchema,
-  type EyepieceApiSearchParams,
-  eyepieceApiSearchParamsSchema,
-  EyepieceAssetCollectionResponse,
-} from '@/lib/api/eyepiece/types'
-import type { NasaSearchParams } from '@/server/lib/nasa-images/types'
-import { calculateNextPage } from './-util'
 
 export const Route = createFileRoute('/api/search')({
   server: {

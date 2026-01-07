@@ -1,12 +1,13 @@
 import { useGridListItem } from 'react-aria'
-import { ListState, useListState } from '@react-stately/list'
-import { ReactNode, useRef } from 'react'
-import { type GridItem } from './hooks/use-grid-list-state'
+import { useRef } from 'react'
+import type { ListState, useListState } from '@react-stately/list'
+import type { ReactNode } from 'react'
+import type { GridItem } from './hooks/use-grid-list-state'
 
 function isFromInteractiveTarget(event: Event) {
   const t = event.target as HTMLElement | null
   if (!t) return false
-  return !!t.closest?.(
+  return !!t.closest(
     'a,button,input,textarea,select,summary,[role="button"],[role="link"],[role="checkbox"]',
   )
 }

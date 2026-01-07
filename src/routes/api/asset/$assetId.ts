@@ -1,8 +1,8 @@
-import { search } from '@/server/lib/nasa-images/client'
-import { mapMediaItem } from '@/server/lib/util'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
-import { EyepieceAssetResponse } from '@/lib/api/eyepiece/types'
+import type { EyepieceAssetResponse } from '@/lib/api/eyepiece/types'
+import { search } from '@/server/lib/nasa-images/client'
+import { mapMediaItem } from '@/server/lib/util'
 
 export const DEFAULT_PAGE_SIZE = 24
 

@@ -1,7 +1,8 @@
-import { ReactNode, Fragment, RefObject, ComponentPropsWithoutRef } from 'react'
-import { HybridGridItemProvidedProps } from './hybrid-grid-item'
-import { GridItem } from './hooks/use-grid-list-state'
-import { ListState } from '@react-stately/list'
+import { Fragment } from 'react'
+import type { ListState } from '@react-stately/list'
+import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
+import type { GridItem } from './hooks/use-grid-list-state'
+import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
 const gridCss = {
   display: 'grid',
@@ -17,7 +18,7 @@ export function StaticGrid<T extends GridItem>({
   minTileWidth,
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
-  items: T[]
+  items: Array<T>
   state: ListState<T>
   children: (item: T, itemProps: HybridGridItemProvidedProps<T>) => ReactNode
   minTileWidth: number

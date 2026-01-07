@@ -1,20 +1,22 @@
 import { defaultStringifySearch } from '@tanstack/react-router'
-import { InfiniteData } from '@tanstack/react-query'
 import {
-  type EyepieceApiSearchParams,
   eyepieceAssetCollectionResponseSchema,
-  type EyepieceApiAlbumParams,
   eyepieceAssetItemSchema,
-  EyepieceAssetItem,
   eyepieceMetadataSchema,
 } from './types'
+import type {
+  EyepieceApiAlbumParams,
+  EyepieceApiSearchParams,
+  EyepieceAssetItem,
+} from './types'
+import type { InfiniteData } from '@tanstack/react-query'
 
 const API_HOST = import.meta.env.SSR
   ? import.meta.env.VITE_API_URL || 'http://localhost:3000'
   : ''
 
 export function flattenAssetsSelector<
-  TData extends { assets: EyepieceAssetItem[] },
+  TData extends { assets: Array<EyepieceAssetItem> },
 >({ pages, ...rest }: InfiniteData<TData, number>) {
   return {
     assets: pages.flatMap((page) => page.assets),

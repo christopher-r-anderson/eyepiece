@@ -1,17 +1,19 @@
 import sanitizeHtml from 'sanitize-html'
-import { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
+import type { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
 
-function getThumbnail(links: NasaMediaLink[]): NasaMediaLink | undefined {
+function getThumbnail(links: Array<NasaMediaLink>): NasaMediaLink | undefined {
   return links.find((link) => link.render === 'image' && link.rel === 'preview')
 }
 
-function getOriginal(links: NasaMediaLink[]): NasaMediaLink | undefined {
+function getOriginal(links: Array<NasaMediaLink>): NasaMediaLink | undefined {
   return links.find(
     (link) => link.render === 'image' && link.rel === 'canonical',
   )
 }
 
-function getLargestAltImage(links: NasaMediaLink[]): NasaMediaLink | undefined {
+function getLargestAltImage(
+  links: Array<NasaMediaLink>,
+): NasaMediaLink | undefined {
   return [
     ...links.filter(
       (link) => link.render === 'image' && link.rel === 'alternate',
@@ -23,8 +25,8 @@ export function mapMediaItem({
   data,
   links,
 }: {
-  data: NasaMediaItem[]
-  links: NasaMediaLink[]
+  data: Array<NasaMediaItem>
+  links: Array<NasaMediaLink>
 }) {
   // Note data is an array but is always .length === 1
   const { album, title, description, nasa_id, media_type } = data[0]
@@ -56,7 +58,7 @@ export function mapMediaItem({
 }
 
 function htmlToPlainText(input: string): string {
-  const normalized = (input ?? '')
+  const normalized = input
     .replace(/<\s*br\s*\/?\s*>/gi, '\n')
     .replace(/<\/\s*p\s*>/gi, '\n')
     .replace(/<\/\s*div\s*>/gi, '\n')

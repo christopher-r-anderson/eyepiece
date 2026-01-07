@@ -1,9 +1,10 @@
 import {
+  CalendarBlankIcon,
   CalendarMinusIcon,
   CalendarPlusIcon,
-  CalendarBlankIcon,
 } from '@phosphor-icons/react/dist/ssr'
-import { ToggleButtonProps, ToggleButton } from 'react-aria-components'
+import { ToggleButton } from 'react-aria-components'
+import type { ToggleButtonProps } from 'react-aria-components'
 
 export function DateButton(props: ToggleButtonProps) {
   return (

@@ -1,8 +1,9 @@
-import { ComponentPropsWithoutRef, useEffect } from 'react'
+import { useEffect } from 'react'
 import { VisuallyHidden } from 'react-aria-components'
 import { useInfiniteStatus } from './hooks/use-infinite-status'
 import { useLoadMoreController } from './hooks/use-load-more-controller'
 import { LoadMoreButton } from './load-more-button'
+import type { ComponentPropsWithoutRef } from 'react'
 
 export function InfiniteLoader({
   children,

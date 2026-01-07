@@ -1,8 +1,9 @@
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { ReactNode, Fragment, RefObject, ComponentPropsWithoutRef } from 'react'
-import { GridItem } from './hooks/use-grid-list-state'
-import { HybridGridItemProvidedProps } from './hybrid-grid-item'
-import { ListState } from '@react-stately/list'
+import { Fragment } from 'react'
+import type { ListState } from '@react-stately/list'
+import type { GridItem } from './hooks/use-grid-list-state'
+import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
+import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
 const rowCss = {
   display: 'grid',
@@ -26,7 +27,7 @@ export function VirtualGrid<T extends GridItem>({
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   ref: RefObject<HTMLDivElement | null>
-  items: T[]
+  items: Array<T>
   state: ListState<T>
   itemsPerRow: number
   minTileWidth: number
