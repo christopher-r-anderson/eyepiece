@@ -1,11 +1,5 @@
+import sanitizeHtml from 'sanitize-html'
 import { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
-
-export const NOT_FOUND_IMAGE = {
-  // A 1x1 transparent GIF
-  href: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-  width: 640,
-  height: 480,
-}
 
 function getThumbnail(links: NasaMediaLink[]): NasaMediaLink | undefined {
   return links.find((link) => link.render === 'image' && link.rel === 'preview')
@@ -39,7 +33,7 @@ export function mapMediaItem({
   const image = getLargestAltImage(links)
   return {
     title,
-    description,
+    description: htmlToPlainText(description),
     id: nasa_id,
     albums: album,
     thumbnail: thumbnail && {
@@ -59,4 +53,16 @@ export function mapMediaItem({
     },
     mediaType: media_type,
   }
+}
+
+function htmlToPlainText(input: string): string {
+  const normalized = (input ?? '')
+    .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/\s*p\s*>/gi, '\n')
+    .replace(/<\/\s*div\s*>/gi, '\n')
+  const text = sanitizeHtml(normalized, {
+    allowedTags: [],
+    allowedAttributes: {},
+  })
+  return text.replace(/\n{3,}/g, '\n\n').trim()
 }

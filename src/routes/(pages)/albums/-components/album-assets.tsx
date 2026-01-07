@@ -6,9 +6,9 @@ import {
   ItemGridSkeleton,
 } from '@/features/listing/item-grid/hybrid-grid'
 import {
-  Thumbnail,
-  ThumbnailSkeleton,
-} from '@/features/assets/components/thumbnail'
+  AssetTile,
+  AssetTileSkeleton,
+} from '@/features/assets/components/asset-tile'
 import { useAlbumAssets } from '@/lib/api/eyepiece/album-queries'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
 
@@ -30,7 +30,7 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
   const uiResetKey = useMemo(() => paramsToUiResetKey({ albumId }), [albumId])
 
   if (isPending) {
-    return <ItemGridSkeleton>{() => <ThumbnailSkeleton />}</ItemGridSkeleton>
+    return <ItemGridSkeleton>{() => <AssetTileSkeleton />}</ItemGridSkeleton>
   }
 
   if (isError) {
@@ -64,7 +64,7 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
             // onRowAction={() => navigateToDetail(item.id)}
             {...itemProps}
           >
-            <Thumbnail asset={item} />
+            <AssetTile asset={item} />
           </HybridGridItem>
         )}
       </HybridGrid>

@@ -4,9 +4,9 @@ import { useMemo } from 'react'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
 import {
-  Thumbnail,
-  ThumbnailSkeleton,
-} from '@/features/assets/components/thumbnail'
+  AssetTile,
+  AssetTileSkeleton,
+} from '@/features/assets/components/asset-tile'
 import {
   HybridGrid,
   ItemGridSkeleton,
@@ -34,7 +34,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
   )
 
   if (isPending) {
-    return <ItemGridSkeleton>{() => <ThumbnailSkeleton />}</ItemGridSkeleton>
+    return <ItemGridSkeleton>{() => <AssetTileSkeleton />}</ItemGridSkeleton>
   }
 
   if (isError) {
@@ -68,7 +68,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
             // onRowAction={() => navigateToDetail(item.id)}
             {...itemProps}
           >
-            <Thumbnail asset={item} />
+            <AssetTile asset={item} />
           </HybridGridItem>
         )}
       </HybridGrid>

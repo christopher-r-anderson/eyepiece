@@ -8,13 +8,13 @@ import { hasSearchFields } from '@/lib/api/eyepiece/util'
 import { SearchBar } from '@/features/search/components/search-bar'
 import { SearchResults } from './-components/search-results'
 import { searchImagesOptions } from '@/features/search/api/search-queries'
+import { getTitleText } from '@/lib/util'
+
+const NO_SEARCH_TITLE = 'Search NASA Images and Videos'
 
 export const Route = createFileRoute('/(pages)/(search)/')({
   component: SearchView,
   validateSearch: eyepiecePageSearchParamsSchema,
-  beforeLoad: () => ({
-    title: 'Search NASA Images and Videos',
-  }),
   loaderDeps: ({ search }) => {
     if (hasSearchFields(search)) {
       return { search }
@@ -29,16 +29,26 @@ export const Route = createFileRoute('/(pages)/(search)/')({
       )
     }
   },
+  head: ({ match }) => ({
+    meta: [
+      {
+        title: getTitleText(
+          match.search.q ? `Search for "${match.search.q}"` : NO_SEARCH_TITLE,
+        ),
+      },
+    ],
+  }),
 })
 
 export function SearchView() {
   const searchParams = Route.useSearch()
   const hasSearch = hasSearchFields(searchParams)
   return (
-    <div
+    <main
       css={{
         width: '100%',
         maxWidth: '1200px',
+        flexGrow: 1,
         margin: '0 auto',
         padding: '0 2rem',
         display: 'flex',
@@ -47,9 +57,7 @@ export function SearchView() {
       }}
     >
       <h1 css={{ color: 'var(--text-accent)' }}>
-        {hasSearch
-          ? `Search for "${searchParams.q}"`
-          : 'Search NASA images and videos'}
+        {hasSearch ? `Search for "${searchParams.q}"` : NO_SEARCH_TITLE}
       </h1>
       <SearchBar
         fontSize="1.5rem"
@@ -66,6 +74,6 @@ export function SearchView() {
         }
       />
       {hasSearch && <SearchResults searchParams={searchParams} />}
-    </div>
+    </main>
   )
 }

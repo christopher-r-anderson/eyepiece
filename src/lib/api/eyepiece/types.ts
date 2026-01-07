@@ -47,6 +47,10 @@ export type EyepieceApiSearchParams = z.infer<
   typeof eyepieceApiSearchParamsSchema
 >
 
+export const eyepieceMetadataSchema = z.record(z.string(), z.any())
+
+export type EyepieceMetadata = z.infer<typeof eyepieceMetadataSchema>
+
 const eyepieceImageSchema = z.object({
   href: z.string(),
   width: z.number().optional(),

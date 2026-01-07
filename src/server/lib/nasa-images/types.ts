@@ -89,6 +89,10 @@ export type NasaMediaCollectionResponse = z.infer<
   typeof nasaMediaCollectionResponseSchema
 >
 
+export const nasaMetadataSchema = z.record(z.string(), z.any())
+
+export type NasaMetadata = z.infer<typeof nasaMetadataSchema>
+
 export const nasaAlbumParamsSchema = z.object({
   page: z.number().min(1).optional(),
 })

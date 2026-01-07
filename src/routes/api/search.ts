@@ -1,4 +1,5 @@
 import { search } from '@/server/lib/nasa-images/client'
+import { mapMediaItem } from '@/server/lib/util'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
@@ -9,7 +10,6 @@ import {
   EyepieceAssetCollectionResponse,
 } from '@/lib/api/eyepiece/types'
 import type { NasaSearchParams } from '@/server/lib/nasa-images/types'
-import { mapMediaItem } from '@/server/lib/util'
 import { calculateNextPage } from './-util'
 
 export const Route = createFileRoute('/api/search')({
