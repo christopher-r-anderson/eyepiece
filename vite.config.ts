@@ -10,13 +10,15 @@ import { configDefaults } from 'vitest/config'
 const config = defineConfig({
   plugins: [
     devtools(),
-    netlify(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
-    tanstackStart(),
+    // to avoid `TypeError: Cannot read properties of null (reading 'useState')` during tests
+    // see: https://github.com/TanStack/router/issues/6246
+    !process.env.VITEST && tanstackStart(),
     viteReact(),
+    netlify(),
     {
       ...optimizeLocales.vite({
         locales: ['en-US'],
@@ -25,6 +27,7 @@ const config = defineConfig({
     },
   ],
   test: {
+    environment: 'jsdom',
     exclude: [...configDefaults.exclude, '**/.pnpm-store/**'],
   },
 })

@@ -10,6 +10,8 @@ interface ThemeColors {
   '--primary-text-muted': string
   '--secondary-bg': string
   '--secondary-text': string
+  '--tertiary-bg': string
+  '--tertiary-text': string
 }
 
 export interface Theme {
@@ -29,6 +31,8 @@ export const lightTheme: Theme = {
     '--primary-text-muted': 'oklch(0.7166 0.0462 285.1741)',
     '--secondary-bg': 'oklch(0.9174 0.0435 292.6901)',
     '--secondary-text': 'oklch(0.4143 0.1039 288.1742)',
+    '--tertiary-bg': 'oklch(from var(--secondary-bg) calc(l + 0.1) c h)',
+    '--tertiary-text': 'var(--secondary-text)',
   },
 }
 
@@ -45,5 +49,7 @@ export const darkTheme: Theme = {
     '--primary-text-muted': 'oklch(0.5426 0.0465 284.7435)',
     '--secondary-bg': 'oklch(0.3139 0.0736 283.4591)',
     '--secondary-text': 'oklch(0.8367 0.0849 285.9111)',
+    '--tertiary-bg': 'oklch(from var(--secondary-bg) calc(l + 0.1) c h)',
+    '--tertiary-text': 'var(--secondary-text)',
   },
 }

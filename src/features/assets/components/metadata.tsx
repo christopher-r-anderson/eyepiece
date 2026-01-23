@@ -43,8 +43,7 @@ export function MetadataTable({ data }: { data: EyepieceMetadata }) {
             color: 'var(--secondary-text)',
           },
           'tbody tr:nth-of-type(odd)': {
-            backgroundColor:
-              'oklch(from var(--secondary-bg) calc(l + 0.1) c h)',
+            backgroundColor: 'var(--tertiary-bg)',
           },
         }}
       >

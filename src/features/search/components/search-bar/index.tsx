@@ -62,7 +62,6 @@ export function SearchBar({
       }}
       {...props}
     >
-      ;
       <div
         css={{
           background: 'var(--primary-bg)',

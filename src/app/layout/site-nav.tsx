@@ -4,6 +4,7 @@ import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
 import ThemeToggleButton from '@/components/theme/theme-toggle-button'
 import logo from '@/assets/eyepiece-logo.svg'
+import { UserStatus } from '@/features/auth/components/user-status'
 
 export function SiteNav({
   children,
@@ -76,6 +77,7 @@ export function SiteNav({
       >
         <ThemeToggleButton />
         <Link to="/collections">Collections</Link>
+        <UserStatus />
       </div>
     </nav>
   )
