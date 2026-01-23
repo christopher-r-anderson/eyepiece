@@ -4,10 +4,14 @@ import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 
 import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
+import type { AuthInteractionStrategy } from './features/auth/types'
 
 declare module '@tanstack/react-router' {
   interface HistoryState {
     returnUrl?: string
+  }
+  interface StaticDataRouteOption {
+    authInteractionStrategy?: AuthInteractionStrategy
   }
 }
 
@@ -19,6 +23,7 @@ export const getRouter = () => {
     context: { ...rqContext },
     defaultPreload: 'intent',
     scrollRestoration: true,
+    defaultStructuralSharing: true,
     defaultNotFoundComponent: NotFoundPage,
     Wrap: (props: { children: React.ReactNode }) => {
       return (
