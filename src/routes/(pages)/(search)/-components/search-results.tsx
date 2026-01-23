@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import type { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
 import { useSearchResults } from '@/features/search/api/search-queries'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
@@ -18,6 +19,7 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ searchParams }: SearchResultsProps) {
+  const navigate = useNavigate()
   const {
     data,
     isPending,
@@ -55,17 +57,13 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
       uiResetKey={uiResetKey}
       css={{ width: '100%' }}
     >
-      <HybridGrid
-        css={{ width: '100%' }}
-        items={data.assets}
-        navigateToDetail={(id) => {
-          console.log('navigating to', id)
-        }}
-      >
+      <HybridGrid css={{ width: '100%' }} items={data.assets}>
         {(item, itemProps) => (
           <HybridGridItem
             item={item}
-            // onRowAction={() => navigateToDetail(item.id)}
+            onRowAction={() => {
+              navigate({ to: `/assets/$assetId`, params: { assetId: item.id } })
+            }}
             {...itemProps}
           >
             <AssetTile asset={item} />
