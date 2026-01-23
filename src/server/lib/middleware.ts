@@ -1,4 +1,4 @@
-import { createMiddleware, json } from '@tanstack/react-start'
+import { createMiddleware } from '@tanstack/react-start'
 import z from 'zod'
 
 export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
@@ -9,7 +9,10 @@ export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
     )
 
     if (!result.success) {
-      return json({ error: z.treeifyError(result.error) }, { status: 400 })
+      return Response.json(
+        { error: z.treeifyError(result.error) },
+        { status: 400 },
+      )
     }
 
     return next({

@@ -2,13 +2,18 @@ import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
 import { getAlbumOptions } from '@/lib/api/eyepiece/album-queries'
 import { getTitleText } from '@/lib/util'
+import { createEyepieceClient } from '@/lib/api/eyepiece/client'
 
 export const Route = createFileRoute('/(pages)/albums/$albumId')({
   component: AlbumView,
-  loader: ({ context, params }) =>
-    context.queryClient.ensureInfiniteQueryData(
-      getAlbumOptions(params.albumId),
-    ),
+  loader: ({ context, location, params }) => {
+    const client = createEyepieceClient({
+      origin: location.url.origin,
+    })
+    return context.queryClient.ensureInfiniteQueryData(
+      getAlbumOptions(client, params.albumId),
+    )
+  },
   head: ({ params }) => ({
     meta: [{ title: getTitleText(`${params.albumId} Media`) }],
   }),

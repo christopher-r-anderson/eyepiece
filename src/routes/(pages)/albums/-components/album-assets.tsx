@@ -12,12 +12,14 @@ import {
 } from '@/features/assets/components/asset-tile'
 import { useAlbumAssets } from '@/lib/api/eyepiece/album-queries'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 export interface AlbumAssetsProps {
   albumId: string
 }
 
 export function AlbumAssets({ albumId }: AlbumAssetsProps) {
+  const client = useEyepieceClient()
   const {
     data,
     isPending,
@@ -26,7 +28,7 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useAlbumAssets(albumId)
+  } = useAlbumAssets(client, albumId)
   const navigate = useNavigate()
 
   const uiResetKey = useMemo(() => paramsToUiResetKey({ albumId }), [albumId])

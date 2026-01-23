@@ -1,85 +1,32 @@
-import { XIcon } from '@phosphor-icons/react/dist/ssr'
-import {
-  Button,
-  Dialog,
-  Heading,
-  Modal,
-  ModalOverlay,
-} from 'react-aria-components'
+import { Button } from 'react-aria-components'
 import type { ComponentPropsWithoutRef } from 'react'
 import { MetadataTable } from '@/features/assets/components/metadata'
 import { useMetadata } from '@/features/assets/api/asset-queries'
+import { ModalDialog } from '@/components/ui/modal-dialog'
+import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 export function MetadataModal({
-  id,
+  assetId,
   isOpen,
   onOpenChange,
 }: {
-  id: string
+  assetId: string
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }) {
   return (
-    <ModalOverlay
+    <ModalDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
+      title="Metadata"
       isDismissable
-      css={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: Infinity,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-      }}
     >
-      <Modal css={{ height: '100%', padding: '2rem' }}>
-        <Dialog
-          aria-labelledby="metadata-title"
-          css={{
-            backgroundColor: 'var(--background)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            height: '100%',
-            margin: '0 auto',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 12,
-              alignItems: 'center',
-              padding: '2rem',
-            }}
-          >
-            <Heading id="metadata-title" slot="title">
-              Metadata
-            </Heading>
-
-            <Button
-              aria-label="Close metadata dialog"
-              onPress={() => onOpenChange(false)}
-              css={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                width: 32,
-                height: 32,
-                cursor: 'pointer',
-                justifyContent: 'center',
-              }}
-            >
-              <XIcon />
-            </Button>
-          </div>
-
-          <MetadataModalContent
-            assetId={id}
-            isOpen={isOpen}
-            css={{ minHeight: 0, overflowY: 'auto', padding: '2rem' }}
-          />
-        </Dialog>
-      </Modal>
-    </ModalOverlay>
+      <MetadataModalContent
+        assetId={assetId}
+        isOpen={isOpen}
+        css={{ minHeight: 0, overflowY: 'auto', padding: '2rem' }}
+      />
+    </ModalDialog>
   )
 }
 
@@ -91,7 +38,12 @@ function MetadataModalContent({
   assetId: string
   isOpen: boolean
 }) {
-  const { data, isLoading, isError, refetch } = useMetadata(assetId, isOpen)
+  const eyepieceClient = useEyepieceClient()
+  const { data, isLoading, isError, refetch } = useMetadata(
+    eyepieceClient,
+    assetId,
+    isOpen,
+  )
 
   if (isLoading)
     return (
