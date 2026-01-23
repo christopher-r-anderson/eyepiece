@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
 import {
@@ -26,6 +27,7 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
     hasNextPage,
     isFetchingNextPage,
   } = useAlbumAssets(albumId)
+  const navigate = useNavigate()
 
   const uiResetKey = useMemo(() => paramsToUiResetKey({ albumId }), [albumId])
 
@@ -51,17 +53,13 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
       uiResetKey={uiResetKey}
       css={{ width: '100%' }}
     >
-      <HybridGrid
-        css={{ width: '100%' }}
-        items={data.assets}
-        navigateToDetail={(id) => {
-          console.log('navigating to', id)
-        }}
-      >
+      <HybridGrid css={{ width: '100%' }} items={data.assets}>
         {(item, itemProps) => (
           <HybridGridItem
             item={item}
-            // onRowAction={() => navigateToDetail(item.id)}
+            onRowAction={() => {
+              navigate({ to: `/assets/$assetId`, params: { assetId: item.id } })
+            }}
             {...itemProps}
           >
             <AssetTile asset={item} />
