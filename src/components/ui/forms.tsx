@@ -20,6 +20,8 @@ import type {
   TextFieldProps as RacTextFieldProps,
 } from 'react-aria-components'
 
+export { FieldError, Input, Label }
+
 export type { FormState, FormErrorState } from './forms.types'
 
 export function FormErrors({ errors = [] }: { errors?: Array<string> }) {

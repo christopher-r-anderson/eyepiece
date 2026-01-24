@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Form } from 'react-aria-components'
 import { useNavigate } from '@tanstack/react-router'
 import { DateButton } from './date-button'
 import {
@@ -10,9 +9,10 @@ import {
 } from './media-type-field'
 import { SubmitButton } from './submit-button'
 import { YearRangeSlider } from './year-range-slider'
-import { SearchField } from './search-field'
-import type { FormProps } from 'react-aria-components'
+import { SearchInput } from './search-input'
+import type { FormProps } from '@/components/ui/forms'
 import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
+import { Form } from '@/components/ui/forms'
 import { YEAR_MAX, YEAR_MIN } from '@/lib/api/eyepiece/types'
 
 interface SearchBarProps extends FormProps {
@@ -97,7 +97,7 @@ export function SearchBar({
           items={MEDIA_TYPES}
           popoverFontSize={fontSize}
         />
-        <SearchField
+        <SearchInput
           aria-label="Keywords"
           value={searchText}
           onChange={setSearchText}

@@ -1,15 +1,12 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
-import {
-  Button,
-  FieldError,
-  Input,
-  SearchField as ReactAriaSearchField,
-} from 'react-aria-components'
-import type { SearchFieldProps } from 'react-aria-components'
+import type { SearchFieldProps } from '@/components/ui/search-field'
+import { FieldError, Input } from '@/components/ui/forms'
+import { SearchField } from '@/components/ui/search-field'
+import { Button } from '@/components/ui/button'
 
-export function SearchField(props: SearchFieldProps) {
+export function SearchInput(props: SearchFieldProps) {
   return (
-    <ReactAriaSearchField
+    <SearchField
       {...props}
       css={{
         display: 'inline-flex',
@@ -38,11 +35,8 @@ export function SearchField(props: SearchFieldProps) {
       />
       <Button
         css={{
-          border: 0,
           background: 'transparent',
           color: 'var(--primary-text)',
-          display: 'inline-flex',
-          alignItems: 'center',
           fontSize: '1em',
           visibility: props.value ? 'visible' : 'hidden',
         }}
@@ -50,6 +44,6 @@ export function SearchField(props: SearchFieldProps) {
         <XIcon />
       </Button>
       <FieldError>Please enter valid search keywords.</FieldError>
-    </ReactAriaSearchField>
+    </SearchField>
   )
 }
