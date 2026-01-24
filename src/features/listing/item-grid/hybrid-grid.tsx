@@ -10,14 +10,12 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 export function HybridGrid<T extends GridItem>({
   children,
   items,
-  navigateToDetail,
   gap = 12,
   minTileWidth = 200,
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   children: (item: T, itemProps: HybridGridItemProvidedProps<T>) => ReactNode
   items: Array<T>
-  navigateToDetail: (id: string) => void
   gap?: number
   minTileWidth?: number
 }) {
