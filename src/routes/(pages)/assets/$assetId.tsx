@@ -4,11 +4,19 @@ import { MetadataButton } from './-components/metadata/button'
 import { NOT_FOUND_IMAGE, getTitleText } from '@/lib/util'
 import { getAssetOptions, useAsset } from '@/features/assets/api/asset-queries'
 import { Link } from '@/components/ui/link'
+import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import { createEyepieceClient } from '@/lib/api/eyepiece/client'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetView,
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(getAssetOptions(params.assetId)),
+  loader: ({ context, location, params }) => {
+    const client = createEyepieceClient({
+      origin: location.url.origin,
+    })
+    return context.queryClient.ensureQueryData(
+      getAssetOptions(client, params.assetId),
+    )
+  },
   head: ({ loaderData }) => ({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
@@ -16,7 +24,8 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
 
 export function AssetView() {
   const { assetId } = Route.useParams()
-  const { data, isPending, isError, error } = useAsset(assetId)
+  const client = useEyepieceClient()
+  const { data, isPending, isError, error } = useAsset(client, assetId)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })

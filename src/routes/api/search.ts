@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
 import { calculateNextPage } from './-util'
 import type { NasaSearchParams } from '@/server/lib/nasa-images/types'
 import type {
@@ -18,15 +17,11 @@ export const Route = createFileRoute('/api/search')({
   server: {
     middleware: [buildUrlSearchParamsMiddleware(eyepieceApiSearchParamsSchema)],
     handlers: {
-      GET: async ({ context }) => {
+      GET: async ({ context: { searchParams } }) => {
         const pagination = eyepiecePaginationSchema.parse({
-          page: context.searchParams.page,
-          pageSize: context.searchParams.pageSize,
+          page: searchParams.page,
+          pageSize: searchParams.pageSize,
         })
-        const searchParams = {
-          ...context.searchParams,
-          ...pagination,
-        }
         const nasaSearchParams = eyepieceToNasaSearchParams(searchParams)
         const nasaResponse = await search(nasaSearchParams)
         const assets = nasaResponse.collection.items.map(mapMediaItem)
@@ -36,7 +31,7 @@ export const Route = createFileRoute('/api/search')({
           assets,
           pagination: { next, total },
         }
-        return json(response)
+        return Response.json(response)
       },
     },
   },

@@ -13,6 +13,7 @@ import {
   ItemGridSkeleton,
 } from '@/features/listing/item-grid/hybrid-grid'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -20,6 +21,7 @@ interface SearchResultsProps {
 
 export function SearchResults({ searchParams }: SearchResultsProps) {
   const navigate = useNavigate()
+  const client = useEyepieceClient()
   const {
     data,
     isPending,
@@ -28,7 +30,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSearchResults(searchParams)
+  } = useSearchResults(client, searchParams)
 
   const uiResetKey = useMemo(
     () => paramsToUiResetKey(searchParams),

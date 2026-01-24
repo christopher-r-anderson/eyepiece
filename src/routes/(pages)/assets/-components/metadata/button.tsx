@@ -1,16 +1,18 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router'
-import { Button } from 'react-aria-components'
 import { useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
 import { MetadataModal } from './modal'
+import { Button } from '@/components/ui/button'
 import { getMetadataOptions } from '@/features/assets/api/asset-queries'
+import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 const METADATA_HASH = 'metadata'
 
 export function MetadataButton({ id }: { id: string }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const eyepieceClient = useEyepieceClient()
 
   const isOpen = useRouterState({
     select: (s) => s.location.hash === METADATA_HASH,
@@ -23,7 +25,7 @@ export function MetadataButton({ id }: { id: string }) {
 
   const prefetch = useCallback(() => {
     // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
-    void queryClient.prefetchQuery(getMetadataOptions(id))
+    void queryClient.prefetchQuery(getMetadataOptions(eyepieceClient, id))
   }, [queryClient, id])
   return (
     <>
@@ -38,18 +40,13 @@ export function MetadataButton({ id }: { id: string }) {
           border: 'none',
           padding: 0,
           margin: 0,
-          cursor: 'pointer',
-          outline: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
         }}
       >
         <InfoIcon size={24} color="white" />
       </Button>
 
       <MetadataModal
-        id={id}
+        assetId={id}
         isOpen={isOpen}
         onOpenChange={(shouldOpen: boolean) => (shouldOpen ? open() : close())}
       />

@@ -1,28 +1,28 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { getAsset, getMetadata } from '@/lib/api/eyepiece/client'
+import type { EyepieceClient } from '@/lib/api/eyepiece/client'
 
 type AssetCacheKey = ['assets', string]
 
-export function getAssetOptions(id: string) {
+export function getAssetOptions(client: EyepieceClient, id: string) {
   return queryOptions({
-    queryKey: ['assets', id] as AssetCacheKey,
+    queryKey: ['assets', id] as const satisfies AssetCacheKey,
     queryFn: ({ queryKey }) => {
-      return getAsset(queryKey[1])
+      return client.getAsset(queryKey[1])
     },
   })
 }
 
-export function useAsset(id: string) {
-  return useQuery(getAssetOptions(id))
+export function useAsset(client: EyepieceClient, id: string) {
+  return useQuery(getAssetOptions(client, id))
 }
 
 type MetadataCacheKey = ['assets', string, 'metadata']
 
-export function getMetadataOptions(id: string) {
+export function getMetadataOptions(client: EyepieceClient, id: string) {
   return queryOptions({
-    queryKey: ['assets', id, 'metadata'] as MetadataCacheKey,
+    queryKey: ['assets', id, 'metadata'] as const satisfies MetadataCacheKey,
     queryFn: ({ queryKey }) => {
-      return getMetadata(queryKey[1])
+      return client.getMetadata(queryKey[1])
     },
     staleTime: Infinity,
     refetchOnMount: false,
@@ -30,9 +30,13 @@ export function getMetadataOptions(id: string) {
   })
 }
 
-export function useMetadata(id: string, enabled?: boolean) {
+export function useMetadata(
+  client: EyepieceClient,
+  id: string,
+  enabled?: boolean,
+) {
   return useQuery({
-    ...getMetadataOptions(id),
+    ...getMetadataOptions(client, id),
     enabled,
   })
 }
