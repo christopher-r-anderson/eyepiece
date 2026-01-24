@@ -56,7 +56,7 @@ export function SiteNav({
             maxWidth: '100%',
           }}
         >
-          <use href={logo} />
+          <use href={`${logo}#group`} />
         </svg>
       </Link>
       <div
