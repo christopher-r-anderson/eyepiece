@@ -1,8 +1,7 @@
 import { Button as ReactAriaButton } from 'react-aria-components'
-import type { ButtonVariant } from './types'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
 
-export const buttonCss = {
+const buttonCss = {
   border: 'none',
   padding: '0.5rem 1rem',
   borderRadius: '4px',
@@ -20,24 +19,28 @@ export const buttonCss = {
   },
 }
 
-export const getButtonVariantStyles = (variant: ButtonVariant) => {
-  return {
-    backgroundColor:
-      variant === 'primary' ? 'var(--primary-bg)' : 'var(--secondary-bg)',
-    color:
-      variant === 'primary' ? 'var(--primary-text)' : 'var(--secondary-text)',
-  }
+const primaryCss = {
+  backgroundColor: 'var(--primary-bg)',
+  color: 'var(--primary-text)',
+  '&[data-disabled]': { color: 'var(--primary-text-muted)' },
 }
 
-type ButtonProps = RacButtonProps & {
+const secondaryCss = {
+  backgroundColor: 'var(--secondary-bg)',
+  color: 'var(--secondary-text)',
+  '&[data-disabled]': { color: 'var(--primary-text-muted)' },
+}
+
+type ButtonVariant = 'primary' | 'secondary'
+
+export type ButtonProps = RacButtonProps & {
   variant?: ButtonVariant
 }
 
 export function Button({ variant = 'secondary', ...props }: ButtonProps) {
   return (
     <ReactAriaButton
-      css={buttonCss}
-      style={getButtonVariantStyles(variant)}
+      css={[buttonCss, variant === 'primary' ? primaryCss : secondaryCss]}
       {...props}
     />
   )

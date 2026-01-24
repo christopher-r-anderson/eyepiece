@@ -6,19 +6,16 @@ import {
   VideoIcon,
   WaveformIcon,
 } from '@phosphor-icons/react/dist/ssr'
-import {
-  Button,
-  Label,
-  ListBox,
-  ListBoxItem,
-  Popover,
-  Select,
-  SelectValue,
-  // purposely using ReactAria's Button to avoid hydration errors
-  Text,
-} from 'react-aria-components'
-import type { Key, SelectProps } from 'react-aria-components'
+// purposely using ReactAria's Button to avoid hydration errors (see below)
+// eslint-disable-next-line no-restricted-imports
+import { Button } from 'react-aria-components'
+import type { SelectKey, SelectProps } from '@/components/ui/select'
 import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
+import { ListBox, ListBoxItem } from '@/components/ui/list-box'
+import { Popover } from '@/components/ui/popover'
+import { Label } from '@/components/ui/forms'
+import { Select, SelectValue } from '@/components/ui/select'
+import { Text } from '@/components/ui/text'
 
 export const ALL_MEDIA = 'all'
 
@@ -36,7 +33,7 @@ export const MEDIA_TYPES: Array<MediaTypeOption> = [
 ]
 
 export function getMediaTypeOption(
-  key: Key | null | undefined,
+  key: SelectKey | null | undefined,
 ): MediaTypeOption | undefined {
   return MEDIA_TYPES.find((option) => option.id === key)
 }

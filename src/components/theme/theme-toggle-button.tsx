@@ -1,4 +1,3 @@
-import { Switch } from 'react-aria-components'
 import {
   MoonStarsIcon,
   SunIcon,
@@ -7,7 +6,8 @@ import {
 } from '@phosphor-icons/react/dist/ssr'
 import { Form } from '../ui/forms'
 import { useThemeToggle } from './theme-provider'
-import type { SwitchProps } from 'react-aria-components'
+import type { SwitchProps } from '@/components/ui/switch'
+import { Switch } from '@/components/ui/switch'
 
 const ThemeToggleButton = (props: SwitchProps) => {
   const { theme, toggleTheme } = useThemeToggle()

@@ -1,5 +1,5 @@
-import { Button } from 'react-aria-components'
 import type { ComponentPropsWithoutRef } from 'react'
+import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
 import { useMetadata } from '@/features/assets/api/asset-queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
