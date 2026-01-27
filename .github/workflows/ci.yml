@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-and-format:
     name: Lint & Format
@@ -82,26 +86,58 @@ jobs:
       - name: Run Tests
         run: pnpm run test
 
-  build:
-    name: Build
+  publish-netlify-prod:
+    name: Trigger Netlify Publish (prod)
     runs-on: ubuntu-latest
+    needs: [lint-and-format, type-check, test]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Trigger Netlify build hook
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
+          api="https://api.netlify.com/api/v1"
+          auth="Authorization: Bearer ${NETLIFY_AUTH_TOKEN}"
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
+          if ! command -v jq >/dev/null 2>&1; then
+            echo "ERROR: jq is required but not installed."
+            exit 1
+          fi
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          # Poll until Netlify has a READY production deploy for this exact commit on main
+          for i in {1..60}; do
+            echo "Looking for Netlify production deploy for commit ${GITHUB_SHA} (attempt $i)..."
 
-      - name: Build
-        run: pnpm run build
+            deploy_id="$(
+              curl -fsS -H "$auth" \
+                "${api}/sites/${NETLIFY_SITE_ID}/deploys?production=true&branch=main&per_page=50" \
+              | jq -r --arg sha "$GITHUB_SHA" '
+                  map(select(.commit_ref == $sha))
+                  | map(select(.state == "ready"))
+                  | .[0].id // empty
+                '
+            )"
+
+            if [ -n "$deploy_id" ]; then
+              echo "Found ready deploy: $deploy_id"
+              break
+            fi
+
+            sleep 5
+          done
+
+          if [ -z "${deploy_id:-}" ]; then
+            echo "ERROR: No READY Netlify production deploy found for commit ${GITHUB_SHA}."
+            echo "Either Netlify hasn’t finished building yet, or the deploy isn't tagged with this commit."
+            exit 1
+          fi
+
+          echo "Publishing deploy $deploy_id to production..."
+          curl -fsS -X POST -H "$auth" \
+            "${api}/sites/${NETLIFY_SITE_ID}/deploys/${deploy_id}/restore" >/dev/null
+
+          echo "✅ Published ${deploy_id}"

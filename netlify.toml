@@ -1,6 +1,6 @@
+# no [dev] section since we use the netlify plugin for vite
 [build]
-  command = "vite build"
-  dir = "dist/client"
-[dev]
-  command = "vite dev"
-  port = 3000
+  command = "pnpm build"
+  publish = "dist/client"
+[build.environment]
+  NODE_VERSION = "22"
