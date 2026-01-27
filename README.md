@@ -9,17 +9,24 @@
 This is the guide for setting up local development for eyepiece.net. If you want to deploy this code to your own site, please see New Production Site below, first.
 
 ```bash
+pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
+cp .env.example .env.local # Update your `.env.local` file with the values from above
 pnpm install
-cp .env.example .env.local
 ```
-
-Edit your `.env.local` file to replace the placeholders with the real values. See comments in the file for reference.
 
 #### Running Locally
 
 ```bash
+pnpm supabase start # if not already started
 pnpm dev
 ```
+
+#### Site authentication
+
+There will be an existing user you can log in to the local site with:
+
+* email: `user1@example.com`
+* password: `hunter2`
 
 #### Pre-commit Checklist
 
@@ -46,25 +53,26 @@ If you are just developing for eyepiece.net, this is already set up.
 
 #### Supabase
 
-Supabase is used for authentication, so you will need a project set up in Supabase.
+Supabase is used for authentication, so you will need a account and project.
 
-1. Make sure row level security (RLS) is enabled.
-1. Obtain your project id from the Supabase dashboard: `Project Settings -> General -> Project ID`
-1. Create a publishable key for connecting to Supabase (this is safe for use on the client): `Project Settings -> API Keys -> Publishable key`
-1. Authentication - this has only been developed to handle the following as enabled:
-   1. `Authentication -> Sign In / Providers -> Supabase Auth`
-      1. `User Signups -> Allow new users to sign up`
-      1. `User Signups -> Confirm Email`
-   1. `Auth Providers -> Email`
-      1. `Enable Email Provider`
-      1. _Email change is unimplemented_
-      1. `Minimum password length` = 12 (This is currently hardcoded into `PASSWORD_MIN_LENGTH` at `/src/features/auth/forms/components/set-password-field.schema.ts`)
-   1. `URL Configuration`
-      1. `Site URL` - this should be set to your public production domain origin, e.g. `https://eyepiece.net` or your Netlify subdomain if you aren't using a custom one.
-      1. `Redirect URLs` (You can tighten up most of these if desired, but do not loosen up production)
-         - `https://**--eyepiece.netlify.app/**` - replace `eyepiece` with your Netlify project's name from the previous Netlify section. It also matches your netlify subdomain but prefixed with more characters in the subdomain.
-         - `http://localhost:3000/**` - for development
-         - `https://eypiece.net/auth/confirm` - the origin should follow your setting under Site URL postfixed with `/auth/confirm`
-   1. `Email -> Templates` - TODO - this will be moved into code, so documenting this then
-   1. `Email -> SMTP Settings` - TODO
+Only do this for a freshly created account where you do not want to save anything. *The following actions will overwrite your account database and settings*
+
+Note that the current authentication setup uses email as the provider, allows new sign ups, and requires email confirmation. These are the only flows supported and it is out of scope of the current project to handle other setups.
+
+1. `pnpm supabase login` (if not already logged in via the cli)
+1. `pnpm supabase link` - select your newly created project (*the project selected here will be overwritten*)
+1. Update your `supabase/config.toml` file to represent your new project:
+   * `project_id` - set to your Project ID found in the Supabase Admin at `Project Settings -> General -> Project ID`
+   * `[auth]`
+      * `site_url` - this should be set to your public production domain origin, e.g. `https://eyepiece.net` or your Netlify subdomain such as `https://eyepiece.netlify.app/` if you aren't using a custom one.
+      * `additional_redirect_urls` - modify these so that the domains match your project. You can be more specific with the paths if desired, but do not loosen up production.
+         * `https://**--eyepiece.netlify.app/**` - replace `eyepiece` with your Netlify project's name from the previous Netlify section. It also matches your netlify subdomain but prefixed with more characters in the subdomain.
+         * `http://localhost:3000/**` - for development - this will remain the same.
+         * `https://eypiece.net/auth/confirm` - the origin should follow your setting under Site URL postfixed with `/auth/confirm`
+   * `[auth.email.template.confirmation]` - update `subject` as desired
+   * `[auth.email.template.recovery]` - update `subject` as desired
+1. Authentication email templates under `supabase/templates/` - you can adjust the content of these as desired, but be careful not to change the URLs in the links as they specifically match what is required by the project.
+1. `Email -> SMTP Settings` - TODO
+1. `pnpm supabase db push`
+1. `pnpm supabase config push`
 1. Proceed with the local development setup.
