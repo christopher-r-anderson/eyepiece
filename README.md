@@ -10,8 +10,19 @@ This is the guide for setting up local development for eyepiece.net. If you want
 
 ```bash
 pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
-cp .env.example .env.local # Update your `.env.local` file with the values from above
 pnpm install
+
+# You can do one of the following to set up your environment variables
+# on a system with bash (Linux, WSL _untested_, etc.)
+pnpm create-env-local
+# OR
+cp .env.example .env.local # snd update your `.env.local` file with the values from `pnpm supabase start` above
+
+# To be able to run e2e tests, use one of the following:
+# Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions
+pnpm playwright install
+# If you are on Linux and do not already have playwright OS dependencies installed, use this instead
+pnpm playwright install --with-deps
 ```
 
 #### Running Locally
@@ -34,8 +45,11 @@ There will be an existing user you can log in to the local site with:
 - `pnpm format` (runs `prettier`)
 - `pnpm typecheck` (runs `tsc`)
 - `pnpm test` (runs `vitest`)
+- `pnpm e2e` (runs `playwright test`)
 
-Note that you can use `pnpm fix` instead of `pnpm lint` and `pnpm format` to run them both and autofix any issues found (when possible).
+You can use `pnpm fix` instead of `pnpm lint` and `pnpm format` to run them both and autofix any issues found (when possible).
+
+E2E tests may generate a `deno.lock` file the first time because the `netlify` cli is used to serve the project. This file can be safely deleted since the project does not use edge functions. If they are used in the future, remove the entry from `.gitignore` and track the file.
 
 ### New Production Site
 
@@ -50,6 +64,8 @@ GitHub repo hosting and Netlify web hosting are required for these instructions.
 1. Clone the project to your repo
 
 #### Netlify - Part One
+
+Note that `deno.lock` is ignored in the `.gitignore` file because edge functions are not used. If you do use them, you will need to remove that entry.
 
 1. Create a project and connect it to your GitHub repo - install the GitHub integration app for automatic builds, deploys, and previews here.
 1. Note the project name you gave it which will be used in GitHub and in the Supabase setup process. This can always be found under `Project Configuration -> General -> Project information -> Project name`

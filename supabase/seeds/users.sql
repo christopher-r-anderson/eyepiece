@@ -1,44 +1,12 @@
 /*
- Local dev seed users
+Local dev seed users
  */
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 BEGIN;
 
--- CREATE TEMP TABLE seed_users (
---   email text PRIMARY KEY,
---   password text NOT NULL,
---   email_confirmed boolean NOT NULL DEFAULT false,
---   given_name text,
---   family_name text
--- ) ON COMMIT DROP;
--- -- Add seed users here
--- INSERT INTO
---   seed_users (
---     email,
---     password,
---     email_confirmed,
---     given_name,
---     family_name
---   )
--- VALUES
---   (
---     'user1@example.com',
---     'hunter2',
---     true,
---     'Demo',
---     'User'
---   ),
---   (
---     'user2@example.com',
---     'password123',
---     false,
---     'Unconfirmed',
---     'Person'
---   );
--- do not edit below just to change seed users
-INSERT INTO
-  auth.users (
+INSERT INTO auth.users
+  (
     instance_id,
     id,
     aud,
@@ -57,7 +25,7 @@ INSERT INTO
     email_change_token_new
   )
 SELECT
-  '00000000-0000-0000-0000-000000000000' :: uuid,
+  '00000000-0000-0000-0000-000000000000'::uuid,
   gen_random_uuid(),
   'authenticated',
   'authenticated',
@@ -67,7 +35,7 @@ SELECT
     WHEN s.email_confirmed THEN now()
     ELSE NULL
   END,
-  '{"provider":"email","providers":["email"]}' :: jsonb,
+  '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object(
     'given_name',
     nullif(btrim(s.given_name), ''),
@@ -86,34 +54,15 @@ FROM
   (
     VALUES
       -- add seed users here. can't use a temp table locally (it does not exist when referencing) so just using values
-      (
-        'user1@example.com',
-        'hunter2',
-        true,
-        'Demo',
-        'User'
-      ),
-      (
-        'user2@example.com',
-        'password123',
-        false,
-        'Unconfirmed',
-        'Person'
-      )
-  ) s (
-    email,
-    password,
-    email_confirmed,
-    given_name,
-    family_name
-  );
+      ('user1@example.com', 'hunter2', TRUE, 'Demo', 'User'),
+      ('user2@example.com', 'password123', FALSE, 'Unconfirmed', 'Person')
+  ) AS s (email, password, email_confirmed, given_name, family_name);
 
 /* Note: setting email_verified: false even though it was true on user, because that's what the admin ui did */
-INSERT INTO
-  auth.identities (
+INSERT INTO auth.identities
+  (
     id,
     user_id,
-    -- email,
     identity_data,
     provider,
     provider_id,
@@ -124,23 +73,21 @@ INSERT INTO
 SELECT
   gen_random_uuid(),
   u.id,
-  -- u.email,
   jsonb_build_object(
     'sub',
-    u.id :: text,
+    u.id::text,
     'email',
     u.email,
     'email_verified',
-    false,
+    FALSE,
     'phone_verified',
-    false
+    FALSE
   ),
   'email',
-  u.id :: text,
+  u.id::text,
   now(),
   now(),
   now()
-FROM
-  auth.users u;
+FROM auth.users AS u;
 
 COMMIT;
