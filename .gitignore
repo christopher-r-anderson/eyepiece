@@ -14,3 +14,12 @@ todos.json
 
 # Local Netlify folder
 .netlify
+# Ignored because we don't use edge functions
+deno.lock
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

@@ -10,10 +10,13 @@
   "type": "module",
   "scripts": {
     "supabase": "supabase",
+    "create-env-local": "./scripts/generate-env-local.sh > .env.local",
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "serve": "netlify serve",
+    "e2e": "playwright test",
     "lint": "eslint",
     "format": "prettier -c .",
     "fix": "prettier --write . && eslint --fix",
@@ -22,6 +25,7 @@
   "engines": {
     "node": "22.x"
   },
+  "packageManager": "pnpm@10.28.0",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@netlify/vite-plugin-tanstack-start": "^1.2.3",
@@ -49,6 +53,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tanstack/devtools-vite": "^0.3.12",
     "@tanstack/eslint-config": "^0.3.4",
     "@tanstack/eslint-plugin-query": "^5.91.2",
@@ -61,6 +66,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.39.2",
     "jsdom": "^27.3.0",
+    "netlify-cli": "^23.13.4",
     "prettier": "^3.7.4",
     "prettier-plugin-sql-cst": "^0.18.0",
     "supabase": "^2.72.8",

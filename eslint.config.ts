@@ -2,6 +2,9 @@ import { tanstackConfig } from '@tanstack/eslint-config'
 import queryPlugin from '@tanstack/eslint-plugin-query'
 
 export default [
+  {
+    ignores: ['.netlify/**'],
+  },
   ...tanstackConfig,
   ...queryPlugin.configs['flat/recommended'],
   {

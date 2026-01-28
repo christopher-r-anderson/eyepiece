@@ -28,7 +28,7 @@ const config = defineConfig({
   ],
   test: {
     environment: 'jsdom',
-    exclude: [...configDefaults.exclude, '**/.pnpm-store/**'],
+    exclude: [...configDefaults.exclude, '**/.pnpm-store/**', '**/e2e/**'],
   },
 })
 
