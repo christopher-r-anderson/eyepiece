@@ -71,28 +71,10 @@ Note that `deno.lock` is ignored in the `.gitignore` file because edge functions
 1. Note the project name you gave it which will be used in GitHub and in the Supabase setup process. This can always be found under `Project Configuration -> General -> Project information -> Project name`
 1. Lock production auto-publishing - `Deploys -> Lock production auto-publishing`. Netlify production builds will be published by CI after checks and tests have successfully run.
 1. Note the Project ID that was generated and shown under `Project Configuration -> General -> Project information -> Project ID` which will be used in GitHub (as `NETLIFY_SITE_ID`).
-1. Generate a Personal Access Token under `User settings -> Applications -> Personal access tokens` which will be used in GitHub (as `NETLIFY_AUTH_TOKEN`) for publishing production builds. It is recommended to use an expiration date and set a reminder wherever you manage project related events and requirements to update this before expiration. _Updating auth tokens is not automated and will result in builds failing to make it to production._
-1. Domain - do one of the following. Which one you choose will be the one used in the next section with the Supabase URL Configuration for Authentication
+1. Generate a Personal Access Token under `User settings -> Applications -> Personal access tokens` which will be used in GitHub (as `NETLIFY_AUTH_TOKEN`) for publishing production builds. It is recommended to use an expiration date and set a reminder wherever you manage project related events and requirements to update this before expiration. _Updating auth tokens is not automated and will result in builds failing to make it to production. **If the publish fails and the deploy includes database changes that are not backwards compatible, your site may be left in a broken state.**_
+1. Domain - do one of the following. Which one you choose will be the one used later with the Supabase URL Configuration for Authentication
    1. Just use your Netlify subdomain for your website `Domain Management -> Production domains -> Netlify subdomain`
    1. Set up a primary domain by following [Netlify Docs: Get started with domains](https://docs.netlify.com/manage/domains/get-started-with-domains/) which you can then always find under `Domain Management -> Production domains -> Primary domain`.
-
-#### GitHub - Part Two
-
-Within your project in GitHub, Go to `Settings -> Secrets and variables -> Actions`. Here we will provide the CI workflow with the needed environment variables for publishing the production builds.
-
-On this panel, you have options between
-
-1. `Secrets` and `Variables` - described below
-1. `Environment` vs `Repository` - `Repository` is fine for both variables and what is used below. You can use an environment if you set one up, but that is outside of the scope of this document.
-
-Add the following two items:
-
-- `Secrets -> Repository secrets -> New repository secret`
-  - Name: `NETLIFY_AUTH_TOKEN`
-  - Value: The Personal Access Token that you created in the previous Netlify section. _This is sensitive data and must be created as a secret._
-- `Variables -> Repository variables -> New repository variable`
-  - Name: `NETLIFY_SITE_ID`
-  - Value: The Project ID noted in the previous Netlify section. You may create this as a secret if you want to keep it alongside your auth token in the ui, but it is not sensitive and by doing that you will not be able to see the value later. If you do create it as a secret instead of a variable, you _must_ change the line in `.github/workflows/ci.yml` from `NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}` to `NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}`
 
 #### Supabase
 
@@ -102,8 +84,12 @@ Only do this for a freshly created account where you do not want to save anythin
 
 Note that the current authentication setup uses email as the provider, allows new sign ups, and requires email confirmation. These are the only flows supported and it is out of scope of the current project to handle other setups.
 
-1. In the web admin panel for your project, note the URL under `Settings -> Data API -> Project URL`. This will be used in Netlify as `VITE_SUPABASE_URL`.
-1. Also note you Publishable key. This is found under `Settings -> API Keys -> Publishable key`. You should already have one there with the name of `default`. You need the value of this (column `API KEY`) which you will use later in Netlify as `VITE_SUPABASE_PUBLISHABLE_KEY`. If you no longer have a key available, you can generate a new one with `New publishable key` - the name is not significant.
+1. Create your Supabase project and _keep your created database password handy for use in GitHub setup later_.
+1. You will need to copy or create the following variables for use later in setup:
+   - Project URL: `Settings -> Data API -> Project URL`. This will be used in Netlify as `VITE_SUPABASE_URL`.
+   - Publishable key: This is found under `Settings -> API Keys -> Publishable key`. You should already have one there with the name of `default`. You need the value of this (column `API KEY`) which you will use later in Netlify as `VITE_SUPABASE_PUBLISHABLE_KEY`. If you no longer have a key available, you can generate a new one with `New publishable key` - the name is not significant.
+   - Project ID: `Project Settings -> General -> Project ID`
+   - Create an access token `Account (click avatar) -> Account Preferences -> Access Tokens -> Generate new token` that GitHub can use (as the secret `SUPABASE_ACCESS_TOKEN` in the upcoming section) to push new changes to supabase when you update your site. Select an expiration data and make sure you create a reminder for yourself to update this before it expires. _Expired tokens will cause deploys to fail._
 1. `pnpm supabase login` (if not already logged in via the cli)
 1. `pnpm supabase link` - select your newly created project (_the project selected here will be overwritten_)
 1. Update your `supabase/config.toml` file to represent your new project:
@@ -111,7 +97,7 @@ Note that the current authentication setup uses email as the provider, allows ne
    - `[auth]`
      - `site_url` - this should be set to your public production domain origin, e.g. `https://eyepiece.net` or your Netlify subdomain such as `https://eyepiece.netlify.app/` if you aren't using a custom one.
      - `additional_redirect_urls` - modify these so that the domains match your project. You can be more specific with the paths if desired, but do not loosen up production.
-       - `https://**--eyepiece.netlify.app/**` - replace `eyepiece` with your Netlify project's name from the previous Netlify section. It also matches your netlify subdomain but prefixed with more characters in the subdomain.
+       - `https://**--eyepiece.netlify.app/**` - replace `eyepiece` with your Netlify project's name from the earlier Netlify section. It also matches your netlify subdomain but prefixed with more characters in the subdomain.
        - `http://localhost:3000/**` - for development - this will remain the same.
        - `https://eypiece.net/auth/confirm` - the origin should follow your setting under Site URL postfixed with `/auth/confirm`
    - `[auth.email.template.confirmation]` - update `subject` as desired
@@ -120,6 +106,28 @@ Note that the current authentication setup uses email as the provider, allows ne
 1. `Email -> SMTP Settings` - TODO
 1. `pnpm supabase db push`
 1. `pnpm supabase config push`
+
+#### GitHub - Part Two
+
+Within your project in GitHub, Go to `Settings -> Secrets and variables -> Actions`. Here we will provide the CI workflow with the needed environment variables for updating the Supabase database and configs as well as publishing the production builds on Netlify.
+
+On this panel, you have options between
+
+1. `Secrets` and `Variables` - described below
+1. `Environment` vs `Repository` - `Repository` is fine for both variables and what is used below. You can use an environment if you set one up, but that is outside of the scope of this document.
+
+Add the following three items as three different secrets via `Secrets -> Repository secrets -> New repository secret` _These are sensitive data and must be created as secrets._:
+
+- _Name_: `NETLIFY_AUTH_TOKEN`; _Value_: The Personal Access Token that you created in Netlify.
+- _Name_: `SUPABASE_ACCESS_TOKEN`; _Value_: The Personal Access Token that you created in Supabase.
+- _Name_: `SUPABASE_DB_PASSWORD`; _Value_: The database password you created during the Supabase project setup. If you do not have this, you can reset it in the Supabase admin panel at `Project -> Database -> Settings -> Database password -> Reset database password`, however **this will cause anything else you have set up to use this password to fail**. If you are just following this guide and haven't set up any other external tools to interact with your Supabase database, this will not have been used yet.
+
+Add the following two items, each as their own new variables via `Variables -> Repository variables -> New repository variable`. You may create these as secrets if you want to keep them alongside your auth tokens in the ui, but they are not sensitive and by doing that you will not be able to see the value later. If you do create them as a secret instead of a variable, you _must_ change the references to them to `secrets` in the `.github/workflows/ci.yml` file e.g. from `NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}` to `NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}`
+
+- _Name_: `NETLIFY_SITE_ID`; _Value_: The Netlify Project ID noted in the earlier Netlify section.
+- _Name_: `SUPABASE_PROJECT_REF`; _Value_: The Supabase Project ID found in the earlier Supabase section.
+
+1. Add the access token created in Supabase to your GitHub secrets
 
 #### Netlify - Part Two
 

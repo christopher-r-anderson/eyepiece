@@ -77,7 +77,7 @@ const Thumbnail = ({ asset }: { asset: EyepieceAssetItem }) => {
             viewTransitionName: detailClicked ? `asset-${asset.id}` : undefined,
           }}
           src={thumbnail.href}
-          alt={asset.description}
+          alt=""
           width={thumbnail.width}
           height={thumbnail.height}
         />
