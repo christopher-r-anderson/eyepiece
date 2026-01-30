@@ -74,6 +74,13 @@ export function AssetView() {
           },
         }}
       >
+        {/*
+          title as alt: it isn't ideal since it is in the h1 and not primarily describe-what-is-in-the-image
+          but there isn't specific data for that, it *often does* describe what you can see in the image
+          and the image is the focus of the page, not decorative so an empty alt doesn't seem appropriate either.
+          Description is potentially paragraphs of content going beyond what is in the image.
+          Revisit if there is feedback.
+        */}
         <img
           css={{
             maxWidth: '100%',
@@ -88,7 +95,7 @@ export function AssetView() {
             viewTransitionName: `asset-${data.id}`,
           }}
           src={image.href}
-          alt={data.description}
+          alt={data.title}
           width={image.width}
           height={image.height}
         />
