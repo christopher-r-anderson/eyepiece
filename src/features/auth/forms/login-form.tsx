@@ -2,11 +2,9 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
 import { login } from '../auth-service'
-import { AuthFormHeading } from './components/auth-form-heading'
-import type { HeadingLevel } from './components/auth-form-heading'
 import type { ReactNode } from 'react'
-import type { FormProps } from '@/components/ui/forms'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import type { FormHeadingLevel, FormProps } from '@/components/ui/forms'
+import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
 
@@ -16,7 +14,7 @@ const loginSchema = z.object({
 })
 
 type LoginProps = {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
   onSuccess: () => void
   forgotPasswordLink: ReactNode
 } & FormProps
@@ -35,14 +33,14 @@ export function LoginForm({
     }
   }, [state, onSuccess])
 
-  const { fieldErrors, formErrors, values } = useDerivedFormState(state)
+  const { fieldErrors, formError, values } = useDerivedFormState(state)
 
   return (
     <Form
       autoComplete="on"
       action={formAction}
       validationErrors={fieldErrors}
-      formErrors={formErrors}
+      formError={formError}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
@@ -61,9 +59,9 @@ export function LoginForm({
         </div>
       }
     >
-      <AuthFormHeading id={id} headingLevel={headingLevel}>
+      <FormHeading id={id} headingLevel={headingLevel}>
         Log In
-      </AuthFormHeading>
+      </FormHeading>
       <InputGroup>
         <TextField
           name="email"

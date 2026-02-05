@@ -3,9 +3,8 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { resendRegisterConfirmation } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
-import { AuthFormHeading } from './components/auth-form-heading'
-import type { HeadingLevel } from './components/auth-form-heading'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import type { FormHeadingLevel } from '@/components/ui/forms'
+import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
 
@@ -19,7 +18,7 @@ export function ResendConfirmationForm({
   next,
   onSuccess,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
   next?: string
   onSuccess?: () => void
 }) {
@@ -36,14 +35,14 @@ export function ResendConfirmationForm({
     }
   }, [state, onSuccess])
 
-  const { fieldErrors, formErrors, values } = useDerivedFormState(state)
+  const { fieldErrors, formError, values } = useDerivedFormState(state)
 
   return (
     <Form
       autoComplete="on"
       action={formAction}
       validationErrors={fieldErrors}
-      formErrors={formErrors}
+      formError={formError}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
@@ -60,9 +59,9 @@ export function ResendConfirmationForm({
         </div>
       }
     >
-      <AuthFormHeading id={id} headingLevel={headingLevel}>
+      <FormHeading id={id} headingLevel={headingLevel}>
         Resend Confirmation Email
-      </AuthFormHeading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -82,13 +81,13 @@ export function ResendConfirmationForm({
 export function ResendConfirmationSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
 }) {
   return (
     <>
-      <AuthFormHeading headingLevel={headingLevel}>
+      <FormHeading headingLevel={headingLevel}>
         Confirmation Email Sent!
-      </AuthFormHeading>
+      </FormHeading>
       <p>Please check your email to confirm your account.</p>
     </>
   )

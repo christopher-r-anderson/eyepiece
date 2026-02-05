@@ -1,8 +1,8 @@
 import { useActionState } from 'react'
 import { z } from 'zod'
 import type { Action, FormErrorState, FormState } from './forms.types'
-import type { ZodType } from 'zod'
-import { resultIsError } from '@/features/auth/types'
+import type { ZodError, ZodType } from 'zod'
+import { resultIsError } from '@/lib/result'
 
 export function useActionForm<TSchema extends ZodType>(
   schema: TSchema,
@@ -14,11 +14,11 @@ export function useActionForm<TSchema extends ZodType>(
   ): Promise<FormState<TSchema>> {
     const validation = schema.safeParse(Object.fromEntries(formData))
     if (!validation.success) {
-      const { formErrors, fieldErrors } = z.flattenError(validation.error)
+      const { formError, fieldErrors } = extractZodErrors(validation.error)
       const response: FormErrorState<TSchema> = {
         status: 'validation-error',
         hasErrors: true,
-        errors: formErrors,
+        error: formError,
         fieldErrors,
         formDataObject: dropBlobs(Object.fromEntries(formData.entries())),
       }
@@ -30,7 +30,7 @@ export function useActionForm<TSchema extends ZodType>(
       return {
         status: 'action-error',
         hasErrors: true,
-        errors: [result.message],
+        error: result.error.message,
         data: validation.data,
         formDataObject: dropBlobs(Object.fromEntries(formData.entries())),
       }
@@ -50,25 +50,25 @@ export function useDerivedFormState<TSchema extends ZodType>(
     case 'idle':
       return {
         fieldErrors: {},
-        formErrors: [],
+        formError: '',
         values: {},
       }
     case 'success':
       return {
         fieldErrors: {},
-        formErrors: [],
+        formError: '',
         values: {},
       }
     case 'validation-error':
       return {
         fieldErrors: state.fieldErrors,
-        formErrors: state.errors,
+        formError: state.error,
         values: state.formDataObject,
       }
     case 'action-error':
       return {
         fieldErrors: {},
-        formErrors: state.errors,
+        formError: state.error,
         values: state.formDataObject,
       }
   }
@@ -84,4 +84,26 @@ function dropBlobs(
     }
   }
   return output
+}
+
+function extractZodErrors(zodError: ZodError): {
+  formError: string
+  fieldErrors: Record<string, string>
+} {
+  const flattenedErrors = z.flattenError(zodError)
+  const error = {
+    formError: flattenedErrors.formErrors[0],
+    fieldErrors: {} as Record<string, string>,
+  }
+  Object.entries(flattenedErrors.fieldErrors).forEach(([key, value]) => {
+    if (
+      value &&
+      Array.isArray(value) &&
+      value.length > 0 &&
+      typeof value[0] === 'string'
+    ) {
+      error.fieldErrors[key] = value[0]
+    }
+  })
+  return error
 }

@@ -3,9 +3,8 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { resetPassword } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
-import { AuthFormHeading } from './components/auth-form-heading'
-import type { HeadingLevel } from './components/auth-form-heading'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import type { FormHeadingLevel } from '@/components/ui/forms'
+import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
 
@@ -19,7 +18,7 @@ export function ForgotPasswordForm({
   next,
   onSuccess,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
   next?: string
   onSuccess: () => void
 }) {
@@ -35,7 +34,7 @@ export function ForgotPasswordForm({
     }
   }, [state, onSuccess])
 
-  const { fieldErrors, formErrors, values } = useDerivedFormState(state)
+  const { fieldErrors, formError, values } = useDerivedFormState(state)
 
   return (
     <Form
@@ -44,7 +43,7 @@ export function ForgotPasswordForm({
       autoComplete="on"
       action={formAction}
       validationErrors={fieldErrors}
-      formErrors={formErrors}
+      formError={formError}
       controls={
         <div
           style={{
@@ -59,9 +58,9 @@ export function ForgotPasswordForm({
         </div>
       }
     >
-      <AuthFormHeading id={id} headingLevel={headingLevel}>
+      <FormHeading id={id} headingLevel={headingLevel}>
         Reset Password
-      </AuthFormHeading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -81,13 +80,13 @@ export function ForgotPasswordForm({
 export function ForgotPasswordSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
 }) {
   return (
     <>
-      <AuthFormHeading headingLevel={headingLevel}>
+      <FormHeading headingLevel={headingLevel}>
         Password reset sent!
-      </AuthFormHeading>
+      </FormHeading>
       <p>Please check your email to reset your password.</p>
     </>
   )

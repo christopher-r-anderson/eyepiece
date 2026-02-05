@@ -1,7 +1,9 @@
-import { Err, Ok } from './types'
-import type { Result, User } from './types'
+import { mapSupabaseAuthError } from './errors'
+import type { User } from './types'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import type { Result } from '@/lib/result'
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser'
+import { Err, Ok } from '@/lib/result'
 
 export async function getUser(): Promise<User | null> {
   const supabase = createSupabaseBrowserClient()
@@ -27,7 +29,7 @@ export async function login(credentials: {
 }): Promise<Result<void>> {
   const supabase = createSupabaseBrowserClient()
   const { error } = await supabase.auth.signInWithPassword(credentials)
-  return error ? Err(error.message) : Ok()
+  return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
 
 export async function resetPassword({
@@ -41,7 +43,7 @@ export async function resetPassword({
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   })
-  return error ? Err(error.message) : Ok()
+  return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
 
 export async function register({
@@ -69,7 +71,7 @@ export async function register({
       emailRedirectTo: redirectTo,
     },
   })
-  return error ? Err(error.message) : Ok()
+  return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
 
 export async function resendRegisterConfirmation({
@@ -87,7 +89,7 @@ export async function resendRegisterConfirmation({
       emailRedirectTo: redirectTo,
     },
   })
-  return error ? Err(error.message) : Ok()
+  return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
 
 export async function updatePassword({
@@ -99,7 +101,7 @@ export async function updatePassword({
   const { error } = await supabase.auth.updateUser({
     password,
   })
-  return error ? Err(error.message) : Ok()
+  return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
 
 export function onUserChange(callback: (user: User | null) => void) {
