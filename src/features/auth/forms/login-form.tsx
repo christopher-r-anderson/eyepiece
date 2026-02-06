@@ -6,7 +6,8 @@ import type { ReactNode } from 'react'
 import type { FormHeadingLevel, FormProps } from '@/components/ui/forms'
 import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
+import { useTypedActionState } from '@/components/ui/forms.hooks'
+import { useEvent } from '@/lib/hooks/use-event'
 
 const loginSchema = z.object({
   email: z.email(),
@@ -25,22 +26,22 @@ export function LoginForm({
   forgotPasswordLink,
 }: LoginProps) {
   const id = useId()
-  const [state, formAction, isPending] = useActionForm(loginSchema, login)
 
+  const [state, formAction, isPending] = useTypedActionState(loginSchema, login)
+
+  const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
     if (state.status === 'success') {
-      onSuccess()
+      onSuccessRef.current?.()
     }
-  }, [state, onSuccess])
-
-  const { fieldErrors, formError, values } = useDerivedFormState(state)
+  }, [state.status])
 
   return (
     <Form
       autoComplete="on"
       action={formAction}
-      validationErrors={fieldErrors}
-      formError={formError}
+      validationErrors={state.fieldErrors}
+      formError={state.error}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
@@ -68,7 +69,7 @@ export function LoginForm({
           type="email"
           autoComplete="username"
           isRequired
-          defaultValue={values.email}
+          defaultValue={state.formData?.email}
           label="Email"
           placeholder="name@example.com"
         />
@@ -77,7 +78,7 @@ export function LoginForm({
           type="password"
           autoComplete="current-password"
           isRequired
-          defaultValue={values.password}
+          defaultValue={state.formData?.password}
           label="Password"
         />
       </InputGroup>

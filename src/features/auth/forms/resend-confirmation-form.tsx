@@ -6,7 +6,8 @@ import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import type { FormHeadingLevel } from '@/components/ui/forms'
 import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
+import { useTypedActionState } from '@/components/ui/forms.hooks'
+import { useEvent } from '@/lib/hooks/use-event'
 
 const resendConfirmationSchema = z.object({
   email: z.email(),
@@ -23,26 +24,26 @@ export function ResendConfirmationForm({
   onSuccess?: () => void
 }) {
   const id = useId()
-  const [state, formAction, isPending] = useActionForm(
+  const redirectTo = useEmailRedirectTo(next)
+
+  const [state, formAction, isPending] = useTypedActionState(
     resendConfirmationSchema,
     resendRegisterConfirmation,
   )
-  const redirectTo = useEmailRedirectTo(next)
 
+  const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
     if (state.status === 'success') {
-      onSuccess?.()
+      onSuccessRef.current?.()
     }
-  }, [state, onSuccess])
-
-  const { fieldErrors, formError, values } = useDerivedFormState(state)
+  }, [state.status])
 
   return (
     <Form
       autoComplete="on"
       action={formAction}
-      validationErrors={fieldErrors}
-      formError={formError}
+      validationErrors={state.fieldErrors}
+      formError={state.error}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
@@ -69,7 +70,7 @@ export function ResendConfirmationForm({
           type="email"
           autoComplete="email"
           isRequired
-          defaultValue={values.email}
+          defaultValue={state.formData?.email}
           label="Email"
           placeholder="name@example.com"
         />

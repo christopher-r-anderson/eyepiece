@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-import { requireAuthenticated } from '@/features/auth/guards'
+import { requireAuthenticated } from '@/lib/guards'
 
 export const Route = createFileRoute('/(pages)/settings')({
   beforeLoad: requireAuthenticated,

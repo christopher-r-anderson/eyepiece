@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LoginForm } from '@/features/auth/forms/login-form'
 import { Link } from '@/components/ui/link'
-import { requireAnonymous } from '@/features/auth/guards'
+import { requireAnonymous } from '@/lib/guards'
 
 export const Route = createFileRoute('/(auth)/login')({
   component: LoginPage,

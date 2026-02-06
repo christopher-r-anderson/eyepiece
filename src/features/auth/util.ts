@@ -1,5 +1,4 @@
-const STRIP_PARAMS = ['auth', 'next', 'fp'] as const
-const PARSE_BASE = 'http://parse.local'
+import { STRIP_PARAMS } from '@/lib/util'
 
 export function stripAuthSearchParams<T extends Record<string, unknown>>(
   params: T,
@@ -10,13 +9,6 @@ export function stripAuthSearchParams<T extends Record<string, unknown>>(
   }
   return newParams as Omit<T, (typeof STRIP_PARAMS)[number]>
 }
-
-export function urlToNextParam(url: string) {
-  const u = new URL(url, PARSE_BASE)
-  for (const key of STRIP_PARAMS) u.searchParams.delete(key)
-  return `${u.pathname}${u.search}${u.hash}`
-}
-
 export function isPlainLeftClick({
   button,
   metaKey,

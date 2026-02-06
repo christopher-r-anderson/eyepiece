@@ -8,12 +8,13 @@ import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { FormHeadingLevel } from '@/components/ui/forms'
 import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
+import { useTypedActionState } from '@/components/ui/forms.hooks'
+import { displayNameSchema } from '@/lib/schemas/profile.schema'
+import { useEvent } from '@/lib/hooks/use-event'
 
 const registrationSchema = z.object({
   email: z.email(),
-  familyName: z.string().trim().min(1),
-  givenName: z.string().trim().min(1),
+  displayName: displayNameSchema,
   password: setPasswordFieldSchema,
   redirectTo: z.url(),
 })
@@ -28,25 +29,26 @@ export function RegistrationForm({
   onSuccess: () => void
 }) {
   const id = useId()
-  const [state, formAction, isPending] = useActionForm(
+  const redirectTo = useEmailRedirectTo(next)
+
+  const [state, formAction, isPending] = useTypedActionState(
     registrationSchema,
     register,
   )
-  const redirectTo = useEmailRedirectTo(next)
+
+  const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
     if (state.status === 'success') {
-      onSuccess()
+      onSuccessRef.current?.()
     }
-  }, [state, onSuccess])
-
-  const { fieldErrors, formError, values } = useDerivedFormState(state)
+  }, [state.status])
 
   return (
     <Form
       autoComplete="on"
       action={formAction}
-      validationErrors={fieldErrors}
-      formError={formError}
+      validationErrors={state.fieldErrors}
+      formError={state.error}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
@@ -69,31 +71,23 @@ export function RegistrationForm({
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
-          name="givenName"
+          name="displayName"
           type="text"
-          autoComplete="given-name"
+          autoComplete="name"
           isRequired
-          defaultValue={values.givenName}
-          label="First Name"
-        />
-        <TextField
-          name="familyName"
-          type="text"
-          autoComplete="family-name"
-          isRequired
-          defaultValue={values.familyName}
-          label="Last Name"
+          defaultValue={state.formData?.displayName}
+          label="Display Name (shown publicly)"
         />
         <TextField
           name="email"
           type="email"
           autoComplete="email"
           isRequired
-          defaultValue={values.email}
+          defaultValue={state.formData?.email}
           label="Email"
           placeholder="name@example.com"
         />
-        <SetPasswordField defaultValue={values.password} />
+        <SetPasswordField defaultValue={state.formData?.password} />
       </InputGroup>
     </Form>
   )

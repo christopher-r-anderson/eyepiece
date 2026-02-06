@@ -1,33 +1,31 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
-import { useUserQuery } from '../auth-queries'
-import { updatePassword } from '../auth-service'
-import { SetPasswordField } from './components/set-password-field'
-import { setPasswordFieldSchema } from './components/set-password-field.schema'
+import { upsertProfile } from '../profile-service'
 import type { FormHeadingLevel } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup } from '@/components/ui/forms'
+import type { FormDataObject } from '@/components/ui/forms.types'
+import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
+import { profileInputSchema } from '@/lib/schemas/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 
-const updatePasswordSchema = z.object({
-  password: setPasswordFieldSchema,
-})
-
-export function UpdatePasswordForm({
+export function UpsertProfileForm({
   headingLevel,
+  initialData,
+  isDisabled,
   onSuccess,
 }: {
   headingLevel: FormHeadingLevel
+  initialData?: FormDataObject
+  isDisabled?: boolean
   onSuccess: () => void
 }) {
-  const id = useId()
-  const userQuery = useUserQuery()
+  const headingId = useId()
 
   const [state, formAction, isPending] = useTypedActionState(
-    updatePasswordSchema,
-    updatePassword,
+    profileInputSchema,
+    upsertProfile,
+    initialData,
   )
 
   const onSuccessRef = useEvent(onSuccess)
@@ -39,11 +37,11 @@ export function UpdatePasswordForm({
 
   return (
     <Form
-      aria-labelledby={id}
       autoComplete="on"
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
+      aria-labelledby={headingId}
       aria-busy={isPending || undefined}
       controls={
         <div
@@ -53,26 +51,30 @@ export function UpdatePasswordForm({
             marginBlockStart: '1rem',
           }}
         >
-          <Button variant="primary" type="submit" isDisabled={isPending}>
-            Update
+          <Button
+            variant="primary"
+            type="submit"
+            isDisabled={isDisabled || isPending}
+          >
+            Update Profile
           </Button>
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
-        Update Password
+      <FormHeading id={headingId} headingLevel={headingLevel}>
+        Create Profile
       </FormHeading>
       <InputGroup>
-        {/* for the browser save password prompt */}
-        <input
-          type="email"
-          name="username"
-          value={userQuery.data?.email ?? ''}
-          autoComplete="username"
-          css={{ display: 'none' }}
-          readOnly
+        <input type="hidden" name="id" defaultValue={state.formData?.id} />
+        <TextField
+          name="displayName"
+          type="text"
+          autoComplete="name"
+          isRequired
+          isDisabled={isDisabled}
+          defaultValue={state.formData?.displayName}
+          label="Display Name (shown publicly)"
         />
-        <SetPasswordField defaultValue={state.formData?.password} />
       </InputGroup>
     </Form>
   )

@@ -1,11 +1,8 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import {
-  isPlainLeftClick,
-  stripAuthSearchParams,
-  urlToNextParam,
-} from '../util'
+import { isPlainLeftClick, stripAuthSearchParams } from '../util'
 import { useAuthInteractionStrategy } from '../hooks/use-auth-interaction-strategy'
 import { Link } from '@/components/ui/link'
+import { urlToNextParam } from '@/lib/util'
 
 export function LoginLink() {
   const href = useLocation({ select: (location) => location.href })

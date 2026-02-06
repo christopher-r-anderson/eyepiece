@@ -48,14 +48,12 @@ export async function resetPassword({
 
 export async function register({
   email,
-  familyName,
-  givenName,
+  displayName,
   password,
   redirectTo,
 }: {
   email: string
-  familyName: string
-  givenName: string
+  displayName: string
   password: string
   redirectTo: string
 }): Promise<Result<void>> {
@@ -65,8 +63,7 @@ export async function register({
     password,
     options: {
       data: {
-        family_name: familyName,
-        given_name: givenName,
+        display_name: displayName,
       },
       emailRedirectTo: redirectTo,
     },
@@ -117,7 +114,5 @@ function userFromSupabaseUser(supabaseUser: SupabaseUser): User {
   return {
     id: supabaseUser.id,
     email: supabaseUser.email,
-    givenName: supabaseUser.user_metadata.given_name,
-    familyName: supabaseUser.user_metadata.family_name,
   }
 }

@@ -1,18 +1,5 @@
 import { z } from 'zod'
-
-const redirectValueSchema = z
-  .string()
-  .optional()
-  .transform((val) => {
-    if (!val) return undefined
-    if (val.startsWith('/') && !val.startsWith('//') && !val.includes('://'))
-      return val
-    return undefined
-  })
-
-const redirectSearchParamsSchema = z.object({
-  next: redirectValueSchema,
-})
+import { redirectSearchParamsSchema } from '@/lib/route.schema'
 
 // applied to `(pages)` route group which does not contain auth so all non auth pages can open the modal
 export const authModalSearchParamsSchema = z.discriminatedUnion('auth', [
