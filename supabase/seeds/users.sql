@@ -37,10 +37,8 @@ SELECT
   END,
   '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object(
-    'given_name',
-    nullif(btrim(s.given_name), ''),
-    'family_name',
-    nullif(btrim(s.family_name), ''),
+    'display_name',
+    nullif(btrim(s.display_name), ''),
     'email_verified',
     s.email_confirmed
   ),
@@ -54,9 +52,9 @@ FROM
   (
     VALUES
       -- add seed users here. can't use a temp table locally (it does not exist when referencing) so just using values
-      ('user1@example.com', 'hunter2', TRUE, 'Demo', 'User'),
-      ('user2@example.com', 'password123', FALSE, 'Unconfirmed', 'Person')
-  ) AS s (email, password, email_confirmed, given_name, family_name);
+      ('user1@example.com', 'hunter2', TRUE, 'Demo User'),
+      ('user2@example.com', 'password123', FALSE, 'Unconfirmed Person')
+  ) AS s (email, password, email_confirmed, display_name);
 
 /* Note: setting email_verified: false even though it was true on user, because that's what the admin ui did */
 INSERT INTO auth.identities

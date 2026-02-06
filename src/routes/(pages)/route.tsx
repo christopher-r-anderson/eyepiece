@@ -4,9 +4,11 @@ import {
   authModalStateSchema,
 } from '@/features/auth/schemas'
 import { AuthModalController } from '@/features/auth/components/auth-modal-controller'
+import { userHasProfile } from '@/lib/guards'
 
 export const Route = createFileRoute('/(pages)')({
   validateSearch: authModalSearchParamsSchema,
+  beforeLoad: userHasProfile,
   component: PagesLayout,
 })
 

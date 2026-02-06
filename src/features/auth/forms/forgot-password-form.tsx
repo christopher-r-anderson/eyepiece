@@ -3,11 +3,11 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { resetPassword } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
-import { AuthFormHeading } from './components/auth-form-heading'
-import type { HeadingLevel } from './components/auth-form-heading'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import type { FormHeadingLevel } from '@/components/ui/forms'
+import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useActionForm, useDerivedFormState } from '@/components/ui/forms.hooks'
+import { useTypedActionState } from '@/components/ui/forms.hooks'
+import { useEvent } from '@/lib/hooks/use-event'
 
 const forgotPasswordSchema = z.object({
   email: z.email(),
@@ -19,23 +19,24 @@ export function ForgotPasswordForm({
   next,
   onSuccess,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
   next?: string
   onSuccess: () => void
 }) {
-  const [state, formAction, isPending] = useActionForm(
+  const id = useId()
+  const redirectTo = useEmailRedirectTo(next)
+
+  const [state, formAction, isPending] = useTypedActionState(
     forgotPasswordSchema,
     resetPassword,
   )
-  const id = useId()
-  const redirectTo = useEmailRedirectTo(next)
+
+  const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
     if (state.status === 'success') {
-      onSuccess()
+      onSuccessRef.current?.()
     }
-  }, [state, onSuccess])
-
-  const { fieldErrors, formErrors, values } = useDerivedFormState(state)
+  }, [state.status])
 
   return (
     <Form
@@ -43,8 +44,8 @@ export function ForgotPasswordForm({
       aria-busy={isPending || undefined}
       autoComplete="on"
       action={formAction}
-      validationErrors={fieldErrors}
-      formErrors={formErrors}
+      validationErrors={state.fieldErrors}
+      formError={state.error}
       controls={
         <div
           style={{
@@ -59,9 +60,9 @@ export function ForgotPasswordForm({
         </div>
       }
     >
-      <AuthFormHeading id={id} headingLevel={headingLevel}>
+      <FormHeading id={id} headingLevel={headingLevel}>
         Reset Password
-      </AuthFormHeading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -69,7 +70,7 @@ export function ForgotPasswordForm({
           type="email"
           autoComplete="email"
           isRequired
-          defaultValue={values.email}
+          defaultValue={state.formData?.email}
           label="Email"
           placeholder="name@example.com"
         />
@@ -81,13 +82,13 @@ export function ForgotPasswordForm({
 export function ForgotPasswordSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: HeadingLevel
+  headingLevel: FormHeadingLevel
 }) {
   return (
     <>
-      <AuthFormHeading headingLevel={headingLevel}>
+      <FormHeading headingLevel={headingLevel}>
         Password reset sent!
-      </AuthFormHeading>
+      </FormHeading>
       <p>Please check your email to reset your password.</p>
     </>
   )

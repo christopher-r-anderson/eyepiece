@@ -24,32 +24,39 @@ export { FieldError, Input, Label }
 
 export type { FormState, FormErrorState } from './forms.types'
 
-export function FormErrors({ errors = [] }: { errors?: Array<string> }) {
-  if (errors.length === 0) {
-    return null
+export function FormError({ error }: { error?: string }) {
+  if (error) {
+    return <p>{error}</p>
   }
+}
+
+export type FormHeadingLevel = 1 | 2 | 3
+
+type FormHeadingProps = {
+  headingLevel: FormHeadingLevel
+  id?: string
+  children: ReactNode
+}
+type HeadingTag = `h${FormHeadingLevel}`
+
+export function FormHeading({ headingLevel, id, children }: FormHeadingProps) {
+  const Heading: HeadingTag = `h${headingLevel}`
   return (
-    <ul
-      css={{
-        color: 'red',
-        listStyleType: 'none',
-        padding: 0,
-        marginTop: '1rem',
-      }}
+    <Heading
+      id={id}
+      css={{ fontSize: '1.25rem', margin: 0, marginBlockEnd: '2rem' }}
     >
-      {errors.map((error, index) => (
-        <li key={index}>{error}</li>
-      ))}
-    </ul>
+      {children}
+    </Heading>
   )
 }
 
 export type FormProps = {
-  formErrors?: Array<string>
+  formError?: string
   controls?: React.ReactNode
 } & RacFormProps
 
-export function Form({ children, formErrors, controls, ...props }: FormProps) {
+export function Form({ children, formError, controls, ...props }: FormProps) {
   return (
     <RacForm
       {...props}
@@ -59,7 +66,7 @@ export function Form({ children, formErrors, controls, ...props }: FormProps) {
       }}
     >
       {children}
-      {formErrors && <FormErrors errors={formErrors} />}
+      {formError && <FormError error={formError} />}
       {controls}
     </RacForm>
   )

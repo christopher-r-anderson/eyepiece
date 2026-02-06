@@ -2,7 +2,9 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { confirmationSearchParamsSchema } from '@/features/auth/schemas'
-import { urlToNextParam } from '@/features/auth/util'
+import { urlToNextParam } from '@/lib/util'
+import { makeUpsertProfile } from '@/features/profiles/profile-service'
+import { resultIsSuccess } from '@/lib/result'
 
 const SEE_OTHER = 303
 
@@ -17,7 +19,7 @@ export const Route = createFileRoute('/(auth)/auth/confirm')({
         const next =
           typeof nextUrl === 'string' ? urlToNextParam(nextUrl) : undefined
         const supabase = createSupabaseServerClient()
-        const { error } = await supabase.auth.verifyOtp({
+        const { data, error } = await supabase.auth.verifyOtp({
           type,
           token_hash,
         })
@@ -31,9 +33,33 @@ export const Route = createFileRoute('/(auth)/auth/confirm')({
         } else {
           switch (type) {
             // register flow
-            case 'email':
+            case 'email': {
+              // create profile
+              // should have a user here, but it isn't guaranteed
+              if (!data.user) {
+                throw redirect({
+                  to: '/login',
+                  search: { next: next ?? '/' },
+                  statusCode: SEE_OTHER,
+                })
+              }
+              const user = data.user
+              if (user.user_metadata.display_name) {
+                const result = await makeUpsertProfile(supabase)({
+                  id: user.id,
+                  displayName: user.user_metadata.display_name,
+                })
+                if (resultIsSuccess(result)) {
+                  throw redirect({ to: next ?? '/', statusCode: SEE_OTHER })
+                }
+              }
+              throw redirect({
+                to: '/complete-profile',
+                search: { next },
+                statusCode: SEE_OTHER,
+              })
               // send them to where they started or home
-              throw redirect({ to: next ?? '/', statusCode: SEE_OTHER })
+            }
             // forgot password flow
             case 'recovery':
               // pass along next to send them where they started or to home after they update their password

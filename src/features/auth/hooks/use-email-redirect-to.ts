@@ -1,5 +1,5 @@
 import { useLocation } from '@tanstack/react-router'
-import { urlToNextParam } from '../util'
+import { urlToNextParam } from '@/lib/util'
 
 export function useEmailRedirectTo(next?: string) {
   const location = useLocation()

@@ -14,9 +14,11 @@ pnpm install
 
 # You can do one of the following to set up your environment variables
 # on a system with bash (Linux, WSL _untested_, etc.)
-pnpm create-env-local
+pnpm create-env-local # for development
+pnpm create-env-test # for integration tests
 # OR
 cp .env.example .env.local # snd update your `.env.local` file with the values from `pnpm supabase start` above
+cp .env.test.example .env.test # snd update your `.env.test` file with the values from `pnpm supabase start` above
 
 # To be able to run e2e tests, use one of the following:
 # Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions

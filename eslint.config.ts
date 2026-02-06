@@ -54,4 +54,11 @@ export default [
       'no-restricted-imports': 'off',
     },
   },
+  {
+    files: ['src/lib/supabase/database.types.ts'],
+    rules: {
+      '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+    },
+  },
 ]

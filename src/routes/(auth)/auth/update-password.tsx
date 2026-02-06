@@ -4,8 +4,8 @@ import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { Link } from '@/components/ui/link'
-import { requireAuthenticated } from '@/features/auth/guards'
-import { urlToNextParam } from '@/features/auth/util'
+import { requireAuthenticated } from '@/lib/guards'
+import { urlToNextParam } from '@/lib/util'
 
 export const Route = createFileRoute('/(auth)/auth/update-password')({
   component: UpdatePasswordPage,

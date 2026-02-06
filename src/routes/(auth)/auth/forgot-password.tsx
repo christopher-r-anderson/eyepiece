@@ -5,7 +5,7 @@ import {
   ForgotPasswordSuccessMessage,
 } from '@/features/auth/forms/forgot-password-form'
 import { FormStatusSwitcher } from '@/components/ui/forms'
-import { requireAnonymous } from '@/features/auth/guards'
+import { requireAnonymous } from '@/lib/guards'
 
 export const Route = createFileRoute('/(auth)/auth/forgot-password')({
   component: ForgotPasswordPage,

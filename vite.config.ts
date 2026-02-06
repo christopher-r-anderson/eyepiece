@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -7,7 +7,7 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 import optimizeLocales from '@react-aria/optimize-locales-plugin'
 import { configDefaults } from 'vitest/config'
 
-const config = defineConfig({
+const config = defineConfig(({ mode }) => ({
   plugins: [
     devtools(),
     // this is the plugin that enables path aliases
@@ -29,7 +29,11 @@ const config = defineConfig({
   test: {
     environment: 'jsdom',
     exclude: [...configDefaults.exclude, '**/.pnpm-store/**', '**/e2e/**'],
+    env: loadEnv(mode, process.cwd(), ''),
+    onConsoleLog(log) {
+      if (log.includes('Multiple GoTrueClient instances detected')) return false
+    },
   },
-})
+}))
 
 export default config

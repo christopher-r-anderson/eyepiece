@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
-import { stripAuthSearchParams, urlToNextParam } from '../util'
+import { stripAuthSearchParams } from '../util'
 import { LoginForm } from '../forms/login-form'
 import {
   RegistrationForm,
@@ -19,6 +19,7 @@ import {
   StableVisibilityStackItem,
 } from '@/components/ui/stable-visibility-stack'
 import { FormStatusSwitcher } from '@/components/ui/forms'
+import { urlToNextParam } from '@/lib/util'
 
 export function AuthModalController({
   modal: { authMode, showForgotPassword },
