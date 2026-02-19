@@ -1,20 +1,29 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
-import { NOT_FOUND_IMAGE, getTitleText } from '@/lib/util'
-import { getAssetOptions, useAsset } from '@/features/assets/api/asset-queries'
+import { getTitleText } from '@/lib/util'
+import { getAssetOptions, useAsset } from '@/features/assets/api/asset.queries'
 import { Link } from '@/components/ui/link'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 import { createEyepieceClient } from '@/lib/api/eyepiece/client'
+import { NASA_IVL_PROVIDER, assetKeySchema } from '@/domain/asset/asset.schemas'
+import { PrettyException } from '@/components/ui/error'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
-  component: AssetView,
-  loader: ({ context, location, params }) => {
+  component: AssetPage,
+  beforeLoad: ({ params }) => {
+    const assetKey = assetKeySchema.parse({
+      provider: NASA_IVL_PROVIDER,
+      externalId: params.assetId,
+    })
+    return { assetKey }
+  },
+  loader: ({ context, location }) => {
     const client = createEyepieceClient({
       origin: location.url.origin,
     })
     return context.queryClient.ensureQueryData(
-      getAssetOptions(client, params.assetId),
+      getAssetOptions(client, context.assetKey),
     )
   },
   head: ({ loaderData }) => ({
@@ -22,10 +31,10 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
   }),
 })
 
-export function AssetView() {
-  const { assetId } = Route.useParams()
+export function AssetPage() {
+  const { assetKey } = Route.useRouteContext()
   const client = useEyepieceClient()
-  const { data, isPending, isError, error } = useAsset(client, assetId)
+  const { data, isPending, isError, error } = useAsset(client, assetKey)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
@@ -35,14 +44,8 @@ export function AssetView() {
   }
 
   if (isError) {
-    return (
-      <div>
-        <p>Error loading asset</p>
-        <pre>{JSON.stringify(error, null, 2)}</pre>
-      </div>
-    )
+    return <PrettyException error={error} headingLevel={1} />
   }
-  const image = data.image || NOT_FOUND_IMAGE
 
   return (
     <main
@@ -60,7 +63,7 @@ export function AssetView() {
           </Link>
         )}
         <h1 css={{ color: 'var(--text-accent)' }}>{data.title}</h1>
-        <MetadataButton id={data.id} />
+        <MetadataButton assetKey={assetKey} />
       </div>
       <div
         css={{
@@ -94,10 +97,10 @@ export function AssetView() {
             alignSelf: 'flex-start',
             viewTransitionName: `asset-${data.id}`,
           }}
-          src={image.href}
+          src={data.image.href}
           alt={data.title}
-          width={image.width}
-          height={image.height}
+          width={data.image.width}
+          height={data.image.height}
         />
         <figcaption>
           <div

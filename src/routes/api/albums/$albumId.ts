@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
 import { calculateNextPage } from '../-util'
 import type { EyepieceAssetCollectionResponse } from '@/lib/api/eyepiece/types'
 import { getAlbum } from '@/server/lib/nasa-images/client'
@@ -48,7 +47,7 @@ export const Route = createFileRoute('/api/albums/$albumId')({
           assets,
           pagination: { next, total },
         }
-        return json(response)
+        return Response.json(response)
       },
     },
   },

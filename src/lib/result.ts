@@ -4,6 +4,8 @@ export type ResultError<TErrorCode extends ErrorCode = undefined> = {
   message: string
   code?: TErrorCode
   fieldErrors?: Record<string, string>
+  // this prevents `Result`s being used across server functions due to not being serializable, currently throwing, revisit if needed
+  cause?: unknown
 }
 
 export type ErrorResult<TErrorCode extends ErrorCode = undefined> = {
@@ -49,4 +51,32 @@ export function resultIsSuccess<
   TErrorCode extends ErrorCode = undefined,
 >(result: Result<TData, TErrorCode>): result is SuccessResult<TData> {
   return result.kind === 'success'
+}
+
+class AppException<TErrorCode extends ErrorCode = undefined> extends Error {
+  readonly appError: ResultError<TErrorCode>
+
+  constructor(appError: ResultError<TErrorCode>) {
+    super(appError.message, { cause: appError.cause })
+    this.name = 'AppException'
+    this.appError = appError
+  }
+}
+
+function throwFromErrorResult<TErrorCode extends ErrorCode = undefined>(
+  error: ResultError<TErrorCode>,
+): never {
+  const origException = error.cause instanceof Error ? error.cause : undefined
+  if (origException) {
+    ;(origException as any).appError = error
+    throw origException
+  }
+  throw new AppException(error)
+}
+
+export function unwrapOrThrow<TData, TErrorCode extends ErrorCode = undefined>(
+  result: Result<TData, TErrorCode>,
+): TData {
+  if (resultIsSuccess(result)) return result.data
+  throwFromErrorResult(result.error)
 }

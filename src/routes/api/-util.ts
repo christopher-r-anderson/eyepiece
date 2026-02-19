@@ -10,3 +10,9 @@ export function calculateNextPage(
     ? pagination.page + 1
     : undefined
 }
+
+export function paginationToRange(pagination: EyepiecePagination) {
+  const start = (pagination.page - 1) * pagination.pageSize
+  const end = start + pagination.pageSize - 1
+  return { start, end }
+}

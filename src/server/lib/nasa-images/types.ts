@@ -71,7 +71,7 @@ const createCollectionSchema = <T extends z.ZodTypeAny>(itemDataSchema: T) =>
 const nasaMediaItemSchema = z.object({
   center: z.string(),
   date_created: z.iso.datetime(),
-  description: z.string(),
+  description: z.string().optional(),
   keywords: z.array(z.string()).optional(),
   media_type: nasaMediaSchema,
   nasa_id: z.string(),

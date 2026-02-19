@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import {
+  assetKeyStringSchema,
+  assetProviderSchema,
+  externalIdSchema,
+  imageSchema,
+} from '@/domain/asset/asset.schemas'
 
 export const DEFAULT_PAGE_SIZE = 24
 export const DEFAULT_PAGE = 1
@@ -51,21 +57,19 @@ export const eyepieceMetadataSchema = z.record(z.string(), z.any())
 
 export type EyepieceMetadata = z.infer<typeof eyepieceMetadataSchema>
 
-const eyepieceImageSchema = z.object({
-  href: z.string(),
-  width: z.number().optional(),
-  height: z.number().optional(),
-})
+const eyepieceImageSchema = imageSchema
 
 export const eyepieceAssetItemSchema = z.object({
-  id: z.string(),
+  id: assetKeyStringSchema,
+  provider: assetProviderSchema,
+  externalId: externalIdSchema,
   title: z.string(),
   description: z.string(),
   albums: z.array(z.string()).optional(),
   photographer: z.string().optional(),
-  image: eyepieceImageSchema.optional(),
-  thumbnail: eyepieceImageSchema.optional(),
-  original: eyepieceImageSchema.optional(),
+  image: eyepieceImageSchema,
+  thumbnail: eyepieceImageSchema,
+  original: eyepieceImageSchema,
   mediaType: eyepieceMediaSchema,
 })
 

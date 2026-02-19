@@ -2,6 +2,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { getCookies, setCookie } from '@tanstack/react-start/server'
 import type { CookieMethodsServer, CookieOptions } from '@supabase/ssr'
+import type { Database } from './database.types'
 
 export const createSupabaseServerClient = () => {
   if (
@@ -29,7 +30,7 @@ export const createSupabaseServerClient = () => {
       })
     },
   }
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.VITE_SUPABASE_URL,
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     {

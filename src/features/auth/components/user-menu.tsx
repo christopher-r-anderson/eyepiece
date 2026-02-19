@@ -4,6 +4,7 @@ import { useUserQuery } from '../auth-queries'
 import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 
 export function UserMenu() {
   const router = useRouter()
@@ -15,6 +16,14 @@ export function UserMenu() {
       </Button>
       <Popover>
         <Menu>
+          <MenuItem
+            href={{
+              to: '/favorites',
+            }}
+          >
+            Favorites
+          </MenuItem>
+          <Separator />
           {user && (
             <MenuItem
               href={{
