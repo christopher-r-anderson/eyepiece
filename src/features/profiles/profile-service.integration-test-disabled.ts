@@ -10,7 +10,7 @@ import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 const adminClient = createClient<Database>(
   process.env.VITE_SUPABASE_URL!,
-  process.env.TESTING_SUPABASE_SECRET_KEY!,
+  process.env.SUPABASE_SECRET_KEY!,
   {
     auth: {
       persistSession: false,

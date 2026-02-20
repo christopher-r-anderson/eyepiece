@@ -1,5 +1,38 @@
 import sanitizeHtml from 'sanitize-html'
 import type { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
+import {
+  NASA_IVL_PROVIDER,
+  assetProviderSchema,
+  externalIdSchema,
+} from '@/domain/asset/asset.schemas'
+import { toAssetKeyString } from '@/domain/asset/asset.util'
+
+export const NOT_FOUND_IMAGE = {
+  // A 1x1 transparent GIF
+  href: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  width: 640,
+  height: 480,
+}
+
+function ensureImage(image: unknown) {
+  if (image === null || typeof image !== 'object') {
+    return { ...NOT_FOUND_IMAGE }
+  }
+  return {
+    href:
+      'href' in image && typeof image.href === 'string'
+        ? image.href
+        : NOT_FOUND_IMAGE.href,
+    width:
+      'width' in image && typeof image.width === 'number'
+        ? image.width
+        : NOT_FOUND_IMAGE.width,
+    height:
+      'height' in image && typeof image.height === 'number'
+        ? image.height
+        : NOT_FOUND_IMAGE.height,
+  }
+}
 
 function getThumbnail(links: Array<NasaMediaLink>): NasaMediaLink | undefined {
   return links.find((link) => link.render === 'image' && link.rel === 'preview')
@@ -35,24 +68,17 @@ export function mapMediaItem({
   const image = getLargestAltImage(links)
   return {
     title,
-    description: htmlToPlainText(description),
-    id: nasa_id,
+    description: description ? htmlToPlainText(description) : 'No description',
+    id: toAssetKeyString({
+      externalId: nasa_id,
+      provider: NASA_IVL_PROVIDER,
+    }),
+    provider: assetProviderSchema.parse(NASA_IVL_PROVIDER),
+    externalId: externalIdSchema.parse(nasa_id),
     albums: album,
-    thumbnail: thumbnail && {
-      href: thumbnail.href,
-      width: thumbnail.width,
-      height: thumbnail.height,
-    },
-    image: image && {
-      href: image.href,
-      width: image.width,
-      height: image.height,
-    },
-    original: original && {
-      href: original.href,
-      width: original.width,
-      height: original.height,
-    },
+    thumbnail: ensureImage(thumbnail),
+    image: ensureImage(image),
+    original: ensureImage(original),
     mediaType: media_type,
   }
 }

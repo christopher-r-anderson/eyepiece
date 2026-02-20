@@ -1,7 +1,7 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { requireAuthenticated } from '@/lib/guards'
 
-export const Route = createFileRoute('/(pages)/settings')({
+export const Route = createFileRoute('/(pages)/(user)/settings')({
   beforeLoad: requireAuthenticated,
   component: RouteComponent,
 })

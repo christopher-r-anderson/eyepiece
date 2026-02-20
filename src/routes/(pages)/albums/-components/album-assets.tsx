@@ -60,7 +60,10 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
           <HybridGridItem
             item={item}
             onRowAction={() => {
-              navigate({ to: `/assets/$assetId`, params: { assetId: item.id } })
+              navigate({
+                to: `/assets/$assetId`,
+                params: { assetId: item.externalId },
+              })
             }}
             {...itemProps}
           >

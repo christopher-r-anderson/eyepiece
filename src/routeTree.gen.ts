@@ -16,20 +16,22 @@ import { Route as CollectionsIndexRouteImport } from './routes/collections/index
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as pagesSettingsRouteRouteImport } from './routes/(pages)/settings/route'
-import { Route as pagesSettingsIndexRouteImport } from './routes/(pages)/settings/index'
+import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
 import { Route as pagessearchIndexRouteImport } from './routes/(pages)/(search)/index'
 import { Route as ApiAssetAssetIdRouteImport } from './routes/api/asset/$assetId'
 import { Route as ApiAlbumsAlbumIdRouteImport } from './routes/api/albums/$albumId'
-import { Route as pagesSettingsProfileRouteImport } from './routes/(pages)/settings/profile'
 import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
 import { Route as pagesAssetsAssetIdRouteImport } from './routes/(pages)/assets/$assetId'
 import { Route as pagesAlbumsAlbumIdRouteImport } from './routes/(pages)/albums/$albumId'
+import { Route as pagesuserFavoritesRouteImport } from './routes/(pages)/(user)/favorites'
 import { Route as authAuthUpdatePasswordRouteImport } from './routes/(auth)/auth/update-password'
 import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth/forgot-password'
 import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
 import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
+import { Route as pagesuserSettingsRouteRouteImport } from './routes/(pages)/(user)/settings/route'
+import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
 import { Route as ApiAssetAssetIdMetadataRouteImport } from './routes/api/asset/$assetId.metadata'
+import { Route as pagesuserSettingsProfileRouteImport } from './routes/(pages)/(user)/settings/profile'
 
 const CompleteProfileRoute = CompleteProfileRouteImport.update({
   id: '/complete-profile',
@@ -64,15 +66,9 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => authRouteRoute,
 } as any)
-const pagesSettingsRouteRoute = pagesSettingsRouteRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const pagesuserRouteRoute = pagesuserRouteRouteImport.update({
+  id: '/(user)',
   getParentRoute: () => pagesRouteRoute,
-} as any)
-const pagesSettingsIndexRoute = pagesSettingsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => pagesSettingsRouteRoute,
 } as any)
 const pagessearchIndexRoute = pagessearchIndexRouteImport.update({
   id: '/(search)/',
@@ -89,11 +85,6 @@ const ApiAlbumsAlbumIdRoute = ApiAlbumsAlbumIdRouteImport.update({
   path: '/api/albums/$albumId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const pagesSettingsProfileRoute = pagesSettingsProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => pagesSettingsRouteRoute,
-} as any)
 const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
   id: '/profile/$profileId',
   path: '/profile/$profileId',
@@ -108,6 +99,11 @@ const pagesAlbumsAlbumIdRoute = pagesAlbumsAlbumIdRouteImport.update({
   id: '/albums/$albumId',
   path: '/albums/$albumId',
   getParentRoute: () => pagesRouteRoute,
+} as any)
+const pagesuserFavoritesRoute = pagesuserFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => pagesuserRouteRoute,
 } as any)
 const authAuthUpdatePasswordRoute = authAuthUpdatePasswordRouteImport.update({
   id: '/auth/update-password',
@@ -129,32 +125,49 @@ const authAuthConfirmRoute = authAuthConfirmRouteImport.update({
   path: '/auth/confirm',
   getParentRoute: () => authRouteRoute,
 } as any)
+const pagesuserSettingsRouteRoute = pagesuserSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => pagesuserRouteRoute,
+} as any)
+const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => pagesuserSettingsRouteRoute,
+} as any)
 const ApiAssetAssetIdMetadataRoute = ApiAssetAssetIdMetadataRouteImport.update({
   id: '/metadata',
   path: '/metadata',
   getParentRoute: () => ApiAssetAssetIdRoute,
 } as any)
+const pagesuserSettingsProfileRoute =
+  pagesuserSettingsProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => pagesuserSettingsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/complete-profile': typeof CompleteProfileRoute
-  '/settings': typeof pagesSettingsRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/api/search': typeof ApiSearchRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/settings': typeof pagesuserSettingsRouteRouteWithChildren
   '/auth/confirm': typeof authAuthConfirmRoute
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/favorites': typeof pagesuserFavoritesRoute
   '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/settings/profile': typeof pagesSettingsProfileRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/': typeof pagessearchIndexRoute
-  '/settings/': typeof pagesSettingsIndexRoute
+  '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/settings/': typeof pagesuserSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/complete-profile': typeof CompleteProfileRoute
@@ -166,62 +179,66 @@ export interface FileRoutesByTo {
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/favorites': typeof pagesuserFavoritesRoute
   '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/settings/profile': typeof pagesSettingsProfileRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/': typeof pagessearchIndexRoute
-  '/settings': typeof pagesSettingsIndexRoute
+  '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/settings': typeof pagesuserSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(auth)': typeof authRouteRouteWithChildren
   '/(pages)': typeof pagesRouteRouteWithChildren
   '/complete-profile': typeof CompleteProfileRoute
-  '/(pages)/settings': typeof pagesSettingsRouteRouteWithChildren
+  '/(pages)/(user)': typeof pagesuserRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/api/search': typeof ApiSearchRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/(pages)/(user)/settings': typeof pagesuserSettingsRouteRouteWithChildren
   '/(auth)/auth/confirm': typeof authAuthConfirmRoute
   '/(auth)/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/(auth)/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/(auth)/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/(pages)/(user)/favorites': typeof pagesuserFavoritesRoute
   '/(pages)/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
   '/(pages)/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/(pages)/settings/profile': typeof pagesSettingsProfileRoute
   '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
   '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
   '/(pages)/(search)/': typeof pagessearchIndexRoute
-  '/(pages)/settings/': typeof pagesSettingsIndexRoute
+  '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
   '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/(pages)/(user)/settings/': typeof pagesuserSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/complete-profile'
-    | '/settings'
     | '/login'
     | '/register'
     | '/api/search'
     | '/collections/'
+    | '/settings'
     | '/auth/confirm'
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/auth/update-password'
+    | '/favorites'
     | '/albums/$albumId'
     | '/assets/$assetId'
     | '/profile/$profileId'
-    | '/settings/profile'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/'
-    | '/settings/'
+    | '/settings/profile'
     | '/api/asset/$assetId/metadata'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/complete-profile'
@@ -233,38 +250,41 @@ export interface FileRouteTypes {
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/auth/update-password'
+    | '/favorites'
     | '/albums/$albumId'
     | '/assets/$assetId'
     | '/profile/$profileId'
-    | '/settings/profile'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/'
-    | '/settings'
+    | '/settings/profile'
     | '/api/asset/$assetId/metadata'
+    | '/settings'
   id:
     | '__root__'
     | '/(auth)'
     | '/(pages)'
     | '/complete-profile'
-    | '/(pages)/settings'
+    | '/(pages)/(user)'
     | '/(auth)/login'
     | '/(auth)/register'
     | '/api/search'
     | '/collections/'
+    | '/(pages)/(user)/settings'
     | '/(auth)/auth/confirm'
     | '/(auth)/auth/confirm-error'
     | '/(auth)/auth/forgot-password'
     | '/(auth)/auth/update-password'
+    | '/(pages)/(user)/favorites'
     | '/(pages)/albums/$albumId'
     | '/(pages)/assets/$assetId'
     | '/(pages)/profile/$profileId'
-    | '/(pages)/settings/profile'
     | '/api/albums/$albumId'
     | '/api/asset/$assetId'
     | '/(pages)/(search)/'
-    | '/(pages)/settings/'
+    | '/(pages)/(user)/settings/profile'
     | '/api/asset/$assetId/metadata'
+    | '/(pages)/(user)/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -328,19 +348,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
     }
-    '/(pages)/settings': {
-      id: '/(pages)/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof pagesSettingsRouteRouteImport
+    '/(pages)/(user)': {
+      id: '/(pages)/(user)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof pagesuserRouteRouteImport
       parentRoute: typeof pagesRouteRoute
-    }
-    '/(pages)/settings/': {
-      id: '/(pages)/settings/'
-      path: '/'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof pagesSettingsIndexRouteImport
-      parentRoute: typeof pagesSettingsRouteRoute
     }
     '/(pages)/(search)/': {
       id: '/(pages)/(search)/'
@@ -363,13 +376,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAlbumsAlbumIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(pages)/settings/profile': {
-      id: '/(pages)/settings/profile'
-      path: '/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof pagesSettingsProfileRouteImport
-      parentRoute: typeof pagesSettingsRouteRoute
-    }
     '/(pages)/profile/$profileId': {
       id: '/(pages)/profile/$profileId'
       path: '/profile/$profileId'
@@ -390,6 +396,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/albums/$albumId'
       preLoaderRoute: typeof pagesAlbumsAlbumIdRouteImport
       parentRoute: typeof pagesRouteRoute
+    }
+    '/(pages)/(user)/favorites': {
+      id: '/(pages)/(user)/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof pagesuserFavoritesRouteImport
+      parentRoute: typeof pagesuserRouteRoute
     }
     '/(auth)/auth/update-password': {
       id: '/(auth)/auth/update-password'
@@ -419,12 +432,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authAuthConfirmRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/(pages)/(user)/settings': {
+      id: '/(pages)/(user)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof pagesuserSettingsRouteRouteImport
+      parentRoute: typeof pagesuserRouteRoute
+    }
+    '/(pages)/(user)/settings/': {
+      id: '/(pages)/(user)/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
+      parentRoute: typeof pagesuserSettingsRouteRoute
+    }
     '/api/asset/$assetId/metadata': {
       id: '/api/asset/$assetId/metadata'
       path: '/metadata'
       fullPath: '/api/asset/$assetId/metadata'
       preLoaderRoute: typeof ApiAssetAssetIdMetadataRouteImport
       parentRoute: typeof ApiAssetAssetIdRoute
+    }
+    '/(pages)/(user)/settings/profile': {
+      id: '/(pages)/(user)/settings/profile'
+      path: '/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof pagesuserSettingsProfileRouteImport
+      parentRoute: typeof pagesuserSettingsRouteRoute
     }
   }
 }
@@ -451,21 +485,38 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
-interface pagesSettingsRouteRouteChildren {
-  pagesSettingsProfileRoute: typeof pagesSettingsProfileRoute
-  pagesSettingsIndexRoute: typeof pagesSettingsIndexRoute
+interface pagesuserSettingsRouteRouteChildren {
+  pagesuserSettingsProfileRoute: typeof pagesuserSettingsProfileRoute
+  pagesuserSettingsIndexRoute: typeof pagesuserSettingsIndexRoute
 }
 
-const pagesSettingsRouteRouteChildren: pagesSettingsRouteRouteChildren = {
-  pagesSettingsProfileRoute: pagesSettingsProfileRoute,
-  pagesSettingsIndexRoute: pagesSettingsIndexRoute,
+const pagesuserSettingsRouteRouteChildren: pagesuserSettingsRouteRouteChildren =
+  {
+    pagesuserSettingsProfileRoute: pagesuserSettingsProfileRoute,
+    pagesuserSettingsIndexRoute: pagesuserSettingsIndexRoute,
+  }
+
+const pagesuserSettingsRouteRouteWithChildren =
+  pagesuserSettingsRouteRoute._addFileChildren(
+    pagesuserSettingsRouteRouteChildren,
+  )
+
+interface pagesuserRouteRouteChildren {
+  pagesuserSettingsRouteRoute: typeof pagesuserSettingsRouteRouteWithChildren
+  pagesuserFavoritesRoute: typeof pagesuserFavoritesRoute
 }
 
-const pagesSettingsRouteRouteWithChildren =
-  pagesSettingsRouteRoute._addFileChildren(pagesSettingsRouteRouteChildren)
+const pagesuserRouteRouteChildren: pagesuserRouteRouteChildren = {
+  pagesuserSettingsRouteRoute: pagesuserSettingsRouteRouteWithChildren,
+  pagesuserFavoritesRoute: pagesuserFavoritesRoute,
+}
+
+const pagesuserRouteRouteWithChildren = pagesuserRouteRoute._addFileChildren(
+  pagesuserRouteRouteChildren,
+)
 
 interface pagesRouteRouteChildren {
-  pagesSettingsRouteRoute: typeof pagesSettingsRouteRouteWithChildren
+  pagesuserRouteRoute: typeof pagesuserRouteRouteWithChildren
   pagesAlbumsAlbumIdRoute: typeof pagesAlbumsAlbumIdRoute
   pagesAssetsAssetIdRoute: typeof pagesAssetsAssetIdRoute
   pagesProfileProfileIdRoute: typeof pagesProfileProfileIdRoute
@@ -473,7 +524,7 @@ interface pagesRouteRouteChildren {
 }
 
 const pagesRouteRouteChildren: pagesRouteRouteChildren = {
-  pagesSettingsRouteRoute: pagesSettingsRouteRouteWithChildren,
+  pagesuserRouteRoute: pagesuserRouteRouteWithChildren,
   pagesAlbumsAlbumIdRoute: pagesAlbumsAlbumIdRoute,
   pagesAssetsAssetIdRoute: pagesAssetsAssetIdRoute,
   pagesProfileProfileIdRoute: pagesProfileProfileIdRoute,

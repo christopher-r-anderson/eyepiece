@@ -1,16 +1,17 @@
 import type { ComponentPropsWithoutRef } from 'react'
+import type { AssetKey } from '@/domain/asset/asset.schemas'
 import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
-import { useMetadata } from '@/features/assets/api/asset-queries'
+import { useMetadata } from '@/features/assets/api/asset.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 export function MetadataModal({
-  assetId,
+  assetKey,
   isOpen,
   onOpenChange,
 }: {
-  assetId: string
+  assetKey: AssetKey
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }) {
@@ -22,7 +23,7 @@ export function MetadataModal({
       isDismissable
     >
       <MetadataModalContent
-        assetId={assetId}
+        assetKey={assetKey}
         isOpen={isOpen}
         css={{ minHeight: 0, overflowY: 'auto', padding: '2rem' }}
       />
@@ -31,17 +32,17 @@ export function MetadataModal({
 }
 
 function MetadataModalContent({
-  assetId,
+  assetKey,
   isOpen,
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
-  assetId: string
+  assetKey: AssetKey
   isOpen: boolean
 }) {
   const eyepieceClient = useEyepieceClient()
   const { data, isLoading, isError, refetch } = useMetadata(
     eyepieceClient,
-    assetId,
+    assetKey,
     isOpen,
   )
 

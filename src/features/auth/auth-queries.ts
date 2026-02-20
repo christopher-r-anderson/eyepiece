@@ -21,7 +21,9 @@ export function useAuthSubscription() {
       queryClient.setQueryData(['auth', 'user'] as UserCacheKey, user)
 
       // invalidate user-scoped queries on login/logout
-      // queryClient.invalidateQueries({ predicate: (q) => q.queryKey[0] === 'me' })
+      queryClient.invalidateQueries({
+        predicate: (q) => q.queryKey[0] === 'me',
+      })
     })
   }, [queryClient])
 }

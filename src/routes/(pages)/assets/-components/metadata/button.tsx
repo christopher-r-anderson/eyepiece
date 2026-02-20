@@ -3,13 +3,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
 import { MetadataModal } from './modal'
+import type { AssetKey } from '@/domain/asset/asset.schemas'
 import { Button } from '@/components/ui/button'
-import { getMetadataOptions } from '@/features/assets/api/asset-queries'
+import { getMetadataOptions } from '@/features/assets/api/asset.queries'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 const METADATA_HASH = 'metadata'
 
-export function MetadataButton({ id }: { id: string }) {
+export function MetadataButton({ assetKey }: { assetKey: AssetKey }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const eyepieceClient = useEyepieceClient()
@@ -25,8 +26,8 @@ export function MetadataButton({ id }: { id: string }) {
 
   const prefetch = useCallback(() => {
     // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
-    void queryClient.prefetchQuery(getMetadataOptions(eyepieceClient, id))
-  }, [queryClient, id])
+    void queryClient.prefetchQuery(getMetadataOptions(eyepieceClient, assetKey))
+  }, [queryClient, assetKey])
   return (
     <>
       <Button
@@ -46,7 +47,7 @@ export function MetadataButton({ id }: { id: string }) {
       </Button>
 
       <MetadataModal
-        assetId={id}
+        assetKey={assetKey}
         isOpen={isOpen}
         onOpenChange={(shouldOpen: boolean) => (shouldOpen ? open() : close())}
       />

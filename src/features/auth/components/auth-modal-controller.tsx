@@ -10,6 +10,7 @@ import {
   ForgotPasswordForm,
   ForgotPasswordSuccessMessage,
 } from '../forms/forgot-password-form'
+import { useShowAuthModal } from '../hooks/use-show-auth-modal'
 import type { AuthModalState } from '../schemas'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/ui/tabs'
 import { ModalDialog } from '@/components/ui/modal-dialog'
@@ -29,6 +30,7 @@ export function AuthModalController({
   const href = useLocation({ select: (location) => location.href })
   const next = urlToNextParam(href)
   const navigate = useNavigate()
+  const showAuthModal = useShowAuthModal()
   const goBack = useCallback(() => {
     navigate({
       to: '.',
@@ -49,34 +51,10 @@ export function AuthModalController({
         css={{ maxWidth: 500 }}
       >
         <TabList>
-          <Tab
-            id="login"
-            onClick={() =>
-              navigate({
-                to: '.',
-                search: (prev) => ({
-                  ...stripAuthSearchParams(prev),
-                  auth: 'login',
-                }),
-                viewTransition: false,
-              })
-            }
-          >
+          <Tab id="login" onClick={() => showAuthModal('login')}>
             Log In
           </Tab>
-          <Tab
-            id="register"
-            onClick={() =>
-              navigate({
-                to: '.',
-                search: (prev) => ({
-                  ...stripAuthSearchParams(prev),
-                  auth: 'register',
-                }),
-                viewTransition: false,
-              })
-            }
-          >
+          <Tab id="register" onClick={() => showAuthModal('register')}>
             Register
           </Tab>
         </TabList>

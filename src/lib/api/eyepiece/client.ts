@@ -12,6 +12,8 @@ import type {
   EyepieceMetadata,
 } from './types'
 import type { InfiniteData } from '@tanstack/react-query'
+import type { AssetKey } from '@/domain/asset/asset.schemas'
+import { toAssetKeyString } from '@/domain/asset/asset.util'
 
 export function flattenAssetsSelector<
   TData extends { assets: Array<EyepieceAssetItem> },
@@ -37,12 +39,12 @@ function assertSsrHasOrigin(origin: string, path: string) {
 type EyepieceClientOptions = { origin?: string }
 
 export type EyepieceClient = {
-  getAsset: (id: string) => Promise<EyepieceAssetItem>
+  getAsset: (key: AssetKey) => Promise<EyepieceAssetItem>
   getAlbum: (
     id: string,
     params?: EyepieceApiAlbumParams,
   ) => Promise<EyepieceAssetCollectionResponse>
-  getMetadata: (id: string) => Promise<EyepieceMetadata>
+  getMetadata: (key: AssetKey) => Promise<EyepieceMetadata>
   searchImages: (
     params: EyepieceApiSearchParams,
   ) => Promise<EyepieceAssetCollectionResponse>
@@ -74,8 +76,10 @@ export function createEyepieceClient({
       return eyepieceAssetCollectionResponseSchema.parse(data)
     },
 
-    getAsset: async function getAsset(id: string) {
-      const res = await fetch(withOrigin(`/api/asset/${id}`))
+    getAsset: async function getAsset(key: AssetKey) {
+      const res = await fetch(
+        withOrigin(`/api/asset/${encodeURIComponent(toAssetKeyString(key))}`),
+      )
       if (!res.ok) {
         throw new Error(`Error fetching asset: ${res.statusText}`)
       }
@@ -83,8 +87,12 @@ export function createEyepieceClient({
       return eyepieceAssetItemSchema.parse(data)
     },
 
-    getMetadata: async function getMetadata(id: string) {
-      const res = await fetch(withOrigin(`/api/asset/${id}/metadata`))
+    getMetadata: async function getMetadata(key: AssetKey) {
+      const res = await fetch(
+        withOrigin(
+          `/api/asset/${encodeURIComponent(toAssetKeyString(key))}/metadata`,
+        ),
+      )
       if (!res.ok) {
         throw new Error(`Error fetching asset metadata: ${res.statusText}`)
       }

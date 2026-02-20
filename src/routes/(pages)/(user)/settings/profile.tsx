@@ -5,7 +5,7 @@ import { getUser } from '@/lib/supabase/user'
 import { getProfile } from '@/features/profiles/profile-service'
 import { resultIsError } from '@/lib/result'
 
-export const Route = createFileRoute('/(pages)/settings/profile')({
+export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
   component: ProfilePage,
   loader: async () => {
     const user = await getUser()

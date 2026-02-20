@@ -14,6 +14,17 @@ import {
 } from '@/features/listing/item-grid/hybrid-grid'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import {
+  useToggleUserFavorite,
+  useUserFavoritesIndex,
+} from '@/features/favorites/favorites.queries'
+import { FavoriteToggle } from '@/features/favorites/components/favorite-toggle'
+import { useIsClientMounted } from '@/lib/hooks/use-is-client-mounted'
+import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.server'
+import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
+import { fromAssetKeyString, toAssetKeyString } from '@/domain/asset/asset.util'
+import { PrettyException } from '@/components/ui/error'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -21,12 +32,44 @@ interface SearchResultsProps {
 
 export function SearchResults({ searchParams }: SearchResultsProps) {
   const navigate = useNavigate()
+  const queueToastMessage = useQueueToastMessage()
+  const showLoginModal = useShowLoginModal()
   const client = useEyepieceClient()
+  const isClientMounted = useIsClientMounted()
+  const userFavoritesIndex = useUserFavoritesIndex({
+    enabled: isClientMounted,
+  })
+  const favoriteKeySet = useMemo(() => {
+    if (!userFavoritesIndex.data) {
+      return new Set<string>()
+    }
+    return new Set(
+      userFavoritesIndex.data.map(({ provider, externalId }) =>
+        toAssetKeyString({ provider, externalId }),
+      ),
+    )
+  }, [userFavoritesIndex.data])
+  const {
+    variables,
+    mutate: toggleFavorite,
+    isPending: isToggleFavoritePending,
+  } = useToggleUserFavorite()
+
+  const currentlyTogglingKey = useMemo(() => {
+    if (!variables) {
+      return null
+    }
+    return toAssetKeyString({
+      provider: variables.provider,
+      externalId: variables.externalId,
+    })
+  }, [variables])
+
   const {
     data,
     isPending,
     isError,
-    error,
+    error: searchResultsError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -42,12 +85,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
   }
 
   if (isError) {
-    return (
-      <div>
-        <p>Error loading search results</p>
-        <pre>{JSON.stringify(error, null, 2)}</pre>
-      </div>
-    )
+    return <PrettyException error={searchResultsError} headingLevel={1} />
   }
 
   return (
@@ -64,11 +102,52 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
           <HybridGridItem
             item={item}
             onRowAction={() => {
-              navigate({ to: `/assets/$assetId`, params: { assetId: item.id } })
+              navigate({
+                to: `/assets/$assetId`,
+                params: { assetId: item.externalId },
+              })
             }}
             {...itemProps}
           >
-            <AssetTile asset={item} />
+            <AssetTile
+              asset={item}
+              actions={
+                <FavoriteToggle
+                  isDisabled={
+                    !isClientMounted ||
+                    userFavoritesIndex.isPending ||
+                    isToggleFavoritePending
+                  }
+                  isSelected={
+                    isToggleFavoritePending && currentlyTogglingKey === item.id
+                      ? !favoriteKeySet.has(item.id)
+                      : favoriteKeySet.has(item.id)
+                  }
+                  onChange={() =>
+                    toggleFavorite(fromAssetKeyString(item.id), {
+                      onError: (toggleFavoritesError) => {
+                        if (
+                          toggleFavoritesError.message ===
+                          ToggleFavoriteErrorCodes.AUTH_REQUIRED
+                        ) {
+                          showLoginModal()
+                        } else {
+                          console.error(
+                            'Error toggling favorite',
+                            toggleFavoritesError,
+                          )
+                          queueToastMessage({
+                            title: 'Error toggling favorite',
+                            description:
+                              'An unexpected error occurred while toggling favorite status.',
+                          })
+                        }
+                      },
+                    })
+                  }
+                />
+              }
+            />
           </HybridGridItem>
         )}
       </HybridGrid>

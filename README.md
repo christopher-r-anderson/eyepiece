@@ -9,8 +9,8 @@
 This is the guide for setting up local development for eyepiece.net. If you want to deploy this code to your own site, please see New Production Site below, first.
 
 ```bash
-pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 pnpm install
+pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 
 # You can do one of the following to set up your environment variables
 # on a system with bash (Linux, WSL _untested_, etc.)
@@ -90,6 +90,7 @@ Note that the current authentication setup uses email as the provider, allows ne
 1. You will need to copy or create the following variables for use later in setup:
    - Project URL: `Settings -> Data API -> Project URL`. This will be used in Netlify as `VITE_SUPABASE_URL`.
    - Publishable key: This is found under `Settings -> API Keys -> Publishable key`. You should already have one there with the name of `default`. You need the value of this (column `API KEY`) which you will use later in Netlify as `VITE_SUPABASE_PUBLISHABLE_KEY`. If you no longer have a key available, you can generate a new one with `New publishable key` - the name is not significant.
+   - Secret key: This is found under `Settings -> API Keys -> Secret keys`. You should already have one there with the name of `default`. You need the value of this (column `API KEY`) which you will use later in Netlify as `SUPABASE_SECRET_KEY`. If you no longer have a key available, you can generate a new one with `New publishable key` - the name is not significant.
    - Project ID: `Project Settings -> General -> Project ID`
    - Create an access token `Account (click avatar) -> Account Preferences -> Access Tokens -> Generate new token` that GitHub can use (as the secret `SUPABASE_ACCESS_TOKEN` in the upcoming section) to push new changes to supabase when you update your site. Select an expiration data and make sure you create a reminder for yourself to update this before it expires. _Expired tokens will cause deploys to fail._
 1. `pnpm supabase login` (if not already logged in via the cli)
@@ -138,6 +139,7 @@ Environment variables need to be added to Netlify so that it can supply the appl
 Under `Project Configuration -> Environment variables` add two items using `Add a single variable`. These are currently the same for all envs. You can adjust this if you have a more sophisticated Supabase environment setup.
 
 - `VITE_SUPABASE_PUBLISHABLE_KEY` - This is the key you copied in the Netlify section under `Settings -> API Keys -> Publishable key`
+- `SUPABASE_SECRET_KEY` - This is the key you copied in the Netlify section under `Settings -> API Keys -> Secret keys` (note that it is not prefixed with `VITE_`)
 - `VITE_SUPABASE_URL` - This is your URL from the Netlify settings under `Settings -> Data API -> Project URL`
 
 #### Local setup

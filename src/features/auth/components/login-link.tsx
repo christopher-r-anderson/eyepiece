@@ -1,12 +1,13 @@
-import { useLocation, useNavigate } from '@tanstack/react-router'
-import { isPlainLeftClick, stripAuthSearchParams } from '../util'
+import { useLocation } from '@tanstack/react-router'
+import { isPlainLeftClick } from '../util'
 import { useAuthInteractionStrategy } from '../hooks/use-auth-interaction-strategy'
+import { useShowLoginModal } from '../hooks/use-show-auth-modal'
 import { Link } from '@/components/ui/link'
 import { urlToNextParam } from '@/lib/util'
 
 export function LoginLink() {
   const href = useLocation({ select: (location) => location.href })
-  const navigate = useNavigate()
+  const showLoginModal = useShowLoginModal()
   const isModalStrategy = useAuthInteractionStrategy() === 'modal'
   return (
     <Link
@@ -15,13 +16,7 @@ export function LoginLink() {
       onClick={(event) => {
         if (isModalStrategy && isPlainLeftClick(event)) {
           event.preventDefault()
-          navigate({
-            to: '.',
-            search: (prev) => ({
-              ...stripAuthSearchParams(prev),
-              auth: 'login',
-            }),
-          })
+          showLoginModal()
         }
       }}
       viewTransition={false}
