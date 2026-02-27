@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
-import type { ComponentPropsWithRef, ComponentPropsWithoutRef } from 'react'
+import type {
+  ComponentPropsWithRef,
+  ComponentPropsWithoutRef,
+  ReactNode,
+} from 'react'
 import type { AssetSummary } from '@/domain/asset/asset.schemas'
 import { Link } from '@/components/ui/link'
 
@@ -9,7 +13,8 @@ interface AssetTileProps extends Omit<
   'children'
 > {
   asset: AssetSummary
-  actions?: React.ReactNode
+  relatedLinks?: ReactNode
+  actions?: ReactNode
 }
 
 const figureCss = {
@@ -98,11 +103,10 @@ const containerCss = {
   aspectRatio: '1 / 1',
 }
 
-const albumListCss = {
+const relatedCss = {
   position: 'absolute' as const,
   top: '0.5rem',
   left: '0.5rem',
-  listStyleType: 'none',
   margin: 0,
   padding: '0.25rem 0.5rem',
   border: '1px solid black',
@@ -118,26 +122,16 @@ const actionsBarCss = {
   justifyContent: 'flex-end',
 }
 
-export function AssetTile({ asset, actions, ...props }: AssetTileProps) {
-  const albums = asset.albums || []
+export function AssetTile({
+  asset,
+  relatedLinks,
+  actions,
+  ...props
+}: AssetTileProps) {
   return (
     <div css={containerCss} {...props}>
       <Thumbnail asset={asset} />
-      {albums.length > 0 && (
-        <ul css={albumListCss}>
-          {albums.map((album) => (
-            <li key={album}>
-              <Link
-                to="/albums/$albumId"
-                params={{ albumId: album }}
-                css={{ color: 'gray', textDecoration: 'underline' }}
-              >
-                {album}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      {relatedLinks && <div css={relatedCss}>{relatedLinks}</div>}
       {actions && <div css={actionsBarCss}>{actions}</div>}
     </div>
   )

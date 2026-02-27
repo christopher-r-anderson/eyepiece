@@ -11,7 +11,7 @@ import {
   AssetTile,
   AssetTileSkeleton,
 } from '@/features/assets/components/asset-tile'
-import { useAlbumAssets } from '@/lib/api/eyepiece/album-queries'
+import { useAlbumAssets } from '@/features/albums/api/album.queries'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 

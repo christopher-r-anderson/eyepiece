@@ -25,6 +25,7 @@ import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { fromAssetKeyString, toAssetKeyString } from '@/domain/asset/asset.util'
 import { PrettyException } from '@/components/ui/error'
+import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -111,6 +112,9 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
           >
             <AssetTile
               asset={item}
+              relatedLinks={
+                item.albums ? <AlbumLinkList albums={item.albums} /> : undefined
+              }
               actions={
                 <FavoriteToggle
                   isDisabled={

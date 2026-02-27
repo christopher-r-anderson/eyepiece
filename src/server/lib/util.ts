@@ -6,6 +6,7 @@ import {
   NASA_IVL_PROVIDER,
   providerSchema,
 } from '@/domain/provider/provider.schemas'
+import { albumKeySchema } from '@/domain/album/album.schemas'
 
 export const NOT_FOUND_IMAGE = {
   // A 1x1 transparent GIF
@@ -75,7 +76,14 @@ export function mapMediaItem({
     }),
     provider: providerSchema.parse(NASA_IVL_PROVIDER),
     externalId: externalAssetIdSchema.parse(nasa_id),
-    albums: album,
+    albums: album
+      ? album.map((albumId) =>
+          albumKeySchema.parse({
+            provider: NASA_IVL_PROVIDER,
+            externalId: albumId,
+          }),
+        )
+      : undefined,
     thumbnail: ensureImage(thumbnail),
     image: ensureImage(image),
     original: ensureImage(original),

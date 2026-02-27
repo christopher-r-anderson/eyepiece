@@ -5,6 +5,7 @@ import {
   imageSchema,
 } from '@/domain/asset/asset.schemas'
 import { providerSchema } from '@/domain/provider/provider.schemas'
+import { albumKeySchema } from '@/domain/album/album.schemas'
 
 export const DEFAULT_PAGE_SIZE = 24
 export const DEFAULT_PAGE = 1
@@ -65,7 +66,7 @@ export const eyepieceAssetItemSchema = z.object({
   externalId: externalAssetIdSchema,
   title: z.string(),
   description: z.string(),
-  albums: z.array(z.string()).optional(),
+  albums: z.array(albumKeySchema).optional(),
   photographer: z.string().optional(),
   image: eyepieceImageSchema,
   thumbnail: eyepieceImageSchema,
