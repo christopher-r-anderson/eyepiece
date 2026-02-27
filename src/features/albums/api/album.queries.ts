@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import { flattenAssetsSelector } from './client'
-import type { EyepieceClient } from './client'
+import { flattenAssetsSelector } from '../../../lib/api/eyepiece/client'
+import type { EyepieceClient } from '../../../lib/api/eyepiece/client'
 import type { InfiniteData } from '@tanstack/react-query'
 import type { AlbumKey, AlbumKeyString } from '@/domain/album/album.schemas'
 import { toAlbumKeyString } from '@/domain/album/album.util'

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
-import { getAlbumOptions } from '@/lib/api/eyepiece/album-queries'
+import { getAlbumOptions } from '@/features/albums/api/album.queries'
 import { getTitleText } from '@/lib/util'
 import { createEyepieceClient } from '@/lib/api/eyepiece/client'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'

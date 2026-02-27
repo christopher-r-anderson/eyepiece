@@ -3,6 +3,7 @@ import {
   PROVIDER_KEY_DELIMITER,
   providerSchema,
 } from '../provider/provider.schemas'
+import { albumKeySchema } from '../album/album.schemas'
 
 export const externalAssetIdSchema = z.string().min(1)
 
@@ -41,8 +42,7 @@ export const assetSummarySchema = z.object({
   externalId: externalAssetIdSchema,
   title: z.string(),
   thumbnail: imageSchema,
-  // TODO: extract to album feature
-  albums: z.array(z.string()).optional(),
+  albums: z.array(albumKeySchema).optional(),
 })
 
 export type AssetSummary = z.infer<typeof assetSummarySchema>
