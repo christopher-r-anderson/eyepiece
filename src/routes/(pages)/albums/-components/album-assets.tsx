@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import type { AlbumKey } from '@/domain/album/album.schemas'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
 import {
@@ -15,10 +16,10 @@ import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 
 export interface AlbumAssetsProps {
-  albumId: string
+  albumKey: AlbumKey
 }
 
-export function AlbumAssets({ albumId }: AlbumAssetsProps) {
+export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
   const client = useEyepieceClient()
   const {
     data,
@@ -28,10 +29,10 @@ export function AlbumAssets({ albumId }: AlbumAssetsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useAlbumAssets(client, albumId)
+  } = useAlbumAssets(client, albumKey)
   const navigate = useNavigate()
 
-  const uiResetKey = useMemo(() => paramsToUiResetKey({ albumId }), [albumId])
+  const uiResetKey = useMemo(() => paramsToUiResetKey({ albumKey }), [albumKey])
 
   if (isPending) {
     return <ItemGridSkeleton>{() => <AssetTileSkeleton />}</ItemGridSkeleton>

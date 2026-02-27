@@ -3,24 +3,36 @@ import { AlbumAssets } from './-components/album-assets'
 import { getAlbumOptions } from '@/lib/api/eyepiece/album-queries'
 import { getTitleText } from '@/lib/util'
 import { createEyepieceClient } from '@/lib/api/eyepiece/client'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
+import { albumKeySchema } from '@/domain/album/album.schemas'
 
 export const Route = createFileRoute('/(pages)/albums/$albumId')({
   component: AlbumView,
-  loader: ({ context, location, params }) => {
+  beforeLoad: ({ params }) => {
+    const albumKey = albumKeySchema.parse({
+      provider: NASA_IVL_PROVIDER,
+      externalId: params.albumId,
+    })
+    return { albumKey }
+  },
+  loader: ({ context, location }) => {
     const client = createEyepieceClient({
       origin: location.url.origin,
     })
     return context.queryClient.ensureInfiniteQueryData(
-      getAlbumOptions(client, params.albumId),
+      getAlbumOptions(client, context.albumKey),
     )
   },
-  head: ({ params }) => ({
-    meta: [{ title: getTitleText(`${params.albumId} Media`) }],
+  head: ({ match }) => ({
+    // https://github.com/TanStack/router/issues/4785
+    meta: [
+      { title: getTitleText(`${match.context.albumKey.externalId} Media`) },
+    ],
   }),
 })
 
 function AlbumView() {
-  const { albumId } = Route.useParams()
+  const { albumKey } = Route.useRouteContext()
   return (
     <main
       css={{
@@ -30,8 +42,8 @@ function AlbumView() {
         padding: '2rem',
       }}
     >
-      <h1 css={{ color: 'var(--text-accent)' }}>{albumId} Media</h1>
-      <AlbumAssets albumId={albumId} />
+      <h1 css={{ color: 'var(--text-accent)' }}>{albumKey.externalId} Media</h1>
+      <AlbumAssets albumKey={albumKey} />
     </main>
   )
 }

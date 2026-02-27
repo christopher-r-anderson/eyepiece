@@ -3,17 +3,15 @@ import type { FavoriteEdge } from './favorites.schemas'
 import type { Result } from '@/lib/result'
 import { createSupabaseClient } from '@/lib/supabase/client'
 import { Err, Ok } from '@/lib/result'
-import {
-  assetProviderSchema,
-  externalIdSchema,
-} from '@/domain/asset/asset.schemas'
+import { externalAssetIdSchema } from '@/domain/asset/asset.schemas'
+import { providerSchema } from '@/domain/provider/provider.schemas'
 
 export const DEFAULT_PAGE_SIZE = 24
 
 const dbUserFavoriteIndexSchema = z.object({
   asset_summaries: z.object({
-    provider: assetProviderSchema,
-    external_id: externalIdSchema,
+    provider: providerSchema,
+    external_id: externalAssetIdSchema,
   }),
 })
 
@@ -56,8 +54,8 @@ const dbUserFavoritesEdgeSchema = z.object({
   created_at: z.iso.datetime({ offset: true }),
   asset_summaries: z.object({
     id: z.uuid(),
-    provider: assetProviderSchema,
-    external_id: externalIdSchema,
+    provider: providerSchema,
+    external_id: externalAssetIdSchema,
   }),
 })
 

@@ -9,6 +9,8 @@ import {
   eyepiecePaginationSchema,
 } from '@/lib/api/eyepiece/types'
 import { calculateNasaAlbumRequests } from '@/server/lib/nasa-images/pagination'
+import { fromAlbumKeyString } from '@/domain/album/album.util'
+import { albumKeyStringSchema } from '@/domain/album/album.schemas'
 
 export const DEFAULT_PAGE_SIZE = 24
 
@@ -21,6 +23,9 @@ export const Route = createFileRoute('/api/albums/$albumId')({
           page: context.searchParams.page,
           pageSize: context.searchParams.pageSize,
         })
+        const { externalId } = fromAlbumKeyString(
+          albumKeyStringSchema.parse(params.albumId),
+        )
         // NASA Albums do not support page size, instead always returning 100 items per page
         // Therefore, we need to calculate which NASA album pages to fetch
         // and slice the results accordingly
@@ -29,7 +34,7 @@ export const Route = createFileRoute('/api/albums/$albumId')({
           pagination.pageSize,
         )
         const responses = await Promise.all(
-          plans.map((plan) => getAlbum(params.albumId, { page: plan.page })),
+          plans.map((plan) => getAlbum(externalId, { page: plan.page })),
         )
 
         const total = responses[0].collection.metadata.total_hits
