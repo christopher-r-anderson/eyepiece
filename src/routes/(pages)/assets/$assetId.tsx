@@ -6,8 +6,9 @@ import { getAssetOptions, useAsset } from '@/features/assets/api/asset.queries'
 import { Link } from '@/components/ui/link'
 import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
 import { createEyepieceClient } from '@/lib/api/eyepiece/client'
-import { NASA_IVL_PROVIDER, assetKeySchema } from '@/domain/asset/asset.schemas'
+import { assetKeySchema } from '@/domain/asset/asset.schemas'
 import { PrettyException } from '@/components/ui/error'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetPage,

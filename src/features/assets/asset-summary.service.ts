@@ -1,17 +1,17 @@
 import { z } from 'zod'
 import type { AssetSummary, AssetSummaryId } from '@/domain/asset/asset.schemas'
 import {
-  assetProviderSchema,
   assetSummaryIdSchema,
-  externalIdSchema,
+  externalAssetIdSchema,
 } from '@/domain/asset/asset.schemas'
 import { Err, Ok } from '@/lib/result'
 import { createSupabaseClient } from '@/lib/supabase/client'
+import { providerSchema } from '@/domain/provider/provider.schemas'
 
 const dbAssetSummarySchema = z.object({
   id: assetSummaryIdSchema,
-  provider: assetProviderSchema,
-  external_id: externalIdSchema,
+  provider: providerSchema,
+  external_id: externalAssetIdSchema,
   title: z.string().nullable(),
   thumb_href: z.url(),
   thumb_width: z.number().int().positive(),

@@ -1,28 +1,24 @@
 import { z } from 'zod'
+import {
+  PROVIDER_KEY_DELIMITER,
+  providerSchema,
+} from '../provider/provider.schemas'
 
-export const ASSET_PROVIDERS = ['nasa_ivl'] as const
-export const NASA_IVL_PROVIDER: AssetProvider = ASSET_PROVIDERS[0]
-export const ASSET_KEY_DELIMITER = '-' as const
+export const externalAssetIdSchema = z.string().min(1)
 
-export const assetProviderSchema = z.enum(ASSET_PROVIDERS)
-
-export type AssetProvider = z.infer<typeof assetProviderSchema>
-
-export const externalIdSchema = z.string().min(1)
-
-export type ExternalId = z.infer<typeof externalIdSchema>
+export type ExternalAssetId = z.infer<typeof externalAssetIdSchema>
 
 export const assetKeyStringSchema = z.templateLiteral([
-  assetProviderSchema,
-  z.literal(ASSET_KEY_DELIMITER),
-  externalIdSchema,
+  providerSchema,
+  z.literal(PROVIDER_KEY_DELIMITER),
+  externalAssetIdSchema,
 ])
 
 export type AssetKeyString = z.infer<typeof assetKeyStringSchema>
 
 export const assetKeySchema = z.object({
-  provider: assetProviderSchema,
-  externalId: externalIdSchema,
+  provider: providerSchema,
+  externalId: externalAssetIdSchema,
 })
 
 export type AssetKey = z.infer<typeof assetKeySchema>
@@ -41,8 +37,8 @@ export type AssetSummaryId = z.infer<typeof assetSummaryIdSchema>
 
 export const assetSummarySchema = z.object({
   id: assetSummaryIdSchema,
-  provider: assetProviderSchema,
-  externalId: externalIdSchema,
+  provider: providerSchema,
+  externalId: externalAssetIdSchema,
   title: z.string(),
   thumbnail: imageSchema,
   // TODO: extract to album feature

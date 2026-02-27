@@ -13,7 +13,9 @@ import type {
 } from './types'
 import type { InfiniteData } from '@tanstack/react-query'
 import type { AssetKey } from '@/domain/asset/asset.schemas'
+import type { AlbumKey } from '@/domain/album/album.schemas'
 import { toAssetKeyString } from '@/domain/asset/asset.util'
+import { toAlbumKeyString } from '@/domain/album/album.util'
 
 export function flattenAssetsSelector<
   TData extends { assets: Array<EyepieceAssetItem> },
@@ -41,7 +43,7 @@ type EyepieceClientOptions = { origin?: string }
 export type EyepieceClient = {
   getAsset: (key: AssetKey) => Promise<EyepieceAssetItem>
   getAlbum: (
-    id: string,
+    albumKey: AlbumKey,
     params?: EyepieceApiAlbumParams,
   ) => Promise<EyepieceAssetCollectionResponse>
   getMetadata: (key: AssetKey) => Promise<EyepieceMetadata>
@@ -63,11 +65,13 @@ export function createEyepieceClient({
 
   return {
     getAlbum: async function getAlbum(
-      id: string,
+      albumKey: AlbumKey,
       params: EyepieceApiAlbumParams = {},
     ) {
       const res = await fetch(
-        withOrigin(`/api/albums/${id}${defaultStringifySearch(params)}`),
+        withOrigin(
+          `/api/albums/${toAlbumKeyString(albumKey)}${defaultStringifySearch(params)}`,
+        ),
       )
       if (!res.ok) {
         throw new Error(`Error fetching album: ${res.statusText}`)

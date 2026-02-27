@@ -1,10 +1,10 @@
 import { z } from 'zod'
 import {
   assetKeyStringSchema,
-  assetProviderSchema,
-  externalIdSchema,
+  externalAssetIdSchema,
   imageSchema,
 } from '@/domain/asset/asset.schemas'
+import { providerSchema } from '@/domain/provider/provider.schemas'
 
 export const DEFAULT_PAGE_SIZE = 24
 export const DEFAULT_PAGE = 1
@@ -61,8 +61,8 @@ const eyepieceImageSchema = imageSchema
 
 export const eyepieceAssetItemSchema = z.object({
   id: assetKeyStringSchema,
-  provider: assetProviderSchema,
-  externalId: externalIdSchema,
+  provider: providerSchema,
+  externalId: externalAssetIdSchema,
   title: z.string(),
   description: z.string(),
   albums: z.array(z.string()).optional(),

@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import {
   assetKeySchema,
-  assetProviderSchema,
-  externalIdSchema,
+  externalAssetIdSchema,
 } from '@/domain/asset/asset.schemas'
+import { providerSchema } from '@/domain/provider/provider.schemas'
 
 export const toggleFavoriteInputSchema = z.object({
-  provider: assetProviderSchema,
-  externalId: externalIdSchema,
+  provider: providerSchema,
+  externalId: externalAssetIdSchema,
 })
 
 export type ToggleFavoriteInput = z.infer<typeof toggleFavoriteInputSchema>

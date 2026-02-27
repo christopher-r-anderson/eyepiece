@@ -1,11 +1,11 @@
 import sanitizeHtml from 'sanitize-html'
 import type { NasaMediaItem, NasaMediaLink } from './nasa-images/types'
+import { externalAssetIdSchema } from '@/domain/asset/asset.schemas'
+import { toAssetKeyString } from '@/domain/asset/asset.util'
 import {
   NASA_IVL_PROVIDER,
-  assetProviderSchema,
-  externalIdSchema,
-} from '@/domain/asset/asset.schemas'
-import { toAssetKeyString } from '@/domain/asset/asset.util'
+  providerSchema,
+} from '@/domain/provider/provider.schemas'
 
 export const NOT_FOUND_IMAGE = {
   // A 1x1 transparent GIF
@@ -73,8 +73,8 @@ export function mapMediaItem({
       externalId: nasa_id,
       provider: NASA_IVL_PROVIDER,
     }),
-    provider: assetProviderSchema.parse(NASA_IVL_PROVIDER),
-    externalId: externalIdSchema.parse(nasa_id),
+    provider: providerSchema.parse(NASA_IVL_PROVIDER),
+    externalId: externalAssetIdSchema.parse(nasa_id),
     albums: album,
     thumbnail: ensureImage(thumbnail),
     image: ensureImage(image),
