@@ -13,7 +13,7 @@ import {
 } from '@/features/assets/components/asset-tile'
 import { useAlbumAssets } from '@/features/albums/api/album.queries'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
-import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 export interface AlbumAssetsProps {
   albumKey: AlbumKey

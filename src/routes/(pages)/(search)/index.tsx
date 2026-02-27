@@ -4,12 +4,12 @@ import {
   YEAR_MAX,
   YEAR_MIN,
   eyepiecePageSearchParamsSchema,
-} from '@/lib/api/eyepiece/types'
-import { hasSearchFields } from '@/lib/api/eyepiece/util'
+} from '@/lib/eyepiece-api-client/types'
+import { hasSearchFields } from '@/lib/eyepiece-api-client/util'
 import { SearchBar } from '@/features/search/components/search-bar'
 import { searchImagesOptions } from '@/features/search/api/search-queries'
 import { getTitleText } from '@/lib/util'
-import { createEyepieceClient } from '@/lib/api/eyepiece/client'
+import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 
 const NO_SEARCH_TITLE = 'Search NASA Images and Videos'
 

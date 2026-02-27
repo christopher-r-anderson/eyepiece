@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
 import { useMetadata } from '@/features/assets/api/asset.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
-import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 export function MetadataModal({
   assetKey,

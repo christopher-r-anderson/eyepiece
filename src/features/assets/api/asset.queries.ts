@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { EyepieceClient } from '@/lib/api/eyepiece/client'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type { AssetKey, AssetKeyString } from '@/domain/asset/asset.schemas'
 import { toAssetKeyString } from '@/domain/asset/asset.util'
 

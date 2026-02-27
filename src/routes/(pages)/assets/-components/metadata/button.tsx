@@ -6,7 +6,7 @@ import { MetadataModal } from './modal'
 import type { AssetKey } from '@/domain/asset/asset.schemas'
 import { Button } from '@/components/ui/button'
 import { getMetadataOptions } from '@/features/assets/api/asset.queries'
-import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 const METADATA_HASH = 'metadata'
 
