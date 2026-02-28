@@ -1,15 +1,14 @@
-import type { ReactNode } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
 type HeadingProps = {
   headingLevel: HeadingLevel
-  children: ReactNode
-}
+} & ComponentPropsWithoutRef<HeadingTag>
 
 type HeadingTag = `h${HeadingLevel}`
 
-export function Heading({ headingLevel, children }: HeadingProps) {
+export function Heading({ headingLevel, ...props }: HeadingProps) {
   const Hn: HeadingTag = `h${headingLevel}`
-  return <Hn>{children}</Hn>
+  return <Hn {...props} />
 }

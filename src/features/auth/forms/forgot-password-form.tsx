@@ -3,8 +3,9 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { resetPassword } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
-import type { FormHeadingLevel } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
+import { Heading } from '@/components/ui/heading'
+import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -19,7 +20,7 @@ export function ForgotPasswordForm({
   next,
   onSuccess,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   next?: string
   onSuccess: () => void
 }) {
@@ -60,9 +61,9 @@ export function ForgotPasswordForm({
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
+      <Heading id={id} headingLevel={headingLevel}>
         Reset Password
-      </FormHeading>
+      </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -82,13 +83,11 @@ export function ForgotPasswordForm({
 export function ForgotPasswordSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
 }) {
   return (
     <>
-      <FormHeading headingLevel={headingLevel}>
-        Password reset sent!
-      </FormHeading>
+      <Heading headingLevel={headingLevel}>Password reset sent!</Heading>
       <p>Please check your email to reset your password.</p>
     </>
   )

@@ -5,11 +5,12 @@ import { useUserQuery } from '../auth-queries'
 import { updatePassword } from '../auth-service'
 import { SetPasswordField } from './components/set-password-field'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
-import type { FormHeadingLevel } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
+import { Form, InputGroup } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
+import { Heading } from '@/components/ui/heading'
 
 const updatePasswordSchema = z.object({
   password: setPasswordFieldSchema,
@@ -19,7 +20,7 @@ export function UpdatePasswordForm({
   headingLevel,
   onSuccess,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   onSuccess: () => void
 }) {
   const id = useId()
@@ -59,9 +60,9 @@ export function UpdatePasswordForm({
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
+      <Heading id={id} headingLevel={headingLevel}>
         Update Password
-      </FormHeading>
+      </Heading>
       <InputGroup>
         {/* for the browser save password prompt */}
         <input

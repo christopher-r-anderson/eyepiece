@@ -5,12 +5,13 @@ import { register } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { SetPasswordField } from './components/set-password-field'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
-import type { FormHeadingLevel } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
+import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { displayNameSchema } from '@/lib/schemas/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
+import { Heading } from '@/components/ui/heading'
 
 const registrationSchema = z.object({
   email: z.email(),
@@ -24,7 +25,7 @@ export function RegistrationForm({
   next,
   onSuccess,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   next?: string
   onSuccess: () => void
 }) {
@@ -65,9 +66,9 @@ export function RegistrationForm({
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
+      <Heading id={id} headingLevel={headingLevel}>
         Register
-      </FormHeading>
+      </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -96,13 +97,11 @@ export function RegistrationForm({
 export function RegistrationSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
 }) {
   return (
     <>
-      <FormHeading headingLevel={headingLevel}>
-        Registration successful!
-      </FormHeading>
+      <Heading headingLevel={headingLevel}>Registration successful!</Heading>
       <p>Please check your email to verify your account.</p>
     </>
   )
