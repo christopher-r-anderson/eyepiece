@@ -11,9 +11,9 @@ import { SubmitButton } from './submit-button'
 import { YearRangeSlider } from './year-range-slider'
 import { SearchInput } from './search-input'
 import type { FormProps } from '@/components/ui/forms'
-import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
+import type { EyepieceMedia } from '@/lib/eyepiece-api-client/types'
 import { Form } from '@/components/ui/forms'
-import { YEAR_MAX, YEAR_MIN } from '@/lib/api/eyepiece/types'
+import { YEAR_MAX, YEAR_MIN } from '@/lib/eyepiece-api-client/types'
 
 interface SearchBarProps extends FormProps {
   allowDateRange?: boolean

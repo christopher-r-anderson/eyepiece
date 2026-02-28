@@ -7,7 +7,7 @@ import type {
 } from './favorites.schemas'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createSupabaseServiceClient } from '@/lib/supabase/service'
-import { createEyepieceClient } from '@/lib/api/eyepiece/client'
+import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { getUser } from '@/lib/supabase/user'
 
 const ASSET_SUMMARY_STALE_TIME = 7 * 24 * 60 * 60 * 1000

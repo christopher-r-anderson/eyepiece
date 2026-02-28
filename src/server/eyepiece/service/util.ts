@@ -1,4 +1,4 @@
-import type { EyepiecePagination } from '@/lib/api/eyepiece/types'
+import type { EyepiecePagination } from '@/lib/eyepiece-api-client/types'
 
 export function calculateNextPage(
   pagination: EyepiecePagination,

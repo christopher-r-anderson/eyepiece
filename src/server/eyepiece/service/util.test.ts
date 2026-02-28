@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { calculateNextPage, paginationToRange } from './-util'
-import { eyepiecePaginationSchema } from '@/lib/api/eyepiece/types'
+import { calculateNextPage, paginationToRange } from './util'
+import { eyepiecePaginationSchema } from '@/lib/eyepiece-api-client/types'
 
 describe('calculateNextPage', () => {
   it('returns the next page when more items exist beyond the current coverage', () => {

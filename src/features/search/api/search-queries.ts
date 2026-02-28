@@ -1,8 +1,8 @@
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
-import type { EyepieceClient } from '@/lib/api/eyepiece/client'
-import { flattenAssetsSelector } from '@/lib/api/eyepiece/client'
+import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
+import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
 
 type SearchCacheKey = ['search', EyepiecePageSearchParams]
 

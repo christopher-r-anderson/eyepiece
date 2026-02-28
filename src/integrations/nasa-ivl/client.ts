@@ -42,7 +42,7 @@ export async function search(params: NasaSearchParams) {
   return nasaMediaCollectionResponseSchema.parse(data)
 }
 
-export async function metadata(id: string) {
+export async function getMetadata(id: string) {
   const url = `${ASSET_HOST}/image/${id}/metadata.json`
   const response = await fetch(url)
   if (!response.ok) {

@@ -10,7 +10,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { Button } from 'react-aria-components'
 import type { SelectKey, SelectProps } from '@/components/ui/select'
-import type { EyepieceMedia } from '@/lib/api/eyepiece/types'
+import type { EyepieceMedia } from '@/lib/eyepiece-api-client/types'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
 import { Label } from '@/components/ui/forms'

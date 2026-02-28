@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { VisuallyHidden } from 'react-aria'
-import type { EyepieceMetadata } from '@/lib/api/eyepiece/types'
+import type { EyepieceMetadata } from '@/lib/eyepiece-api-client/types'
 
 type Row = { key: string; value: unknown }
 

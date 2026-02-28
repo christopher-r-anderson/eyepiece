@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import type { EyepiecePageSearchParams } from '@/lib/api/eyepiece/types'
+import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
 import { useSearchResults } from '@/features/search/api/search-queries'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
@@ -13,7 +13,7 @@ import {
   ItemGridSkeleton,
 } from '@/features/listing/item-grid/hybrid-grid'
 import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
-import { useEyepieceClient } from '@/lib/api/eyepiece/eyepiece-client-provider'
+import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import {
   useToggleUserFavorite,
   useUserFavoritesIndex,
