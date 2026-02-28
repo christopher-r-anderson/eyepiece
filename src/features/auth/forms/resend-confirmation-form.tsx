@@ -3,11 +3,12 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { resendRegisterConfirmation } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
-import type { FormHeadingLevel } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
+import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
+import { Heading } from '@/components/ui/heading'
 
 const resendConfirmationSchema = z.object({
   email: z.email(),
@@ -19,7 +20,7 @@ export function ResendConfirmationForm({
   next,
   onSuccess,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   next?: string
   onSuccess?: () => void
 }) {
@@ -60,9 +61,9 @@ export function ResendConfirmationForm({
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
+      <Heading id={id} headingLevel={headingLevel}>
         Resend Confirmation Email
-      </FormHeading>
+      </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         <TextField
@@ -82,13 +83,11 @@ export function ResendConfirmationForm({
 export function ResendConfirmationSuccessMessage({
   headingLevel,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
 }) {
   return (
     <>
-      <FormHeading headingLevel={headingLevel}>
-        Confirmation Email Sent!
-      </FormHeading>
+      <Heading headingLevel={headingLevel}>Confirmation Email Sent!</Heading>
       <p>Please check your email to confirm your account.</p>
     </>
   )

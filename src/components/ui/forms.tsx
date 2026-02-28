@@ -29,28 +29,6 @@ export function FormError({ error }: { error?: string }) {
     return <p>{error}</p>
   }
 }
-
-export type FormHeadingLevel = 1 | 2 | 3
-
-type FormHeadingProps = {
-  headingLevel: FormHeadingLevel
-  id?: string
-  children: ReactNode
-}
-type HeadingTag = `h${FormHeadingLevel}`
-
-export function FormHeading({ headingLevel, id, children }: FormHeadingProps) {
-  const Heading: HeadingTag = `h${headingLevel}`
-  return (
-    <Heading
-      id={id}
-      css={{ fontSize: '1.25rem', margin: 0, marginBlockEnd: '2rem' }}
-    >
-      {children}
-    </Heading>
-  )
-}
-
 export type FormProps = {
   formError?: string
   controls?: React.ReactNode

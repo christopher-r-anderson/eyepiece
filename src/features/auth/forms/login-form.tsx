@@ -3,11 +3,13 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { login } from '../auth-service'
 import type { ReactNode } from 'react'
-import type { FormHeadingLevel, FormProps } from '@/components/ui/forms'
-import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
+import type { FormProps } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
+import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
+import { Heading } from '@/components/ui/heading'
 
 const loginSchema = z.object({
   email: z.email(),
@@ -15,7 +17,7 @@ const loginSchema = z.object({
 })
 
 type LoginProps = {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   onSuccess: () => void
   forgotPasswordLink: ReactNode
 } & FormProps
@@ -60,9 +62,9 @@ export function LoginForm({
         </div>
       }
     >
-      <FormHeading id={id} headingLevel={headingLevel}>
+      <Heading id={id} headingLevel={headingLevel}>
         Log In
-      </FormHeading>
+      </Heading>
       <InputGroup>
         <TextField
           name="email"

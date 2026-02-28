@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
 import { upsertProfile } from '../profile-service'
-import type { FormHeadingLevel } from '@/components/ui/forms'
+import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
-import { Form, FormHeading, InputGroup, TextField } from '@/components/ui/forms'
+import { Heading } from '@/components/ui/heading'
+import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { profileInputSchema } from '@/lib/schemas/profile.schema'
@@ -15,7 +16,7 @@ export function UpsertProfileForm({
   isDisabled,
   onSuccess,
 }: {
-  headingLevel: FormHeadingLevel
+  headingLevel: HeadingLevel
   initialData?: FormDataObject
   isDisabled?: boolean
   onSuccess: () => void
@@ -61,9 +62,9 @@ export function UpsertProfileForm({
         </div>
       }
     >
-      <FormHeading id={headingId} headingLevel={headingLevel}>
+      <Heading id={headingId} headingLevel={headingLevel}>
         Create Profile
-      </FormHeading>
+      </Heading>
       <InputGroup>
         <input type="hidden" name="id" defaultValue={state.formData?.id} />
         <TextField
