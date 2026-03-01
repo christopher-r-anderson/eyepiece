@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createSupabaseServerClient } from '@/integrations/supabase/server'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { confirmationSearchParamsSchema } from '@/features/auth/schemas'
 import { urlToNextParam } from '@/lib/util'
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/(auth)/auth/confirm')({
         const { token_hash, type, next: nextUrl } = searchParams
         const next =
           typeof nextUrl === 'string' ? urlToNextParam(nextUrl) : undefined
-        const supabase = createSupabaseServerClient()
+        const supabase = createUserSupabaseServerClient()
         const { data, error } = await supabase.auth.verifyOtp({
           type,
           token_hash,

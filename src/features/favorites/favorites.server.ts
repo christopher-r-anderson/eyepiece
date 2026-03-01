@@ -5,8 +5,8 @@ import type {
   ToggleFavoriteInput,
   ToggleFavoriteResult,
 } from './favorites.schemas'
-import { createSupabaseServerClient } from '@/integrations/supabase/server'
-import { createSupabaseServiceClient } from '@/integrations/supabase/service'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
+import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { getUser } from '@/integrations/supabase/user'
 
@@ -30,8 +30,8 @@ export const toggleFavorite = createServerFn({ method: 'POST' })
       if (!user) {
         throw new Error(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
       }
-      const serviceClient = createSupabaseServiceClient()
-      const userClient = createSupabaseServerClient()
+      const serviceClient = createServiceSupabaseClient()
+      const userClient = createUserSupabaseServerClient()
 
       let assetSummaryId
 

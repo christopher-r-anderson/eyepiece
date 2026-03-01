@@ -2,11 +2,11 @@ import { mapSupabaseAuthError } from './errors'
 import type { User } from './types'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Result } from '@/lib/result'
-import { createSupabaseBrowserClient } from '@/integrations/supabase/browser'
+import { createUserSupabaseBrowserClient } from '@/integrations/supabase/user/browser'
 import { Err, Ok } from '@/lib/result'
 
 export async function getUser(): Promise<User | null> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { data: sessionData, error: sessionError } =
     await supabase.auth.getSession()
   if (sessionError) {
@@ -27,7 +27,7 @@ export async function login(credentials: {
   email: string
   password: string
 }): Promise<Result<void>> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { error } = await supabase.auth.signInWithPassword(credentials)
   return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
 }
@@ -39,7 +39,7 @@ export async function resetPassword({
   email: string
   redirectTo: string
 }): Promise<Result<void>> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   })
@@ -57,7 +57,7 @@ export async function register({
   password: string
   redirectTo: string
 }): Promise<Result<void>> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -78,7 +78,7 @@ export async function resendRegisterConfirmation({
   email: string
   redirectTo: string
 }): Promise<Result<void>> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { error } = await supabase.auth.resend({
     email,
     type: 'signup',
@@ -94,7 +94,7 @@ export async function updatePassword({
 }: {
   password: string
 }): Promise<Result<void>> {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { error } = await supabase.auth.updateUser({
     password,
   })
@@ -102,7 +102,7 @@ export async function updatePassword({
 }
 
 export function onUserChange(callback: (user: User | null) => void) {
-  const supabase = createSupabaseBrowserClient()
+  const supabase = createUserSupabaseBrowserClient()
   const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
     const user = session?.user ? userFromSupabaseUser(session.user) : null
     callback(user)

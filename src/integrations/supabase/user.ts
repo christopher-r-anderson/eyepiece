@@ -1,13 +1,17 @@
 import { createIsomorphicFn } from '@tanstack/react-start'
-import { createSupabaseServerClient } from './server'
-import { createSupabaseBrowserClient } from './browser'
+import { createUserSupabaseServerClient } from './user/server'
+import { createUserSupabaseBrowserClient } from './user/browser'
+
+export const createUserSupabaseClient = createIsomorphicFn()
+  .server(() => createUserSupabaseServerClient())
+  .client(() => createUserSupabaseBrowserClient())
 
 export const getUser = createIsomorphicFn()
   .server(async () => {
-    const { data } = await createSupabaseServerClient().auth.getUser()
+    const { data } = await createUserSupabaseServerClient().auth.getUser()
     return data.user
   })
   .client(async () => {
-    const { data } = await createSupabaseBrowserClient().auth.getSession()
+    const { data } = await createUserSupabaseBrowserClient().auth.getSession()
     return data.session?.user
   })
