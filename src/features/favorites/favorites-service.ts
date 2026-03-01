@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { FavoriteEdge } from './favorites.schemas'
 import type { Result } from '@/lib/result'
-import { createSupabaseClient } from '@/lib/supabase/client'
+import { createSupabaseClient } from '@/integrations/supabase/client'
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schemas'
 import { providerSchema } from '@/domain/provider/provider.schemas'

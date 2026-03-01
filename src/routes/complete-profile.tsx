@@ -7,7 +7,7 @@ import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
-import { getUser } from '@/lib/supabase/user'
+import { getUser } from '@/integrations/supabase/user'
 
 export const Route = createFileRoute('/complete-profile')({
   component: CompleteProfilePage,

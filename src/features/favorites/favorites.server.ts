@@ -5,10 +5,10 @@ import type {
   ToggleFavoriteInput,
   ToggleFavoriteResult,
 } from './favorites.schemas'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { createSupabaseServiceClient } from '@/lib/supabase/service'
+import { createSupabaseServerClient } from '@/integrations/supabase/server'
+import { createSupabaseServiceClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { getUser } from '@/lib/supabase/user'
+import { getUser } from '@/integrations/supabase/user'
 
 const ASSET_SUMMARY_STALE_TIME = 7 * 24 * 60 * 60 * 1000
 

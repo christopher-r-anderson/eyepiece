@@ -5,7 +5,7 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schemas'
 import { Err, Ok } from '@/lib/result'
-import { createSupabaseClient } from '@/lib/supabase/client'
+import { createSupabaseClient } from '@/integrations/supabase/client'
 import { providerSchema } from '@/domain/provider/provider.schemas'
 
 const dbAssetSummarySchema = z.object({

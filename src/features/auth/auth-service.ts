@@ -2,7 +2,7 @@ import { mapSupabaseAuthError } from './errors'
 import type { User } from './types'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Result } from '@/lib/result'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser'
+import { createSupabaseBrowserClient } from '@/integrations/supabase/browser'
 import { Err, Ok } from '@/lib/result'
 
 export async function getUser(): Promise<User | null> {

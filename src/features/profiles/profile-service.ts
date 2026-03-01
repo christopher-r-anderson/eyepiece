@@ -10,13 +10,13 @@ import {
   errorFromZodError,
 } from './errors'
 import type { ProfileErrorCode } from './errors'
-import type { SupabaseClient } from '@/lib/supabase/types'
+import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
 import type { Result } from '../../lib/result'
 import { Err } from '@/lib/result'
 import { profileInputSchema } from '@/lib/schemas/profile.schema'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser'
+import { createSupabaseServerClient } from '@/integrations/supabase/server'
+import { createSupabaseBrowserClient } from '@/integrations/supabase/browser'
 
 export const upsertProfile = createIsomorphicFn()
   .server((input) => makeUpsertProfile(createSupabaseServerClient())(input))
