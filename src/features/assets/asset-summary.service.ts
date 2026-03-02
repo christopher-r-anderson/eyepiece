@@ -5,7 +5,7 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schemas'
 import { Err, Ok } from '@/lib/result'
-import { createSupabaseClient } from '@/lib/supabase/client'
+import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 import { providerSchema } from '@/domain/provider/provider.schemas'
 
 const dbAssetSummarySchema = z.object({
@@ -47,7 +47,7 @@ function mapAssetSummary({
 export async function getAssetSummaries(
   assetSummaryIds: Array<AssetSummaryId>,
 ) {
-  const { data, error: pgError } = await createSupabaseClient()
+  const { data, error: pgError } = await createPublicSupabaseClient()
     .from('asset_summaries')
     .select(
       'id, provider, external_id, title, thumb_href, thumb_width, thumb_height',

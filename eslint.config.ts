@@ -3,7 +3,7 @@ import queryPlugin from '@tanstack/eslint-plugin-query'
 
 export default [
   {
-    ignores: ['.netlify/**', './src/lib/supabase/database.types.ts'],
+    ignores: ['.netlify/**', './src/integrations/supabase/database.types.ts'],
   },
   ...tanstackConfig,
   ...queryPlugin.configs['flat/recommended'],

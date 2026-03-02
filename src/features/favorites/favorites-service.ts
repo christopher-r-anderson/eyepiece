@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { FavoriteEdge } from './favorites.schemas'
 import type { Result } from '@/lib/result'
-import { createSupabaseClient } from '@/lib/supabase/client'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schemas'
 import { providerSchema } from '@/domain/provider/provider.schemas'
@@ -29,7 +29,7 @@ function mapUserFavoritesIndex({
 }
 
 export async function getUserFavoritesIndex() {
-  const { data, error: pgError } = await createSupabaseClient()
+  const { data, error: pgError } = await createUserSupabaseClient()
     .from('favorites')
     .select('asset_summaries (provider, external_id)')
     .order('created_at', { ascending: false })
@@ -93,7 +93,7 @@ export async function getUserFavoritesEdges({
     data,
     error: pgError,
     count,
-  } = await createSupabaseClient()
+  } = await createUserSupabaseClient()
     .from('favorites')
     .select('created_at, asset_summaries (id, provider, external_id)', {
       count: 'exact',

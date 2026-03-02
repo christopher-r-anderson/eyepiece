@@ -1,4 +1,3 @@
-import { createIsomorphicFn } from '@tanstack/react-start'
 import {
   profileInputToUpsertProfile,
   profileRowToProfileDisplay,
@@ -10,17 +9,16 @@ import {
   errorFromZodError,
 } from './errors'
 import type { ProfileErrorCode } from './errors'
-import type { SupabaseClient } from '@/lib/supabase/types'
+import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
 import type { Result } from '../../lib/result'
 import { Err } from '@/lib/result'
 import { profileInputSchema } from '@/lib/schemas/profile.schema'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
-export const upsertProfile = createIsomorphicFn()
-  .server((input) => makeUpsertProfile(createSupabaseServerClient())(input))
-  .client((input) => makeUpsertProfile(createSupabaseBrowserClient())(input))
+export function upsertProfile(input: unknown) {
+  return makeUpsertProfile(createUserSupabaseClient())(input)
+}
 
 export function makeUpsertProfile(client: SupabaseClient) {
   return async function doUpsertProfile(
@@ -48,9 +46,9 @@ export function makeUpsertProfile(client: SupabaseClient) {
   }
 }
 
-export const getProfile = createIsomorphicFn()
-  .server((id) => makeGetProfile(createSupabaseServerClient())(id))
-  .client((id) => makeGetProfile(createSupabaseBrowserClient())(id))
+export function getProfile(id: string) {
+  return makeGetProfile(createUserSupabaseClient())(id)
+}
 
 export function makeGetProfile(client: SupabaseClient) {
   return async function doGetProfile(

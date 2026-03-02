@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "supabase": "supabase",
-    "generate-db-types": "supabase gen types typescript --local > ./src/lib/supabase/database.types.ts",
+    "generate-db-types": "supabase gen types typescript --local > ./src/integrations/supabase/database.types.ts",
     "create-env-local": "./scripts/generate-env.sh > .env.local",
     "create-env-test": "./scripts/generate-env.sh > .env.test",
     "dev": "vite dev --port 3000",

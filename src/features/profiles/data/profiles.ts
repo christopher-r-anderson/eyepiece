@@ -1,4 +1,4 @@
-import type { Database } from '@/lib/supabase/database.types'
+import type { Database } from '@/integrations/supabase/database.types'
 import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
 
 type InsertProfile = Database['public']['Tables']['profiles']['Insert']

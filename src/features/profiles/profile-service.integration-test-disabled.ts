@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { makeUpsertProfile } from './profile-service'
 import { INVALID_INPUT_ERROR } from './errors'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/lib/supabase/database.types'
+import type { Database } from '@/integrations/supabase/database.types'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // Example integration test for evaluation w/ https://github.com/christopher-r-anderson/eyepiece/issues/48

@@ -1,5 +1,5 @@
 import { redirect } from '@tanstack/react-router'
-import { getUser } from './supabase/user'
+import { getUser } from '../integrations/supabase/user'
 import type { ParsedLocation } from '@tanstack/react-router'
 import { urlToNextParam } from '@/lib/util'
 import { hasServerClaims } from '@/server/lib/has-server-claims'

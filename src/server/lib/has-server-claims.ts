@@ -1,9 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
 
 export const hasServerClaims = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  const { data, error } = await createSupabaseServerClient().auth.getClaims()
+  const { data, error } =
+    await createUserSupabaseServerClient().auth.getClaims()
   return !error && !!data
 })
