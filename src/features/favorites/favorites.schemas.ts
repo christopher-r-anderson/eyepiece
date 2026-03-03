@@ -1,16 +1,5 @@
 import { z } from 'zod'
-import {
-  assetKeySchema,
-  externalAssetIdSchema,
-} from '@/domain/asset/asset.schemas'
-import { providerSchema } from '@/domain/provider/provider.schemas'
-
-export const toggleFavoriteInputSchema = z.object({
-  provider: providerSchema,
-  externalId: externalAssetIdSchema,
-})
-
-export type ToggleFavoriteInput = z.infer<typeof toggleFavoriteInputSchema>
+import { assetKeySchema } from '@/domain/asset/asset.schemas'
 
 export const toggleFavoriteResultSchema = z.object({
   assetSummaryId: z.uuid(),

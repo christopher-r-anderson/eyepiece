@@ -26,6 +26,10 @@ import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { fromAssetKeyString, toAssetKeyString } from '@/domain/asset/asset.util'
 import { PrettyException } from '@/components/ui/error'
 import { AlbumLinkList } from '@/features/albums/components/album-link-list'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { makeUserFavoritesRepo } from '@/features/favorites/favorites-repo'
+import { makeUserFavoritesCommands } from '@/features/favorites/favorites-commands'
+import { makeSearchRepo } from '@/features/search/search-repo'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -35,9 +39,12 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
   const navigate = useNavigate()
   const queueToastMessage = useQueueToastMessage()
   const showLoginModal = useShowLoginModal()
-  const client = useEyepieceClient()
   const isClientMounted = useIsClientMounted()
+  const eyepieceClient = useEyepieceClient()
+  const searchRepo = makeSearchRepo(eyepieceClient)
+  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
   const userFavoritesIndex = useUserFavoritesIndex({
+    repo: userFavoritesRepo,
     enabled: isClientMounted,
   })
   const favoriteKeySet = useMemo(() => {
@@ -50,11 +57,12 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
       ),
     )
   }, [userFavoritesIndex.data])
+  const userFavoritesCommands = makeUserFavoritesCommands()
   const {
     variables,
     mutate: toggleFavorite,
     isPending: isToggleFavoritePending,
-  } = useToggleUserFavorite()
+  } = useToggleUserFavorite(userFavoritesCommands)
 
   const currentlyTogglingKey = useMemo(() => {
     if (!variables) {
@@ -74,7 +82,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSearchResults(client, searchParams)
+  } = useSearchResults(searchRepo, searchParams)
 
   const uiResetKey = useMemo(
     () => paramsToUiResetKey(searchParams),

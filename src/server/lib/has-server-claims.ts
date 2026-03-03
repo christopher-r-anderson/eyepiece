@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 
 export const hasServerClaims = createServerFn({
   method: 'GET',

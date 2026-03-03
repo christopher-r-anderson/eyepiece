@@ -2,7 +2,7 @@ import { UserCircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { useRouter } from '@tanstack/react-router'
 import { useUserQuery } from '../auth-queries'
 import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
-import { createUserSupabaseBrowserClient } from '@/integrations/supabase/user/browser'
+import { createUserSupabaseBrowserClient } from '@/integrations/supabase/user/browser.client'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 

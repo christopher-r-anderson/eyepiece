@@ -9,6 +9,7 @@ import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { assetKeySchema } from '@/domain/asset/asset.schemas'
 import { PrettyException } from '@/components/ui/error'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
+import { makeAssetsRepo } from '@/features/assets/assets-repo'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetPage,
@@ -23,8 +24,9 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
     const client = createEyepieceClient({
       origin: location.url.origin,
     })
+    const repo = makeAssetsRepo(client)
     return context.queryClient.ensureQueryData(
-      getAssetOptions(client, context.assetKey),
+      getAssetOptions({ repo, assetKey: context.assetKey }),
     )
   },
   head: ({ loaderData }) => ({
@@ -35,7 +37,8 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
 export function AssetPage() {
   const { assetKey } = Route.useRouteContext()
   const client = useEyepieceClient()
-  const { data, isPending, isError, error } = useAsset(client, assetKey)
+  const repo = makeAssetsRepo(client)
+  const { data, isPending, isError, error } = useAsset({ repo, assetKey })
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
@@ -64,7 +67,7 @@ export function AssetPage() {
           </Link>
         )}
         <h1 css={{ color: 'var(--text-accent)' }}>{data.title}</h1>
-        <MetadataButton assetKey={assetKey} />
+        <MetadataButton assetKey={assetKey} assetsRepo={repo} />
       </div>
       <div
         css={{

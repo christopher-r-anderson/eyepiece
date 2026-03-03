@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
-import { resendRegisterConfirmation } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
+import { useAuth } from '../auth-provider'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -26,10 +26,11 @@ export function ResendConfirmationForm({
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
+  const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(
     resendConfirmationSchema,
-    resendRegisterConfirmation,
+    commands.resendRegisterConfirmation,
   )
 
   const onSuccessRef = useEvent(onSuccess)

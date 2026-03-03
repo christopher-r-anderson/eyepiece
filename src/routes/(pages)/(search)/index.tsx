@@ -10,6 +10,7 @@ import { SearchBar } from '@/features/search/components/search-bar'
 import { searchImagesOptions } from '@/features/search/api/search-queries'
 import { getTitleText } from '@/lib/util'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
+import { makeSearchRepo } from '@/features/search/search-repo'
 
 const NO_SEARCH_TITLE = 'Search NASA Images and Videos'
 
@@ -28,8 +29,9 @@ export const Route = createFileRoute('/(pages)/(search)/')({
       const client = createEyepieceClient({
         origin: location.url.origin,
       })
+      const searchRepo = makeSearchRepo(client)
       return context.queryClient.ensureInfiniteQueryData(
-        searchImagesOptions(client, search),
+        searchImagesOptions({ repo: searchRepo, params: search }),
       )
     }
   },

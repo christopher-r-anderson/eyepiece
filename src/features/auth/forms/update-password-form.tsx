@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
 import { useUserQuery } from '../auth-queries'
-import { updatePassword } from '../auth-service'
+import { useAuth } from '../auth-provider'
 import { SetPasswordField } from './components/set-password-field'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -25,10 +25,11 @@ export function UpdatePasswordForm({
 }) {
   const id = useId()
   const userQuery = useUserQuery()
+  const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(
     updatePasswordSchema,
-    updatePassword,
+    commands.updatePassword,
   )
 
   const onSuccessRef = useEvent(onSuccess)

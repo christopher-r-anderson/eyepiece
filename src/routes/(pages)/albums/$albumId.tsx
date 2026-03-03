@@ -5,6 +5,7 @@ import { getTitleText } from '@/lib/util'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
 import { albumKeySchema } from '@/domain/album/album.schemas'
+import { makeAlbumsRepo } from '@/features/albums/albums-repo'
 
 export const Route = createFileRoute('/(pages)/albums/$albumId')({
   component: AlbumView,
@@ -19,8 +20,9 @@ export const Route = createFileRoute('/(pages)/albums/$albumId')({
     const client = createEyepieceClient({
       origin: location.url.origin,
     })
+    const albumsRepo = makeAlbumsRepo(client)
     return context.queryClient.ensureInfiniteQueryData(
-      getAlbumOptions(client, context.albumKey),
+      getAlbumOptions({ repo: albumsRepo, albumKey: context.albumKey }),
     )
   },
   head: ({ match }) => ({

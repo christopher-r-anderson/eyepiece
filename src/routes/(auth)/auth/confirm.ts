@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { confirmationSearchParamsSchema } from '@/features/auth/schemas'
 import { urlToNextParam } from '@/lib/util'

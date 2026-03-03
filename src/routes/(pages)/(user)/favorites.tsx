@@ -14,24 +14,42 @@ import {
   useAssetSummariesBatch,
 } from '@/features/assets/api/asset-summary.queries'
 import { PrettyException } from '@/components/ui/error'
+import { makeUserFavoritesRepo } from '@/features/favorites/favorites-repo'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { makeAssetSummariesRepo } from '@/features/assets/asset-summaries-repo'
+import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 
 export const Route = createFileRoute('/(pages)/(user)/favorites')({
   component: FavoritesPage,
   loader: async ({ context }) => {
+    const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
     const edges = await context.queryClient.ensureInfiniteQueryData(
-      getUserFavoritesEdgesOptions(),
+      getUserFavoritesEdgesOptions({ repo: userFavoritesRepo }),
     )
     const assetSummaryIds = userFavoritesPagesToAssetIds(edges)
+    const assetSummariesRepo = makeAssetSummariesRepo(
+      createPublicSupabaseClient(),
+    )
     await context.queryClient.ensureQueryData(
-      getAssetSummariesBatchOptions(assetSummaryIds),
+      getAssetSummariesBatchOptions({
+        assetSummaryIds,
+        repo: assetSummariesRepo,
+      }),
     )
   },
 })
 
 export function FavoritesPage() {
   const navigate = useNavigate()
-  const favoritesResult = useUserFavoriteAssetIds()
-  const assetSummariesResult = useAssetSummariesBatch(favoritesResult.data)
+  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
+  const favoritesResult = useUserFavoriteAssetIds({ repo: userFavoritesRepo })
+  const assetSummariesRepo = makeAssetSummariesRepo(
+    createPublicSupabaseClient(),
+  )
+  const assetSummariesResult = useAssetSummariesBatch({
+    assetSummaryIds: favoritesResult.data,
+    repo: assetSummariesRepo,
+  })
 
   if (favoritesResult.isError || assetSummariesResult.isError) {
     return (
@@ -42,7 +60,7 @@ export function FavoritesPage() {
     )
   }
 
-  if (favoritesResult.isPending) {
+  if (favoritesResult.isPending || assetSummariesResult.isPending) {
     return <p>Loading favorites...</p>
   }
 
@@ -54,16 +72,10 @@ export function FavoritesPage() {
     )
   }
 
-  // can't combine with favorites.isPending check since assets query can be disabled and remain pending when there are no favorites
-  if (assetSummariesResult.isPending) {
-    return <p>Loading favorites...</p>
-  }
-
-  // NOTE: assetSummariesResult.isFetching is not strictly accurate since it can fetch in the background for existing data - though it doesn't currently
   return (
     <InfiniteLoader
       isFetchingNextPage={
-        favoritesResult.isFetchingNextPage || assetSummariesResult.isFetching
+        favoritesResult.isFetchingNextPage || assetSummariesResult.isLoading
       }
       fetchNextPage={favoritesResult.fetchNextPage}
       hasNextPage={favoritesResult.hasNextPage}

@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
-import { getAssetSummaries } from '../asset-summary.service'
 import type { AssetSummary, AssetSummaryId } from '@/domain/asset/asset.schemas'
+import type { AssetSummariesRepo } from '../asset-summaries-repo'
 import { unwrapOrThrow } from '@/lib/result'
 
 type AssetSummariesByIdKey = ['assets', 'summaries', 'byId', string]
@@ -20,11 +20,14 @@ function assetSummariesBatchKey(
   return ['assets', 'summaries', 'batch', key] as const
 }
 
-export function getAssetSummariesBatchOptions(
-  assetSummaryIds: Array<AssetSummaryId>,
-) {
+export function getAssetSummariesBatchOptions({
+  assetSummaryIds,
+  repo,
+}: {
+  assetSummaryIds: Array<AssetSummaryId>
+  repo: Pick<AssetSummariesRepo, 'getAssetSummaries'>
+}) {
   return queryOptions({
-    enabled: assetSummaryIds.length > 0,
     queryKey: assetSummariesBatchKey(assetSummaryIds),
     placeholderData: keepPreviousData,
     queryFn: async ({ client }) => {
@@ -32,7 +35,7 @@ export function getAssetSummariesBatchOptions(
         (id) => !client.getQueryData<AssetSummary>(assetSummariesByIdKey(id)),
       )
       if (toFetch.length > 0) {
-        const result = await getAssetSummaries(toFetch)
+        const result = await repo.getAssetSummaries(toFetch)
         const newSummaries = unwrapOrThrow(result)
         for (const summary of newSummaries) {
           client.setQueryData<AssetSummary>(
@@ -57,8 +60,12 @@ export function getAssetSummariesBatchOptions(
   })
 }
 
-export const useAssetSummariesBatch = (
-  assetSummaryIds: Array<AssetSummaryId> = [],
-) => {
-  return useQuery(getAssetSummariesBatchOptions(assetSummaryIds))
+export const useAssetSummariesBatch = ({
+  assetSummaryIds = [],
+  repo,
+}: {
+  assetSummaryIds?: Array<AssetSummaryId>
+  repo: Pick<AssetSummariesRepo, 'getAssetSummaries'>
+}) => {
+  return useQuery(getAssetSummariesBatchOptions({ assetSummaryIds, repo }))
 }

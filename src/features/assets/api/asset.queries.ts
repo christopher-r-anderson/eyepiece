@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type { AssetKey, AssetKeyString } from '@/domain/asset/asset.schemas'
+import type { AssetsRepo } from '../assets-repo'
 import { toAssetKeyString } from '@/domain/asset/asset.util'
 
 type AssetCacheKey = ['assets', AssetKeyString]
@@ -9,11 +9,17 @@ function assetCacheKey(assetKey: AssetKey): AssetCacheKey {
   return ['assets', toAssetKeyString(assetKey)] as const
 }
 
-export function getAssetOptions(client: EyepieceClient, assetKey: AssetKey) {
+export function getAssetOptions({
+  repo,
+  assetKey,
+}: {
+  repo: Pick<AssetsRepo, 'getAsset'>
+  assetKey: AssetKey
+}) {
   return queryOptions({
     queryKey: assetCacheKey(assetKey),
     queryFn: () => {
-      return client.getAsset(assetKey)
+      return repo.getAsset(assetKey)
     },
     staleTime: Infinity,
     refetchOnMount: false,
@@ -21,8 +27,14 @@ export function getAssetOptions(client: EyepieceClient, assetKey: AssetKey) {
   })
 }
 
-export function useAsset(client: EyepieceClient, assetKey: AssetKey) {
-  return useQuery(getAssetOptions(client, assetKey))
+export function useAsset({
+  repo,
+  assetKey,
+}: {
+  repo: Pick<AssetsRepo, 'getAsset'>
+  assetKey: AssetKey
+}) {
+  return useQuery(getAssetOptions({ repo, assetKey }))
 }
 
 type MetadataCacheKey = ['assets', AssetKeyString, 'metadata']
@@ -31,11 +43,17 @@ function metadataCacheKey(assetKey: AssetKey): MetadataCacheKey {
   return ['assets', toAssetKeyString(assetKey), 'metadata'] as const
 }
 
-export function getMetadataOptions(client: EyepieceClient, assetKey: AssetKey) {
+export function getMetadataOptions({
+  repo,
+  assetKey,
+}: {
+  repo: Pick<AssetsRepo, 'getMetadata'>
+  assetKey: AssetKey
+}) {
   return queryOptions({
     queryKey: metadataCacheKey(assetKey),
     queryFn: () => {
-      return client.getMetadata(assetKey)
+      return repo.getMetadata(assetKey)
     },
     staleTime: Infinity,
     refetchOnMount: false,
@@ -43,13 +61,17 @@ export function getMetadataOptions(client: EyepieceClient, assetKey: AssetKey) {
   })
 }
 
-export function useMetadata(
-  client: EyepieceClient,
-  assetKey: AssetKey,
-  enabled?: boolean,
-) {
+export function useMetadata({
+  repo,
+  assetKey,
+  enabled,
+}: {
+  repo: Pick<AssetsRepo, 'getMetadata'>
+  assetKey: AssetKey
+  enabled?: boolean
+}) {
   return useQuery({
-    ...getMetadataOptions(client, assetKey),
+    ...getMetadataOptions({ repo, assetKey }),
     enabled,
   })
 }

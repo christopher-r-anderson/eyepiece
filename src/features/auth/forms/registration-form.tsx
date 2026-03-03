@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
-import { register } from '../auth-service'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
+import { useAuth } from '../auth-provider'
 import { SetPasswordField } from './components/set-password-field'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -31,10 +31,11 @@ export function RegistrationForm({
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
+  const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(
     registrationSchema,
-    register,
+    commands.register,
   )
 
   const onSuccessRef = useEvent(onSuccess)

@@ -1,6 +1,6 @@
 import { redirect } from '@tanstack/react-router'
-import { getUser } from '../integrations/supabase/user'
 import type { ParsedLocation } from '@tanstack/react-router'
+import { getUser } from '@/features/auth/user'
 import { urlToNextParam } from '@/lib/util'
 import { hasServerClaims } from '@/server/lib/has-server-claims'
 import { getProfile } from '@/features/profiles/profile-service'

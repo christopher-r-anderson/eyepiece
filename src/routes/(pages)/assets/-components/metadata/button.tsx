@@ -4,16 +4,21 @@ import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
 import { MetadataModal } from './modal'
 import type { AssetKey } from '@/domain/asset/asset.schemas'
+import type { AssetsRepo } from '@/features/assets/assets-repo'
 import { Button } from '@/components/ui/button'
 import { getMetadataOptions } from '@/features/assets/api/asset.queries'
-import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 const METADATA_HASH = 'metadata'
 
-export function MetadataButton({ assetKey }: { assetKey: AssetKey }) {
+export function MetadataButton({
+  assetKey,
+  assetsRepo,
+}: {
+  assetKey: AssetKey
+  assetsRepo: Pick<AssetsRepo, 'getMetadata'>
+}) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const eyepieceClient = useEyepieceClient()
 
   const isOpen = useRouterState({
     select: (s) => s.location.hash === METADATA_HASH,
@@ -26,8 +31,10 @@ export function MetadataButton({ assetKey }: { assetKey: AssetKey }) {
 
   const prefetch = useCallback(() => {
     // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
-    void queryClient.prefetchQuery(getMetadataOptions(eyepieceClient, assetKey))
-  }, [queryClient, assetKey])
+    void queryClient.prefetchQuery(
+      getMetadataOptions({ repo: assetsRepo, assetKey }),
+    )
+  }, [queryClient, assetsRepo, assetKey])
   return (
     <>
       <Button
@@ -47,6 +54,7 @@ export function MetadataButton({ assetKey }: { assetKey: AssetKey }) {
       </Button>
 
       <MetadataModal
+        assetsRepo={assetsRepo}
         assetKey={assetKey}
         isOpen={isOpen}
         onOpenChange={(shouldOpen: boolean) => (shouldOpen ? open() : close())}
