@@ -5,7 +5,7 @@ import type {
   ComponentPropsWithoutRef,
   ReactNode,
 } from 'react'
-import type { AssetSummary } from '@/domain/asset/asset.schemas'
+import type { AssetSummary } from '@/domain/asset/asset.schema'
 import { Link } from '@/components/ui/link'
 
 interface AssetTileProps extends Omit<

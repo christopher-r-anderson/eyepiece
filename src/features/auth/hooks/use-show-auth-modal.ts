@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { stripAuthSearchParams } from '../util'
+import { stripAuthSearchParams } from '@/features/auth/auth.utils'
 
 export function useShowAuthModal() {
   const navigate = useNavigate()

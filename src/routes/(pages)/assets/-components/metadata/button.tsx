@@ -3,10 +3,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
 import { MetadataModal } from './modal'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import type { AssetsRepo } from '@/features/assets/assets-repo'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AssetsRepo } from '@/features/assets/assets.repo'
 import { Button } from '@/components/ui/button'
-import { getMetadataOptions } from '@/features/assets/api/asset.queries'
+import { getMetadataOptions } from '@/features/assets/assets.queries'
 
 const METADATA_HASH = 'metadata'
 

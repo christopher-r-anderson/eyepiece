@@ -6,7 +6,7 @@ import {
 } from '@/features/auth/forms/registration-form'
 import { Link } from '@/components/ui/link'
 import { FormStatusSwitcher } from '@/components/ui/forms'
-import { urlToNextParam } from '@/lib/util'
+import { urlToNextParam } from '@/lib/utils'
 import { requireAnonymous } from '@/lib/guards'
 
 export const Route = createFileRoute('/(auth)/register')({

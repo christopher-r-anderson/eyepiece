@@ -1,6 +1,6 @@
-import type { AlbumKey } from '@/domain/album/album.schemas'
+import type { AlbumKey } from '@/domain/album/album.schema'
 import { Link } from '@/components/ui/link'
-import { toAlbumKeyString } from '@/domain/album/album.util'
+import { toAlbumKeyString } from '@/domain/album/album.utils'
 
 const albumListCss = {
   listStyleType: 'none',

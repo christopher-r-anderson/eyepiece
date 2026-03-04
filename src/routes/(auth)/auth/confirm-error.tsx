@@ -6,7 +6,7 @@ import {
   ResendConfirmationForm,
   ResendConfirmationSuccessMessage,
 } from '@/features/auth/forms/resend-confirmation-form'
-import { confirmationTypeSchema } from '@/features/auth/schemas'
+import { confirmationTypeSchema } from '@/features/auth/auth.schema'
 import { Link } from '@/components/ui/link'
 import {
   ForgotPasswordForm,

@@ -1,13 +1,13 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { createServerOnlyFn } from '@tanstack/react-start'
-import type { ToggleFavoriteResult } from './favorites.schemas'
-import type { AssetKey, AssetSummaryId } from '@/domain/asset/asset.schemas'
+import type { ToggleFavoriteResult } from './favorites.schema'
+import type { AssetKey, AssetSummaryId } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { getUser } from '@/features/auth/user'
+import { getUser } from '@/features/auth/get-user'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
 
 const ASSET_SUMMARY_STALE_TIME = 7 * 24 * 60 * 60 * 1000

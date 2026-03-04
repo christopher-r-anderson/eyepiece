@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-import { authPageSearchParamsSchema } from '@/features/auth/schemas'
+import { authPageSearchParamsSchema } from '@/features/auth/auth.schema'
 
 export const Route = createFileRoute('/(auth)')({
   validateSearch: authPageSearchParamsSchema,

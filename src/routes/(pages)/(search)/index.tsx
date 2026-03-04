@@ -6,11 +6,11 @@ import {
   eyepiecePageSearchParamsSchema,
 } from '@/lib/eyepiece-api-client/types'
 import { hasSearchFields } from '@/lib/eyepiece-api-client/util'
-import { SearchBar } from '@/features/search/components/search-bar'
-import { searchImagesOptions } from '@/features/search/api/search-queries'
-import { getTitleText } from '@/lib/util'
+import { SearchBar } from '@/features/search/components/search-bar/search-bar'
+import { searchImagesOptions } from '@/features/search/search.queries'
+import { getTitleText } from '@/lib/utils'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { makeSearchRepo } from '@/features/search/search-repo'
+import { makeSearchRepo } from '@/features/search/search.repo'
 
 const NO_SEARCH_TITLE = 'Search NASA Images and Videos'
 

@@ -1,22 +1,22 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { AssetTile } from '@/features/assets/components/asset-tile'
-import { HybridGrid } from '@/features/listing/item-grid/hybrid-grid'
-import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+import { HybridGrid } from '@/features/listing/item-grid/components/hybrid-grid'
+import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
 import {
   getUserFavoritesEdgesOptions,
   useUserFavoriteAssetIds,
   userFavoritesPagesToAssetIds,
 } from '@/features/favorites/favorites.queries'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
+import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
   getAssetSummariesBatchOptions,
   useAssetSummariesBatch,
-} from '@/features/assets/api/asset-summary.queries'
+} from '@/features/assets/asset-summaries.queries'
 import { PrettyException } from '@/components/ui/error'
-import { makeUserFavoritesRepo } from '@/features/favorites/favorites-repo'
+import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { makeAssetSummariesRepo } from '@/features/assets/asset-summaries-repo'
+import { makeAssetSummariesRepo } from '@/features/assets/asset-summaries.repo'
 import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 
 export const Route = createFileRoute('/(pages)/(user)/favorites')({

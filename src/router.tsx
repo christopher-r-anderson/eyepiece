@@ -4,7 +4,7 @@ import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 
 import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
-import type { AuthInteractionStrategy } from './features/auth/types'
+import type { AuthInteractionStrategy } from '@/features/auth/auth.types'
 
 declare module '@tanstack/react-router' {
   interface HistoryState {

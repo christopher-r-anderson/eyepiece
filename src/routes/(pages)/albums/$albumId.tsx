@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
-import { getAlbumOptions } from '@/features/albums/api/album.queries'
-import { getTitleText } from '@/lib/util'
+import { getAlbumOptions } from '@/features/albums/albums.queries'
+import { getTitleText } from '@/lib/utils'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
-import { albumKeySchema } from '@/domain/album/album.schemas'
-import { makeAlbumsRepo } from '@/features/albums/albums-repo'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import { albumKeySchema } from '@/domain/album/album.schema'
+import { makeAlbumsRepo } from '@/features/albums/albums.repo'
 
 export const Route = createFileRoute('/(pages)/albums/$albumId')({
   component: AlbumView,

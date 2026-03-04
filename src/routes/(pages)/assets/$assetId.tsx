@@ -1,15 +1,15 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
-import { getTitleText } from '@/lib/util'
-import { getAssetOptions, useAsset } from '@/features/assets/api/asset.queries'
+import { getTitleText } from '@/lib/utils'
+import { getAssetOptions, useAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { assetKeySchema } from '@/domain/asset/asset.schemas'
+import { assetKeySchema } from '@/domain/asset/asset.schema'
 import { PrettyException } from '@/components/ui/error'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
-import { makeAssetsRepo } from '@/features/assets/assets-repo'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import { makeAssetsRepo } from '@/features/assets/assets.repo'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetPage,

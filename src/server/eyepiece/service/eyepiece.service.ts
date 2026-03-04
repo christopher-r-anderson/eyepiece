@@ -4,8 +4,8 @@ import {
   getMetadata as nasaIvlAdapterGetMetadata,
   search as nasaIvlAdapterSearch,
 } from '../adapters/nasa-ivl'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import type { AlbumKey } from '@/domain/album/album.schemas'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AlbumKey } from '@/domain/album/album.schema'
 import type {
   EyepieceApiSearchParams,
   EyepieceAssetResponse,

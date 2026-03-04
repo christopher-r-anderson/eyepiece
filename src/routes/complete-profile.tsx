@@ -1,13 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
-import { urlToNextParam } from '@/lib/util'
+import { urlToNextParam } from '@/lib/utils'
 import { requireAuthenticated } from '@/lib/guards'
 import { redirectSearchParamsSchema } from '@/lib/route.schema'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
-import { getUser } from '@/features/auth/user'
+import { getUser } from '@/features/auth/get-user'
 
 export const Route = createFileRoute('/complete-profile')({
   component: CompleteProfilePage,

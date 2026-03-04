@@ -1,9 +1,9 @@
 import type { ComponentPropsWithoutRef } from 'react'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import type { AssetsRepo } from '@/features/assets/assets-repo'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AssetsRepo } from '@/features/assets/assets.repo'
 import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
-import { useMetadata } from '@/features/assets/api/asset.queries'
+import { useMetadata } from '@/features/assets/assets.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 
 export function MetadataModal({

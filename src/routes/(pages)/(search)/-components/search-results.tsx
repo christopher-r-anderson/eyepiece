@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
-import { useSearchResults } from '@/features/search/api/search-queries'
-import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
+import { useSearchResults } from '@/features/search/search.queries'
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
+import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
   AssetTile,
   AssetTileSkeleton,
@@ -11,8 +11,8 @@ import {
 import {
   HybridGrid,
   ItemGridSkeleton,
-} from '@/features/listing/item-grid/hybrid-grid'
-import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+} from '@/features/listing/item-grid/components/hybrid-grid'
+import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import {
   useToggleUserFavorite,
@@ -23,13 +23,16 @@ import { useIsClientMounted } from '@/lib/hooks/use-is-client-mounted'
 import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.server'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
-import { fromAssetKeyString, toAssetKeyString } from '@/domain/asset/asset.util'
+import {
+  fromAssetKeyString,
+  toAssetKeyString,
+} from '@/domain/asset/asset.utils'
 import { PrettyException } from '@/components/ui/error'
 import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { makeUserFavoritesRepo } from '@/features/favorites/favorites-repo'
-import { makeUserFavoritesCommands } from '@/features/favorites/favorites-commands'
-import { makeSearchRepo } from '@/features/search/search-repo'
+import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
+import { makeUserFavoritesCommands } from '@/features/favorites/favorites.commands'
+import { makeSearchRepo } from '@/features/search/search.repo'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams

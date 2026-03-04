@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
-import { getUser } from '@/features/auth/user'
+import { getUser } from '@/features/auth/get-user'
 import { getProfile } from '@/features/profiles/profile-service'
 import { resultIsError } from '@/lib/result'
 

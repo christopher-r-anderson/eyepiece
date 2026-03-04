@@ -12,10 +12,10 @@ import type {
   EyepieceMetadata,
 } from './types'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import type { AlbumKey } from '@/domain/album/album.schemas'
-import { toAssetKeyString } from '@/domain/asset/asset.util'
-import { toAlbumKeyString } from '@/domain/album/album.util'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AlbumKey } from '@/domain/album/album.schema'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { toAlbumKeyString } from '@/domain/album/album.utils'
 
 export function flattenAssetsSelector<
   TData extends { assets: Array<EyepieceAssetItem> },

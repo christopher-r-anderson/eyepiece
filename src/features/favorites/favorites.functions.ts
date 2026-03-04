@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { ensurePublicAssetSummaryAndToggleUserFavorite } from './favorites.server'
-import type { ToggleFavoriteResult } from './favorites.schemas'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import { assetKeySchema } from '@/domain/asset/asset.schemas'
+import type { ToggleFavoriteResult } from './favorites.schema'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import { assetKeySchema } from '@/domain/asset/asset.schema'
 
 export const toggleFavorite = createServerFn({ method: 'POST' })
   .inputValidator(assetKeySchema)

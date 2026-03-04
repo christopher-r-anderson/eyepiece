@@ -1,7 +1,7 @@
 import { it as base, describe, expect } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 import { makeUpsertProfile } from './profile-service'
-import { INVALID_INPUT_ERROR } from './errors'
+import { INVALID_INPUT_ERROR } from './profiles.utils'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/database.types'
 import { resultIsError, resultIsSuccess } from '@/lib/result'

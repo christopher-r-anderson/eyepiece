@@ -3,9 +3,9 @@ import {
   assetKeyStringSchema,
   externalAssetIdSchema,
   imageSchema,
-} from '@/domain/asset/asset.schemas'
-import { providerSchema } from '@/domain/provider/provider.schemas'
-import { albumKeySchema } from '@/domain/album/album.schemas'
+} from '@/domain/asset/asset.schema'
+import { providerSchema } from '@/domain/provider/provider.schema'
+import { albumKeySchema } from '@/domain/album/album.schema'
 
 export const DEFAULT_PAGE_SIZE = 24
 export const DEFAULT_PAGE = 1

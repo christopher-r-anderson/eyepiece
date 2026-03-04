@@ -1,7 +1,7 @@
 import { redirect } from '@tanstack/react-router'
 import type { ParsedLocation } from '@tanstack/react-router'
-import { getUser } from '@/features/auth/user'
-import { urlToNextParam } from '@/lib/util'
+import { getUser } from '@/features/auth/get-user'
+import { urlToNextParam } from '@/lib/utils'
 import { hasServerClaims } from '@/server/lib/has-server-claims'
 import { getProfile } from '@/features/profiles/profile-service'
 

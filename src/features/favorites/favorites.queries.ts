@@ -9,10 +9,10 @@ import {
 import type {
   UserFavoritesEdgesPage,
   UserFavoritesRepo,
-} from './favorites-repo'
+} from './favorites.repo'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { UserFavoritesCommands } from './favorites-commands'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
+import type { UserFavoritesCommands } from './favorites.commands'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
 
