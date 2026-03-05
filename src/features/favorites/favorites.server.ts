@@ -4,6 +4,7 @@ import type { ToggleFavoriteResult } from './favorites.schema'
 import type { AssetKey, AssetSummaryId } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
@@ -71,88 +72,103 @@ async function toggleUserFavorite(
   return toggleFavoriteForUser(userClient, user.id, assetSummaryId)
 }
 
+// Internal implementation extracted for unit testing only because it uses a service client
+// **do NOT call directly**, instead use `ensurePublicAssetSummary` which is guarded
+async function _ensurePublicAssetSummaryForKey(
+  serviceClient: SupabaseClient,
+  eyepieceClient: EyepieceClient,
+  assetKey: AssetKey,
+): Promise<Result<AssetSummaryId>> {
+  let assetSummaryId
+
+  const { data: currentAssetSummary, error: currentAssetSummaryError } =
+    await serviceClient
+      .from('asset_summaries')
+      .select('id, updated_at')
+      .eq('provider', assetKey.provider)
+      .eq('external_id', assetKey.externalId)
+      .maybeSingle()
+
+  if (currentAssetSummaryError) {
+    console.error(
+      'Error checking existing asset summary for favorite toggle:',
+      currentAssetSummaryError,
+    )
+    return Err({
+      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+      cause: currentAssetSummaryError,
+    })
+  }
+  if (currentAssetSummary) {
+    const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
+    if (Date.now() - assetUpdatedAt.getTime() < ASSET_SUMMARY_STALE_TIME) {
+      assetSummaryId = currentAssetSummary.id
+    }
+  }
+
+  if (!assetSummaryId) {
+    let asset
+    try {
+      asset = await eyepieceClient.getAsset(assetKey)
+    } catch (error) {
+      console.error('Error fetching asset details for favorite toggle:', error)
+      return Err({
+        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+        cause: error,
+      })
+    }
+    const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
+      await serviceClient.rpc('ensure_asset_summary', {
+        p_provider: assetKey.provider,
+        p_external_id: assetKey.externalId,
+        p_title: asset.title,
+        p_thumb_href: asset.thumbnail.href,
+        p_thumb_width: asset.thumbnail.width,
+        p_thumb_height: asset.thumbnail.height,
+      })
+    if (ensureImageRefError) {
+      console.error(
+        'Error ensuring image ref for favorite toggle:',
+        ensureImageRefError,
+      )
+      return Err({
+        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+        cause: ensureImageRefError,
+      })
+    }
+    assetSummaryId = ensuredAssetSummaryId
+  }
+
+  if (!assetSummaryId) {
+    console.error(
+      'No assetSummaryId returned from ensure_asset_summary for toggle',
+    )
+    return Err({
+      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+    })
+  }
+  return Ok(assetSummaryId)
+}
+
 const ensurePublicAssetSummary = createServerOnlyFn(
   async (assetKey: AssetKey): Promise<Result<AssetSummaryId>> => {
     const serviceClient = createServiceSupabaseClient()
-
-    let assetSummaryId
-
-    const { data: currentAssetSummary, error: currentAssetSummaryError } =
-      await serviceClient
-        .from('asset_summaries')
-        .select('id, updated_at')
-        .eq('provider', assetKey.provider)
-        .eq('external_id', assetKey.externalId)
-        .maybeSingle()
-
-    if (currentAssetSummaryError) {
-      console.error(
-        'Error checking existing asset summary for favorite toggle:',
-        currentAssetSummaryError,
-      )
-      return Err({
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: currentAssetSummaryError,
-      })
-    }
-    if (currentAssetSummary) {
-      const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
-      if (Date.now() - assetUpdatedAt.getTime() < ASSET_SUMMARY_STALE_TIME) {
-        assetSummaryId = currentAssetSummary.id
-      }
-    }
-
-    if (!assetSummaryId) {
-      let asset
-      try {
-        const requestUrl = new URL(getRequest().url)
-        const eyepieceClient = createEyepieceClient({
-          origin: requestUrl.origin,
-        })
-        asset = await eyepieceClient.getAsset(assetKey)
-      } catch (error) {
-        console.error(
-          'Error fetching asset details for favorite toggle:',
-          error,
-        )
-        return Err({
-          message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-          cause: error,
-        })
-      }
-      const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
-        await serviceClient.rpc('ensure_asset_summary', {
-          p_provider: assetKey.provider,
-          p_external_id: assetKey.externalId,
-          p_title: asset.title,
-          p_thumb_href: asset.thumbnail.href,
-          p_thumb_width: asset.thumbnail.width,
-          p_thumb_height: asset.thumbnail.height,
-        })
-      if (ensureImageRefError) {
-        console.error(
-          'Error ensuring image ref for favorite toggle:',
-          ensureImageRefError,
-        )
-        return Err({
-          message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-          cause: ensureImageRefError,
-        })
-      }
-      assetSummaryId = ensuredAssetSummaryId
-    }
-
-    if (!assetSummaryId) {
-      console.error(
-        'No assetSummaryId returned from ensure_asset_summary for toggle',
-      )
-      return Err({
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      })
-    }
-    return Ok(assetSummaryId)
+    const requestUrl = new URL(getRequest().url)
+    const eyepieceClient = createEyepieceClient({ origin: requestUrl.origin })
+    return _ensurePublicAssetSummaryForKey(
+      serviceClient,
+      eyepieceClient,
+      assetKey,
+    )
   },
 )
+
+// Exported for testing only
+export const _internals = {
+  toggleFavoriteForUser,
+  toggleUserFavorite,
+  ensurePublicAssetSummaryForKey: _ensurePublicAssetSummaryForKey,
+}
 
 export const ensurePublicAssetSummaryAndToggleUserFavorite = createServerOnlyFn(
   async (assetKey: AssetKey): Promise<ToggleFavoriteResult> => {

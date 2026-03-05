@@ -5,7 +5,6 @@ import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import optimizeLocales from '@react-aria/optimize-locales-plugin'
-import { configDefaults } from 'vitest/config'
 
 const config = defineConfig(({ mode }) => ({
   plugins: [
@@ -27,12 +26,31 @@ const config = defineConfig(({ mode }) => ({
     },
   ],
   test: {
-    environment: 'jsdom',
-    exclude: [...configDefaults.exclude, '**/.pnpm-store/**', '**/e2e/**'],
-    env: loadEnv(mode, process.cwd(), ''),
-    onConsoleLog(log) {
+    // tried moving this to just in the unit test settings but it did not filter them.
+    onConsoleLog(log: string) {
       if (log.includes('Multiple GoTrueClient instances detected')) return false
     },
+    env: loadEnv(mode, process.cwd(), ''),
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          include: ['**/*unit.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'integration',
+          environment: 'node',
+          include: '**/*.integration.test.ts',
+          testTimeout: 20_000,
+          hookTimeout: 20_000,
+        },
+      },
+    ],
   },
 }))
 

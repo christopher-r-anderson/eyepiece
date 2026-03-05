@@ -43,11 +43,12 @@ There will be an existing user you can log in to the local site with:
 
 #### Pre-commit Checklist
 
-- `pnpm lint` (runs `eslint`)
-- `pnpm format` (runs `prettier`)
-- `pnpm typecheck` (runs `tsc`)
-- `pnpm test` (runs `vitest`)
-- `pnpm e2e` (runs `playwright test`)
+- `pnpm lint` runs `eslint`
+- `pnpm format` runs `prettier`
+- `pnpm typecheck` runs `tsc`
+- `pnpm test:unit` runs `vitest --project unit`
+- `pnpm test:integration` runs `vitest --project integration` (integration tests against local Supabase require `pnpm supabase start`)
+- `pnpm test:e2e` runs `playwright test` (e2e tests against local Supabase require `pnpm supabase start`)
 
 You can use `pnpm fix` instead of `pnpm lint` and `pnpm format` to run them both and autofix any issues found (when possible).
 
