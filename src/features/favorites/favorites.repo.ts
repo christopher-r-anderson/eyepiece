@@ -115,6 +115,7 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
     })
   }
 
+  // NOTE: this returns all favorites for use as an in memory index. For *extremely heavy users* this could be a performance issue.
   async function getUserFavoritesIndex() {
     const { data, error: pgError } = await client
       .from('favorites')

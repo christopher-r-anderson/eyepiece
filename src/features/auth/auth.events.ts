@@ -8,11 +8,9 @@ const LISTEN_EVENTS: Array<AuthChangeEvent> = [
   'USER_UPDATED',
 ] as const
 
-// NOTE: this is safe because it is browser side only.
-let lastUserId: string | undefined = undefined
-let lastUserEmail: string | undefined = undefined
-
 export function onUserChange(callback: (user: User | null) => void) {
+  let lastUserId: string | undefined = undefined
+  let lastUserEmail: string | undefined = undefined
   const supabase = createUserSupabaseBrowserClient()
   const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
     const { id, email } = session?.user ?? {}
