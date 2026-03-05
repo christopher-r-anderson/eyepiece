@@ -1,21 +1,39 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Profile } from '@/features/profiles/components/profile'
-import { getProfile } from '@/features/profiles/profile-service'
+import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
+import { createPublicSupabaseClient } from '@/integrations/supabase/public'
+import { getProfileOptions } from '@/features/profiles/profiles.queries'
 
 export const Route = createFileRoute('/(pages)/profile/$profileId')({
   component: ProfilePage,
-  loader: async ({ params }) => {
+  loader: async ({ context, params }) => {
     const { profileId } = params
-    const result = await getProfile(profileId)
-    if (result.kind === 'error') {
-      throw new Response('Profile Not Found', { status: 404 })
+    const repo = makeProfilesRepo(createPublicSupabaseClient())
+    const profile = await context.queryClient.ensureQueryData(
+      getProfileOptions({ repo, id: profileId }),
+    )
+    if (!profile) {
+      notFound()
     }
-    return { profile: result.data }
   },
+  notFoundComponent: () => (
+    <>
+      <h1>Profile Not Found</h1>
+      <p>We couldn't find a user with that ID.</p>
+    </>
+  ),
 })
 
 function ProfilePage() {
-  const { profile } = Route.useLoaderData()
+  const { profileId } = Route.useParams()
+  const repo = makeProfilesRepo(createPublicSupabaseClient())
+  const { data: profile } = useSuspenseQuery(
+    getProfileOptions({ repo, id: profileId }),
+  )
+  if (!profile) {
+    throw notFound()
+  }
   return (
     <>
       <h1>Profile</h1>

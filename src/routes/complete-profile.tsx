@@ -8,6 +8,8 @@ import { FormStatusSwitcher } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
 import { getUser } from '@/features/auth/get-user'
+import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 export const Route = createFileRoute('/complete-profile')({
   component: CompleteProfilePage,
@@ -25,6 +27,7 @@ export const Route = createFileRoute('/complete-profile')({
 function CompleteProfilePage() {
   const { userId } = Route.useLoaderData()
   const { next: nextParam } = Route.useSearch()
+  const commands = makeProfilesCommands(createUserSupabaseClient())
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -57,6 +60,7 @@ function CompleteProfilePage() {
         }
       >
         <UpsertProfileForm
+          profileCommands={commands}
           onSuccess={onUpdateSuccess}
           headingLevel={1}
           initialData={{ id: userId }}

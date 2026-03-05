@@ -5,14 +5,10 @@ import type { ResultError } from '@/lib/result'
 import type { Database } from '@/integrations/supabase/database.types'
 import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
 
-export const NOT_FOUND_ERROR = 'not_found' as const
 export const INVALID_INPUT_ERROR = 'invalid_input' as const
 export const UNKNOWN_ERROR = 'unknown_error' as const
 
-export type ProfileErrorCode =
-  | typeof NOT_FOUND_ERROR
-  | typeof INVALID_INPUT_ERROR
-  | typeof UNKNOWN_ERROR
+export type ProfileErrorCode = typeof INVALID_INPUT_ERROR | typeof UNKNOWN_ERROR
 
 export function errorFromZodError<T>(
   zodError: ZodError<T>,
@@ -68,6 +64,7 @@ export function errorFromPostgrestError(
     message: 'There was an error processing your request.',
   }
 }
+
 type InsertProfile = Database['public']['Tables']['profiles']['Insert']
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
 

@@ -3,7 +3,7 @@ import { createUserSupabaseServerClient } from '@/integrations/supabase/user/ser
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { confirmationSearchParamsSchema } from '@/features/auth/auth.schema'
 import { urlToNextParam } from '@/lib/utils'
-import { makeUpsertProfile } from '@/features/profiles/profile-service'
+import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 import { resultIsSuccess } from '@/lib/result'
 
 const SEE_OTHER = 303
@@ -45,7 +45,8 @@ export const Route = createFileRoute('/(auth)/auth/confirm')({
               }
               const user = data.user
               if (user.user_metadata.display_name) {
-                const result = await makeUpsertProfile(supabase)({
+                const commands = makeProfilesCommands(supabase)
+                const result = await commands.upsertProfile({
                   id: user.id,
                   displayName: user.user_metadata.display_name,
                 })

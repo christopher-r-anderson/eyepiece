@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
+import type { ProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
-import { upsertProfile } from '@/features/profiles/profile-service'
 import { Heading } from '@/components/ui/heading'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -15,17 +15,19 @@ export function UpsertProfileForm({
   initialData,
   isDisabled,
   onSuccess,
+  profileCommands,
 }: {
   headingLevel: HeadingLevel
   initialData?: FormDataObject
   isDisabled?: boolean
   onSuccess: () => void
+  profileCommands: Pick<ProfilesCommands, 'upsertProfile'>
 }) {
   const headingId = useId()
 
   const [state, formAction, isPending] = useTypedActionState(
     profileInputSchema,
-    upsertProfile,
+    profileCommands.upsertProfile,
     initialData,
   )
 

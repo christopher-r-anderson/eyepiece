@@ -2,8 +2,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { getUser } from '@/features/auth/get-user'
-import { getProfile } from '@/features/profiles/profile-service'
+import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
 import { resultIsError } from '@/lib/result'
+import { createPublicSupabaseClient } from '@/integrations/supabase/public'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 
 export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
   component: ProfilePage,
@@ -12,7 +15,8 @@ export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
     if (!user) {
       throw new Error('User not found in complete-profile loader')
     }
-    const profileResult = await getProfile(user.id)
+    const repo = makeProfilesRepo(createPublicSupabaseClient())
+    const profileResult = await repo.getProfile(user.id)
     if (resultIsError(profileResult)) {
       return { userId: user.id }
     } else {
@@ -23,6 +27,7 @@ export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
 
 function ProfilePage() {
   const { userId, profile } = Route.useLoaderData()
+  const commands = makeProfilesCommands(createUserSupabaseClient())
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {
@@ -37,6 +42,7 @@ function ProfilePage() {
         initialData={profile ?? { id: userId }}
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
+        profileCommands={commands}
       />
       {showSuccessMessage && <p>Profile Updated.</p>}
     </>
