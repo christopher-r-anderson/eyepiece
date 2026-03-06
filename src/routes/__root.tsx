@@ -12,12 +12,15 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import type { SupabaseClient } from '@/integrations/supabase/types'
 import { App } from '@/app/shell'
 import { ErrorBoundary } from '@/app/layout/error'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
 interface MyRouterContext {
   queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+  userSupabaseClient: SupabaseClient
   title?: () => string
 }
 

@@ -29,10 +29,10 @@ import {
 } from '@/domain/asset/asset.utils'
 import { PrettyException } from '@/components/ui/error'
 import { AlbumLinkList } from '@/features/albums/components/album-link-list'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
 import { makeUserFavoritesCommands } from '@/features/favorites/favorites.commands'
 import { makeSearchRepo } from '@/features/search/search.repo'
+import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -45,7 +45,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
   const isClientMounted = useIsClientMounted()
   const eyepieceClient = useEyepieceClient()
   const searchRepo = makeSearchRepo(eyepieceClient)
-  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
+  const userFavoritesRepo = makeUserFavoritesRepo(useUserSupabaseClient())
   const userFavoritesIndex = useUserFavoritesIndex({
     repo: userFavoritesRepo,
     enabled: isClientMounted,

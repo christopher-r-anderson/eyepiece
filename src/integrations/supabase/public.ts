@@ -13,6 +13,9 @@ export function createPublicSupabaseClient(): SupabaseClient {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     {
       auth: {
+        // storage is disabled, but GoTrueClient warning will be triggered if there are multiple instances
+        // and we create this and a user specific one
+        storageKey: 'supabase-public-auth',
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false,

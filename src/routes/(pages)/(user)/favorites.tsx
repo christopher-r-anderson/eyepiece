@@ -15,20 +15,18 @@ import {
 } from '@/features/assets/asset-summaries.queries'
 import { PrettyException } from '@/components/ui/error'
 import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { makeAssetSummariesRepo } from '@/features/assets/asset-summaries.repo'
-import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 
 export const Route = createFileRoute('/(pages)/(user)/favorites')({
   component: FavoritesPage,
   loader: async ({ context }) => {
-    const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
+    const userFavoritesRepo = makeUserFavoritesRepo(context.userSupabaseClient)
     const edges = await context.queryClient.ensureInfiniteQueryData(
       getUserFavoritesEdgesOptions({ repo: userFavoritesRepo }),
     )
     const assetSummaryIds = userFavoritesPagesToAssetIds(edges)
     const assetSummariesRepo = makeAssetSummariesRepo(
-      createPublicSupabaseClient(),
+      context.publicSupabaseClient,
     )
     await context.queryClient.ensureQueryData(
       getAssetSummariesBatchOptions({
@@ -41,11 +39,10 @@ export const Route = createFileRoute('/(pages)/(user)/favorites')({
 
 export function FavoritesPage() {
   const navigate = useNavigate()
-  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
+  const { publicSupabaseClient, userSupabaseClient } = Route.useRouteContext()
+  const userFavoritesRepo = makeUserFavoritesRepo(userSupabaseClient)
   const favoritesResult = useUserFavoriteAssetIds({ repo: userFavoritesRepo })
-  const assetSummariesRepo = makeAssetSummariesRepo(
-    createPublicSupabaseClient(),
-  )
+  const assetSummariesRepo = makeAssetSummariesRepo(publicSupabaseClient)
   const assetSummariesResult = useAssetSummariesBatch({
     assetSummaryIds: favoritesResult.data,
     repo: assetSummariesRepo,

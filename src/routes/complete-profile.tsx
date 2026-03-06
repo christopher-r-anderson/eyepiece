@@ -9,7 +9,7 @@ import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form
 import { Link } from '@/components/ui/link'
 import { getUser } from '@/features/auth/get-user'
 import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 export const Route = createFileRoute('/complete-profile')({
   component: CompleteProfilePage,
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/complete-profile')({
 function CompleteProfilePage() {
   const { userId } = Route.useLoaderData()
   const { next: nextParam } = Route.useSearch()
-  const commands = makeProfilesCommands(createUserSupabaseClient())
+  const commands = makeProfilesCommands(useUserSupabaseClient())
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)

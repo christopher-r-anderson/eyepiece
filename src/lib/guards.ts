@@ -1,10 +1,10 @@
 import { redirect } from '@tanstack/react-router'
 import type { ParsedLocation } from '@tanstack/react-router'
+import type { SupabaseClient } from '@/integrations/supabase/types'
 import { getUser } from '@/features/auth/get-user'
 import { urlToNextParam } from '@/lib/utils'
 import { hasServerClaims } from '@/server/lib/has-server-claims'
 import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
-import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 
 export async function requireAuthenticated({
   location,
@@ -35,12 +35,14 @@ export async function requireAnonymous({
 }
 
 export async function userHasProfile({
+  context: { publicSupabaseClient },
   location,
 }: {
+  context: { publicSupabaseClient: SupabaseClient }
   location: ParsedLocation
 }) {
   const user = await getUser()
-  const repo = makeProfilesRepo(createPublicSupabaseClient())
+  const repo = makeProfilesRepo(publicSupabaseClient)
   if (user) {
     const { data: profile } = await repo.getProfile(user.id)
     if (!profile) {

@@ -2,12 +2,13 @@ import { UserCircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { useRouter } from '@tanstack/react-router'
 import { useUserQuery } from '@/features/auth/auth.queries'
 import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 export function UserMenu() {
   const router = useRouter()
+  const supabaseClient = useUserSupabaseClient()
   const { data: user } = useUserQuery()
   return (
     <MenuTrigger>
@@ -43,7 +44,7 @@ export function UserMenu() {
           </MenuItem>
           <MenuItem
             onAction={async () => {
-              await createUserSupabaseClient().auth.signOut({
+              await supabaseClient.auth.signOut({
                 scope: 'local',
               })
               router.invalidate()

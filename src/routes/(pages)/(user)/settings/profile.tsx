@@ -4,18 +4,16 @@ import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form
 import { getUser } from '@/features/auth/get-user'
 import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
 import { resultIsError } from '@/lib/result'
-import { createPublicSupabaseClient } from '@/integrations/supabase/public'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 
 export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
   component: ProfilePage,
-  loader: async () => {
+  loader: async ({ context }) => {
     const user = await getUser()
     if (!user) {
       throw new Error('User not found in complete-profile loader')
     }
-    const repo = makeProfilesRepo(createPublicSupabaseClient())
+    const repo = makeProfilesRepo(context.publicSupabaseClient)
     const profileResult = await repo.getProfile(user.id)
     if (resultIsError(profileResult)) {
       return { userId: user.id }
@@ -27,7 +25,8 @@ export const Route = createFileRoute('/(pages)/(user)/settings/profile')({
 
 function ProfilePage() {
   const { userId, profile } = Route.useLoaderData()
-  const commands = makeProfilesCommands(createUserSupabaseClient())
+  const { userSupabaseClient: supabaseUserClient } = Route.useRouteContext()
+  const commands = makeProfilesCommands(supabaseUserClient)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {

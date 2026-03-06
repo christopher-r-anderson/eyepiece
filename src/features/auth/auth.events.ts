@@ -1,6 +1,28 @@
 import type { AuthChangeEvent } from '@supabase/supabase-js'
 import type { User } from './auth.types'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
+
+export type AuthChangeSession = {
+  user?: {
+    id?: string
+    email?: string | null
+  } | null
+} | null
+
+export type OnAuthStateChange = (
+  callback: (event: AuthChangeEvent, session: AuthChangeSession) => void,
+) => {
+  data: {
+    subscription: {
+      unsubscribe: () => void
+    }
+  }
+}
+
+export type AuthClient = {
+  auth: {
+    onAuthStateChange: OnAuthStateChange
+  }
+}
 
 const LISTEN_EVENTS: Array<AuthChangeEvent> = [
   'SIGNED_IN',
@@ -8,11 +30,13 @@ const LISTEN_EVENTS: Array<AuthChangeEvent> = [
   'USER_UPDATED',
 ] as const
 
-export function onUserChange(callback: (user: User | null) => void) {
+export function onUserChange(
+  client: AuthClient,
+  callback: (user: User | null) => void,
+) {
   let lastUserId: string | undefined = undefined
-  let lastUserEmail: string | undefined = undefined
-  const supabase = createUserSupabaseClient()
-  const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+  let lastUserEmail: string | null | undefined = undefined
+  const { data: sub } = client.auth.onAuthStateChange((event, session) => {
     const { id, email } = session?.user ?? {}
     if (
       LISTEN_EVENTS.includes(event) &&

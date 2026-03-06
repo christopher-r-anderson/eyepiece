@@ -2,14 +2,13 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Profile } from '@/features/profiles/components/profile'
 import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
-import { createPublicSupabaseClient } from '@/integrations/supabase/public'
 import { getProfileOptions } from '@/features/profiles/profiles.queries'
 
 export const Route = createFileRoute('/(pages)/profile/$profileId')({
   component: ProfilePage,
   loader: async ({ context, params }) => {
     const { profileId } = params
-    const repo = makeProfilesRepo(createPublicSupabaseClient())
+    const repo = makeProfilesRepo(context.publicSupabaseClient)
     const profile = await context.queryClient.ensureQueryData(
       getProfileOptions({ repo, id: profileId }),
     )
@@ -27,7 +26,8 @@ export const Route = createFileRoute('/(pages)/profile/$profileId')({
 
 function ProfilePage() {
   const { profileId } = Route.useParams()
-  const repo = makeProfilesRepo(createPublicSupabaseClient())
+  const { publicSupabaseClient } = Route.useRouteContext()
+  const repo = makeProfilesRepo(publicSupabaseClient)
   const { data: profile } = useSuspenseQuery(
     getProfileOptions({ repo, id: profileId }),
   )
