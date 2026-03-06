@@ -1,6 +1,6 @@
 import type { AuthChangeEvent } from '@supabase/supabase-js'
 import type { User } from './auth.types'
-import { createUserSupabaseBrowserClient } from '@/integrations/supabase/user/browser.client'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 const LISTEN_EVENTS: Array<AuthChangeEvent> = [
   'SIGNED_IN',
@@ -11,7 +11,7 @@ const LISTEN_EVENTS: Array<AuthChangeEvent> = [
 export function onUserChange(callback: (user: User | null) => void) {
   let lastUserId: string | undefined = undefined
   let lastUserEmail: string | undefined = undefined
-  const supabase = createUserSupabaseBrowserClient()
+  const supabase = createUserSupabaseClient()
   const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
     const { id, email } = session?.user ?? {}
     if (
