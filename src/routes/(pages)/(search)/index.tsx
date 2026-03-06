@@ -8,7 +8,7 @@ import {
 import { hasSearchFields } from '@/lib/eyepiece-api-client/util'
 import { SearchBar } from '@/features/search/components/search-bar/search-bar'
 import { searchImagesOptions } from '@/features/search/search.queries'
-import { getTitleText } from '@/lib/utils'
+import { getOrigin, getTitleText } from '@/lib/utils'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { makeSearchRepo } from '@/features/search/search.repo'
 
@@ -24,10 +24,10 @@ export const Route = createFileRoute('/(pages)/(search)/')({
       return {}
     }
   },
-  loader: ({ location, context, deps: { search } }) => {
+  loader: ({ context, deps: { search } }) => {
     if (search) {
       const client = createEyepieceClient({
-        origin: location.url.origin,
+        origin: getOrigin(),
       })
       const searchRepo = makeSearchRepo(client)
       return context.queryClient.ensureInfiniteQueryData(

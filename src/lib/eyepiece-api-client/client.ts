@@ -32,7 +32,7 @@ function assertSsrHasOrigin(origin: string, path: string) {
       [
         `SSR attempted to fetch a relative URL (${path}) without an origin.`,
         `This usually means the route loader didn't preload the query with an origin-aware client.`,
-        `Fix: preload this query in the route loader using origin = location.url.origin.`,
+        `Fix: createEyepieceClient({ origin: getOrigin() })`,
       ].join('\n'),
     )
   }
