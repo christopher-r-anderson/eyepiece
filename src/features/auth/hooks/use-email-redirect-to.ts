@@ -1,9 +1,7 @@
-import { useLocation } from '@tanstack/react-router'
-import { urlToNextParam } from '@/lib/util'
+import { getOrigin, urlToNextParam } from '@/lib/utils'
 
 export function useEmailRedirectTo(next?: string) {
-  const location = useLocation()
-  const redirectTo = new URL('/auth/confirm', location.url.origin)
+  const redirectTo = new URL('/auth/confirm', getOrigin())
   let url
   if (next) {
     redirectTo.searchParams.set('next', urlToNextParam(next))

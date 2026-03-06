@@ -12,10 +12,10 @@ import type {
   EyepieceMetadata,
 } from './types'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
-import type { AlbumKey } from '@/domain/album/album.schemas'
-import { toAssetKeyString } from '@/domain/asset/asset.util'
-import { toAlbumKeyString } from '@/domain/album/album.util'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AlbumKey } from '@/domain/album/album.schema'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { toAlbumKeyString } from '@/domain/album/album.utils'
 
 export function flattenAssetsSelector<
   TData extends { assets: Array<EyepieceAssetItem> },
@@ -32,7 +32,7 @@ function assertSsrHasOrigin(origin: string, path: string) {
       [
         `SSR attempted to fetch a relative URL (${path}) without an origin.`,
         `This usually means the route loader didn't preload the query with an origin-aware client.`,
-        `Fix: preload this query in the route loader using origin = location.url.origin.`,
+        `Fix: createEyepieceClient({ origin: getOrigin() })`,
       ].join('\n'),
     )
   }

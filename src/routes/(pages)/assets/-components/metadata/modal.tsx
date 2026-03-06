@@ -1,16 +1,18 @@
 import type { ComponentPropsWithoutRef } from 'react'
-import type { AssetKey } from '@/domain/asset/asset.schemas'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AssetsRepo } from '@/features/assets/assets.repo'
 import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
-import { useMetadata } from '@/features/assets/api/asset.queries'
+import { useMetadata } from '@/features/assets/assets.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
-import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 export function MetadataModal({
+  assetsRepo,
   assetKey,
   isOpen,
   onOpenChange,
 }: {
+  assetsRepo: Pick<AssetsRepo, 'getMetadata'>
   assetKey: AssetKey
   isOpen: boolean
   onOpenChange: (open: boolean) => void
@@ -23,6 +25,7 @@ export function MetadataModal({
       isDismissable
     >
       <MetadataModalContent
+        assetsRepo={assetsRepo}
         assetKey={assetKey}
         isOpen={isOpen}
         css={{ minHeight: 0, overflowY: 'auto', padding: '2rem' }}
@@ -32,19 +35,20 @@ export function MetadataModal({
 }
 
 function MetadataModalContent({
+  assetsRepo,
   assetKey,
   isOpen,
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
+  assetsRepo: Pick<AssetsRepo, 'getMetadata'>
   assetKey: AssetKey
   isOpen: boolean
 }) {
-  const eyepieceClient = useEyepieceClient()
-  const { data, isLoading, isError, refetch } = useMetadata(
-    eyepieceClient,
+  const { data, isLoading, isError, refetch } = useMetadata({
+    repo: assetsRepo,
     assetKey,
-    isOpen,
-  )
+    enabled: isOpen,
+  })
 
   if (isLoading)
     return (

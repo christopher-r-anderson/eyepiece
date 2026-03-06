@@ -63,14 +63,9 @@ class AppException<TErrorCode extends ErrorCode = undefined> extends Error {
   }
 }
 
-function throwFromErrorResult<TErrorCode extends ErrorCode = undefined>(
+export function throwFromErrorResult<TErrorCode extends ErrorCode = undefined>(
   error: ResultError<TErrorCode>,
 ): never {
-  const origException = error.cause instanceof Error ? error.cause : undefined
-  if (origException) {
-    ;(origException as any).appError = error
-    throw origException
-  }
   throw new AppException(error)
 }
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { VisuallyHidden } from 'react-aria'
-import { useUserQuery } from '../auth-queries'
 import { UserMenu } from './user-menu'
 import { LoginLink } from './login-link'
+import { useUserQuery } from '@/features/auth/auth.queries'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,

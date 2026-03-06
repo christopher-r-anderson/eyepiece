@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
-import { useUserQuery } from '../auth-queries'
-import { updatePassword } from '../auth-service'
-import { SetPasswordField } from './components/set-password-field'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
+import { useUserQuery } from '@/features/auth/auth.queries'
+import { useAuth } from '@/features/auth/auth.provider'
+import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import { Form, InputGroup } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
@@ -25,10 +25,11 @@ export function UpdatePasswordForm({
 }) {
   const id = useId()
   const userQuery = useUserQuery()
+  const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(
     updatePasswordSchema,
-    updatePassword,
+    commands.updatePassword,
   )
 
   const onSuccessRef = useEvent(onSuccess)

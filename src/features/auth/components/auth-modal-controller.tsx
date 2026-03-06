@@ -1,17 +1,17 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
-import { stripAuthSearchParams } from '../util'
-import { LoginForm } from '../forms/login-form'
+import type { AuthModalState } from '@/features/auth/auth.schema'
+import { stripAuthSearchParams } from '@/features/auth/auth.utils'
+import { LoginForm } from '@/features/auth/forms/login-form'
 import {
   RegistrationForm,
   RegistrationSuccessMessage,
-} from '../forms/registration-form'
+} from '@/features/auth/forms/registration-form'
 import {
   ForgotPasswordForm,
   ForgotPasswordSuccessMessage,
-} from '../forms/forgot-password-form'
-import { useShowAuthModal } from '../hooks/use-show-auth-modal'
-import type { AuthModalState } from '../schemas'
+} from '@/features/auth/forms/forgot-password-form'
+import { useShowAuthModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/ui/tabs'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { Link } from '@/components/ui/link'
@@ -20,7 +20,7 @@ import {
   StableVisibilityStackItem,
 } from '@/components/ui/stable-visibility-stack'
 import { FormStatusSwitcher } from '@/components/ui/forms'
-import { urlToNextParam } from '@/lib/util'
+import { urlToNextParam } from '@/lib/utils'
 
 export function AuthModalController({
   modal: { authMode, showForgotPassword },

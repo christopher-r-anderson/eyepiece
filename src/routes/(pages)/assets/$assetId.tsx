@@ -1,14 +1,15 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
-import { getTitleText } from '@/lib/util'
-import { getAssetOptions, useAsset } from '@/features/assets/api/asset.queries'
+import { getOrigin, getTitleText } from '@/lib/utils'
+import { getAssetOptions, useAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { assetKeySchema } from '@/domain/asset/asset.schemas'
+import { assetKeySchema } from '@/domain/asset/asset.schema'
 import { PrettyException } from '@/components/ui/error'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schemas'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import { makeAssetsRepo } from '@/features/assets/assets.repo'
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetPage,
@@ -19,12 +20,13 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
     })
     return { assetKey }
   },
-  loader: ({ context, location }) => {
+  loader: ({ context }) => {
     const client = createEyepieceClient({
-      origin: location.url.origin,
+      origin: getOrigin(),
     })
+    const repo = makeAssetsRepo(client)
     return context.queryClient.ensureQueryData(
-      getAssetOptions(client, context.assetKey),
+      getAssetOptions({ repo, assetKey: context.assetKey }),
     )
   },
   head: ({ loaderData }) => ({
@@ -35,7 +37,8 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
 export function AssetPage() {
   const { assetKey } = Route.useRouteContext()
   const client = useEyepieceClient()
-  const { data, isPending, isError, error } = useAsset(client, assetKey)
+  const repo = makeAssetsRepo(client)
+  const { data, isPending, isError, error } = useAsset({ repo, assetKey })
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
@@ -64,7 +67,7 @@ export function AssetPage() {
           </Link>
         )}
         <h1 css={{ color: 'var(--text-accent)' }}>{data.title}</h1>
-        <MetadataButton assetKey={assetKey} />
+        <MetadataButton assetKey={assetKey} assetsRepo={repo} />
       </div>
       <div
         css={{

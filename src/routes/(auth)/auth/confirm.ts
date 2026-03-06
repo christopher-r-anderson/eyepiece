@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server'
+import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
-import { confirmationSearchParamsSchema } from '@/features/auth/schemas'
-import { urlToNextParam } from '@/lib/util'
-import { makeUpsertProfile } from '@/features/profiles/profile-service'
+import { confirmationSearchParamsSchema } from '@/features/auth/auth.schema'
+import { urlToNextParam } from '@/lib/utils'
+import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 import { resultIsSuccess } from '@/lib/result'
 
 const SEE_OTHER = 303
@@ -45,7 +45,8 @@ export const Route = createFileRoute('/(auth)/auth/confirm')({
               }
               const user = data.user
               if (user.user_metadata.display_name) {
-                const result = await makeUpsertProfile(supabase)({
+                const commands = makeProfilesCommands(supabase)
+                const result = await commands.upsertProfile({
                   id: user.id,
                   displayName: user.user_metadata.display_name,
                 })

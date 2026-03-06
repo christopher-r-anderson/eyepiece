@@ -6,28 +6,31 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import {
-  getUserFavoritesEdges,
-  getUserFavoritesIndex,
-} from './favorites-service'
-import { toggleFavorite } from './favorites.server'
-import type { UserFavoritesEdgesPage } from './favorites-service'
+import type {
+  UserFavoritesEdgesPage,
+  UserFavoritesRepo,
+} from './favorites.repo'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { ToggleFavoriteInput } from './favorites.schemas'
-import { unwrapOrThrow } from '@/lib/result'
+import type { UserFavoritesCommands } from './favorites.commands'
+import type { AssetKey } from '@/domain/asset/asset.schema'
+import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
+import { meKey } from '@/lib/query-keys'
 
-export const userFavoritesIndexKey = ['me', 'favorites', 'index'] as const
-export const userFavoriteEdgesKey = ['me', 'favorites', 'edges'] as const
+export const userFavoritesKey = [...meKey, 'favorites'] as const
+export const userFavoritesIndexKey = [...userFavoritesKey, 'index'] as const
+export const userFavoriteEdgesKey = [...userFavoritesKey, 'edges'] as const
 
 export function getUserFavoriteIndexOptions({
   enabled = true,
+  repo,
 }: {
   enabled?: boolean
-} = {}) {
+  repo: Pick<UserFavoritesRepo, 'getUserFavoritesIndex'>
+}) {
   return queryOptions({
     queryKey: userFavoritesIndexKey,
     queryFn: async () => {
-      const result = await getUserFavoritesIndex()
+      const result = await repo.getUserFavoritesIndex()
       return unwrapOrThrow(result)
     },
     staleTime: 5 * 60 * 1000,
@@ -37,19 +40,28 @@ export function getUserFavoriteIndexOptions({
 
 export function useUserFavoritesIndex({
   enabled = true,
+  repo,
 }: {
   enabled?: boolean
-} = {}) {
-  return useQuery(getUserFavoriteIndexOptions({ enabled }))
+  repo: Pick<UserFavoritesRepo, 'getUserFavoritesIndex'>
+}) {
+  return useQuery(getUserFavoriteIndexOptions({ enabled, repo }))
 }
 
-export function useToggleUserFavorite() {
+export function useToggleUserFavorite(
+  commands: Pick<UserFavoritesCommands, 'toggleFavorite'>,
+) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: ToggleFavoriteInput) => toggleFavorite({ data: input }),
+    mutationFn: async (input: AssetKey) => {
+      const { error } = await commands.toggleFavorite(input)
+      if (error) {
+        throwFromErrorResult(error)
+      }
+    },
     onSettled: () => {
-      return queryClient.invalidateQueries({ queryKey: ['me', 'favorites'] })
+      return queryClient.invalidateQueries({ queryKey: userFavoritesKey })
     },
   })
 }
@@ -60,13 +72,15 @@ export function getUserFavoritesEdgesOptions<
   TSelectData = UserFavoritesEdgesInfinite,
 >({
   select,
+  repo,
 }: {
   select?: (data: UserFavoritesEdgesInfinite) => TSelectData
-} = {}) {
+  repo: Pick<UserFavoritesRepo, 'getUserFavoritesEdges'>
+}) {
   return infiniteQueryOptions({
     queryKey: userFavoriteEdgesKey,
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await getUserFavoritesEdges({ page: pageParam })
+      const result = await repo.getUserFavoritesEdges({ page: pageParam })
       return unwrapOrThrow(result)
     },
     initialPageParam: 1,
@@ -82,8 +96,15 @@ export function userFavoritesPagesToAssetIds<
   return pages.flatMap((page) => page.edges.map((edge) => edge.assetSummaryId))
 }
 
-export function useUserFavoriteAssetIds() {
+export function useUserFavoriteAssetIds({
+  repo,
+}: {
+  repo: Pick<UserFavoritesRepo, 'getUserFavoritesEdges'>
+}) {
   return useInfiniteQuery(
-    getUserFavoritesEdgesOptions({ select: userFavoritesPagesToAssetIds }),
+    getUserFavoritesEdgesOptions({
+      select: userFavoritesPagesToAssetIds,
+      repo,
+    }),
   )
 }

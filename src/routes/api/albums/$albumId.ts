@@ -5,8 +5,8 @@ import {
   eyepieceApiAlbumParamsSchema,
   eyepiecePaginationSchema,
 } from '@/lib/eyepiece-api-client/types'
-import { fromAlbumKeyString } from '@/domain/album/album.util'
-import { albumKeyStringSchema } from '@/domain/album/album.schemas'
+import { fromAlbumKeyString } from '@/domain/album/album.utils'
+import { albumKeyStringSchema } from '@/domain/album/album.schema'
 
 export const DEFAULT_PAGE_SIZE = 24
 

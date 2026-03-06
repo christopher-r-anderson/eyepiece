@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
-import { resetPassword } from '../auth-service'
-import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import type { HeadingLevel } from '@/components/ui/heading'
+import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
+import { useAuth } from '@/features/auth/auth.provider'
 import { Heading } from '@/components/ui/heading'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -26,10 +26,11 @@ export function ForgotPasswordForm({
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
+  const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(
     forgotPasswordSchema,
-    resetPassword,
+    commands.resetPassword,
   )
 
   const onSuccessRef = useEvent(onSuccess)

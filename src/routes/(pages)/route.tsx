@@ -2,7 +2,7 @@ import { Outlet, createFileRoute } from '@tanstack/react-router'
 import {
   authModalSearchParamsSchema,
   authModalStateSchema,
-} from '@/features/auth/schemas'
+} from '@/features/auth/auth.schema'
 import { AuthModalController } from '@/features/auth/components/auth-modal-controller'
 import { userHasProfile } from '@/lib/guards'
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getAsset } from '@/server/eyepiece/service/eyepiece.service'
-import { assetKeyStringSchema } from '@/domain/asset/asset.schemas'
-import { fromAssetKeyString } from '@/domain/asset/asset.util'
+import { assetKeyStringSchema } from '@/domain/asset/asset.schema'
+import { fromAssetKeyString } from '@/domain/asset/asset.utils'
 
 export const DEFAULT_PAGE_SIZE = 24
 

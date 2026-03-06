@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
-import { login } from '../auth-service'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
+import { useAuth } from '@/features/auth/auth.provider'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
@@ -28,8 +28,12 @@ export function LoginForm({
   forgotPasswordLink,
 }: LoginProps) {
   const id = useId()
+  const { commands } = useAuth()
 
-  const [state, formAction, isPending] = useTypedActionState(loginSchema, login)
+  const [state, formAction, isPending] = useTypedActionState(
+    loginSchema,
+    commands.login,
+  )
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {

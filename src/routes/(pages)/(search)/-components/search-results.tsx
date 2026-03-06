@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
-import { useSearchResults } from '@/features/search/api/search-queries'
-import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
+import { useSearchResults } from '@/features/search/search.queries'
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
+import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
   AssetTile,
   AssetTileSkeleton,
@@ -11,8 +11,8 @@ import {
 import {
   HybridGrid,
   ItemGridSkeleton,
-} from '@/features/listing/item-grid/hybrid-grid'
-import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+} from '@/features/listing/item-grid/components/hybrid-grid'
+import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import {
   useToggleUserFavorite,
@@ -20,12 +20,19 @@ import {
 } from '@/features/favorites/favorites.queries'
 import { FavoriteToggle } from '@/features/favorites/components/favorite-toggle'
 import { useIsClientMounted } from '@/lib/hooks/use-is-client-mounted'
-import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.server'
+import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.const'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
-import { fromAssetKeyString, toAssetKeyString } from '@/domain/asset/asset.util'
+import {
+  fromAssetKeyString,
+  toAssetKeyString,
+} from '@/domain/asset/asset.utils'
 import { PrettyException } from '@/components/ui/error'
 import { AlbumLinkList } from '@/features/albums/components/album-link-list'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
+import { makeUserFavoritesCommands } from '@/features/favorites/favorites.commands'
+import { makeSearchRepo } from '@/features/search/search.repo'
 
 interface SearchResultsProps {
   searchParams: EyepiecePageSearchParams
@@ -35,9 +42,12 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
   const navigate = useNavigate()
   const queueToastMessage = useQueueToastMessage()
   const showLoginModal = useShowLoginModal()
-  const client = useEyepieceClient()
   const isClientMounted = useIsClientMounted()
+  const eyepieceClient = useEyepieceClient()
+  const searchRepo = makeSearchRepo(eyepieceClient)
+  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
   const userFavoritesIndex = useUserFavoritesIndex({
+    repo: userFavoritesRepo,
     enabled: isClientMounted,
   })
   const favoriteKeySet = useMemo(() => {
@@ -50,11 +60,12 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
       ),
     )
   }, [userFavoritesIndex.data])
+  const userFavoritesCommands = makeUserFavoritesCommands()
   const {
     variables,
     mutate: toggleFavorite,
     isPending: isToggleFavoritePending,
-  } = useToggleUserFavorite()
+  } = useToggleUserFavorite(userFavoritesCommands)
 
   const currentlyTogglingKey = useMemo(() => {
     if (!variables) {
@@ -74,7 +85,7 @@ export function SearchResults({ searchParams }: SearchResultsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSearchResults(client, searchParams)
+  } = useSearchResults(searchRepo, searchParams)
 
   const uiResetKey = useMemo(
     () => paramsToUiResetKey(searchParams),

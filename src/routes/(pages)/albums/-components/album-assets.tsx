@@ -1,19 +1,20 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import type { AlbumKey } from '@/domain/album/album.schemas'
-import { paramsToUiResetKey } from '@/features/listing/infinite-loader/util'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/infinite-loader'
+import type { AlbumKey } from '@/domain/album/album.schema'
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
+import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
   HybridGrid,
   ItemGridSkeleton,
-} from '@/features/listing/item-grid/hybrid-grid'
+} from '@/features/listing/item-grid/components/hybrid-grid'
 import {
   AssetTile,
   AssetTileSkeleton,
 } from '@/features/assets/components/asset-tile'
-import { useAlbumAssets } from '@/features/albums/api/album.queries'
-import { HybridGridItem } from '@/features/listing/item-grid/hybrid-grid-item'
+import { useAlbumAssets } from '@/features/albums/albums.queries'
+import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
+import { makeAlbumsRepo } from '@/features/albums/albums.repo'
 
 export interface AlbumAssetsProps {
   albumKey: AlbumKey
@@ -21,6 +22,7 @@ export interface AlbumAssetsProps {
 
 export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
   const client = useEyepieceClient()
+  const albumsRepo = makeAlbumsRepo(client)
   const {
     data,
     isPending,
@@ -29,7 +31,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useAlbumAssets(client, albumKey)
+  } = useAlbumAssets({ repo: albumsRepo, albumKey })
   const navigate = useNavigate()
 
   const uiResetKey = useMemo(() => paramsToUiResetKey({ albumKey }), [albumKey])

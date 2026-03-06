@@ -1,9 +1,9 @@
-import { calculateNextPage } from '../service/util'
+import { calculateNextPage } from '../service/utils'
 import {
   calculateNasaAlbumRequests,
   eyepieceToNasaSearchParams,
   mapMediaItem,
-} from './nasa-ivl.util'
+} from './nasa-ivl.utils'
 import type {
   EyepieceApiSearchParams,
   EyepieceAssetCollectionResponse,
