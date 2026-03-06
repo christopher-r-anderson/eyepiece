@@ -32,14 +32,14 @@ async function setup() {
     },
   )
 
-  const createUserSupabaseBrowserClient = vi.fn(() => ({
+  const createUserSupabaseClient = vi.fn(() => ({
     auth: {
       onAuthStateChange,
     },
   }))
 
-  vi.doMock('@/integrations/supabase/user/browser.client', () => ({
-    createUserSupabaseBrowserClient,
+  vi.doMock('@/integrations/supabase/user', () => ({
+    createUserSupabaseClient,
   }))
 
   const { onUserChange } = await import('./auth.events')
@@ -51,7 +51,7 @@ async function setup() {
     },
     unsubscribe,
     onAuthStateChange,
-    createUserSupabaseBrowserClient,
+    createUserSupabaseClient,
   }
 }
 
@@ -75,8 +75,8 @@ async function setupMulti() {
     },
   )
 
-  vi.doMock('@/integrations/supabase/user/browser.client', () => ({
-    createUserSupabaseBrowserClient: vi.fn(() => ({
+  vi.doMock('@/integrations/supabase/user', () => ({
+    createUserSupabaseClient: vi.fn(() => ({
       auth: { onAuthStateChange },
     })),
   }))
@@ -97,12 +97,12 @@ describe('onUserChange', () => {
   })
 
   it('subscribes using the browser supabase client', async () => {
-    const { onUserChange, onAuthStateChange, createUserSupabaseBrowserClient } =
+    const { onUserChange, onAuthStateChange, createUserSupabaseClient } =
       await setup()
 
     onUserChange(() => undefined)
 
-    expect(createUserSupabaseBrowserClient).toHaveBeenCalledTimes(1)
+    expect(createUserSupabaseClient).toHaveBeenCalledTimes(1)
     expect(onAuthStateChange).toHaveBeenCalledTimes(1)
   })
 
