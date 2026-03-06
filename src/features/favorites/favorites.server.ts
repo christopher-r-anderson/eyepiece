@@ -1,5 +1,9 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { createServerOnlyFn } from '@tanstack/react-start'
+import {
+  ASSET_SUMMARY_STALE_TIME,
+  ToggleFavoriteErrorCodes,
+} from './favorites.const'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type { AssetKey, AssetSummaryId } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
@@ -10,13 +14,6 @@ import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { getUser } from '@/features/auth/get-user'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
-
-const ASSET_SUMMARY_STALE_TIME = 7 * 24 * 60 * 60 * 1000
-
-export const ToggleFavoriteErrorCodes = {
-  AUTH_REQUIRED: 'AUTH_REQUIRED',
-  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
-}
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleFavoriteForUser(

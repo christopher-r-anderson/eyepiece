@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ToggleFavoriteErrorCodes } from './favorites.const'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -84,8 +85,7 @@ async function setupToggleFavoriteForUser() {
     getUser: vi.fn(),
   }))
 
-  const { _internals, ToggleFavoriteErrorCodes } =
-    await import('./favorites.server')
+  const { _internals } = await import('./favorites.server')
   return {
     toggleFavoriteForUser: _internals.toggleFavoriteForUser,
     ToggleFavoriteErrorCodes,
@@ -160,8 +160,7 @@ describe('toggleFavoriteForUser', () => {
   })
 
   it('returns Err when the delete query fails', async () => {
-    const { toggleFavoriteForUser, ToggleFavoriteErrorCodes } =
-      await setupToggleFavoriteForUser()
+    const { toggleFavoriteForUser } = await setupToggleFavoriteForUser()
     const pgError = { code: 'PGRST301', message: 'permission denied' }
     const client = makeClient({
       deleteResponse: { count: null, error: pgError },
@@ -181,8 +180,7 @@ describe('toggleFavoriteForUser', () => {
   })
 
   it('returns Err when the insert fails with a non-uniqueness error', async () => {
-    const { toggleFavoriteForUser, ToggleFavoriteErrorCodes } =
-      await setupToggleFavoriteForUser()
+    const { toggleFavoriteForUser } = await setupToggleFavoriteForUser()
     const pgError = { code: 'PGRST301', message: 'permission denied' }
     const client = makeClient({
       deleteResponse: { count: 0, error: null },
@@ -258,8 +256,7 @@ async function setupToggleUserFavorite(user: { id: string } | null) {
     createUserSupabaseClient: vi.fn().mockReturnValue(mockUserClient),
   }))
 
-  const { _internals, ToggleFavoriteErrorCodes } =
-    await import('./favorites.server')
+  const { _internals } = await import('./favorites.server')
   return {
     toggleUserFavorite: _internals.toggleUserFavorite,
     ToggleFavoriteErrorCodes,
@@ -272,8 +269,7 @@ describe('toggleUserFavorite', () => {
   })
 
   it('returns Err with AUTH_REQUIRED when there is no authenticated user', async () => {
-    const { toggleUserFavorite, ToggleFavoriteErrorCodes } =
-      await setupToggleUserFavorite(null)
+    const { toggleUserFavorite } = await setupToggleUserFavorite(null)
 
     const result = await toggleUserFavorite(ASSET_SUMMARY_ID)
 

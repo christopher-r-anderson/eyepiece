@@ -20,7 +20,7 @@ import {
 } from '@/features/favorites/favorites.queries'
 import { FavoriteToggle } from '@/features/favorites/components/favorite-toggle'
 import { useIsClientMounted } from '@/lib/hooks/use-is-client-mounted'
-import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.server'
+import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.const'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import {

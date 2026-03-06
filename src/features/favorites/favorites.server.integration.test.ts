@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, vi } from 'vitest'
-import { ToggleFavoriteErrorCodes, _internals } from './favorites.server'
+import { _internals } from './favorites.server'
+import { ToggleFavoriteErrorCodes } from './favorites.const'
 import type { AssetSummaryId } from '@/domain/asset/asset.schema'
 import { createAdminClient, it } from '@/test/integration-fixtures'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
