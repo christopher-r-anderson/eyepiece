@@ -1,11 +1,10 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
-import { getOrigin, getTitleText } from '@/lib/utils'
+import { getTitleText } from '@/lib/utils'
 import { getAssetOptions, useAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
-import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { assetKeySchema } from '@/domain/asset/asset.schema'
 import { PrettyException } from '@/components/ui/error'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
@@ -21,10 +20,7 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
     return { assetKey }
   },
   loader: ({ context }) => {
-    const client = createEyepieceClient({
-      origin: getOrigin(),
-    })
-    const repo = makeAssetsRepo(client)
+    const repo = makeAssetsRepo(context.eyepieceClient)
     return context.queryClient.ensureQueryData(
       getAssetOptions({ repo, assetKey: context.assetKey }),
     )

@@ -6,6 +6,8 @@ import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
 import { getPublicSupabaseClientContext } from './integrations/supabase/providers/public-provider'
 import { getUserSupabaseClientContext } from './integrations/supabase/providers/user-provider'
+import { getOrigin } from './lib/utils'
+import { getEyepieceClientContext } from './lib/eyepiece-api-client/eyepiece-client-provider'
 import type { AuthInteractionStrategy } from '@/features/auth/auth.types'
 
 declare module '@tanstack/react-router' {
@@ -19,12 +21,16 @@ declare module '@tanstack/react-router' {
 
 export const getRouter = () => {
   const rqContext = TanstackQuery.getContext()
+  const eyepieceClientContext = getEyepieceClientContext({
+    origin: getOrigin(),
+  })
   const publicSupabaseContext = getPublicSupabaseClientContext()
   const userSupabaseContext = getUserSupabaseClientContext()
   const router = createRouter({
     routeTree,
     context: {
       ...rqContext,
+      ...eyepieceClientContext,
       ...publicSupabaseContext,
       ...userSupabaseContext,
     },

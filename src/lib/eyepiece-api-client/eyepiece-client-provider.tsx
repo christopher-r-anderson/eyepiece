@@ -1,22 +1,43 @@
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext } from 'react'
 import { createEyepieceClient } from './client'
 import type { EyepieceClient } from './client'
 import type { ReactNode } from 'react'
 
-const EyepieceClientContext = createContext<EyepieceClient | null>(null)
+type EyepieceClientContext = {
+  eyepieceClient: EyepieceClient
+}
 
-export function EyepieceClientProvider({ children }: { children: ReactNode }) {
-  const client = useMemo(() => createEyepieceClient({ origin: '' }), [])
+const EyepieceClientContext = createContext<EyepieceClientContext | null>(null)
 
+export function getEyepieceClientContext({
+  origin,
+}: {
+  origin: string
+}): EyepieceClientContext {
+  return {
+    eyepieceClient: createEyepieceClient({ origin }),
+  }
+}
+
+export function EyepieceClientProvider({
+  children,
+  eyepieceClient,
+}: {
+  children: ReactNode
+  eyepieceClient: EyepieceClient
+}) {
   return (
-    <EyepieceClientContext.Provider value={client}>
+    <EyepieceClientContext.Provider value={{ eyepieceClient }}>
       {children}
     </EyepieceClientContext.Provider>
   )
 }
 
 export function useEyepieceClient() {
-  const client = useContext(EyepieceClientContext)
-  if (!client) throw new Error('EyepieceClientProvider missing')
-  return client
+  const context = useContext(EyepieceClientContext)
+  if (!context)
+    throw new Error(
+      'useEyepieceClient must be used within a EyepieceClientProvider',
+    )
+  return context.eyepieceClient
 }

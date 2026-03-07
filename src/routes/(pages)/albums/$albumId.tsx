@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
 import { getAlbumOptions } from '@/features/albums/albums.queries'
-import { getOrigin, getTitleText } from '@/lib/utils'
-import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
+import { getTitleText } from '@/lib/utils'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { makeAlbumsRepo } from '@/features/albums/albums.repo'
@@ -17,10 +16,7 @@ export const Route = createFileRoute('/(pages)/albums/$albumId')({
     return { albumKey }
   },
   loader: ({ context }) => {
-    const client = createEyepieceClient({
-      origin: getOrigin(),
-    })
-    const albumsRepo = makeAlbumsRepo(client)
+    const albumsRepo = makeAlbumsRepo(context.eyepieceClient)
     return context.queryClient.ensureInfiniteQueryData(
       getAlbumOptions({ repo: albumsRepo, albumKey: context.albumKey }),
     )

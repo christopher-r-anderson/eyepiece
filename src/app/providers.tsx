@@ -22,13 +22,17 @@ export function AppProviders({ children }: { children: ReactNode }) {
     from: '__root__',
     select: (context) => context.queryClient,
   })
+  const eyepieceClient = useRouteContext({
+    from: '__root__',
+    select: (context) => context.eyepieceClient,
+  })
   return (
     <PublicSupabaseClientProvider publicSupabaseClient={publicSupabaseClient}>
       <UserSupabaseClientProvider userSupabaseClient={userSupabaseClient}>
         <TanstackQueryProvider queryClient={queryClient}>
           <AuthProvider>
             <RouterProvider>
-              <EyepieceClientProvider>
+              <EyepieceClientProvider eyepieceClient={eyepieceClient}>
                 <ThemeProvider>{children}</ThemeProvider>
               </EyepieceClientProvider>
             </RouterProvider>

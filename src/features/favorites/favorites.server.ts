@@ -1,4 +1,3 @@
-import { getRequest } from '@tanstack/react-start/server'
 import { createServerOnlyFn } from '@tanstack/react-start'
 import {
   ASSET_SUMMARY_STALE_TIME,
@@ -14,6 +13,7 @@ import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { getUser } from '@/features/auth/get-user'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
+import { getOrigin } from '@/lib/utils'
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleFavoriteForUser(
@@ -150,8 +150,7 @@ async function _ensurePublicAssetSummaryForKey(
 const ensurePublicAssetSummary = createServerOnlyFn(
   async (assetKey: AssetKey): Promise<Result<AssetSummaryId>> => {
     const serviceClient = createServiceSupabaseClient()
-    const requestUrl = new URL(getRequest().url)
-    const eyepieceClient = createEyepieceClient({ origin: requestUrl.origin })
+    const eyepieceClient = createEyepieceClient({ origin: getOrigin() })
     return _ensurePublicAssetSummaryForKey(
       serviceClient,
       eyepieceClient,
