@@ -18,6 +18,7 @@ import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 export const userFavoritesKey = [...meKey, 'favorites'] as const
 export const userFavoritesIndexKey = [...userFavoritesKey, 'index'] as const
@@ -32,7 +33,11 @@ export function getUserFavoriteIndexOptions({
     queryKey: userFavoritesIndexKey,
     queryFn: async () => {
       const result = await repo.getUserFavoritesIndex()
-      return unwrapOrThrow(result)
+      const keys = unwrapOrThrow(result)
+      // use an array instead of a set so structural sharing can preserve the reference
+      return keys.map(({ provider, externalId }) =>
+        toAssetKeyString({ provider, externalId }),
+      )
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -41,8 +46,8 @@ export function getUserFavoriteIndexOptions({
 export function useUserFavoritesIndex({ enabled }: { enabled?: boolean }) {
   const repo = useUserFavoritesRepo()
   return useQuery({
-    enabled,
     ...getUserFavoriteIndexOptions({ repo }),
+    enabled,
   })
 }
 
@@ -51,8 +56,8 @@ export function useToggleUserFavorite() {
   const commands = useUserFavoritesCommands()
 
   return useMutation({
-    mutationFn: async (input: AssetKey) => {
-      const { error } = await commands.toggleFavorite(input)
+    mutationFn: async (assetKey: AssetKey) => {
+      const { error } = await commands.toggleFavorite(assetKey)
       if (error) {
         throwFromErrorResult(error)
       }
