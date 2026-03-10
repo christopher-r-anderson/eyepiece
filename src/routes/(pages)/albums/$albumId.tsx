@@ -1,13 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
-import { getAlbumOptions } from '@/features/albums/albums.queries'
-import { getTitleText } from '@/lib/utils'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import { PageHeading } from '@/routes/-components/page-heading'
+import { PrettyException } from '@/components/ui/error'
 import { albumKeySchema } from '@/domain/album/album.schema'
-import { makeAlbumsRepo } from '@/features/albums/albums.repo'
+import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
+import { getTitleText } from '@/lib/utils'
+import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 
 export const Route = createFileRoute('/(pages)/albums/$albumId')({
-  component: AlbumView,
+  component: AlbumPage,
   beforeLoad: ({ params }) => {
     const albumKey = albumKeySchema.parse({
       provider: NASA_IVL_PROVIDER,
@@ -15,11 +17,12 @@ export const Route = createFileRoute('/(pages)/albums/$albumId')({
     })
     return { albumKey }
   },
-  loader: ({ context }) => {
-    const albumsRepo = makeAlbumsRepo(context.eyepieceClient)
-    return context.queryClient.ensureInfiniteQueryData(
-      getAlbumOptions({ repo: albumsRepo, albumKey: context.albumKey }),
-    )
+  loader: async ({ context: { eyepieceClient, queryClient, albumKey } }) => {
+    await ensureInfiniteAlbum({
+      eyepieceClient,
+      queryClient,
+      albumKey,
+    })
   },
   head: ({ match }) => ({
     // https://github.com/TanStack/router/issues/4785
@@ -27,21 +30,27 @@ export const Route = createFileRoute('/(pages)/albums/$albumId')({
       { title: getTitleText(`${match.context.albumKey.externalId} Media`) },
     ],
   }),
+  errorComponent: ({ error }) => (
+    <>
+      <PageHeading>Album</PageHeading>
+      <p>Error loading album.</p>
+      <PrettyException error={error} headingLevel={1} />
+    </>
+  ),
+  pendingComponent: () => (
+    <>
+      <PageHeading>Album</PageHeading>
+      <AssetGridSkeleton />
+    </>
+  ),
 })
 
-function AlbumView() {
+function AlbumPage() {
   const { albumKey } = Route.useRouteContext()
   return (
-    <main
-      css={{
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'column',
-        padding: '2rem',
-      }}
-    >
-      <h1 css={{ color: 'var(--text-accent)' }}>{albumKey.externalId} Media</h1>
+    <>
+      <PageHeading>{albumKey.externalId} Album</PageHeading>
       <AlbumAssets albumKey={albumKey} />
-    </main>
+    </>
   )
 }

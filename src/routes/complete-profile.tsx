@@ -7,27 +7,16 @@ import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
-import { getUser } from '@/features/auth/get-user'
-import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
-import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 export const Route = createFileRoute('/complete-profile')({
   component: CompleteProfilePage,
   beforeLoad: requireAuthenticated,
   validateSearch: redirectSearchParamsSchema,
-  loader: async () => {
-    const user = await getUser()
-    if (!user) {
-      throw new Error('User not found in complete-profile loader')
-    }
-    return { userId: user.id }
-  },
 })
 
 function CompleteProfilePage() {
-  const { userId } = Route.useLoaderData()
+  const { user } = Route.useRouteContext()
   const { next: nextParam } = Route.useSearch()
-  const commands = makeProfilesCommands(useUserSupabaseClient())
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -60,10 +49,10 @@ function CompleteProfilePage() {
         }
       >
         <UpsertProfileForm
-          profileCommands={commands}
+          actionType="create"
           onSuccess={onUpdateSuccess}
           headingLevel={1}
-          initialData={{ id: userId }}
+          initialData={{ id: user.id }}
         />
       </FormStatusSwitcher>
     </>

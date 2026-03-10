@@ -3,51 +3,21 @@ import { useNavigate } from '@tanstack/react-router'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
-import {
-  HybridGrid,
-  ItemGridSkeleton,
-} from '@/features/listing/item-grid/components/hybrid-grid'
-import {
-  AssetTile,
-  AssetTileSkeleton,
-} from '@/features/assets/components/asset-tile'
-import { useAlbumAssets } from '@/features/albums/albums.queries'
+import { HybridGrid } from '@/features/listing/item-grid/components/hybrid-grid'
+import { AssetTile } from '@/features/assets/components/asset-tile'
+import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries'
 import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
-import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
-import { makeAlbumsRepo } from '@/features/albums/albums.repo'
 
 export interface AlbumAssetsProps {
   albumKey: AlbumKey
 }
 
 export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
-  const client = useEyepieceClient()
-  const albumsRepo = makeAlbumsRepo(client)
-  const {
-    data,
-    isPending,
-    isError,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useAlbumAssets({ repo: albumsRepo, albumKey })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useSuspenseInfiniteAlbumAssets(albumKey)
   const navigate = useNavigate()
 
   const uiResetKey = useMemo(() => paramsToUiResetKey({ albumKey }), [albumKey])
-
-  if (isPending) {
-    return <ItemGridSkeleton>{() => <AssetTileSkeleton />}</ItemGridSkeleton>
-  }
-
-  if (isError) {
-    return (
-      <div>
-        <p>Error loading album assets</p>
-        <pre>{JSON.stringify(error, null, 2)}</pre>
-      </div>
-    )
-  }
 
   return (
     <InfiniteLoader

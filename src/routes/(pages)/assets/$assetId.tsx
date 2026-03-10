@@ -2,13 +2,15 @@ import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { MetadataButton } from './-components/metadata/button'
 import { getTitleText } from '@/lib/utils'
-import { getAssetOptions, useAsset } from '@/features/assets/assets.queries'
+import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
-import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 import { assetKeySchema } from '@/domain/asset/asset.schema'
-import { PrettyException } from '@/components/ui/error'
 import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
-import { makeAssetsRepo } from '@/features/assets/assets.repo'
+import { PrettyException } from '@/components/ui/error'
+
+function AssetHeading({ name = 'Asset' }: { name?: string }) {
+  return <h1>{name}</h1>
+}
 
 export const Route = createFileRoute('/(pages)/assets/$assetId')({
   component: AssetPage,
@@ -19,51 +21,47 @@ export const Route = createFileRoute('/(pages)/assets/$assetId')({
     })
     return { assetKey }
   },
-  loader: ({ context }) => {
-    const repo = makeAssetsRepo(context.eyepieceClient)
-    return context.queryClient.ensureQueryData(
-      getAssetOptions({ repo, assetKey: context.assetKey }),
-    )
+  loader: async ({ context: { assetKey, queryClient, eyepieceClient } }) => {
+    const asset = await ensureAsset({ assetKey, queryClient, eyepieceClient })
+    return {
+      title: asset.title,
+    }
   },
   head: ({ loaderData }) => ({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
+  errorComponent: ({ error }) => (
+    <>
+      <AssetHeading />
+      <p>Error loading asset.</p>
+      <PrettyException error={error} headingLevel={1} />
+    </>
+  ),
+  pendingComponent: () => (
+    <>
+      <AssetHeading />
+      <p>Loading asset...</p>
+    </>
+  ),
 })
 
-export function AssetPage() {
+function AssetPage() {
   const { assetKey } = Route.useRouteContext()
-  const client = useEyepieceClient()
-  const repo = makeAssetsRepo(client)
-  const { data, isPending, isError, error } = useAsset({ repo, assetKey })
+  const { data } = useSuspenseAsset(assetKey)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
 
-  if (isPending) {
-    return <div>Loading...</div>
-  }
-
-  if (isError) {
-    return <PrettyException error={error} headingLevel={1} />
-  }
-
   return (
-    <main
-      css={{
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
+    <>
       <div css={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
         {returnUrl && (
           <Link to={returnUrl}>
             <ArrowLeftIcon aria-label="Back to search results" />
           </Link>
         )}
-        <h1 css={{ color: 'var(--text-accent)' }}>{data.title}</h1>
-        <MetadataButton assetKey={assetKey} assetsRepo={repo} />
+        <AssetHeading name={data.title} />
+        <MetadataButton assetKey={assetKey} />
       </div>
       <div
         css={{
@@ -115,6 +113,6 @@ export function AssetPage() {
           </div>
         </figcaption>
       </div>
-    </main>
+    </>
   )
 }

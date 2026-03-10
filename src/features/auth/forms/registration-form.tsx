@@ -9,13 +9,13 @@ import { SetPasswordField } from '@/features/auth/forms/components/set-password-
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
-import { displayNameSchema } from '@/lib/schemas/profile.schema'
+import { profileSchema } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
 
 const registrationSchema = z.object({
   email: z.email(),
-  displayName: displayNameSchema,
+  displayName: profileSchema.shape.displayName,
   password: setPasswordFieldSchema,
   redirectTo: z.url(),
 })

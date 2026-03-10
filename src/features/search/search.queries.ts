@@ -1,8 +1,12 @@
-import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import type { InfiniteData } from '@tanstack/react-query'
+import {
+  infiniteQueryOptions,
+  useSuspenseInfiniteQuery,
+} from '@tanstack/react-query'
+import { makeSearchRepo, useSearchRepo } from './search.repo'
+import type { SearchRepo } from './search.repo'
+import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
-import type { SearchRepo } from './search.repo'
 import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
 
 type SearchCacheKey = ['search', EyepiecePageSearchParams]
@@ -15,7 +19,9 @@ type SearchImagesFn = EyepieceClient['searchImages']
 type SearchImagesPage = Awaited<ReturnType<SearchImagesFn>>
 type SearchImagesInfinite = InfiniteData<SearchImagesPage, number>
 
-export function searchImagesOptions<TSelectData = SearchImagesInfinite>({
+export function getInfiniteSearchImagesOptions<
+  TSelectData = SearchImagesInfinite,
+>({
   repo,
   params,
   select,
@@ -26,8 +32,9 @@ export function searchImagesOptions<TSelectData = SearchImagesInfinite>({
 }) {
   return infiniteQueryOptions({
     queryKey: searchCacheKey(params),
-    queryFn: ({ queryKey, pageParam = 1 }) =>
-      repo.searchImages({ ...queryKey[1], page: pageParam }),
+    queryFn: ({ queryKey, pageParam = 1 }) => {
+      return repo.searchImages({ ...queryKey[1], page: pageParam })
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 1000 * 60 * 5,
@@ -35,11 +42,28 @@ export function searchImagesOptions<TSelectData = SearchImagesInfinite>({
   })
 }
 
-export function useSearchResults(
-  repo: SearchRepo,
-  params: EyepiecePageSearchParams,
-) {
-  return useInfiniteQuery(
-    searchImagesOptions({ repo, params, select: flattenAssetsSelector }),
+export function useSuspenseInfiniteSearch(params: EyepiecePageSearchParams) {
+  const repo = useSearchRepo()
+  return useSuspenseInfiniteQuery(
+    getInfiniteSearchImagesOptions({
+      repo,
+      params,
+      select: flattenAssetsSelector,
+    }),
+  )
+}
+
+export function prefetchInfiniteSearch({
+  eyepieceClient,
+  queryClient,
+  searchParams,
+}: {
+  eyepieceClient: EyepieceClient
+  queryClient: QueryClient
+  searchParams: EyepiecePageSearchParams
+}) {
+  const searchRepo = makeSearchRepo(eyepieceClient)
+  return queryClient.prefetchInfiniteQuery(
+    getInfiniteSearchImagesOptions({ repo: searchRepo, params: searchParams }),
   )
 }

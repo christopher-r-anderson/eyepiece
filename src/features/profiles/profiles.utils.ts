@@ -3,7 +3,7 @@ import type { PostgrestError } from '@supabase/supabase-js'
 import type { ZodError } from 'zod'
 import type { ResultError } from '@/lib/result'
 import type { Database } from '@/integrations/supabase/database.types'
-import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
+import type { Profile } from '@/domain/profile/profile.schema'
 
 export const INVALID_INPUT_ERROR = 'invalid_input' as const
 export const UNKNOWN_ERROR = 'unknown_error' as const
@@ -68,9 +68,7 @@ export function errorFromPostgrestError(
 type InsertProfile = Database['public']['Tables']['profiles']['Insert']
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
 
-export function profileInputToUpsertProfile(
-  input: ProfileInput,
-): InsertProfile {
+export function profileInputToUpsertProfile(input: Profile): InsertProfile {
   return {
     id: input.id,
     display_name: input.displayName,
@@ -79,7 +77,7 @@ export function profileInputToUpsertProfile(
 
 export function profileRowToProfileDisplay(
   row: Pick<ProfileRow, 'id' | 'display_name'>,
-): ProfileDisplay {
+): Profile {
   return {
     id: row.id,
     displayName: row.display_name,

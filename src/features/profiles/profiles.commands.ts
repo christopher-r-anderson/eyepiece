@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   errorFromPostgrestError,
   profileInputToUpsertProfile,
@@ -6,20 +7,21 @@ import {
 import type { ProfileErrorCode } from './profiles.utils'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Result } from '@/lib/result'
-import type { ProfileDisplay, ProfileInput } from '@/lib/schemas/profile.schema'
+import type { Profile } from '@/domain/profile/profile.schema'
 import { Err, Ok } from '@/lib/result'
+import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 export interface ProfilesCommands {
   upsertProfile: (
-    profile: ProfileInput,
-  ) => Promise<Result<ProfileDisplay, ProfileErrorCode>>
+    profile: Profile,
+  ) => Promise<Result<Profile, ProfileErrorCode>>
 }
 
 export function makeProfilesCommands(client: SupabaseClient): ProfilesCommands {
   return {
     upsertProfile: async (
-      profile: ProfileInput,
-    ): Promise<Result<ProfileDisplay, ProfileErrorCode>> => {
+      profile: Profile,
+    ): Promise<Result<Profile, ProfileErrorCode>> => {
       const upsert = profileInputToUpsertProfile(profile)
       const { data, error } = await client
         .from('profiles')
@@ -33,4 +35,9 @@ export function makeProfilesCommands(client: SupabaseClient): ProfilesCommands {
       return Ok(profileRowToProfileDisplay(data))
     },
   }
+}
+
+export function useProfilesCommands(): ProfilesCommands {
+  const client = useUserSupabaseClient()
+  return useMemo(() => makeProfilesCommands(client), [client])
 }

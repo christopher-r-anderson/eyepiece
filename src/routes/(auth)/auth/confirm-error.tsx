@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import z from 'zod'
-import type { ComponentPropsWithoutRef } from 'react'
+import { z } from 'zod'
+import { PageHeading } from '../../-components/page-heading'
 import {
   ResendConfirmationForm,
   ResendConfirmationSuccessMessage,
@@ -33,10 +33,6 @@ function ConfirmationErrorPage() {
   } else {
     return <UnknownError />
   }
-}
-
-export function PageHeading(props: ComponentPropsWithoutRef<'h1'>) {
-  return <h1 css={{ fontSize: '1.25rem', fontWeight: 'bold' }} {...props} />
 }
 
 function RecoveryOtpError() {

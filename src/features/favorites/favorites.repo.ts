@@ -1,10 +1,12 @@
 import { z } from 'zod'
+import { useMemo } from 'react'
 import type { FavoriteEdge } from './favorites.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerSchema } from '@/domain/provider/provider.schema'
+import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 export const DEFAULT_PAGE_SIZE = 24
 
@@ -142,4 +144,9 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
     getUserFavoritesEdges,
     getUserFavoritesIndex,
   }
+}
+
+export function useUserFavoritesRepo() {
+  const supabaseClient = useUserSupabaseClient()
+  return useMemo(() => makeUserFavoritesRepo(supabaseClient), [supabaseClient])
 }

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
-import { useUserQuery } from '@/features/auth/auth.queries'
+import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuth } from '@/features/auth/auth.provider'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import { Form, InputGroup } from '@/components/ui/forms'
@@ -24,7 +24,7 @@ export function UpdatePasswordForm({
   onSuccess: () => void
 }) {
   const id = useId()
-  const userQuery = useUserQuery()
+  const userQuery = useCurrentUserQuery()
   const { commands } = useAuth()
 
   const [state, formAction, isPending] = useTypedActionState(

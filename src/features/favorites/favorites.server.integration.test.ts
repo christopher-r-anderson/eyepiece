@@ -12,10 +12,21 @@ import { resultIsError, resultIsSuccess } from '@/lib/result'
 // edge-case issues in the node test environment.
 // ---------------------------------------------------------------------------
 
-vi.mock('@tanstack/react-start', () => ({
-  createServerOnlyFn: (fn: unknown) => fn,
-  createServerFn: () => ({ handler: (fn: unknown) => fn }),
-}))
+vi.mock('@tanstack/react-start', async (importOriginal) => {
+  const actual: Record<string, unknown> = await importOriginal()
+
+  return {
+    ...actual,
+    createServerOnlyFn: (fn: unknown) => fn,
+    createServerFn: () => ({ handler: (fn: unknown) => fn }),
+    // Required by src/lib/utils.ts during module evaluation.
+    createIsomorphicFn: () => ({
+      server: (serverImpl: unknown) => ({
+        client: () => serverImpl,
+      }),
+    }),
+  }
+})
 
 // These factories are imported at module scope but only called inside the
 // createServerOnlyFn bodies that we never invoke in these tests.

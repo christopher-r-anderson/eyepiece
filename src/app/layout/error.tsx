@@ -1,7 +1,7 @@
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import { PrettyException } from '@/components/ui/error'
 
-export function ErrorBoundary({ error, reset }: ErrorComponentProps) {
+export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
   return (
     <div>
       <h1>Something went wrong</h1>

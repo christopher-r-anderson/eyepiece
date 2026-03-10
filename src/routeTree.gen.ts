@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
-import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -28,7 +27,6 @@ import { Route as authAuthUpdatePasswordRouteImport } from './routes/(auth)/auth
 import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth/forgot-password'
 import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
 import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
-import { Route as pagesuserSettingsRouteRouteImport } from './routes/(pages)/(user)/settings/route'
 import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
 import { Route as ApiAssetAssetIdMetadataRouteImport } from './routes/api/asset/$assetId.metadata'
 import { Route as pagesuserSettingsProfileRouteImport } from './routes/(pages)/(user)/settings/profile'
@@ -44,11 +42,6 @@ const pagesRouteRoute = pagesRouteRouteImport.update({
 } as any)
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
-  id: '/collections/',
-  path: '/collections/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
@@ -125,15 +118,10 @@ const authAuthConfirmRoute = authAuthConfirmRouteImport.update({
   path: '/auth/confirm',
   getParentRoute: () => authRouteRoute,
 } as any)
-const pagesuserSettingsRouteRoute = pagesuserSettingsRouteRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => pagesuserRouteRoute,
-} as any)
 const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => pagesuserSettingsRouteRoute,
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => pagesuserRouteRoute,
 } as any)
 const ApiAssetAssetIdMetadataRoute = ApiAssetAssetIdMetadataRouteImport.update({
   id: '/metadata',
@@ -142,9 +130,9 @@ const ApiAssetAssetIdMetadataRoute = ApiAssetAssetIdMetadataRouteImport.update({
 } as any)
 const pagesuserSettingsProfileRoute =
   pagesuserSettingsProfileRouteImport.update({
-    id: '/profile',
-    path: '/profile',
-    getParentRoute: () => pagesuserSettingsRouteRoute,
+    id: '/settings/profile',
+    path: '/settings/profile',
+    getParentRoute: () => pagesuserRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -152,8 +140,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/api/search': typeof ApiSearchRoute
-  '/collections/': typeof CollectionsIndexRoute
-  '/settings': typeof pagesuserSettingsRouteRouteWithChildren
   '/auth/confirm': typeof authAuthConfirmRoute
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
@@ -174,7 +160,6 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/api/search': typeof ApiSearchRoute
-  '/collections': typeof CollectionsIndexRoute
   '/auth/confirm': typeof authAuthConfirmRoute
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
@@ -199,8 +184,6 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/api/search': typeof ApiSearchRoute
-  '/collections/': typeof CollectionsIndexRoute
-  '/(pages)/(user)/settings': typeof pagesuserSettingsRouteRouteWithChildren
   '/(auth)/auth/confirm': typeof authAuthConfirmRoute
   '/(auth)/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/(auth)/auth/forgot-password': typeof authAuthForgotPasswordRoute
@@ -223,8 +206,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/api/search'
-    | '/collections/'
-    | '/settings'
     | '/auth/confirm'
     | '/auth/confirm-error'
     | '/auth/forgot-password'
@@ -245,7 +226,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/api/search'
-    | '/collections'
     | '/auth/confirm'
     | '/auth/confirm-error'
     | '/auth/forgot-password'
@@ -269,8 +249,6 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/register'
     | '/api/search'
-    | '/collections/'
-    | '/(pages)/(user)/settings'
     | '/(auth)/auth/confirm'
     | '/(auth)/auth/confirm-error'
     | '/(auth)/auth/forgot-password'
@@ -292,7 +270,6 @@ export interface RootRouteChildren {
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   CompleteProfileRoute: typeof CompleteProfileRoute
   ApiSearchRoute: typeof ApiSearchRoute
-  CollectionsIndexRoute: typeof CollectionsIndexRoute
   ApiAlbumsAlbumIdRoute: typeof ApiAlbumsAlbumIdRoute
   ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRouteWithChildren
 }
@@ -318,13 +295,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof authRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/collections/': {
-      id: '/collections/'
-      path: '/collections'
-      fullPath: '/collections/'
-      preLoaderRoute: typeof CollectionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/search': {
@@ -432,19 +402,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authAuthConfirmRouteImport
       parentRoute: typeof authRouteRoute
     }
-    '/(pages)/(user)/settings': {
-      id: '/(pages)/(user)/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof pagesuserSettingsRouteRouteImport
-      parentRoute: typeof pagesuserRouteRoute
-    }
     '/(pages)/(user)/settings/': {
       id: '/(pages)/(user)/settings/'
-      path: '/'
+      path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
-      parentRoute: typeof pagesuserSettingsRouteRoute
+      parentRoute: typeof pagesuserRouteRoute
     }
     '/api/asset/$assetId/metadata': {
       id: '/api/asset/$assetId/metadata'
@@ -455,10 +418,10 @@ declare module '@tanstack/react-router' {
     }
     '/(pages)/(user)/settings/profile': {
       id: '/(pages)/(user)/settings/profile'
-      path: '/profile'
+      path: '/settings/profile'
       fullPath: '/settings/profile'
       preLoaderRoute: typeof pagesuserSettingsProfileRouteImport
-      parentRoute: typeof pagesuserSettingsRouteRoute
+      parentRoute: typeof pagesuserRouteRoute
     }
   }
 }
@@ -485,30 +448,16 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
-interface pagesuserSettingsRouteRouteChildren {
+interface pagesuserRouteRouteChildren {
+  pagesuserFavoritesRoute: typeof pagesuserFavoritesRoute
   pagesuserSettingsProfileRoute: typeof pagesuserSettingsProfileRoute
   pagesuserSettingsIndexRoute: typeof pagesuserSettingsIndexRoute
 }
 
-const pagesuserSettingsRouteRouteChildren: pagesuserSettingsRouteRouteChildren =
-  {
-    pagesuserSettingsProfileRoute: pagesuserSettingsProfileRoute,
-    pagesuserSettingsIndexRoute: pagesuserSettingsIndexRoute,
-  }
-
-const pagesuserSettingsRouteRouteWithChildren =
-  pagesuserSettingsRouteRoute._addFileChildren(
-    pagesuserSettingsRouteRouteChildren,
-  )
-
-interface pagesuserRouteRouteChildren {
-  pagesuserSettingsRouteRoute: typeof pagesuserSettingsRouteRouteWithChildren
-  pagesuserFavoritesRoute: typeof pagesuserFavoritesRoute
-}
-
 const pagesuserRouteRouteChildren: pagesuserRouteRouteChildren = {
-  pagesuserSettingsRouteRoute: pagesuserSettingsRouteRouteWithChildren,
   pagesuserFavoritesRoute: pagesuserFavoritesRoute,
+  pagesuserSettingsProfileRoute: pagesuserSettingsProfileRoute,
+  pagesuserSettingsIndexRoute: pagesuserSettingsIndexRoute,
 }
 
 const pagesuserRouteRouteWithChildren = pagesuserRouteRoute._addFileChildren(
@@ -552,7 +501,6 @@ const rootRouteChildren: RootRouteChildren = {
   pagesRouteRoute: pagesRouteRouteWithChildren,
   CompleteProfileRoute: CompleteProfileRoute,
   ApiSearchRoute: ApiSearchRoute,
-  CollectionsIndexRoute: CollectionsIndexRoute,
   ApiAlbumsAlbumIdRoute: ApiAlbumsAlbumIdRoute,
   ApiAssetAssetIdRoute: ApiAssetAssetIdRouteWithChildren,
 }
