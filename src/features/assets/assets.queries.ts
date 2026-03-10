@@ -1,6 +1,14 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { AssetKey, AssetKeyString } from '@/domain/asset/asset.schema'
+import {
+  queryOptions,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
+import { useCallback } from 'react'
+import { makeAssetsRepo, useAssetsRepo } from './assets.repo'
 import type { AssetsRepo } from './assets.repo'
+import type { QueryClient } from '@tanstack/react-query'
+import type { AssetKey, AssetKeyString } from '@/domain/asset/asset.schema'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 type AssetCacheKey = ['assets', AssetKeyString]
@@ -27,14 +35,22 @@ export function getAssetOptions({
   })
 }
 
-export function useAsset({
-  repo,
+export function useSuspenseAsset(assetKey: AssetKey) {
+  const repo = useAssetsRepo()
+  return useSuspenseQuery(getAssetOptions({ repo, assetKey }))
+}
+
+export function ensureAsset({
   assetKey,
+  queryClient,
+  eyepieceClient,
 }: {
-  repo: Pick<AssetsRepo, 'getAsset'>
   assetKey: AssetKey
+  queryClient: QueryClient
+  eyepieceClient: EyepieceClient
 }) {
-  return useQuery(getAssetOptions({ repo, assetKey }))
+  const repo = makeAssetsRepo(eyepieceClient)
+  return queryClient.ensureQueryData(getAssetOptions({ repo, assetKey }))
 }
 
 type MetadataCacheKey = ['assets', AssetKeyString, 'metadata']
@@ -61,17 +77,17 @@ export function getMetadataOptions({
   })
 }
 
-export function useMetadata({
-  repo,
-  assetKey,
-  enabled,
-}: {
-  repo: Pick<AssetsRepo, 'getMetadata'>
-  assetKey: AssetKey
-  enabled?: boolean
-}) {
-  return useQuery({
-    ...getMetadataOptions({ repo, assetKey }),
-    enabled,
-  })
+export function useSuspenseMetadata(assetKey: AssetKey) {
+  const repo = useAssetsRepo()
+  return useSuspenseQuery(getMetadataOptions({ repo, assetKey }))
+}
+
+export function usePrefetchMetadata(assetKey: AssetKey) {
+  const repo = useAssetsRepo()
+  const queryClient = useQueryClient()
+
+  return useCallback(() => {
+    // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
+    void queryClient.prefetchQuery(getMetadataOptions({ repo, assetKey }))
+  }, [repo, queryClient, assetKey])
 }

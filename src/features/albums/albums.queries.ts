@@ -1,7 +1,12 @@
-import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import type { InfiniteData } from '@tanstack/react-query'
-import type { AlbumKey, AlbumKeyString } from '@/domain/album/album.schema'
+import {
+  infiniteQueryOptions,
+  useSuspenseInfiniteQuery,
+} from '@tanstack/react-query'
+import { makeAlbumsRepo, useAlbumsRepo } from './albums.repo'
 import type { AlbumsRepo } from './albums.repo'
+import type { InfiniteData, QueryClient } from '@tanstack/react-query'
+import type { AlbumKey, AlbumKeyString } from '@/domain/album/album.schema'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
 import { toAlbumKeyString } from '@/domain/album/album.utils'
 
@@ -15,7 +20,7 @@ type GetAlbumFn = AlbumsRepo['getAlbum']
 type AlbumPage = Awaited<ReturnType<GetAlbumFn>>
 type AlbumInfinite = InfiniteData<AlbumPage, number>
 
-export function getAlbumOptions<TSelectData = AlbumInfinite>({
+export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
   repo,
   albumKey,
   select,
@@ -35,14 +40,24 @@ export function getAlbumOptions<TSelectData = AlbumInfinite>({
   })
 }
 
-export function useAlbumAssets({
-  repo,
+export function useSuspenseInfiniteAlbumAssets(albumKey: AlbumKey) {
+  const repo = useAlbumsRepo()
+  return useSuspenseInfiniteQuery(
+    getInfiniteAlbumOptions({ repo, albumKey, select: flattenAssetsSelector }),
+  )
+}
+
+export function ensureInfiniteAlbum({
   albumKey,
+  eyepieceClient,
+  queryClient,
 }: {
-  repo: Pick<AlbumsRepo, 'getAlbum'>
   albumKey: AlbumKey
+  eyepieceClient: EyepieceClient
+  queryClient: QueryClient
 }) {
-  return useInfiniteQuery(
-    getAlbumOptions({ repo, albumKey, select: flattenAssetsSelector }),
+  const albumsRepo = makeAlbumsRepo(eyepieceClient)
+  return queryClient.ensureInfiniteQueryData(
+    getInfiniteAlbumOptions({ repo: albumsRepo, albumKey: albumKey }),
   )
 }

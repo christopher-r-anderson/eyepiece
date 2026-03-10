@@ -1,6 +1,6 @@
-import type { ProfileDisplay } from '@/lib/schemas/profile.schema'
+import type { Profile } from '@/domain/profile/profile.schema'
 
-export function Profile({ profile }: { profile: ProfileDisplay }) {
+export function Profile({ profile }: { profile: Profile }) {
   return (
     <div>
       <h2>{profile.displayName}</h2>

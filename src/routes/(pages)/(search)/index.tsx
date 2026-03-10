@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
+import { Suspense } from 'react'
 import { SearchResults } from './-components/search-results'
 import {
   YEAR_MAX,
@@ -7,15 +8,29 @@ import {
 } from '@/lib/eyepiece-api-client/types'
 import { hasSearchFields } from '@/lib/eyepiece-api-client/util'
 import { SearchBar } from '@/features/search/components/search-bar/search-bar'
-import { searchImagesOptions } from '@/features/search/search.queries'
-import { getOrigin, getTitleText } from '@/lib/utils'
-import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { makeSearchRepo } from '@/features/search/search.repo'
+import { getTitleText } from '@/lib/utils'
+import { PrettyException } from '@/components/ui/error'
+import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
+import { prefetchInfiniteSearch } from '@/features/search/search.queries'
+import { PageHeading } from '@/routes/-components/page-heading'
+import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 
 const NO_SEARCH_TITLE = 'Search NASA Images and Videos'
 
+function searchTitle(query?: string) {
+  return query ? `Search for "${query}"` : NO_SEARCH_TITLE
+}
+
+function SearchHeading({ query }: { query?: string }) {
+  return (
+    <PageHeading style={{ alignSelf: 'center' }}>
+      {searchTitle(query)}
+    </PageHeading>
+  )
+}
+
 export const Route = createFileRoute('/(pages)/(search)/')({
-  component: SearchView,
+  component: SearchPage,
   validateSearch: eyepiecePageSearchParamsSchema,
   loaderDeps: ({ search }) => {
     if (hasSearchFields(search)) {
@@ -24,47 +39,37 @@ export const Route = createFileRoute('/(pages)/(search)/')({
       return {}
     }
   },
-  loader: ({ context, deps: { search } }) => {
+  loader: async ({ context, deps: { search } }) => {
     if (search) {
-      const client = createEyepieceClient({
-        origin: getOrigin(),
+      await prefetchInfiniteSearch({
+        eyepieceClient: context.eyepieceClient,
+        queryClient: context.queryClient,
+        searchParams: search,
       })
-      const searchRepo = makeSearchRepo(client)
-      return context.queryClient.ensureInfiniteQueryData(
-        searchImagesOptions({ repo: searchRepo, params: search }),
-      )
     }
   },
   head: ({ match }) => ({
     meta: [
       {
-        title: getTitleText(
-          match.search.q ? `Search for "${match.search.q}"` : NO_SEARCH_TITLE,
-        ),
+        title: getTitleText(searchTitle(match.search.q)),
       },
     ],
   }),
+  errorComponent: ({ error }) => (
+    <>
+      <SearchHeading />
+      <p>Error loading search.</p>
+      <PrettyException error={error} headingLevel={1} />
+    </>
+  ),
 })
 
-export function SearchView() {
+function SearchPage() {
   const searchParams = Route.useSearch()
   const hasSearch = hasSearchFields(searchParams)
   return (
-    <main
-      css={{
-        width: '100%',
-        maxWidth: '1200px',
-        flexGrow: 1,
-        margin: '0 auto',
-        padding: '0 2rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <h1 css={{ color: 'var(--text-accent)' }}>
-        {hasSearch ? `Search for "${searchParams.q}"` : NO_SEARCH_TITLE}
-      </h1>
+    <>
+      <SearchHeading query={searchParams.q} />
       <SearchBar
         fontSize="1.5rem"
         css={{ maxWidth: '640px', margin: '3rem auto' }}
@@ -79,7 +84,18 @@ export function SearchView() {
             : undefined
         }
       />
-      {hasSearch && <SearchResults searchParams={searchParams} />}
-    </main>
+      {hasSearch && (
+        <CatchBoundary
+          getResetKey={() => paramsToUiResetKey(searchParams)}
+          errorComponent={({ error }) => (
+            <PrettyException error={error} headingLevel={1} />
+          )}
+        >
+          <Suspense fallback={<AssetGridSkeleton />}>
+            <SearchResults searchParams={searchParams} />
+          </Suspense>
+        </CatchBoundary>
+      )}
+    </>
   )
 }

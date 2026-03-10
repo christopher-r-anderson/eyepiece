@@ -1,104 +1,108 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
+import { startTransition } from 'react'
 import { AssetTile } from '@/features/assets/components/asset-tile'
 import { HybridGrid } from '@/features/listing/item-grid/components/hybrid-grid'
 import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
 import {
-  getUserFavoritesEdgesOptions,
-  useUserFavoriteAssetIds,
+  ensureInfiniteUserFavoritesEdges,
+  useSuspenseInfiniteUserFavoriteAssetIds,
   userFavoritesPagesToAssetIds,
 } from '@/features/favorites/favorites.queries'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
-  getAssetSummariesBatchOptions,
+  ensureAssetSummariesBatch,
   useAssetSummariesBatch,
 } from '@/features/assets/asset-summaries.queries'
 import { PrettyException } from '@/components/ui/error'
-import { makeUserFavoritesRepo } from '@/features/favorites/favorites.repo'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { makeAssetSummariesRepo } from '@/features/assets/asset-summaries.repo'
-import { createPublicSupabaseClient } from '@/integrations/supabase/public'
+import { PageHeading } from '@/routes/-components/page-heading'
+import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
+
+const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
 export const Route = createFileRoute('/(pages)/(user)/favorites')({
   component: FavoritesPage,
-  loader: async ({ context }) => {
-    const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
-    const edges = await context.queryClient.ensureInfiniteQueryData(
-      getUserFavoritesEdgesOptions({ repo: userFavoritesRepo }),
-    )
+  loader: async ({
+    context: { queryClient, publicSupabaseClient, userSupabaseClient },
+  }) => {
+    const edges = await ensureInfiniteUserFavoritesEdges({
+      queryClient,
+      userSupabaseClient,
+    })
     const assetSummaryIds = userFavoritesPagesToAssetIds(edges)
-    const assetSummariesRepo = makeAssetSummariesRepo(
-      createPublicSupabaseClient(),
-    )
-    await context.queryClient.ensureQueryData(
-      getAssetSummariesBatchOptions({
-        assetSummaryIds,
-        repo: assetSummariesRepo,
-      }),
-    )
+    await ensureAssetSummariesBatch({
+      assetSummaryIds,
+      queryClient,
+      publicSupabaseClient,
+    })
   },
+  errorComponent: ({ error }) => (
+    <>
+      <FavoritesHeading />
+      <p>Error loading favorites.</p>
+      <PrettyException error={error} headingLevel={1} />
+    </>
+  ),
+  pendingComponent: () => (
+    <>
+      <FavoritesHeading />
+      <AssetGridSkeleton />
+    </>
+  ),
 })
 
-export function FavoritesPage() {
+function FavoritesPage() {
   const navigate = useNavigate()
-  const userFavoritesRepo = makeUserFavoritesRepo(createUserSupabaseClient())
-  const favoritesResult = useUserFavoriteAssetIds({ repo: userFavoritesRepo })
-  const assetSummariesRepo = makeAssetSummariesRepo(
-    createPublicSupabaseClient(),
-  )
-  const assetSummariesResult = useAssetSummariesBatch({
-    assetSummaryIds: favoritesResult.data,
-    repo: assetSummariesRepo,
-  })
-
-  if (favoritesResult.isError || assetSummariesResult.isError) {
-    return (
-      <PrettyException
-        error={favoritesResult.error || assetSummariesResult.error}
-        headingLevel={1}
-      />
-    )
-  }
-
-  if (favoritesResult.isPending || assetSummariesResult.isPending) {
-    return <p>Loading favorites...</p>
-  }
+  const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
+  const assetSummariesResult = useAssetSummariesBatch(favoritesResult.data)
 
   if (favoritesResult.data.length === 0) {
     return (
-      <p>
-        No favorites yet. <StarIcon aria-label="star" /> some pics!
-      </p>
+      <>
+        <FavoritesHeading />
+        <p>
+          No favorites yet. <StarIcon aria-label="star" /> some pics!
+        </p>
+      </>
     )
   }
-
   return (
-    <InfiniteLoader
-      isFetchingNextPage={
-        favoritesResult.isFetchingNextPage || assetSummariesResult.isLoading
-      }
-      fetchNextPage={favoritesResult.fetchNextPage}
-      hasNextPage={favoritesResult.hasNextPage}
-      loadedCount={assetSummariesResult.data.length}
-      uiResetKey="favorites"
-      css={{ width: '100%' }}
-    >
-      <HybridGrid css={{ width: '100%' }} items={assetSummariesResult.data}>
-        {(item, itemProps) => (
-          <HybridGridItem
-            item={item}
-            onRowAction={() => {
-              navigate({
-                to: `/assets/$assetId`,
-                params: { assetId: item.externalId },
-              })
-            }}
-            {...itemProps}
-          >
-            <AssetTile asset={item} />
-          </HybridGridItem>
-        )}
-      </HybridGrid>
-    </InfiniteLoader>
+    <>
+      <FavoritesHeading />
+      <InfiniteLoader
+        isFetchingNextPage={
+          favoritesResult.isFetchingNextPage || assetSummariesResult.isLoading
+        }
+        fetchNextPage={() => {
+          startTransition(async () => {
+            await favoritesResult.fetchNextPage()
+          })
+        }}
+        hasNextPage={favoritesResult.hasNextPage}
+        loadedCount={assetSummariesResult.data?.length ?? 0}
+        uiResetKey="favorites"
+        css={{ width: '100%' }}
+      >
+        <HybridGrid
+          css={{ width: '100%' }}
+          items={assetSummariesResult.data ?? []}
+        >
+          {(item, itemProps) => (
+            <HybridGridItem
+              item={item}
+              onRowAction={() => {
+                navigate({
+                  to: `/assets/$assetId`,
+                  params: { assetId: item.externalId },
+                })
+              }}
+              {...itemProps}
+            >
+              <AssetTile asset={item} />
+            </HybridGridItem>
+          )}
+        </HybridGrid>
+      </InfiniteLoader>
+    </>
   )
 }

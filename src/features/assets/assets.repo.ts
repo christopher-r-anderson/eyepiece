@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
+import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 export interface AssetsRepo {
   getAsset: (
@@ -15,4 +17,9 @@ export function makeAssetsRepo(client: EyepieceClient) {
     getAsset: (assetKey: AssetKey) => client.getAsset(assetKey),
     getMetadata: (assetKey: AssetKey) => client.getMetadata(assetKey),
   }
+}
+
+export function useAssetsRepo(): AssetsRepo {
+  const client = useEyepieceClient()
+  return useMemo(() => makeAssetsRepo(client), [client])
 }

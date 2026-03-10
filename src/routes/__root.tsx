@@ -12,12 +12,17 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import type { SupabaseClient } from '@/integrations/supabase/types'
+import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { App } from '@/app/shell'
-import { ErrorBoundary } from '@/app/layout/error'
+import { RouteErrorBoundary } from '@/app/layout/error'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
 interface MyRouterContext {
+  eyepieceClient: EyepieceClient
   queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+  userSupabaseClient: SupabaseClient
   title?: () => string
 }
 
@@ -31,7 +36,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
 
   component: RootComponent,
-  errorComponent: ErrorBoundary,
+  errorComponent: RouteErrorBoundary,
 })
 
 function RootComponent() {

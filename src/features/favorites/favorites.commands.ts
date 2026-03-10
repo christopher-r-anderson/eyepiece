@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { toggleFavorite } from './favorites.functions'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { ToggleFavoriteResult } from './favorites.schema'
@@ -29,4 +30,8 @@ export const makeUserFavoritesCommands = (): UserFavoritesCommands => {
       }
     },
   }
+}
+
+export function useUserFavoritesCommands() {
+  return useMemo(() => makeUserFavoritesCommands(), [])
 }

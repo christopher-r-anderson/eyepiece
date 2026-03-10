@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { VisuallyHidden } from 'react-aria'
 import { UserMenu } from './user-menu'
 import { LoginLink } from './login-link'
-import { useUserQuery } from '@/features/auth/auth.queries'
+import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
@@ -11,7 +11,7 @@ import {
 type status = 'loading' | 'logged-in' | 'logged-out'
 
 export function UserStatus() {
-  const { data: user, isPending } = useUserQuery()
+  const { data: user, isPending } = useCurrentUserQuery()
   const [authStatus, setAuthStatus] = useState<status>('loading')
   useEffect(() => {
     if (isPending) {

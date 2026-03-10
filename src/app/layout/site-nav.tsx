@@ -76,7 +76,7 @@ export function SiteNav({
         }}
       >
         <ThemeToggleButton />
-        <Link to="/collections">Collections</Link>
+        <Link to="/favorites">Favorites</Link>
         <UserStatus />
       </div>
     </nav>

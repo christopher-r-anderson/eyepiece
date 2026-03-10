@@ -1,6 +1,12 @@
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
-import type { AssetSummary, AssetSummaryId } from '@/domain/asset/asset.schema'
+import {
+  makeAssetSummariesRepo,
+  useAssetSummariesRepo,
+} from './asset-summaries.repo'
+import type { QueryClient } from '@tanstack/react-query'
 import type { AssetSummariesRepo } from './asset-summaries.repo'
+import type { AssetSummary, AssetSummaryId } from '@/domain/asset/asset.schema'
+import type { SupabaseClient } from '@/integrations/supabase/types'
 import { unwrapOrThrow } from '@/lib/result'
 
 type AssetSummariesByIdKey = ['assets', 'summaries', 'byId', string]
@@ -60,12 +66,27 @@ export function getAssetSummariesBatchOptions({
   })
 }
 
-export const useAssetSummariesBatch = ({
-  assetSummaryIds = [],
-  repo,
-}: {
-  assetSummaryIds?: Array<AssetSummaryId>
-  repo: Pick<AssetSummariesRepo, 'getAssetSummaries'>
-}) => {
+export function useAssetSummariesBatch(
+  assetSummaryIds: Array<AssetSummaryId> = [],
+) {
+  const repo = useAssetSummariesRepo()
   return useQuery(getAssetSummariesBatchOptions({ assetSummaryIds, repo }))
+}
+
+export function ensureAssetSummariesBatch({
+  assetSummaryIds,
+  queryClient,
+  publicSupabaseClient,
+}: {
+  assetSummaryIds: Array<AssetSummaryId>
+  queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+}) {
+  const repo = makeAssetSummariesRepo(publicSupabaseClient)
+  return queryClient.ensureQueryData(
+    getAssetSummariesBatchOptions({
+      assetSummaryIds,
+      repo,
+    }),
+  )
 }

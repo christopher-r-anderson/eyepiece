@@ -15,6 +15,24 @@ import { resultIsError, resultIsSuccess } from '@/lib/result'
 const ASSET_SUMMARY_ID = '550e8400-e29b-41d4-a716-446655440001'
 const USER_ID = '550e8400-e29b-41d4-a716-446655440099'
 
+function mockReactStart() {
+  vi.doMock('@tanstack/react-start', async (importOriginal) => {
+    const actual: Record<string, unknown> = await importOriginal()
+
+    return {
+      ...actual,
+      createServerOnlyFn: (fn: unknown) => fn,
+      createServerFn: () => ({ handler: (fn: unknown) => fn }),
+      // Required by src/lib/utils.ts during module evaluation.
+      createIsomorphicFn: () => ({
+        server: (serverImpl: unknown) => ({
+          client: () => serverImpl,
+        }),
+      }),
+    }
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Supabase mock builders
 //
@@ -71,10 +89,7 @@ function makeClient({
 async function setupToggleFavoriteForUser() {
   vi.resetModules()
 
-  vi.doMock('@tanstack/react-start', () => ({
-    createServerOnlyFn: (fn: unknown) => fn,
-    createServerFn: () => ({ handler: (fn: unknown) => fn }),
-  }))
+  mockReactStart()
   vi.doMock('@/integrations/supabase/service', () => ({
     createServiceSupabaseClient: vi.fn(),
   }))
@@ -237,10 +252,7 @@ describe('toggleFavoriteForUser', () => {
 async function setupToggleUserFavorite(user: { id: string } | null) {
   vi.resetModules()
 
-  vi.doMock('@tanstack/react-start', () => ({
-    createServerOnlyFn: (fn: unknown) => fn,
-    createServerFn: () => ({ handler: (fn: unknown) => fn }),
-  }))
+  mockReactStart()
   vi.doMock('@/integrations/supabase/service', () => ({
     createServiceSupabaseClient: vi.fn(),
   }))

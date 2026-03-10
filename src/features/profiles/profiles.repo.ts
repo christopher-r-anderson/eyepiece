@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   INVALID_INPUT_ERROR,
   errorFromPostgrestError,
@@ -5,21 +6,20 @@ import {
 } from './profiles.utils'
 import type { ProfileErrorCode } from './profiles.utils'
 import type { SupabaseClient } from '@/integrations/supabase/types'
-import type { ProfileDisplay } from '@/lib/schemas/profile.schema'
-import type { Result } from '../../lib/result'
+import type { Profile } from '@/domain/profile/profile.schema'
+import type { Result } from '@/lib/result'
 import { Err, Ok } from '@/lib/result'
+import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 
 export interface ProfilesRepo {
-  getProfile: (
-    id: string,
-  ) => Promise<Result<ProfileDisplay | null, ProfileErrorCode>>
+  getProfile: (id: string) => Promise<Result<Profile | null, ProfileErrorCode>>
 }
 
 export function makeProfilesRepo(client: SupabaseClient): ProfilesRepo {
   return {
     getProfile: async (
       id: string,
-    ): Promise<Result<ProfileDisplay | null, ProfileErrorCode>> => {
+    ): Promise<Result<Profile | null, ProfileErrorCode>> => {
       if (typeof id !== 'string' || id.length === 0) {
         return Err({ message: 'Invalid profile ID', code: INVALID_INPUT_ERROR })
       }
@@ -34,4 +34,9 @@ export function makeProfilesRepo(client: SupabaseClient): ProfilesRepo {
       return Ok(data ? profileRowToProfileDisplay(data) : null)
     },
   }
+}
+
+export function useProfilesRepo(): ProfilesRepo {
+  const client = usePublicSupabaseClient()
+  return useMemo(() => makeProfilesRepo(client), [client])
 }

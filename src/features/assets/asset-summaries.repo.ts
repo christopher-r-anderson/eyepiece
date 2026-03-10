@@ -8,6 +8,7 @@ import {
 } from '@/domain/asset/asset.schema'
 import * as result from '@/lib/result'
 import { providerSchema } from '@/domain/provider/provider.schema'
+import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 
 const dbAssetSummarySchema = z.object({
   id: assetSummaryIdSchema,
@@ -51,10 +52,10 @@ export type AssetSummariesRepo = {
   ) => Promise<Result<Array<AssetSummary>>>
 }
 
-export function makeAssetSummariesRepo(supabaseClient: SupabaseClient) {
+export function makeAssetSummariesRepo(publicSupabaseClient: SupabaseClient) {
   return {
     getAssetSummaries: async (assetSummaryIds: Array<AssetSummaryId>) => {
-      const { data, error: pgError } = await supabaseClient
+      const { data, error: pgError } = await publicSupabaseClient
         .from('asset_summaries')
         .select(
           'id, provider, external_id, title, thumb_href, thumb_width, thumb_height',
@@ -77,4 +78,9 @@ export function makeAssetSummariesRepo(supabaseClient: SupabaseClient) {
       return result.Ok(dbAssetSummaries.map(mapAssetSummary))
     },
   }
+}
+
+export function useAssetSummariesRepo() {
+  const publicSupabaseClient = usePublicSupabaseClient()
+  return makeAssetSummariesRepo(publicSupabaseClient)
 }

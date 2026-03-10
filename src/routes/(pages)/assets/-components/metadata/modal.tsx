@@ -1,18 +1,16 @@
-import type { ComponentPropsWithoutRef } from 'react'
+import { Suspense } from 'react'
+import { CatchBoundary } from '@tanstack/react-router'
 import type { AssetKey } from '@/domain/asset/asset.schema'
-import type { AssetsRepo } from '@/features/assets/assets.repo'
-import { Button } from '@/components/ui/button'
 import { MetadataTable } from '@/features/assets/components/metadata'
-import { useMetadata } from '@/features/assets/assets.queries'
+import { useSuspenseMetadata } from '@/features/assets/assets.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 export function MetadataModal({
-  assetsRepo,
   assetKey,
   isOpen,
   onOpenChange,
 }: {
-  assetsRepo: Pick<AssetsRepo, 'getMetadata'>
   assetKey: AssetKey
   isOpen: boolean
   onOpenChange: (open: boolean) => void
@@ -24,54 +22,27 @@ export function MetadataModal({
       title="Metadata"
       isDismissable
     >
-      <MetadataModalContent
-        assetsRepo={assetsRepo}
-        assetKey={assetKey}
-        isOpen={isOpen}
-        css={{ minHeight: 0, overflowY: 'auto', padding: '2rem' }}
-      />
+      <CatchBoundary
+        getResetKey={() => toAssetKeyString(assetKey)}
+        errorComponent={() => <p role="alert">Couldn't load metadata.</p>}
+      >
+        <Suspense fallback={<p role="status">Loading metadata…</p>}>
+          <MetadataModalContent assetKey={assetKey} />
+        </Suspense>
+      </CatchBoundary>
     </ModalDialog>
   )
 }
 
-function MetadataModalContent({
-  assetsRepo,
-  assetKey,
-  isOpen,
-  ...props
-}: ComponentPropsWithoutRef<'div'> & {
-  assetsRepo: Pick<AssetsRepo, 'getMetadata'>
-  assetKey: AssetKey
-  isOpen: boolean
-}) {
-  const { data, isLoading, isError, refetch } = useMetadata({
-    repo: assetsRepo,
-    assetKey,
-    enabled: isOpen,
-  })
+function MetadataModalContent({ assetKey }: { assetKey: AssetKey }) {
+  const { data } = useSuspenseMetadata(assetKey)
 
-  if (isLoading)
-    return (
-      <div {...props}>
-        <p role="status">Loading metadata…</p>
-      </div>
-    )
-
-  if (isError) {
-    return (
-      <div {...props}>
-        <p role="alert">Couldn't load metadata.</p>
-        <Button onPress={() => refetch()}>Retry</Button>
-      </div>
-    )
-  }
-
-  if (!data || Object.keys(data).length === 0) {
+  if (Object.keys(data).length === 0) {
     return <p>No metadata was found.</p>
   }
 
   return (
-    <div {...props}>
+    <div>
       <MetadataTable data={data} />
     </div>
   )

@@ -1,33 +1,36 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
-import type { ProfilesCommands } from '../profiles.commands'
+import { useProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
 import { Heading } from '@/components/ui/heading'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
-import { profileInputSchema } from '@/lib/schemas/profile.schema'
+import { profileSchema } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 
+type ActionType = 'create' | 'update'
+
 export function UpsertProfileForm({
+  actionType,
   headingLevel,
   initialData,
   isDisabled,
   onSuccess,
-  profileCommands,
 }: {
+  actionType: ActionType
   headingLevel: HeadingLevel
   initialData?: FormDataObject
   isDisabled?: boolean
   onSuccess: () => void
-  profileCommands: Pick<ProfilesCommands, 'upsertProfile'>
 }) {
   const headingId = useId()
+  const profilesCommands = useProfilesCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    profileInputSchema,
-    profileCommands.upsertProfile,
+    profileSchema,
+    profilesCommands.upsertProfile,
     initialData,
   )
 
@@ -37,6 +40,8 @@ export function UpsertProfileForm({
       onSuccessRef.current?.()
     }
   }, [state.status])
+
+  const isUpdating = actionType === 'update' && !!state.formData?.displayName
 
   return (
     <Form
@@ -59,13 +64,13 @@ export function UpsertProfileForm({
             type="submit"
             isDisabled={isDisabled || isPending}
           >
-            Update Profile
+            {isUpdating ? 'Update' : 'Create'}
           </Button>
         </div>
       }
     >
       <Heading id={headingId} headingLevel={headingLevel}>
-        Create Profile
+        {isUpdating ? 'Update Profile' : 'Create Profile'}
       </Heading>
       <InputGroup>
         <input type="hidden" name="id" defaultValue={state.formData?.id} />

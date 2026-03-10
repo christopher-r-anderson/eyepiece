@@ -40,7 +40,7 @@ export function ModalDialog({
         justifyContent: 'center',
       }}
     >
-      <RacModal css={{ maxHeight: '100%', padding: '2rem' }}>
+      <RacModal css={{ maxHeight: '100vh', padding: '2rem' }}>
         <Dialog
           aria-labelledby={titleId}
           css={{
@@ -48,7 +48,8 @@ export function ModalDialog({
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
-            padding: '1em 2em 2em 2em',
+            maxHeight: '90vh',
+            maxWidth: '90vw',
           }}
         >
           <div
@@ -57,6 +58,7 @@ export function ModalDialog({
               justifyContent: 'space-between',
               gap: 12,
               alignItems: 'center',
+              padding: '0 1rem',
             }}
           >
             <Heading id={titleId} slot="title">
@@ -78,7 +80,9 @@ export function ModalDialog({
               <XIcon />
             </Button>
           </div>
-          {children}
+          <div css={{ minHeight: 0, overflowY: 'auto', padding: '1rem' }}>
+            {children}
+          </div>
         </Dialog>
       </RacModal>
     </ModalOverlay>

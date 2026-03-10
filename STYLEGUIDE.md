@@ -48,8 +48,10 @@ Use plural suffixes for collections of exports and singular for architectural la
 
 - _Types:_ Colocate derived types (e.g., `type User = z.infer<typeof userSchema>`) in the same file as the schema. Move shared or complex types to `.types.ts`.
 - _Schemas/Hooks:_ Keep in-file if used locally. Move to separate files if they create circular dependencies or are used in >2 locations.
-- _React Logic:_ Do not mix React hooks into files that are otherwise "pure" TypeScript (e.g., utils or repos).
-- _Data Fetching:_ Queries must export a corresponding hook wrapper as well as a `queryOptions` factory for use with `ensureQueryData`
+- _Repos/Commands and Hooks:_ Split logic into `makeXRepo` / `makeXCommands`. Add `useXRepo` / `useXCommands` when used by other hooks/components.
+- _Queries:_ Query modules should expose options factories (`getXOptions`, `getInfiniteXOptions`) plus hook wrappers. Runtime helpers (`ensureX`, `fetchX`, `prefetchX`) should be added only when they are used by loaders.
+- _Route Loaders:_ Prefer `await` in route loaders for query preloading so route-level pending/error handling works by default. Avoid returning loader data that duplicates query cache.
+- _SUspense and Error Boundaries:_ Use route-level pending/error handling for page-critical data. If a page has multiple high-level sections, use a boundary at the section level to limit breakage to the failing section.
 
 ## 5. Environment & RPC Suffixes
 

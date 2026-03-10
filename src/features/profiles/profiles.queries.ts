@@ -1,5 +1,9 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { makeProfilesRepo, useProfilesRepo } from './profiles.repo'
+import type { QueryClient } from '@tanstack/react-query'
 import type { ProfilesRepo } from './profiles.repo'
+import type { SupabaseClient } from '@/integrations/supabase/types'
+import type { Profile } from '@/domain/profile/profile.schema'
 import { unwrapOrThrow } from '@/lib/result'
 
 type ProfileKey = ['profile', string]
@@ -23,4 +27,38 @@ export function getProfileOptions({
     },
     staleTime: 60 * 60 * 1000,
   })
+}
+
+export function useSuspenseProfile(profileId: Profile['id']) {
+  const repo = useProfilesRepo()
+  const { data: profile } = useSuspenseQuery(
+    getProfileOptions({ repo, id: profileId }),
+  )
+  return profile
+}
+
+export async function ensureProfile({
+  id,
+  queryClient,
+  publicSupabaseClient,
+}: {
+  id: Profile['id']
+  queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+}): Promise<Profile | null> {
+  const repo = makeProfilesRepo(publicSupabaseClient)
+  return queryClient.ensureQueryData(getProfileOptions({ repo, id }))
+}
+
+export function fetchProfile({
+  id,
+  queryClient,
+  publicSupabaseClient,
+}: {
+  id: Profile['id']
+  queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+}) {
+  const repo = makeProfilesRepo(publicSupabaseClient)
+  return queryClient.fetchQuery(getProfileOptions({ repo, id }))
 }

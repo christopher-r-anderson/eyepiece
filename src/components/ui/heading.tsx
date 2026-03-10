@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react'
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
-type HeadingProps = {
+export type HeadingProps = {
   headingLevel: HeadingLevel
 } & ComponentPropsWithoutRef<HeadingTag>
 

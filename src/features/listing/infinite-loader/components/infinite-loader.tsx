@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { startTransition, useEffect } from 'react'
 import { LoadMoreButton } from './load-more-button'
 import type { ComponentPropsWithoutRef } from 'react'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
@@ -15,7 +15,7 @@ export function InfiniteLoader({
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
   isFetchingNextPage: boolean
-  fetchNextPage: () => Promise<unknown>
+  fetchNextPage: () => unknown | Promise<unknown>
   hasNextPage: boolean
   loadedCount?: number
   uiResetKey: string
@@ -29,7 +29,7 @@ export function InfiniteLoader({
   const { sentinelRef, showLoadMore, resetAuto } = useLoadMoreController({
     hasNextPage: hasNextPage,
     isFetchingNextPage: isFetchingNextPage,
-    fetchNextPage: fetchNextPage,
+    fetchNextPage,
     autoLoadsBeforeManual: 2,
   })
 
@@ -55,7 +55,9 @@ export function InfiniteLoader({
             disabled={isFetchingNextPage}
             onClick={async () => {
               await fetchNextPage()
-              resetAuto()
+              startTransition(() => {
+                resetAuto()
+              })
             }}
           >
             {isFetchingNextPage ? 'Loading…' : 'Load more'}

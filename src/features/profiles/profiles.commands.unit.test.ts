@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { makeProfilesCommands } from './profiles.commands'
 import { INVALID_INPUT_ERROR, UNKNOWN_ERROR } from './profiles.utils'
-import type { ProfileInput } from '@/lib/schemas/profile.schema'
+import type { Profile } from '@/domain/profile/profile.schema'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@ function makeClientStub(response: DbResponse) {
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440001'
 
-const VALID_INPUT: ProfileInput = {
+const VALID_INPUT: Profile = {
   id: VALID_UUID,
   displayName: 'Ada Lovelace',
 }

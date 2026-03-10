@@ -1,9 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 export function useLoadMoreController(options: {
   hasNextPage: boolean
   isFetchingNextPage: boolean
-  fetchNextPage: () => Promise<unknown>
+  fetchNextPage: () => unknown | Promise<unknown>
   autoLoadsBeforeManual?: number
   rootMargin?: string // prefetch distance
 }) {
@@ -36,9 +42,10 @@ export function useLoadMoreController(options: {
     const io = new IntersectionObserver(
       async (entries) => {
         if (!entries[0]?.isIntersecting) return
-
         await fetchNextPage()
-        setAutoRemaining((n) => n - 1)
+        startTransition(() => {
+          setAutoRemaining((n) => n - 1)
+        })
       },
       { root: null, rootMargin },
     )
