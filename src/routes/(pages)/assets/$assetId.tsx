@@ -1,5 +1,6 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
@@ -61,6 +62,7 @@ function AssetPage() {
           </Link>
         )}
         <AssetHeading name={data.title} />
+        <FavoriteButton assetKey={assetKey} />
         <MetadataButton assetKey={assetKey} />
       </div>
       <div

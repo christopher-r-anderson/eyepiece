@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { FavoriteButton } from '../../-components/favorite-button'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import { paramsToUiResetKey } from '@/features/listing/infinite-loader/components/infinite-loader.utils'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
@@ -40,7 +41,10 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
             }}
             {...itemProps}
           >
-            <AssetTile asset={item} />
+            <AssetTile
+              asset={item}
+              actions={<FavoriteButton assetKey={item} />}
+            />
           </HybridGridItem>
         )}
       </HybridGrid>
