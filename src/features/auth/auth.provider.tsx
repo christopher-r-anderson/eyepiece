@@ -3,9 +3,9 @@ import { createContext, useContext, useEffect, useMemo } from 'react'
 import { useRouteContext, useRouter } from '@tanstack/react-router'
 import { onUserChange } from './auth.events'
 import { makeAuthCommands } from './auth.commands'
+import { authKeys } from './auth.queries'
 import type { AuthCommands } from './auth.commands'
 import type { ReactNode } from 'react'
-import type { UserCacheKey } from './auth.types'
 import { meKey } from '@/lib/query-keys'
 
 function useAuthSubscription() {
@@ -17,7 +17,7 @@ function useAuthSubscription() {
   })
   useEffect(() => {
     return onUserChange(supabaseClient, (user) => {
-      queryClient.setQueryData(['auth', 'user'] as UserCacheKey, user)
+      queryClient.setQueryData(authKeys.user(), user)
       queryClient.removeQueries({
         queryKey: meKey,
       })

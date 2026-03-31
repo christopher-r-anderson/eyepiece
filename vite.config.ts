@@ -15,7 +15,14 @@ const config = defineConfig(({ mode }) => ({
     }),
     // to avoid `TypeError: Cannot read properties of null (reading 'useState')` during tests
     // see: https://github.com/TanStack/router/issues/6246
-    !process.env.VITEST && tanstackStart(),
+    !process.env.VITEST &&
+      tanstackStart({
+        importProtection: {
+          client: {
+            files: ['**/server/**'],
+          },
+        },
+      }),
     viteReact(),
     netlify(),
     {

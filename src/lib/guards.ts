@@ -4,7 +4,7 @@ import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { QueryClient } from '@tanstack/react-query'
 import { getUser } from '@/features/auth/get-user'
 import { urlToNextParam } from '@/lib/utils'
-import { hasServerClaims } from '@/server/lib/has-server-claims'
+import { hasServerClaims } from '@/lib/has-server-claims.functions'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
 

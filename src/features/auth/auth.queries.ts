@@ -1,11 +1,16 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { getUser } from './get-user'
 import type { QueryClient } from '@tanstack/react-query'
-import type { User, UserCacheKey } from './auth.types'
+import type { User } from './auth.types'
+
+export const authKeys = {
+  all: ['auth'] as const,
+  user: () => [...authKeys.all, 'user'] as const,
+}
 
 export function getCurrentUserQueryOptions() {
   return queryOptions({
-    queryKey: ['auth', 'user'] as UserCacheKey,
+    queryKey: authKeys.user(),
     queryFn: async (): Promise<User | null> => getUser(),
     staleTime: Infinity,
   })
