@@ -3,16 +3,18 @@ import { useMemo } from 'react'
 import type { FavoriteEdge } from './favorites.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
+import type {
+  PaginatedCollection,
+  Pagination,
+} from '@/domain/pagination/pagination.schema'
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
-import { providerSchema } from '@/domain/provider/provider.schema'
+import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
-export const DEFAULT_PAGE_SIZE = 24
-
 const dbUserFavoriteIndexSchema = z.object({
-  asset_summaries: z.object({
-    provider: providerSchema,
+  asset_preview_snapshots: z.object({
+    provider_id: providerIdSchema,
     external_id: externalAssetIdSchema,
   }),
 })
@@ -22,26 +24,26 @@ type DbUserFavoriteIndex = z.infer<typeof dbUserFavoriteIndexSchema>
 const dbUserFavoritesIndexSchema = z.array(dbUserFavoriteIndexSchema)
 
 const userFavoriteIndexSchema = z.object({
-  provider: providerSchema,
+  providerId: providerIdSchema,
   externalId: externalAssetIdSchema,
 })
 
-export type UserFavoriteIndex = z.infer<typeof userFavoriteIndexSchema>
+type UserFavoriteIndex = z.infer<typeof userFavoriteIndexSchema>
 
 function mapUserFavoritesIndex({
-  asset_summaries: { provider, external_id },
+  asset_preview_snapshots: { provider_id, external_id },
 }: DbUserFavoriteIndex): UserFavoriteIndex {
   return {
-    provider,
+    providerId: provider_id,
     externalId: external_id,
   }
 }
 
 const dbUserFavoritesEdgeSchema = z.object({
   created_at: z.iso.datetime({ offset: true }),
-  asset_summaries: z.object({
+  asset_preview_snapshots: z.object({
     id: z.uuid(),
-    provider: providerSchema,
+    provider_id: providerIdSchema,
     external_id: externalAssetIdSchema,
   }),
 })
@@ -55,45 +57,35 @@ function mapUserFavoritesEdges(
 ): FavoriteEdge {
   return {
     createdAt: favoriteEdge.created_at,
-    assetSummaryId: favoriteEdge.asset_summaries.id,
+    assetSummaryId: favoriteEdge.asset_preview_snapshots.id,
     assetKey: {
-      provider: favoriteEdge.asset_summaries.provider,
-      externalId: favoriteEdge.asset_summaries.external_id,
+      providerId: favoriteEdge.asset_preview_snapshots.provider_id,
+      externalId: favoriteEdge.asset_preview_snapshots.external_id,
     },
   }
 }
 
-export type UserFavoritesEdgesPage = {
-  edges: Array<FavoriteEdge>
-  pagination: {
-    next: number | null
-  }
-}
-
 export type UserFavoritesRepo = {
-  getUserFavoritesEdges: (params?: {
-    page?: number
-    pageSize?: number
-  }) => Promise<Result<UserFavoritesEdgesPage>>
+  getUserFavoritesEdges: (
+    pagination: Pagination,
+  ) => Promise<Result<PaginatedCollection<FavoriteEdge>>>
   getUserFavoritesIndex: () => Promise<Result<Array<UserFavoriteIndex>>>
 }
 
 export function makeUserFavoritesRepo(client: SupabaseClient) {
-  async function getUserFavoritesEdges({
-    page = 1,
-    pageSize = DEFAULT_PAGE_SIZE,
-  }: { page?: number; pageSize?: number } = {}): Promise<
-    Result<UserFavoritesEdgesPage>
-  > {
+  async function getUserFavoritesEdges({ page, pageSize }: Pagination) {
     const {
       data,
       error: pgError,
       count,
     } = await client
       .from('favorites')
-      .select('created_at, asset_summaries (id, provider, external_id)', {
-        count: 'exact',
-      })
+      .select(
+        'created_at, asset_preview_snapshots (id, provider_id, external_id)',
+        {
+          count: 'exact',
+        },
+      )
       .order('created_at', { ascending: false })
       .range((page - 1) * pageSize, page * pageSize - 1)
     if (pgError) {
@@ -112,8 +104,8 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
     }
     const hasNext = count != null && page * pageSize < count
     return Ok({
-      edges: userFavoritesEdges.map(mapUserFavoritesEdges),
-      pagination: { next: hasNext ? page + 1 : null },
+      items: userFavoritesEdges.map(mapUserFavoritesEdges),
+      pagination: { next: hasNext ? page + 1 : null, total: count ?? 0 },
     })
   }
 
@@ -121,7 +113,7 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
   async function getUserFavoritesIndex() {
     const { data, error: pgError } = await client
       .from('favorites')
-      .select('asset_summaries (provider, external_id)')
+      .select('asset_preview_snapshots (provider_id, external_id)')
       .order('created_at', { ascending: false })
     if (pgError) {
       return Err({
