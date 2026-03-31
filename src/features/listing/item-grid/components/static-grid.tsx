@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import type { ListState } from '@react-stately/list'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
-import type { GridItem } from '@/features/listing/item-grid/hooks/use-grid-list-state'
 import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
 const gridCss = {
@@ -9,9 +8,10 @@ const gridCss = {
   justifyContent: 'center',
 }
 
-export function StaticGrid<T extends GridItem>({
+export function StaticGrid<T extends object>({
   ref,
   items,
+  getItemKey,
   state,
   children,
   gap,
@@ -19,6 +19,7 @@ export function StaticGrid<T extends GridItem>({
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   items: Array<T>
+  getItemKey: (item: T) => string
   state: ListState<T>
   children: (item: T, itemProps: HybridGridItemProvidedProps<T>) => ReactNode
   minTileWidth: number
@@ -35,9 +36,13 @@ export function StaticGrid<T extends GridItem>({
       }}
       {...props}
     >
-      {items.map((item, i) => (
-        <Fragment key={(item as any).id ?? i}>
-          {children(item, { isVirtualized: false, state })}
+      {items.map((item) => (
+        <Fragment key={getItemKey(item)}>
+          {children(item, {
+            isVirtualized: false,
+            state,
+            itemKey: getItemKey(item),
+          })}
         </Fragment>
       ))}
     </div>

@@ -1,7 +1,6 @@
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Fragment } from 'react'
 import type { ListState } from '@react-stately/list'
-import type { GridItem } from '@/features/listing/item-grid/hooks/use-grid-list-state'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
 import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
@@ -14,9 +13,10 @@ const rowCss = {
   left: 0,
 }
 
-export function VirtualGrid<T extends GridItem>({
+export function VirtualGrid<T extends object>({
   ref,
   items,
+  getItemKey,
   state,
   itemsPerRow,
   minTileWidth,
@@ -28,6 +28,7 @@ export function VirtualGrid<T extends GridItem>({
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   ref: RefObject<HTMLDivElement | null>
   items: Array<T>
+  getItemKey: (item: T) => string
   state: ListState<T>
   itemsPerRow: number
   minTileWidth: number
@@ -73,9 +74,13 @@ export function VirtualGrid<T extends GridItem>({
               transform: `translateY(${vr.start - scrollMargin}px)`,
             }}
           >
-            {rowSlice.map((item, idx) => (
-              <Fragment key={(item as any).id ?? start + idx}>
-                {children(item, { isVirtualized: true, state })}
+            {rowSlice.map((item) => (
+              <Fragment key={getItemKey(item)}>
+                {children(item, {
+                  isVirtualized: true,
+                  state,
+                  itemKey: getItemKey(item),
+                })}
               </Fragment>
             ))}
           </div>
