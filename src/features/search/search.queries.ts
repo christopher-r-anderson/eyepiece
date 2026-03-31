@@ -5,35 +5,42 @@ import {
 import { makeSearchRepo, useSearchRepo } from './search.repo'
 import type { SearchRepo } from './search.repo'
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
-import type { EyepiecePageSearchParams } from '@/lib/eyepiece-api-client/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
+import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
+import type { Asset } from '@/domain/asset/asset.schema'
+import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
+import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
-type SearchCacheKey = ['search', EyepiecePageSearchParams]
-
-function searchCacheKey(params: EyepiecePageSearchParams): SearchCacheKey {
-  return ['search', params] as const
+const searchKeys = {
+  all: ['search'] as const,
+  query: (query: SearchQuery, filters: SearchFilters) =>
+    [...searchKeys.all, 'byQuery', query, filters] as const,
 }
 
-type SearchImagesFn = EyepieceClient['searchImages']
-type SearchImagesPage = Awaited<ReturnType<SearchImagesFn>>
-type SearchImagesInfinite = InfiniteData<SearchImagesPage, number>
+type SearchImagesPage = Promise<PaginatedCollection<Asset>>
+type SearchImagesInfinite = InfiniteData<Awaited<SearchImagesPage>, number>
 
 export function getInfiniteSearchImagesOptions<
   TSelectData = SearchImagesInfinite,
 >({
   repo,
-  params,
+  query,
+  filters,
   select,
 }: {
   repo: SearchRepo
-  params: EyepiecePageSearchParams
+  query: SearchQuery
+  filters: SearchFilters
   select?: (data: SearchImagesInfinite) => TSelectData
 }) {
   return infiniteQueryOptions({
-    queryKey: searchCacheKey(params),
-    queryFn: ({ queryKey, pageParam = 1 }) => {
-      return repo.searchImages({ ...queryKey[1], page: pageParam })
+    queryKey: searchKeys.query(query, filters),
+    queryFn: ({ pageParam = 1 }) => {
+      return repo.searchImages(query, filters, {
+        page: pageParam,
+        pageSize: DEFAULT_PAGE_SIZE,
+      })
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
@@ -42,28 +49,38 @@ export function getInfiniteSearchImagesOptions<
   })
 }
 
-export function useSuspenseInfiniteSearch(params: EyepiecePageSearchParams) {
+export function useSuspenseInfiniteSearch(
+  query: SearchQuery,
+  filters: SearchFilters,
+) {
   const repo = useSearchRepo()
   return useSuspenseInfiniteQuery(
     getInfiniteSearchImagesOptions({
       repo,
-      params,
+      query,
+      filters,
       select: flattenAssetsSelector,
     }),
   )
 }
 
 export function prefetchInfiniteSearch({
+  query,
+  filters,
   eyepieceClient,
   queryClient,
-  searchParams,
 }: {
+  query: SearchQuery
+  filters: SearchFilters
   eyepieceClient: EyepieceClient
   queryClient: QueryClient
-  searchParams: EyepiecePageSearchParams
 }) {
   const searchRepo = makeSearchRepo(eyepieceClient)
   return queryClient.prefetchInfiniteQuery(
-    getInfiniteSearchImagesOptions({ repo: searchRepo, params: searchParams }),
+    getInfiniteSearchImagesOptions({
+      repo: searchRepo,
+      query,
+      filters,
+    }),
   )
 }

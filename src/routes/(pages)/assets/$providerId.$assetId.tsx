@@ -2,22 +2,35 @@ import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
+import { AssetDetail } from './-components/asset-detail'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
-import { assetKeySchema } from '@/domain/asset/asset.schema'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
+import {
+  assetKeySchema,
+  externalAssetIdSchema,
+} from '@/domain/asset/asset.schema'
 import { PrettyException } from '@/components/ui/error'
+import { providerIdSchema } from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return <h1>{name}</h1>
 }
 
-export const Route = createFileRoute('/(pages)/assets/$assetId')({
+export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
   component: AssetPage,
+  params: {
+    parse: (raw) => {
+      const { providerId, assetId } = raw
+      return {
+        providerId: providerIdSchema.parse(providerId),
+        assetId: externalAssetIdSchema.parse(assetId),
+      }
+    },
+  },
   beforeLoad: ({ params }) => {
     const assetKey = assetKeySchema.parse({
-      provider: NASA_IVL_PROVIDER,
+      providerId: params.providerId,
       externalId: params.assetId,
     })
     return { assetKey }
@@ -52,7 +65,6 @@ function AssetPage() {
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
-
   return (
     <>
       <div css={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
@@ -65,56 +77,7 @@ function AssetPage() {
         <FavoriteButton assetKey={assetKey} />
         <MetadataButton assetKey={assetKey} />
       </div>
-      <div
-        css={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem',
-          marginInline: '2rem',
-          maxWidth: '1200px',
-          '@media (min-width: 1024px)': {
-            flexDirection: 'row',
-          },
-        }}
-      >
-        {/*
-          title as alt: it isn't ideal since it is in the h1 and not primarily describe-what-is-in-the-image
-          but there isn't specific data for that, it *often does* describe what you can see in the image
-          and the image is the focus of the page, not decorative so an empty alt doesn't seem appropriate either.
-          Description is potentially paragraphs of content going beyond what is in the image.
-          Revisit if there is feedback.
-        */}
-        <img
-          css={{
-            maxWidth: '100%',
-            maxHeight: '65vh',
-            width: 'auto',
-            height: 'auto',
-            objectFit: 'scale-down',
-            minHeight: '300px',
-            position: 'sticky',
-            top: '2rem',
-            alignSelf: 'flex-start',
-            viewTransitionName: `asset-${data.id}`,
-          }}
-          src={data.image.href}
-          alt={data.title}
-          width={data.image.width}
-          height={data.image.height}
-        />
-        <figcaption>
-          <div
-            css={{
-              maxWidth: 'calc(clamp(45ch, 90%, 75ch) + 1rem)',
-              margin: 'auto',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-line',
-            }}
-          >
-            {data.description}
-          </div>
-        </figcaption>
-      </div>
+      <AssetDetail asset={data} />
     </>
   )
 }

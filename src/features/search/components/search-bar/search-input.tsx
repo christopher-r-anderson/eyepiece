@@ -36,9 +36,10 @@ export function SearchInput(props: SearchFieldProps) {
       <Button
         css={{
           background: 'transparent',
-          color: 'var(--primary-text)',
+          color: props.value
+            ? 'var(--primary-text)'
+            : 'var(--primary-text-muted)',
           fontSize: '1em',
-          visibility: props.value ? 'visible' : 'hidden',
         }}
       >
         <XIcon />

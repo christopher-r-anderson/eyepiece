@@ -1,15 +1,11 @@
 import { useMemo } from 'react'
-import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { Asset, AssetKey, Metadata } from '@/domain/asset/asset.schema'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
 export interface AssetsRepo {
-  getAsset: (
-    assetKey: AssetKey,
-  ) => Promise<Awaited<ReturnType<EyepieceClient['getAsset']>>>
-  getMetadata: (
-    assetKey: AssetKey,
-  ) => Promise<Awaited<ReturnType<EyepieceClient['getMetadata']>>>
+  getAsset: (assetKey: AssetKey) => Promise<Asset>
+  getMetadata: (assetKey: AssetKey) => Promise<Metadata>
 }
 
 export function makeAssetsRepo(client: EyepieceClient) {

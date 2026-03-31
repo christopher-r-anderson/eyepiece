@@ -19,8 +19,8 @@ export function AlbumLinkList({ albums }: { albums: Array<AlbumKey> }) {
       {albums.map((album) => (
         <li key={toAlbumKeyString(album)}>
           <Link
-            to="/albums/$albumId"
-            params={{ albumId: album.externalId }}
+            to="/albums/$providerId/$albumId"
+            params={{ providerId: album.providerId, albumId: album.externalId }}
             css={albumLinkCss}
           >
             {album.externalId}

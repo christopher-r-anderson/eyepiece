@@ -1,6 +1,5 @@
 import { CircleIcon } from '@phosphor-icons/react/dist/ssr'
 import type { SliderProps } from '@/components/ui/slider'
-import { Label } from '@/components/ui/forms'
 import {
   Slider,
   SliderOutput,
@@ -24,6 +23,7 @@ const Thumb = ({
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
+      cursor: 'pointer',
     }}
   >
     <CircleIcon weight="fill" />
@@ -42,14 +42,11 @@ export function YearRangeSlider(props: SliderProps) {
       css={{
         padding: '0.5rem 1.5rem 1.75rem 1rem',
         backgroundColor: 'var(--primary-bg)',
-        margin: '0 1rem 0 1rem',
         color: 'var(--primary-text)',
       }}
     >
-      <Label css={{ position: 'absolute' }}>Year Range</Label>
       <SliderTrack
         css={{
-          marginLeft: '8rem',
           marginTop: '0.5rem',
         }}
       >

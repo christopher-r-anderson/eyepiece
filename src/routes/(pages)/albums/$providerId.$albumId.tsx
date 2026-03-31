@@ -3,16 +3,15 @@ import { AlbumAssets } from './-components/album-assets'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { PrettyException } from '@/components/ui/error'
 import { albumKeySchema } from '@/domain/album/album.schema'
-import { NASA_IVL_PROVIDER } from '@/domain/provider/provider.schema'
 import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 
-export const Route = createFileRoute('/(pages)/albums/$albumId')({
+export const Route = createFileRoute('/(pages)/albums/$providerId/$albumId')({
   component: AlbumPage,
   beforeLoad: ({ params }) => {
     const albumKey = albumKeySchema.parse({
-      provider: NASA_IVL_PROVIDER,
+      providerId: params.providerId,
       externalId: params.albumId,
     })
     return { albumKey }
