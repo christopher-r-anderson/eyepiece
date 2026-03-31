@@ -12,13 +12,14 @@ This is the guide for setting up local development for eyepiece.net. If you want
 pnpm install
 pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 
-# You can do one of the following to set up your environment variables
-# on a system with bash (Linux, WSL _untested_, etc.)
-pnpm create-env-local # for development
-pnpm create-env-test # for integration tests
-# OR
-cp .env.example .env.local # snd update your `.env.local` file with the values from `pnpm supabase start` above
-cp .env.test.example .env.test # snd update your `.env.test` file with the values from `pnpm supabase start` above
+# Set up your local env files by copying the examples and then updating them with your values.
+cp .env.example .env.local
+cp .env.test.example .env.test
+
+# You can get your local supabase related values to use by running
+pnpm print-supabase-env
+
+# `SI_OA_API_KEY` is your Smithsonian Institute Open Access API Key from https://api.data.gov/signup/
 
 # To be able to run e2e tests, use one of the following:
 # Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions
@@ -61,6 +62,18 @@ You need to set up the following prerequisites if you are going to use this code
 If you are just developing for eyepiece.net, this is already set up.
 
 GitHub repo hosting and Netlify web hosting are required for these instructions. You will have to adjust CI/CD strategies if using other environments.
+
+#### Asset Provider API Keys
+
+##### NASA Image and Video Library
+
+While NASA's other APIs require an API key, the API for their image and video library does not support them and so nothing is required for this.
+
+##### Smithsonian Institute Open Access
+
+As linked to from the API documentation at <https://edan.si.edu/openaccess/apidocs/> you are required to obtain an API key from <https://api.data.gov/signup/>
+
+Once you have this key, it will need to be added to your local env files as discussed in local setup. It will also be required in the following Github and Netlify configuration steps.
 
 #### GitHub - Part One
 
@@ -120,8 +133,9 @@ On this panel, you have options between
 1. `Secrets` and `Variables` - described below
 1. `Environment` vs `Repository` - `Repository` is fine for both variables and what is used below. You can use an environment if you set one up, but that is outside of the scope of this document.
 
-Add the following three items as three different secrets via `Secrets -> Repository secrets -> New repository secret` _These are sensitive data and must be created as secrets._:
+Add the following four items as four different secrets via `Secrets -> Repository secrets -> New repository secret` _These are sensitive data and must be created as secrets._:
 
+- _Name_: `SI_OA_API_KEY`; _Value_: The Smithsonian Institution Open Access API / api.data.gov API key you previously requested.
 - _Name_: `NETLIFY_AUTH_TOKEN`; _Value_: The Personal Access Token that you created in Netlify.
 - _Name_: `SUPABASE_ACCESS_TOKEN`; _Value_: The Personal Access Token that you created in Supabase.
 - _Name_: `SUPABASE_DB_PASSWORD`; _Value_: The database password you created during the Supabase project setup. If you do not have this, you can reset it in the Supabase admin panel at `Project -> Database -> Settings -> Database password -> Reset database password`, however **this will cause anything else you have set up to use this password to fail**. If you are just following this guide and haven't set up any other external tools to interact with your Supabase database, this will not have been used yet.
@@ -137,11 +151,12 @@ Add the following two items, each as their own new variables via `Variables -> R
 
 Environment variables need to be added to Netlify so that it can supply the application with Supabase related values during build.
 
-Under `Project Configuration -> Environment variables` add two items using `Add a single variable`. These are currently the same for all envs. You can adjust this if you have a more sophisticated Supabase environment setup.
+Under `Project Configuration -> Environment variables` add three items using `Add a single variable` each time. These are currently the same for all envs, though secrets should always have at least a different value for local development. You can adjust this if you have a more sophisticated Supabase environment setup.
 
-- `VITE_SUPABASE_PUBLISHABLE_KEY` - This is the key you copied in the Netlify section under `Settings -> API Keys -> Publishable key`
-- `SUPABASE_SECRET_KEY` - This is the key you copied in the Netlify section under `Settings -> API Keys -> Secret keys` (note that it is not prefixed with `VITE_`)
-- `VITE_SUPABASE_URL` - This is your URL from the Netlify settings under `Settings -> Data API -> Project URL`
+- _Name_: `SI_OA_API_KEY`; _Value_: The Smithsonian Institution Open Access API / api.data.gov API key you previously requested. **Contains secret values**
+- _Name_: `VITE_SUPABASE_PUBLISHABLE_KEY`; _Value_: This is the key you copied in the Supabase section under `Settings -> API Keys -> Publishable key`
+- _Name_: `SUPABASE_SECRET_KEY`; _Value_: This is the key you copied in the Supabase section under `Settings -> API Keys -> Secret keys` (note that it is not prefixed with `VITE_`) **Contains secret values**
+- _Name_: `VITE_SUPABASE_URL`; _Value_: This is your URL from the Supabase settings under `Settings -> Data API -> Project URL`
 
 #### Local setup
 
