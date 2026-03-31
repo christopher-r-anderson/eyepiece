@@ -1,32 +1,26 @@
-import sanitizeHtml from 'sanitize-html'
-import type { EyepieceApiSearchParams } from '@/lib/eyepiece-api-client/types'
+import { NOT_FOUND_IMAGE, htmlToPlainText } from '../../provider.utils'
+import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import type {
   NasaMediaItem,
   NasaMediaLink,
   NasaSearchParams,
 } from '@/integrations/nasa-ivl/types'
-import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
-import {
-  NASA_IVL_PROVIDER,
-  providerSchema,
-} from '@/domain/provider/provider.schema'
+import type { Pagination } from '@/domain/pagination/pagination.schema'
+// import type { NasaIvlProviderSearchQuery } from './nasa-ivl.provider'
+import type { SearchQuery } from '@/domain/search/search.schema'
+import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { NASA_ALBUM_PAGE_SIZE } from '@/integrations/nasa-ivl/client'
 
-export const NOT_FOUND_IMAGE = {
-  // A 1x1 transparent GIF
-  href: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-  width: 640,
-  height: 480,
-}
-
-export function eyepieceToNasaSearchParams(
-  params: EyepieceApiSearchParams,
+export function buildNasaIvlSearchParams(
+  query: SearchQuery,
+  filters: NasaIvlSearchFilters,
+  pagination: Pagination,
 ): NasaSearchParams {
-  const { q, mediaType, page, pageSize, yearStart, yearEnd } = params
+  const { mediaType, yearStart, yearEnd } = filters
+  const { page, pageSize } = pagination
   return {
-    q,
+    q: query,
     media_type: mediaType ? [mediaType] : undefined,
     year_start: yearStart,
     year_end: yearEnd,
@@ -90,16 +84,14 @@ export function mapMediaItem({
   return {
     title,
     description: description ? htmlToPlainText(description) : 'No description',
-    id: toAssetKeyString({
+    key: {
       externalId: nasa_id,
-      provider: NASA_IVL_PROVIDER,
-    }),
-    provider: providerSchema.parse(NASA_IVL_PROVIDER),
-    externalId: externalAssetIdSchema.parse(nasa_id),
+      providerId: NASA_IVL_PROVIDER_ID,
+    },
     albums: album
       ? album.map((albumId) =>
           albumKeySchema.parse({
-            provider: NASA_IVL_PROVIDER,
+            providerId: NASA_IVL_PROVIDER_ID,
             externalId: albumId,
           }),
         )
@@ -109,18 +101,6 @@ export function mapMediaItem({
     original: ensureImage(original),
     mediaType: media_type,
   }
-}
-
-function htmlToPlainText(input: string): string {
-  const normalized = input
-    .replace(/<\s*br\s*\/?\s*>/gi, '\n')
-    .replace(/<\/\s*p\s*>/gi, '\n')
-    .replace(/<\/\s*div\s*>/gi, '\n')
-  const text = sanitizeHtml(normalized, {
-    allowedTags: [],
-    allowedAttributes: {},
-  })
-  return text.replace(/\n{3,}/g, '\n\n').trim()
 }
 
 export interface NasaAlbumRequestPlan {

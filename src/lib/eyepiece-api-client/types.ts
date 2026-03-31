@@ -1,104 +1,27 @@
-import { z } from 'zod'
-import {
-  assetKeyStringSchema,
-  externalAssetIdSchema,
-  imageSchema,
-} from '@/domain/asset/asset.schema'
-import { providerSchema } from '@/domain/provider/provider.schema'
-import { albumKeySchema } from '@/domain/album/album.schema'
+// import { z } from 'zod'
+// import { paginationParamsSchema } from '@/domain/pagination/pagination.schema'
+// import { assetSearchParamsSchema } from '@/domain/search/search.schema'
 
-export const DEFAULT_PAGE_SIZE = 24
-export const DEFAULT_PAGE = 1
-export const YEAR_MIN = 1920
-export const YEAR_MAX = new Date().getFullYear()
+// export const eyepiecePageSearchParamsSchema = assetSearchParamsSchema
 
-const eyepieceMediaSchema = z.enum(['image', 'video', 'audio'])
+// export type EyepiecePageSearchParams = z.infer<
+//   typeof eyepiecePageSearchParamsSchema
+// >
 
-export type EyepieceMedia = z.infer<typeof eyepieceMediaSchema>
+// export const eyepieceApiSearchParamsSchema = assetSearchParamsSchema.extend({
+//   ...paginationParamsSchema.shape,
+// })
 
-export const eyepiecePaginationSchema = z.object({
-  page: z.coerce.number().min(1).default(DEFAULT_PAGE),
-  pageSize: z.coerce.number().min(1).max(100).default(DEFAULT_PAGE_SIZE),
-})
+// export type EyepieceApiSearchParams = z.infer<
+//   typeof eyepieceApiSearchParamsSchema
+// >
 
-export type EyepiecePagination = z.infer<typeof eyepiecePaginationSchema>
+// const eyepieceCoreAlbumParamsSchema = z.object({})
 
-export const eyepiecePaginationParamsSchema = z.object({
-  page: z.coerce.number().min(1).optional(),
-  pageSize: z.coerce.number().min(1).max(100).optional(),
-})
+// export const eyepieceApiAlbumParamsSchema = eyepieceCoreAlbumParamsSchema.extend({
+//   ...paginationParamsSchema.shape,
+// })
 
-export type EyepiecePaginationParams = z.infer<
-  typeof eyepiecePaginationParamsSchema
->
-
-const eyepieceCoreSearchParamsSchema = z.object({
-  q: z.string().optional(),
-  mediaType: eyepieceMediaSchema.optional(),
-  yearStart: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
-  yearEnd: z.coerce.number().min(YEAR_MIN).max(YEAR_MAX).optional(),
-})
-
-export const eyepiecePageSearchParamsSchema = eyepieceCoreSearchParamsSchema
-
-export type EyepiecePageSearchParams = z.infer<
-  typeof eyepiecePageSearchParamsSchema
->
-
-export const eyepieceApiSearchParamsSchema =
-  eyepieceCoreSearchParamsSchema.extend({
-    ...eyepiecePaginationParamsSchema.shape,
-  })
-
-export type EyepieceApiSearchParams = z.infer<
-  typeof eyepieceApiSearchParamsSchema
->
-
-export const eyepieceMetadataSchema = z.record(z.string(), z.any())
-
-export type EyepieceMetadata = z.infer<typeof eyepieceMetadataSchema>
-
-const eyepieceImageSchema = imageSchema
-
-export const eyepieceAssetItemSchema = z.object({
-  id: assetKeyStringSchema,
-  provider: providerSchema,
-  externalId: externalAssetIdSchema,
-  title: z.string(),
-  description: z.string(),
-  albums: z.array(albumKeySchema).optional(),
-  photographer: z.string().optional(),
-  image: eyepieceImageSchema,
-  thumbnail: eyepieceImageSchema,
-  original: eyepieceImageSchema,
-  mediaType: eyepieceMediaSchema,
-})
-
-export type EyepieceAssetItem = z.infer<typeof eyepieceAssetItemSchema>
-
-export const eyepieceAssetResponseSchema = eyepieceAssetItemSchema
-
-export type EyepieceAssetResponse = z.infer<typeof eyepieceAssetResponseSchema>
-
-export const eyepieceAssetCollectionResponseSchema = z.object({
-  assets: z.array(eyepieceAssetItemSchema),
-  pagination: z.object({
-    next: z.number().optional(),
-    total: z.number(),
-  }),
-})
-
-export type EyepieceAssetCollectionResponse = z.infer<
-  typeof eyepieceAssetCollectionResponseSchema
->
-
-const eyepieceCoreAlbumParamsSchema = z.object({})
-
-export const eyepieceApiAlbumParamsSchema =
-  eyepieceCoreAlbumParamsSchema.extend({
-    ...eyepiecePaginationParamsSchema.shape,
-  })
-
-export type EyepieceApiAlbumParams = z.infer<
-  typeof eyepieceApiAlbumParamsSchema
->
+// export type EyepieceApiAlbumParams = z.infer<
+//   typeof eyepieceApiAlbumParamsSchema
+// >
