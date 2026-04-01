@@ -40,9 +40,10 @@ export const Route = createFileRoute('/api/search')({
         const { q } = searchQueryParamSchema.parse(searchParams)
         const pagination = paginationSchema.parse(searchParams)
         const filterParams = searchFiltersParamsSchema.parse(searchParams)
+        const { providerId, ...providerFilters } = filterParams
         const filters = searchFiltersSchema.parse({
-          providerId: filterParams.providerId,
-          filters: filterParams,
+          providerId,
+          filters: providerFilters,
         })
         const results = await eyepiece.searchAssets(q, filters, pagination)
         return Response.json(results)

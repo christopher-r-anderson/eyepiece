@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { calculateNextPage, paginationToRange } from './provider.utils'
+import {
+  calculateNextPage,
+  htmlToPlainText,
+  paginationToRange,
+} from './provider.utils'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 
 describe('calculateNextPage', () => {
@@ -51,5 +55,21 @@ describe('paginationToRange', () => {
     const range = paginationToRange(pagination)
 
     expect(range).toEqual({ start: 3, end: 3 })
+  })
+})
+
+describe('htmlToPlainText', () => {
+  it('preserves line breaks from block tags and strips markup', () => {
+    const text = htmlToPlainText(
+      '<p>Hello<br>World</p><div><strong>NASA</strong> Archive</div>',
+    )
+
+    expect(text).toBe('Hello\nWorld\nNASA Archive')
+  })
+
+  it('collapses large consecutive newlines to paragraph spacing', () => {
+    const text = htmlToPlainText('<p>One</p><p></p><p></p><p>Two</p>')
+
+    expect(text).toBe('One\n\nTwo')
   })
 })

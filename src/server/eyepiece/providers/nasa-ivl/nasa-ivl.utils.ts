@@ -6,7 +6,6 @@ import type {
   NasaSearchParams,
 } from '@/integrations/nasa-ivl/types'
 import type { Pagination } from '@/domain/pagination/pagination.schema'
-// import type { NasaIvlProviderSearchQuery } from './nasa-ivl.provider'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { albumKeySchema } from '@/domain/album/album.schema'

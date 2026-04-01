@@ -13,11 +13,11 @@ export type SearchQuery = z.infer<typeof searchQuerySchema>
 export const searchFiltersSchema = z.discriminatedUnion('providerId', [
   z.object({
     providerId: z.literal(NASA_IVL_PROVIDER_ID),
-    filters: nasaIvlSearchFiltersSchema,
+    filters: nasaIvlSearchFiltersSchema.strict(),
   }),
   z.object({
     providerId: z.literal(SI_OA_PROVIDER_ID),
-    filters: sioaSearchFiltersSchema,
+    filters: sioaSearchFiltersSchema.strict(),
   }),
 ])
 

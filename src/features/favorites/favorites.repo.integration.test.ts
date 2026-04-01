@@ -58,7 +58,7 @@ describe('getUserFavoritesEdges', () => {
   const summaryIds: Array<AssetPreviewSnapshotId> = []
 
   // asset_preview_snapshots are not user-owned so they don't cascade when the test
-  // user is deleted — clean them up explicitly.
+  // user is deleted so clean them up explicitly.
   afterEach(async () => {
     await cleanupAssetSummaries(summaryIds)
     summaryIds.length = 0

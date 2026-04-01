@@ -14,7 +14,6 @@ import type {
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { Asset, Metadata } from '@/domain/asset/asset.schema'
-// import { createProviderSearchSchema } from '@/domain/search/search.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import {

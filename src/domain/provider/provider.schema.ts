@@ -11,7 +11,3 @@ export const providerIdSchema = z.enum(PROVIDERS, {
 })
 
 export type ProviderId = z.infer<typeof providerIdSchema>
-
-export const providerIdParamSchema = z.object({
-  providerId: providerIdSchema,
-})

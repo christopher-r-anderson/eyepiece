@@ -17,6 +17,9 @@ const config = defineConfig(({ mode }) => ({
     // see: https://github.com/TanStack/router/issues/6246
     !process.env.VITEST &&
       tanstackStart({
+        router: {
+          routeFileIgnorePattern: '\\.test\\.ts$',
+        },
         importProtection: {
           client: {
             files: ['**/server/**'],

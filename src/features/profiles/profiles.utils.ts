@@ -33,10 +33,10 @@ export function errorFromZodError<T>(
 }
 
 const validationMap: Record<string, Record<string, string> | undefined> = {
-  profile_display_name_nonempty_check: {
+  profile_display_name_nonempty_chk: {
     displayName: 'Display name must not be empty.',
   },
-  profile_display_name_length_check: {
+  profile_display_name_length_chk: {
     displayName: 'Display name is too long.',
   },
 }
@@ -57,6 +57,12 @@ export function errorFromPostgrestError(
       message: 'Invalid input',
       code: INVALID_INPUT_ERROR,
       fieldErrors: validationError,
+    }
+  }
+  if (pgError.code === '23514') {
+    return {
+      message: 'Invalid input',
+      code: INVALID_INPUT_ERROR,
     }
   }
   return {

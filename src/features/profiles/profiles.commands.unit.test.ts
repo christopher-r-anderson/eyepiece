@@ -56,10 +56,10 @@ const pgError = {
 }
 
 // ---------------------------------------------------------------------------
-// upsertProfile — querying
+// upsertProfile querying
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesCommands / upsertProfile — querying', () => {
+describe('makeProfilesCommands / upsertProfile querying', () => {
   it('queries the profiles table', async () => {
     const { client } = makeClientStub({ data: makeDbRow(), error: null })
     const commands = makeProfilesCommands(client as any)
@@ -122,10 +122,10 @@ describe('makeProfilesCommands / upsertProfile — querying', () => {
 })
 
 // ---------------------------------------------------------------------------
-// upsertProfile — success
+// upsertProfile success
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesCommands / upsertProfile — success', () => {
+describe('makeProfilesCommands / upsertProfile success', () => {
   it('returns Ok with a mapped ProfileDisplay', async () => {
     const row = makeDbRow({ display_name: 'Ada Lovelace' })
     const { client } = makeClientStub({ data: row, error: null })
@@ -144,10 +144,10 @@ describe('makeProfilesCommands / upsertProfile — success', () => {
 })
 
 // ---------------------------------------------------------------------------
-// upsertProfile — errors
+// upsertProfile errors
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesCommands / upsertProfile — errors', () => {
+describe('makeProfilesCommands / upsertProfile errors', () => {
   it('returns Err with UNKNOWN_ERROR on a generic database error', async () => {
     const { client } = makeClientStub({ data: null, error: pgError })
     const commands = makeProfilesCommands(client as any)
@@ -160,9 +160,9 @@ describe('makeProfilesCommands / upsertProfile — errors', () => {
     }
   })
 
-  it('maps profile_display_name_nonempty_check to INVALID_INPUT_ERROR with fieldErrors', async () => {
+  it('maps profile_display_name_nonempty_chk to INVALID_INPUT_ERROR with fieldErrors', async () => {
     const constraintError = {
-      message: 'profile_display_name_nonempty_check',
+      message: 'profile_display_name_nonempty_chk',
       code: '23514',
       details: '',
       hint: '',
@@ -179,9 +179,9 @@ describe('makeProfilesCommands / upsertProfile — errors', () => {
     }
   })
 
-  it('maps profile_display_name_length_check to INVALID_INPUT_ERROR with fieldErrors', async () => {
+  it('maps profile_display_name_length_chk to INVALID_INPUT_ERROR with fieldErrors', async () => {
     const constraintError = {
-      message: 'profile_display_name_length_check',
+      message: 'profile_display_name_length_chk',
       code: '23514',
       details: '',
       hint: '',

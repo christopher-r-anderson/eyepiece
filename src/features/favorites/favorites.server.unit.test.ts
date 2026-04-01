@@ -246,7 +246,7 @@ describe('toggleFavoriteForUser', () => {
 })
 
 // ---------------------------------------------------------------------------
-// toggleUserFavorite — auth guard
+// toggleUserFavorite auth guard
 // ---------------------------------------------------------------------------
 
 async function setupToggleUserFavorite(user: { id: string } | null) {

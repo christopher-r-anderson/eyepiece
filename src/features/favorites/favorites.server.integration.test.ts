@@ -187,7 +187,7 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(client, user.id, nonExistentId)
 
     // The insert will fail with a FK violation; the delete returns count=0 first
-    // then the insert fails — we expect an Err
+    // then the insert fails
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)

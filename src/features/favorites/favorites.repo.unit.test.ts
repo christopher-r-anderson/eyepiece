@@ -123,7 +123,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     })
   })
 
-  describe('success — mapping', () => {
+  describe('success mapping', () => {
     it('returns Ok with a correctly mapped FavoriteEdge', async () => {
       const row = makeDbEdgeRow()
       const repo = setup({ data: [row], error: null, count: 1 })
@@ -172,7 +172,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     })
   })
 
-  describe('success — pagination', () => {
+  describe('success pagination', () => {
     it('sets next to the next page number when more results exist', async () => {
       // 3 total, page 1 of size 2 → next = 2
       const repo = setup({
@@ -317,7 +317,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
     })
   })
 
-  describe('success — mapping', () => {
+  describe('success mapping', () => {
     it('returns Ok with a correctly mapped UserFavoriteIndex entry', async () => {
       const row = makeDbIndexRow()
       const repo = setup({ data: [row], error: null })

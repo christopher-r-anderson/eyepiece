@@ -86,7 +86,7 @@ describe('makeAssetSummariesRepo / getAssetSummaries', () => {
     })
   })
 
-  describe('success — mapping', () => {
+  describe('success mapping', () => {
     it('returns Ok with a correctly mapped AssetSummary', async () => {
       const row = makeDbRow()
       const { client } = makeClientStub({ data: [row], error: null })

@@ -2,23 +2,13 @@
  * Shared fixtures for integration tests.
  *
  * Provides a Vitest `it` extended with:
- *  - `user`   — a freshly-created Supabase test user, auto-deleted on teardown
- *  - `client` — a Supabase client signed in as that user
+ *  - `user`: a freshly-created Supabase test user, auto-deleted on teardown
+ *  - `client`: a Supabase client signed in as that user
  *
  * Requires env vars (from .env.local / .env.test via vitest.integration.config.ts):
  *  - VITE_SUPABASE_URL
  *  - VITE_SUPABASE_PUBLISHABLE_KEY
  *  - SUPABASE_SECRET_KEY
- *
- * Usage:
- *
- *   import { it, adminClient } from '@/test/integration-fixtures'
- *
- *   describe('My integration test', () => {
- *     it('does something', async ({ client, user }) => {
- *       // client is signed in as user
- *     })
- *   })
  */
 import { it as base } from 'vitest'
 import { createClient } from '@supabase/supabase-js'

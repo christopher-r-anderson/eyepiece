@@ -49,10 +49,10 @@ const pgError = {
 }
 
 // ---------------------------------------------------------------------------
-// getProfile — guard: invalid id
+// getProfile guard: invalid id
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesRepo / getProfile — invalid id', () => {
+describe('makeProfilesRepo / getProfile invalid id', () => {
   it('returns Err with INVALID_INPUT_ERROR for an empty string id', async () => {
     const { client } = makeClientStub({ data: null, error: null })
     const repo = makeProfilesRepo(client as any)
@@ -76,10 +76,10 @@ describe('makeProfilesRepo / getProfile — invalid id', () => {
 })
 
 // ---------------------------------------------------------------------------
-// getProfile — querying
+// getProfile querying
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesRepo / getProfile — querying', () => {
+describe('makeProfilesRepo / getProfile querying', () => {
   it('queries the profiles table', async () => {
     const { client } = makeClientStub({ data: null, error: null })
     const repo = makeProfilesRepo(client as any)
@@ -118,10 +118,10 @@ describe('makeProfilesRepo / getProfile — querying', () => {
 })
 
 // ---------------------------------------------------------------------------
-// getProfile — success cases
+// getProfile success cases
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesRepo / getProfile — success', () => {
+describe('makeProfilesRepo / getProfile success', () => {
   it('returns Ok(null) when no row is found', async () => {
     const { client } = makeClientStub({ data: null, error: null })
     const repo = makeProfilesRepo(client as any)
@@ -152,10 +152,10 @@ describe('makeProfilesRepo / getProfile — success', () => {
 })
 
 // ---------------------------------------------------------------------------
-// getProfile — error cases
+// getProfile error cases
 // ---------------------------------------------------------------------------
 
-describe('makeProfilesRepo / getProfile — errors', () => {
+describe('makeProfilesRepo / getProfile errors', () => {
   it('returns Err with UNKNOWN_ERROR on a database error', async () => {
     const { client } = makeClientStub({ data: null, error: pgError })
     const repo = makeProfilesRepo(client as any)
@@ -170,7 +170,7 @@ describe('makeProfilesRepo / getProfile — errors', () => {
 
   it('maps a known validation constraint to INVALID_INPUT_ERROR', async () => {
     const constraintError = {
-      message: 'profile_display_name_nonempty_check',
+      message: 'profile_display_name_nonempty_chk',
       code: '23514',
       details: '',
       hint: '',
