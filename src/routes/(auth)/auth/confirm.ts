@@ -7,12 +7,13 @@ import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 import { resultIsSuccess } from '@/lib/result'
 
 const SEE_OTHER = 303
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
+  confirmationSearchParamsSchema,
+)
 
 export const Route = createFileRoute('/(auth)/auth/confirm')({
   server: {
-    middleware: [
-      buildUrlSearchParamsMiddleware(confirmationSearchParamsSchema),
-    ],
+    middleware: [searchParamsMiddleware],
     handlers: {
       async GET({ context: { searchParams } }) {
         const { token_hash, type, next: nextUrl } = searchParams

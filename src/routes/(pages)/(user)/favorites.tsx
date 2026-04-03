@@ -14,7 +14,7 @@ import {
   ensureAssetPreviewSnapshotsBatch,
   useAssetPreviewSnapshotsBatch,
 } from '@/features/assets/asset-preview-snapshots.queries'
-import { PrettyException } from '@/components/ui/error'
+import { RouteError } from '@/app/layout/route-error'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
@@ -38,11 +38,11 @@ export const Route = createFileRoute('/(pages)/(user)/favorites')({
     })
   },
   errorComponent: ({ error }) => (
-    <>
-      <FavoritesHeading />
-      <p>Error loading favorites.</p>
-      <PrettyException error={error} headingLevel={1} />
-    </>
+    <RouteError
+      error={error}
+      heading={<FavoritesHeading />}
+      message="Error loading favorites."
+    />
   ),
   pendingComponent: () => (
     <>

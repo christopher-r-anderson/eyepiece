@@ -5,6 +5,7 @@ import { hashKey } from '@tanstack/react-query'
 import { SearchResults } from './-components/search-results'
 import { getTitleText } from '@/lib/utils'
 import { PrettyException } from '@/components/ui/error'
+import { RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
@@ -45,11 +46,11 @@ export const Route = createFileRoute('/(pages)/(search)/search')({
     ],
   }),
   errorComponent: ({ error }) => (
-    <>
-      <PageHeading>Search Error</PageHeading>
-      <p>Error loading search.</p>
-      <PrettyException error={error} headingLevel={1} />
-    </>
+    <RouteError
+      error={error}
+      heading={<PageHeading>Search Error</PageHeading>}
+      message="Error loading search."
+    />
   ),
 })
 

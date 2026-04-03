@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
 import { PageHeading } from '@/routes/-components/page-heading'
-import { PrettyException } from '@/components/ui/error'
+import { RouteError } from '@/app/layout/route-error'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
@@ -30,11 +30,11 @@ export const Route = createFileRoute('/(pages)/albums/$providerId/$albumId')({
     ],
   }),
   errorComponent: ({ error }) => (
-    <>
-      <PageHeading>Album</PageHeading>
-      <p>Error loading album.</p>
-      <PrettyException error={error} headingLevel={1} />
-    </>
+    <RouteError
+      error={error}
+      heading={<PageHeading>Album</PageHeading>}
+      message="Error loading album."
+    />
   ),
   pendingComponent: () => (
     <>

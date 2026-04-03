@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
+import * as Sentry from '@sentry/tanstackstart-react'
 import * as TanstackQuery from './integrations/tanstack-query/root-provider'
-
 import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
 import { getPublicSupabaseClientContext } from './integrations/supabase/providers/public-provider'
@@ -42,6 +42,24 @@ export const getRouter = () => {
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
+
+  if (!router.isServer) {
+    Sentry.init({
+      dsn: 'https://d4f083538dc4d5cc4210ab9a2cb2c295@o4511140875206656.ingest.us.sentry.io/4511140878155776',
+
+      integrations: [
+        Sentry.tanstackRouterBrowserTracingIntegration(router),
+        Sentry.replayIntegration(),
+      ],
+
+      tracesSampleRate: 0.1,
+
+      // Capture Replay for 10% of all sessions,
+      // plus for 100% of sessions with an error.
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    })
+  }
 
   return router
 }
