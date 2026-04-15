@@ -1,4 +1,10 @@
-# Eyepiece - NASA Media Site
+# Eyepiece - Space and Astronomy Image Portal
+
+Eyepiece is a [multi-provider](./docs/Providers.md) image portal. It provides search and favoriting features for multiple open asset providers.
+
+Visit the live site at <https://eyepiece.net>.
+
+Issues to be completed before official launch are listed at [Launch Milestones](https://github.com/christopher-r-anderson/eyepiece/milestone/1).
 
 ## Project Setup
 
@@ -58,3 +64,24 @@ E2E tests may generate a `deno.lock` file the first time because the `netlify` c
 ### New Production Site
 
 If you would like to set up a new production site using this codebase or just wish to understand the setup, you can refer to the [New production site setup](docs/NewProductionSite.md) guide.
+
+## Providers
+
+Eyepiece supports multiple image asset providers.
+
+### Current Providers
+
+#### NASA Image and Video Library
+
+- [NASA API portal](https://api.nasa.gov/) NASA Image and Video Library
+- [NASA IVL API Documentation (PDF)](https://images.nasa.gov/docs/images.nasa.gov_api_docs.pdf)
+- Used with permission under the [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/)
+
+#### The Smithsonian Institution Open Access - National Air and Space Museum
+
+- [The Smithsonian Institution Open Access API](https://edan.si.edu/openaccess/apidocs/)
+- Used with permission under [The Smithsonian Institution Terms of Use](https://www.si.edu/termsofuse)
+
+### Provider Integration
+
+To understand the provider integration points or how to add a new provider, see the documentation in the [Providers Guide](./docs/Providers.md).
