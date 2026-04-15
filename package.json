@@ -9,6 +9,7 @@
   },
   "type": "module",
   "scripts": {
+    "act": "act --secret-file .env.local",
     "supabase": "supabase",
     "require-supabase": "supabase status > /dev/null 2>&1 || { echo \"Error: Supabase is not running\" >&2; exit 1; }",
     "generate-db-types": "supabase gen types typescript --local > ./src/integrations/supabase/database.types.ts",
