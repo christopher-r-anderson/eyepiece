@@ -9,20 +9,21 @@ import {
 } from '@tanstack/react-query'
 import { makeUserFavoritesRepo, useUserFavoritesRepo } from './favorites.repo'
 import { useUserFavoritesCommands } from './favorites.commands'
-import type {
-  UserFavoritesEdgesPage,
-  UserFavoritesRepo,
-} from './favorites.repo'
+import type { UserFavoritesRepo } from './favorites.repo'
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
+import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
+import type { FavoriteEdge } from './favorites.schema'
 import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
-export const userFavoritesKey = [...meKey, 'favorites'] as const
-export const userFavoritesIndexKey = [...userFavoritesKey, 'index'] as const
-export const userFavoriteEdgesKey = [...userFavoritesKey, 'edges'] as const
+const favoritesKeys = {
+  all: [...meKey, 'favorites'] as const,
+  index: () => [...favoritesKeys.all, 'index'] as const,
+  edges: () => [...favoritesKeys.all, 'edges'] as const,
+}
 
 export function getUserFavoriteIndexOptions({
   repo,
@@ -30,14 +31,11 @@ export function getUserFavoriteIndexOptions({
   repo: Pick<UserFavoritesRepo, 'getUserFavoritesIndex'>
 }) {
   return queryOptions({
-    queryKey: userFavoritesIndexKey,
+    queryKey: favoritesKeys.index(),
     queryFn: async () => {
       const result = await repo.getUserFavoritesIndex()
-      const keys = unwrapOrThrow(result)
-      // use an array instead of a set so structural sharing can preserve the reference
-      return keys.map(({ provider, externalId }) =>
-        toAssetKeyString({ provider, externalId }),
-      )
+      // keep an array instead of a set so structural sharing can preserve the reference
+      return unwrapOrThrow(result)
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -63,12 +61,16 @@ export function useToggleUserFavorite() {
       }
     },
     onSettled: () => {
-      return queryClient.invalidateQueries({ queryKey: userFavoritesKey })
+      return queryClient.invalidateQueries({ queryKey: favoritesKeys.all })
     },
   })
 }
 
-type UserFavoritesEdgesInfinite = InfiniteData<UserFavoritesEdgesPage, number>
+type UserFavoritesEdgesPage = PaginatedCollection<FavoriteEdge>
+type UserFavoritesEdgesInfinite = InfiniteData<
+  Awaited<UserFavoritesEdgesPage>,
+  number
+>
 
 export function getInfiniteUserFavoritesEdgesOptions<
   TSelectData = UserFavoritesEdgesInfinite,
@@ -80,9 +82,12 @@ export function getInfiniteUserFavoritesEdgesOptions<
   repo: Pick<UserFavoritesRepo, 'getUserFavoritesEdges'>
 }) {
   return infiniteQueryOptions({
-    queryKey: userFavoriteEdgesKey,
+    queryKey: favoritesKeys.edges(),
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await repo.getUserFavoritesEdges({ page: pageParam })
+      const result = await repo.getUserFavoritesEdges({
+        page: pageParam,
+        pageSize: DEFAULT_PAGE_SIZE,
+      })
       return unwrapOrThrow(result)
     },
     placeholderData: keepPreviousData,
@@ -106,10 +111,10 @@ export async function ensureInfiniteUserFavoritesEdges({
   )
 }
 
-export function userFavoritesPagesToAssetIds<
-  TData extends UserFavoritesEdgesPage,
->({ pages }: InfiniteData<TData, number>) {
-  return pages.flatMap((page) => page.edges.map((edge) => edge.assetSummaryId))
+export function userFavoritesPagesToAssetIds({
+  pages,
+}: UserFavoritesEdgesInfinite) {
+  return pages.flatMap((page) => page.items.map((edge) => edge.assetSummaryId))
 }
 
 export function useSuspenseInfiniteUserFavoriteAssetIds() {

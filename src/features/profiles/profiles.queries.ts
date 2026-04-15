@@ -6,10 +6,9 @@ import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { unwrapOrThrow } from '@/lib/result'
 
-type ProfileKey = ['profile', string]
-
-function profileKey(profileId: string): ProfileKey {
-  return ['profile', profileId] as const
+const profilesKeys = {
+  all: ['profiles'] as const,
+  profile: (id: Profile['id']) => [...profilesKeys.all, 'detail', id] as const,
 }
 
 export function getProfileOptions({
@@ -20,7 +19,7 @@ export function getProfileOptions({
   id: string
 }) {
   return queryOptions({
-    queryKey: profileKey(id),
+    queryKey: profilesKeys.profile(id),
     queryFn: async () => {
       const result = await repo.getProfile(id)
       return unwrapOrThrow(result)

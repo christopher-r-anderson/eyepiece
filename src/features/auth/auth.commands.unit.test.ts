@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeAuthCommands } from './auth.commands'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
-// Minimal stub for the Supabase client — only the auth surface used by auth.commands
+// Minimal auth related stub for Supabase client
 function makeClientStub() {
   return {
     auth: {

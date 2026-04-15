@@ -8,7 +8,7 @@ import {
 } from '../favorites.queries'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
 
 const favoriteToggleCss = {
   backgroundColor: 'transparent',
@@ -34,13 +34,12 @@ export function ToggleFavoriteButton({
   const isHydrated = useHydrated()
   const favorites = useUserFavoritesIndex({ enabled: isHydrated })
   const toggle = useToggleUserFavorite()
-  const assetKeyString = toAssetKeyString(assetKey)
-  const togglingKeyString = toggle.variables
-    ? toAssetKeyString(toggle.variables)
-    : undefined
-  // the array is structurally shared so this is likely better than the cost of creating a set for every asset tile
-  const isFavorite = favorites.data?.includes(assetKeyString) ?? false
-  const isCurrentToggle = assetKeyString === togglingKeyString
+  // the array is structurally shared so this is possibly better than the cost of creating a set for every asset tile and is unlikely to be an problem at this scale
+  const isFavorite =
+    favorites.data?.some((key) => assetKeyIsEqual(key, assetKey)) ?? false
+  const isCurrentToggle = toggle.variables
+    ? assetKeyIsEqual(toggle.variables, assetKey)
+    : false
   const isSelected =
     toggle.isPending && isCurrentToggle ? !isFavorite : isFavorite
   const isDisabled = !isHydrated || favorites.isPending || toggle.isPending
@@ -59,7 +58,7 @@ export function ToggleFavoriteButton({
           }
         },
       }),
-    [assetKeyString, onError, onUnauthorized, toggle.mutate],
+    [assetKey, onError, onUnauthorized, toggle.mutate],
   )
   return (
     <ToggleButton

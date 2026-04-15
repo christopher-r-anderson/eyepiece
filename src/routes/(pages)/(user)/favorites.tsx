@@ -11,12 +11,13 @@ import {
 } from '@/features/favorites/favorites.queries'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
 import {
-  ensureAssetSummariesBatch,
-  useAssetSummariesBatch,
-} from '@/features/assets/asset-summaries.queries'
+  ensureAssetPreviewSnapshotsBatch,
+  useAssetPreviewSnapshotsBatch,
+} from '@/features/assets/asset-preview-snapshots.queries'
 import { PrettyException } from '@/components/ui/error'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
@@ -29,9 +30,9 @@ export const Route = createFileRoute('/(pages)/(user)/favorites')({
       queryClient,
       userSupabaseClient,
     })
-    const assetSummaryIds = userFavoritesPagesToAssetIds(edges)
-    await ensureAssetSummariesBatch({
-      assetSummaryIds,
+    const assetPreviewSnapshotIds = userFavoritesPagesToAssetIds(edges)
+    await ensureAssetPreviewSnapshotsBatch({
+      assetPreviewSnapshotIds,
       queryClient,
       publicSupabaseClient,
     })
@@ -54,7 +55,9 @@ export const Route = createFileRoute('/(pages)/(user)/favorites')({
 function FavoritesPage() {
   const navigate = useNavigate()
   const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
-  const assetSummariesResult = useAssetSummariesBatch(favoritesResult.data)
+  const assetSummariesResult = useAssetPreviewSnapshotsBatch(
+    favoritesResult.data,
+  )
 
   if (favoritesResult.data.length === 0) {
     return (
@@ -86,19 +89,24 @@ function FavoritesPage() {
         <HybridGrid
           css={{ width: '100%' }}
           items={assetSummariesResult.data ?? []}
+          getItemKey={(item) => toAssetKeyString(item.key)}
+          getItemTextValue={(item) => item.title}
         >
           {(item, itemProps) => (
             <HybridGridItem
               item={item}
               onRowAction={() => {
                 navigate({
-                  to: `/assets/$assetId`,
-                  params: { assetId: item.externalId },
+                  to: `/assets/$providerId/$assetId`,
+                  params: {
+                    providerId: item.key.providerId,
+                    assetId: item.key.externalId,
+                  },
                 })
               }}
               {...itemProps}
             >
-              <AssetTile asset={item} />
+              <AssetTile assetPreview={item} />
             </HybridGridItem>
           )}
         </HybridGrid>

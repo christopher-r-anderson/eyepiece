@@ -5,20 +5,20 @@ import {
 import { makeAlbumsRepo, useAlbumsRepo } from './albums.repo'
 import type { AlbumsRepo } from './albums.repo'
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
-import type { AlbumKey, AlbumKeyString } from '@/domain/album/album.schema'
+import type { AlbumKey } from '@/domain/album/album.schema'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
+import type { Asset } from '@/domain/asset/asset.schema'
+import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
-import { toAlbumKeyString } from '@/domain/album/album.utils'
+import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
-type AlbumCacheKey = ['albums', AlbumKeyString]
-
-function albumCacheKey(albumKey: AlbumKey): AlbumCacheKey {
-  return ['albums', toAlbumKeyString(albumKey)] as const
+const albumKeys = {
+  all: ['albums'] as const,
+  album: (key: AlbumKey) => [...albumKeys.all, key] as const,
 }
 
-type GetAlbumFn = AlbumsRepo['getAlbum']
-type AlbumPage = Awaited<ReturnType<GetAlbumFn>>
-type AlbumInfinite = InfiniteData<AlbumPage, number>
+type AlbumPage = Promise<PaginatedCollection<Asset>>
+type AlbumInfinite = InfiniteData<Awaited<AlbumPage>, number>
 
 export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
   repo,
@@ -30,9 +30,12 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
   select?: (data: AlbumInfinite) => TSelectData
 }) {
   return infiniteQueryOptions({
-    queryKey: albumCacheKey(albumKey),
+    queryKey: albumKeys.album(albumKey),
     queryFn: ({ pageParam = 1 }) => {
-      return repo.getAlbum(albumKey, { page: pageParam })
+      return repo.getAlbum(albumKey, {
+        page: pageParam,
+        pageSize: DEFAULT_PAGE_SIZE,
+      })
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,

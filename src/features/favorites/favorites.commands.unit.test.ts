@@ -17,7 +17,7 @@ vi.mock('./favorites.functions', () => ({
 const mockToggleFavorite = vi.mocked(toggleFavorite)
 
 const ASSET_KEY: AssetKey = {
-  provider: 'nasa_ivl',
+  providerId: 'nasa_ivl',
   externalId: 'ARC-1998-AC98-0418-6',
 }
 

@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { VisuallyHidden } from 'react-aria'
-import type { EyepieceMetadata } from '@/lib/eyepiece-api-client/types'
+import type { Metadata } from '@/domain/asset/asset.schema'
 
 type Row = { key: string; value: unknown }
 
-function objectToRows(obj: EyepieceMetadata): Array<Row> {
+function objectToRows(obj: Metadata): Array<Row> {
   return Object.entries(obj)
     .map(([key, value]) => ({ key, value }))
     .sort((a, b) => a.key.localeCompare(b.key))
@@ -18,7 +18,7 @@ function safeStringify(value: unknown) {
   }
 }
 
-export function MetadataTable({ data }: { data: EyepieceMetadata }) {
+export function MetadataTable({ data }: { data: Metadata }) {
   const rows = useMemo(() => objectToRows(data), [data])
   return (
     <div>

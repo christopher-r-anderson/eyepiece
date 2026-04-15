@@ -215,7 +215,7 @@ describe('toggleFavoriteForUser', () => {
     }
   })
 
-  it('calls delete with the correct owner_id and asset_summary_id', async () => {
+  it('calls delete with the correct owner_id and asset_preview_snapshot_id', async () => {
     const { toggleFavoriteForUser } = await setupToggleFavoriteForUser()
     const deleteBuilder = makeDeleteBuilder({ count: 1, error: null })
     const from = vi.fn().mockReturnValue(deleteBuilder)
@@ -225,7 +225,7 @@ describe('toggleFavoriteForUser', () => {
     expect(deleteBuilder.delete).toHaveBeenCalledWith({ count: 'exact' })
     expect(deleteBuilder.eq).toHaveBeenCalledWith('owner_id', USER_ID)
     expect(deleteBuilder.eq).toHaveBeenCalledWith(
-      'asset_summary_id',
+      'asset_preview_snapshot_id',
       ASSET_SUMMARY_ID,
     )
   })
@@ -246,7 +246,7 @@ describe('toggleFavoriteForUser', () => {
 })
 
 // ---------------------------------------------------------------------------
-// toggleUserFavorite — auth guard
+// toggleUserFavorite auth guard
 // ---------------------------------------------------------------------------
 
 async function setupToggleUserFavorite(user: { id: string } | null) {

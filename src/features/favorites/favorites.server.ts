@@ -1,10 +1,13 @@
 import { createServerOnlyFn } from '@tanstack/react-start'
 import {
-  ASSET_SUMMARY_STALE_TIME,
+  ASSET_PREVIEW_SNAPSHOT_STALE_TIME,
   ToggleFavoriteErrorCodes,
 } from './favorites.const'
 import type { ToggleFavoriteResult } from './favorites.schema'
-import type { AssetKey, AssetSummaryId } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshotId,
+} from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
@@ -19,13 +22,13 @@ import { getOrigin } from '@/lib/utils'
 async function toggleFavoriteForUser(
   client: SupabaseClient,
   userId: string,
-  assetSummaryId: AssetSummaryId,
+  assetSummaryId: AssetPreviewSnapshotId,
 ): Promise<Result<ToggleFavoriteResult>> {
   const { count, error: deleteError } = await client
     .from('favorites')
     .delete({ count: 'exact' })
     .eq('owner_id', userId)
-    .eq('asset_summary_id', assetSummaryId)
+    .eq('asset_preview_snapshot_id', assetSummaryId)
 
   if (deleteError) {
     console.error('Error deleting favorite for toggle:', deleteError)
@@ -42,7 +45,7 @@ async function toggleFavoriteForUser(
   // if nothing was deleted, insert
   const { error: insertError } = await client.from('favorites').insert({
     owner_id: userId,
-    asset_summary_id: assetSummaryId,
+    asset_preview_snapshot_id: assetSummaryId,
   })
 
   // 23505 uniqueness violation, likely a double click race condition and not a practical issue
@@ -59,7 +62,7 @@ async function toggleFavoriteForUser(
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleUserFavorite(
-  assetSummaryId: AssetSummaryId,
+  assetSummaryId: AssetPreviewSnapshotId,
 ): Promise<Result<ToggleFavoriteResult>> {
   const user = await getUser()
   if (!user) {
@@ -75,14 +78,14 @@ async function _ensurePublicAssetSummaryForKey(
   serviceClient: SupabaseClient,
   eyepieceClient: EyepieceClient,
   assetKey: AssetKey,
-): Promise<Result<AssetSummaryId>> {
+): Promise<Result<AssetPreviewSnapshotId>> {
   let assetSummaryId
 
   const { data: currentAssetSummary, error: currentAssetSummaryError } =
     await serviceClient
-      .from('asset_summaries')
+      .from('asset_preview_snapshots')
       .select('id, updated_at')
-      .eq('provider', assetKey.provider)
+      .eq('provider_id', assetKey.providerId)
       .eq('external_id', assetKey.externalId)
       .maybeSingle()
 
@@ -98,7 +101,10 @@ async function _ensurePublicAssetSummaryForKey(
   }
   if (currentAssetSummary) {
     const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
-    if (Date.now() - assetUpdatedAt.getTime() < ASSET_SUMMARY_STALE_TIME) {
+    if (
+      Date.now() - assetUpdatedAt.getTime() <
+      ASSET_PREVIEW_SNAPSHOT_STALE_TIME
+    ) {
       assetSummaryId = currentAssetSummary.id
     }
   }
@@ -115,8 +121,8 @@ async function _ensurePublicAssetSummaryForKey(
       })
     }
     const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
-      await serviceClient.rpc('ensure_asset_summary', {
-        p_provider: assetKey.provider,
+      await serviceClient.rpc('ensure_asset_preview_snapshot', {
+        p_provider_id: assetKey.providerId,
         p_external_id: assetKey.externalId,
         p_title: asset.title,
         p_thumb_href: asset.thumbnail.href,
@@ -138,7 +144,7 @@ async function _ensurePublicAssetSummaryForKey(
 
   if (!assetSummaryId) {
     console.error(
-      'No assetSummaryId returned from ensure_asset_summary for toggle',
+      'No assetSummaryId returned from ensure_asset_preview_snapshot for toggle',
     )
     return Err({
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
@@ -148,7 +154,7 @@ async function _ensurePublicAssetSummaryForKey(
 }
 
 const ensurePublicAssetSummary = createServerOnlyFn(
-  async (assetKey: AssetKey): Promise<Result<AssetSummaryId>> => {
+  async (assetKey: AssetKey): Promise<Result<AssetPreviewSnapshotId>> => {
     const serviceClient = createServiceSupabaseClient()
     const eyepieceClient = createEyepieceClient({ origin: getOrigin() })
     return _ensurePublicAssetSummaryForKey(

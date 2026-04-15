@@ -34,12 +34,12 @@ export type Database = {
   }
   public: {
     Tables: {
-      asset_summaries: {
+      asset_preview_snapshots: {
         Row: {
           created_at: string
           external_id: string
           id: string
-          provider: string
+          provider_id: Database["public"]["Enums"]["provider_id"]
           thumb_height: number
           thumb_href: string
           thumb_width: number
@@ -50,7 +50,7 @@ export type Database = {
           created_at?: string
           external_id: string
           id?: string
-          provider: string
+          provider_id: Database["public"]["Enums"]["provider_id"]
           thumb_height: number
           thumb_href: string
           thumb_width: number
@@ -61,7 +61,7 @@ export type Database = {
           created_at?: string
           external_id?: string
           id?: string
-          provider?: string
+          provider_id?: Database["public"]["Enums"]["provider_id"]
           thumb_height?: number
           thumb_href?: string
           thumb_width?: number
@@ -72,26 +72,26 @@ export type Database = {
       }
       favorites: {
         Row: {
-          asset_summary_id: string
+          asset_preview_snapshot_id: string
           created_at: string
           owner_id: string
         }
         Insert: {
-          asset_summary_id: string
+          asset_preview_snapshot_id: string
           created_at?: string
           owner_id: string
         }
         Update: {
-          asset_summary_id?: string
+          asset_preview_snapshot_id?: string
           created_at?: string
           owner_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "favorites_asset_summary_id_fkey"
-            columns: ["asset_summary_id"]
+            foreignKeyName: "favorites_asset_preview_snapshot_id_fkey"
+            columns: ["asset_preview_snapshot_id"]
             isOneToOne: false
-            referencedRelation: "asset_summaries"
+            referencedRelation: "asset_preview_snapshots"
             referencedColumns: ["id"]
           },
         ]
@@ -122,10 +122,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      ensure_asset_summary: {
+      ensure_asset_preview_snapshot: {
         Args: {
           p_external_id: string
-          p_provider: string
+          p_provider_id: Database["public"]["Enums"]["provider_id"]
           p_thumb_height: number
           p_thumb_href: string
           p_thumb_width: number
@@ -135,7 +135,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      provider_id: "nasa_ivl" | "si_oa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -265,7 +265,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      provider_id: ["nasa_ivl", "si_oa"],
+    },
   },
 } as const
 

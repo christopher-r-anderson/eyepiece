@@ -9,11 +9,11 @@
   },
   "type": "module",
   "scripts": {
+    "act": "act --secret-file .env.local",
     "supabase": "supabase",
     "require-supabase": "supabase status > /dev/null 2>&1 || { echo \"Error: Supabase is not running\" >&2; exit 1; }",
     "generate-db-types": "supabase gen types typescript --local > ./src/integrations/supabase/database.types.ts",
-    "create-env-local": "./scripts/generate-env.sh > .env.local",
-    "create-env-test": "./scripts/generate-env.sh > .env.test",
+    "print-supabase-env": "./scripts/print-supabase-env.sh",
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
@@ -25,7 +25,8 @@
     "lint": "eslint",
     "format": "prettier -c .",
     "fix": "prettier --write . && eslint --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "preflight": "pnpm fix && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build"
   },
   "engines": {
     "node": "24.x"

@@ -107,9 +107,9 @@ SELECT
 FROM auth.users AS u;
 
 WITH
-  new_asset_summaries AS (
-    INSERT INTO public.asset_summaries
-      (provider, external_id, title, thumb_href, thumb_width, thumb_height)
+  new_asset_preview_snapshots AS (
+    INSERT INTO public.asset_preview_snapshots
+      (provider_id, external_id, title, thumb_href, thumb_width, thumb_height)
     VALUES
       (
         'nasa_ivl',
@@ -153,7 +153,7 @@ WITH
       )
     RETURNING id
   )
-INSERT INTO favorites (owner_id, asset_summary_id)
+INSERT INTO favorites (owner_id, asset_preview_snapshot_id)
 SELECT '7e5dfb34-a0ad-41bb-ac2a-bb159c270ee3', id
-FROM new_asset_summaries;
+FROM new_asset_preview_snapshots;
 COMMIT;

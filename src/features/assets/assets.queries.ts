@@ -7,14 +7,15 @@ import { useCallback } from 'react'
 import { makeAssetsRepo, useAssetsRepo } from './assets.repo'
 import type { AssetsRepo } from './assets.repo'
 import type { QueryClient } from '@tanstack/react-query'
-import type { AssetKey, AssetKeyString } from '@/domain/asset/asset.schema'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
-type AssetCacheKey = ['assets', AssetKeyString]
-
-function assetCacheKey(assetKey: AssetKey): AssetCacheKey {
-  return ['assets', toAssetKeyString(assetKey)] as const
+export const assetsKeys = {
+  all: ['assets'] as const,
+  asset: (assetKey: AssetKey) =>
+    [...assetsKeys.all, 'detail', assetKey] as const,
+  metadata: (assetKey: AssetKey) =>
+    [...assetsKeys.asset(assetKey), 'metadata'] as const,
 }
 
 export function getAssetOptions({
@@ -25,7 +26,7 @@ export function getAssetOptions({
   assetKey: AssetKey
 }) {
   return queryOptions({
-    queryKey: assetCacheKey(assetKey),
+    queryKey: assetsKeys.asset(assetKey),
     queryFn: () => {
       return repo.getAsset(assetKey)
     },
@@ -53,12 +54,6 @@ export function ensureAsset({
   return queryClient.ensureQueryData(getAssetOptions({ repo, assetKey }))
 }
 
-type MetadataCacheKey = ['assets', AssetKeyString, 'metadata']
-
-function metadataCacheKey(assetKey: AssetKey): MetadataCacheKey {
-  return ['assets', toAssetKeyString(assetKey), 'metadata'] as const
-}
-
 export function getMetadataOptions({
   repo,
   assetKey,
@@ -67,7 +62,7 @@ export function getMetadataOptions({
   assetKey: AssetKey
 }) {
   return queryOptions({
-    queryKey: metadataCacheKey(assetKey),
+    queryKey: assetsKeys.metadata(assetKey),
     queryFn: () => {
       return repo.getMetadata(assetKey)
     },

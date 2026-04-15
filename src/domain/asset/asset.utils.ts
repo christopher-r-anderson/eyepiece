@@ -1,31 +1,14 @@
-import {
-  PROVIDER_KEY_DELIMITER,
-  providerSchema,
-} from '../provider/provider.schema'
-import {
-  assetKeySchema,
-  assetKeyStringSchema,
-  externalAssetIdSchema,
-} from './asset.schema'
+import { PROVIDER_KEY_DELIMITER } from '../provider/provider.schema'
+import { assetKeyStringSchema } from './asset.schema'
 import type { AssetKey, AssetKeyString } from './asset.schema'
 
 export function toAssetKeyString(assetKey: AssetKey): AssetKeyString {
-  const { provider, externalId } = assetKey
+  const { providerId, externalId } = assetKey
   return assetKeyStringSchema.parse(
-    `${provider}${PROVIDER_KEY_DELIMITER}${externalId}`,
+    `${providerId}${PROVIDER_KEY_DELIMITER}${externalId}`,
   )
 }
 
-export function fromAssetKeyString(keyString: AssetKeyString): AssetKey {
-  const indexOfDelimiter = keyString.indexOf(PROVIDER_KEY_DELIMITER)
-  if (indexOfDelimiter === -1) {
-    throw new Error(`Invalid asset key: ${keyString}`)
-  }
-  const provider = providerSchema.parse(
-    keyString.substring(0, indexOfDelimiter),
-  )
-  const externalId = externalAssetIdSchema.parse(
-    keyString.substring(indexOfDelimiter + PROVIDER_KEY_DELIMITER.length),
-  )
-  return assetKeySchema.parse({ provider, externalId })
+export const assetKeyIsEqual = (a: AssetKey, b: AssetKey) => {
+  return a.providerId === b.providerId && a.externalId === b.externalId
 }

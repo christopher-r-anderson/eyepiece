@@ -1,27 +1,21 @@
 import { defaultStringifySearch } from '@tanstack/react-router'
-import {
-  eyepieceAssetCollectionResponseSchema,
-  eyepieceAssetItemSchema,
-  eyepieceMetadataSchema,
-} from './types'
-import type {
-  EyepieceApiAlbumParams,
-  EyepieceApiSearchParams,
-  EyepieceAssetCollectionResponse,
-  EyepieceAssetItem,
-  EyepieceMetadata,
-} from './types'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { AlbumKey } from '@/domain/album/album.schema'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
-import { toAlbumKeyString } from '@/domain/album/album.utils'
+import type { Asset, AssetKey, Metadata } from '@/domain/asset/asset.schema'
+import type {
+  PaginatedCollection,
+  Pagination,
+} from '@/domain/pagination/pagination.schema'
+import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
+import { createPaginatedCollectionSchema } from '@/domain/pagination/pagination.schema'
+import { assetSchema, metadataSchema } from '@/domain/asset/asset.schema'
 
-export function flattenAssetsSelector<
-  TData extends { assets: Array<EyepieceAssetItem> },
->({ pages, ...rest }: InfiniteData<TData, number>) {
+export function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
+  pages,
+  ...rest
+}: InfiniteData<TData, number>) {
   return {
-    assets: pages.flatMap((page) => page.assets),
+    items: pages.flatMap((page) => page.items),
     ...rest,
   }
 }
@@ -41,15 +35,17 @@ function assertSsrHasOrigin(origin: string, path: string) {
 type EyepieceClientOptions = { origin?: string }
 
 export type EyepieceClient = {
-  getAsset: (key: AssetKey) => Promise<EyepieceAssetItem>
+  getAsset: (key: AssetKey) => Promise<Asset>
   getAlbum: (
     albumKey: AlbumKey,
-    params?: EyepieceApiAlbumParams,
-  ) => Promise<EyepieceAssetCollectionResponse>
-  getMetadata: (key: AssetKey) => Promise<EyepieceMetadata>
-  searchImages: (
-    params: EyepieceApiSearchParams,
-  ) => Promise<EyepieceAssetCollectionResponse>
+    pagination: Pagination,
+  ) => Promise<PaginatedCollection<Asset>>
+  getMetadata: (key: AssetKey) => Promise<Metadata>
+  searchAssets: (
+    query: SearchQuery,
+    filters: SearchFilters,
+    pagination: Pagination,
+  ) => Promise<PaginatedCollection<Asset>>
 }
 
 export function createEyepieceClient({
@@ -64,55 +60,60 @@ export function createEyepieceClient({
   }
 
   return {
-    getAlbum: async function getAlbum(
-      albumKey: AlbumKey,
-      params: EyepieceApiAlbumParams = {},
-    ) {
+    getAlbum: async function getAlbum(key: AlbumKey, pagination: Pagination) {
       const res = await fetch(
         withOrigin(
-          `/api/albums/${toAlbumKeyString(albumKey)}${defaultStringifySearch(params)}`,
+          `/api/albums/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}${defaultStringifySearch(pagination)}`,
         ),
       )
       if (!res.ok) {
         throw new Error(`Error fetching album: ${res.statusText}`)
       }
       const data = await res.json()
-      return eyepieceAssetCollectionResponseSchema.parse(data)
+      return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)
     },
 
     getAsset: async function getAsset(key: AssetKey) {
       const res = await fetch(
-        withOrigin(`/api/asset/${encodeURIComponent(toAssetKeyString(key))}`),
+        withOrigin(
+          `/api/asset/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}`,
+        ),
       )
       if (!res.ok) {
         throw new Error(`Error fetching asset: ${res.statusText}`)
       }
       const data = await res.json()
-      return eyepieceAssetItemSchema.parse(data)
+      return assetSchema.parse(data)
     },
 
     getMetadata: async function getMetadata(key: AssetKey) {
       const res = await fetch(
         withOrigin(
-          `/api/asset/${encodeURIComponent(toAssetKeyString(key))}/metadata`,
+          `/api/asset/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}/metadata`,
         ),
       )
       if (!res.ok) {
         throw new Error(`Error fetching asset metadata: ${res.statusText}`)
       }
       const data = await res.json()
-      return eyepieceMetadataSchema.parse(data)
+      return metadataSchema.parse(data)
     },
 
-    searchImages: async function searchImages(params: EyepieceApiSearchParams) {
+    searchAssets: async function searchAssets(
+      query: SearchQuery,
+      filters: SearchFilters,
+      pagination: Pagination,
+    ) {
       const res = await fetch(
-        withOrigin(`/api/search${defaultStringifySearch(params)}`),
+        withOrigin(
+          `/api/search${defaultStringifySearch({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
+        ),
       )
       if (!res.ok) {
         throw new Error(`Error searching assets: ${res.statusText}`)
       }
       const data = await res.json()
-      return eyepieceAssetCollectionResponseSchema.parse(data)
+      return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)
     },
   }
 }

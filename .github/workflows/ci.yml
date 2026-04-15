@@ -85,6 +85,7 @@ jobs:
 
       - name: Run Tests
         run: pnpm test:unit
+
   integration-test:
     name: Integration Tests (Vitest + Supabase)
     runs-on: ubuntu-latest
@@ -112,9 +113,11 @@ jobs:
         run: pnpm supabase start
 
       - name: Generate .env.test from Supabase
-        run: pnpm create-env-test
+        run: pnpm -s print-supabase-env > .env.test
 
       - name: Run integration tests
+        env:
+          SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm test:integration
 
       - name: Stop Supabase
@@ -154,7 +157,7 @@ jobs:
         run: pnpm supabase start
 
       - name: Generate .env.local from Supabase
-        run: pnpm create-env-local
+        run: pnpm -s print-supabase-env > .env.local
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -166,6 +169,8 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
+        env:
+          SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm test:e2e
 
       - name: Stop Supabase

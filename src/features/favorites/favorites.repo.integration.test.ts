@@ -1,6 +1,6 @@
 import { afterEach, describe, expect } from 'vitest'
 import { makeUserFavoritesRepo } from './favorites.repo'
-import type { AssetSummaryId } from '@/domain/asset/asset.schema'
+import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
 import { createAdminClient, it } from '@/test/integration-fixtures'
 import { resultIsSuccess } from '@/lib/result'
 
@@ -11,11 +11,11 @@ import { resultIsSuccess } from '@/lib/result'
 async function seedAssetSummary(
   admin: ReturnType<typeof createAdminClient>,
   externalId: string,
-): Promise<AssetSummaryId> {
+): Promise<AssetPreviewSnapshotId> {
   const { data, error } = await admin
-    .from('asset_summaries')
+    .from('asset_preview_snapshots')
     .insert({
-      provider: 'nasa_ivl',
+      provider_id: 'nasa_ivl',
       external_id: externalId,
       title: `Integration test asset ${externalId}`,
       thumb_href: 'https://images.example.com/thumb.jpg',
@@ -31,23 +31,23 @@ async function seedAssetSummary(
 async function seedFavorite(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
-  assetSummaryId: AssetSummaryId,
+  assetSummaryId: AssetPreviewSnapshotId,
 ): Promise<void> {
   const { error } = await admin
     .from('favorites')
-    .insert({ owner_id: ownerId, asset_summary_id: assetSummaryId })
+    .insert({ owner_id: ownerId, asset_preview_snapshot_id: assetSummaryId })
   if (error) throw new Error(`seedFavorite: ${error.message}`)
 }
 
 async function cleanupAssetSummaries(
-  ids: Array<AssetSummaryId>,
+  ids: Array<AssetPreviewSnapshotId>,
 ): Promise<void> {
   if (ids.length === 0) return
   const { error } = await createAdminClient()
-    .from('asset_summaries')
+    .from('asset_preview_snapshots')
     .delete()
     .in('id', ids)
-  if (error) console.error('Failed to clean up asset_summaries:', error)
+  if (error) console.error('Failed to clean up asset_preview_snapshots:', error)
 }
 
 // ---------------------------------------------------------------------------
@@ -55,10 +55,10 @@ async function cleanupAssetSummaries(
 // ---------------------------------------------------------------------------
 
 describe('getUserFavoritesEdges', () => {
-  const summaryIds: Array<AssetSummaryId> = []
+  const summaryIds: Array<AssetPreviewSnapshotId> = []
 
-  // asset_summaries are not user-owned so they don't cascade when the test
-  // user is deleted — clean them up explicitly.
+  // asset_preview_snapshots are not user-owned so they don't cascade when the test
+  // user is deleted so clean them up explicitly.
   afterEach(async () => {
     await cleanupAssetSummaries(summaryIds)
     summaryIds.length = 0
@@ -69,11 +69,11 @@ describe('getUserFavoritesEdges', () => {
   }) => {
     const repo = makeUserFavoritesRepo(client)
 
-    const result = await repo.getUserFavoritesEdges()
+    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
-      expect(result.data.edges).toHaveLength(0)
+      expect(result.data.items).toHaveLength(0)
       expect(result.data.pagination.next).toBeNull()
     }
   })
@@ -89,15 +89,15 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, user.id, summaryId)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges()
+    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
-      const { edges, pagination } = result.data
-      expect(edges).toHaveLength(1)
-      expect(edges[0].assetSummaryId).toBe(summaryId)
-      expect(edges[0].assetKey).toEqual({ provider: 'nasa_ivl', externalId })
-      expect(typeof edges[0].createdAt).toBe('string')
+      const { items, pagination } = result.data
+      expect(items).toHaveLength(1)
+      expect(items[0].assetSummaryId).toBe(summaryId)
+      expect(items[0].assetKey).toEqual({ providerId: 'nasa_ivl', externalId })
+      expect(typeof items[0].createdAt).toBe('string')
       expect(pagination.next).toBeNull()
     }
   })
@@ -122,15 +122,15 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, user.id, id2)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges()
+    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
-      const { edges } = result.data
-      expect(edges).toHaveLength(2)
+      const { items } = result.data
+      expect(items).toHaveLength(2)
       // most recently created favorite first
-      expect(edges[0].assetSummaryId).toBe(id2)
-      expect(edges[1].assetSummaryId).toBe(id1)
+      expect(items[0].assetSummaryId).toBe(id2)
+      expect(items[1].assetSummaryId).toBe(id1)
     }
   })
 
@@ -157,14 +157,14 @@ describe('getUserFavoritesEdges', () => {
     const page1 = await repo.getUserFavoritesEdges({ page: 1, pageSize: 1 })
     expect(resultIsSuccess(page1)).toBe(true)
     if (resultIsSuccess(page1)) {
-      expect(page1.data.edges).toHaveLength(1)
+      expect(page1.data.items).toHaveLength(1)
       expect(page1.data.pagination.next).toBe(2)
     }
 
     const page2 = await repo.getUserFavoritesEdges({ page: 2, pageSize: 1 })
     expect(resultIsSuccess(page2)).toBe(true)
     if (resultIsSuccess(page2)) {
-      expect(page2.data.edges).toHaveLength(1)
+      expect(page2.data.items).toHaveLength(1)
       expect(page2.data.pagination.next).toBeNull()
     }
   })
@@ -198,15 +198,15 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, otherId, othId)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges()
+    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
 
     // Clean up the extra user regardless of test outcome
     await adminClient.auth.admin.deleteUser(otherId)
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
-      expect(result.data.edges).toHaveLength(1)
-      expect(result.data.edges[0].assetSummaryId).toBe(myId)
+      expect(result.data.items).toHaveLength(1)
+      expect(result.data.items[0].assetSummaryId).toBe(myId)
     }
   })
 })
@@ -216,7 +216,7 @@ describe('getUserFavoritesEdges', () => {
 // ---------------------------------------------------------------------------
 
 describe('getUserFavoritesIndex', () => {
-  const summaryIds: Array<AssetSummaryId> = []
+  const summaryIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
     await cleanupAssetSummaries(summaryIds)
@@ -236,7 +236,7 @@ describe('getUserFavoritesIndex', () => {
     }
   })
 
-  it('returns every favorite as a provider/externalId pair', async ({
+  it('returns every favorite as a provider_id/externalId pair', async ({
     client,
     user,
     adminClient,
@@ -256,8 +256,8 @@ describe('getUserFavoritesIndex', () => {
     if (resultIsSuccess(result)) {
       // Order is descending by created_at; idB was inserted later
       expect(result.data).toEqual([
-        { provider: 'nasa_ivl', externalId: extB },
-        { provider: 'nasa_ivl', externalId: extA },
+        { providerId: 'nasa_ivl', externalId: extB },
+        { providerId: 'nasa_ivl', externalId: extA },
       ])
     }
   })

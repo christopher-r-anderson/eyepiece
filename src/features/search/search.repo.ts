@@ -1,34 +1,29 @@
 import { useMemo } from 'react'
-import type {
-  EyepieceAssetCollectionResponse,
-  EyepiecePageSearchParams,
-} from '@/lib/eyepiece-api-client/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
-import type { SearchQuery, SearchResults } from './search.types'
+import type {
+  PaginatedCollection,
+  Pagination,
+} from '@/domain/pagination/pagination.schema'
+import type { Asset } from '@/domain/asset/asset.schema'
+import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { useEyepieceClient } from '@/lib/eyepiece-api-client/eyepiece-client-provider'
 
-function searchQueryToEyepieceSearchParams(
-  query: SearchQuery,
-): EyepiecePageSearchParams {
-  return query
-}
-
-function eyepieceSearchResponseToSearchResults(
-  response: EyepieceAssetCollectionResponse,
-): SearchResults {
-  return response
-}
-
 export interface SearchRepo {
-  searchImages: (query: SearchQuery) => Promise<SearchResults>
+  searchImages: (
+    query: SearchQuery,
+    filters: SearchFilters,
+    pagination: Pagination,
+  ) => Promise<PaginatedCollection<Asset>>
 }
 
 export function makeSearchRepo(client: EyepieceClient) {
   return {
-    searchImages: async (query: SearchQuery) => {
-      const searchParams = searchQueryToEyepieceSearchParams(query)
-      const response = await client.searchImages(searchParams)
-      return eyepieceSearchResponseToSearchResults(response)
+    searchImages: async (
+      query: SearchQuery,
+      filters: SearchFilters,
+      pagination: Pagination,
+    ) => {
+      return await client.searchAssets(query, filters, pagination)
     },
   }
 }

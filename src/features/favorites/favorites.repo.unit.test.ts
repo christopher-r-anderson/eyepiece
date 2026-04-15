@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DEFAULT_PAGE_SIZE, makeUserFavoritesRepo } from './favorites.repo'
+import { makeUserFavoritesRepo } from './favorites.repo'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -46,29 +46,33 @@ const ANOTHER_UUID = '550e8400-e29b-41d4-a716-446655440002'
 function makeDbEdgeRow(overrides?: {
   created_at?: string
   id?: string
-  provider?: string
+  provider_id?: string
   external_id?: string
 }) {
   return {
     created_at: overrides?.created_at ?? '2024-01-15T10:00:00+00:00',
-    asset_summaries: {
+    asset_preview_snapshots: {
       id: overrides?.id ?? VALID_UUID,
-      provider: overrides?.provider ?? 'nasa_ivl',
+      provider_id: overrides?.provider_id ?? 'nasa_ivl',
       external_id: overrides?.external_id ?? 'asset-001',
     },
   }
 }
 
 function makeDbIndexRow(overrides?: {
-  provider?: string
+  provider_id?: string
   external_id?: string
 }) {
   return {
-    asset_summaries: {
-      provider: overrides?.provider ?? 'nasa_ivl',
+    asset_preview_snapshots: {
+      provider_id: overrides?.provider_id ?? 'nasa_ivl',
       external_id: overrides?.external_id ?? 'asset-001',
     },
   }
+}
+
+function makePagination({ page = 1, pageSize = 10 } = {}) {
+  return { page, pageSize }
 }
 
 const pgError = { message: 'connection refused', code: 'PGRST000' }
@@ -91,56 +95,48 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
   describe('querying', () => {
     it('queries the favorites table', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges()
+      await repo.getUserFavoritesEdges(makePagination())
       expect(client.from).toHaveBeenCalledWith('favorites')
     })
 
-    it('selects created_at and the asset_summaries join fields', async () => {
+    it('selects created_at and the asset_preview_snapshots join fields', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges()
+      await repo.getUserFavoritesEdges(makePagination())
       expect(builder.select).toHaveBeenCalledWith(
-        'created_at, asset_summaries (id, provider, external_id)',
+        'created_at, asset_preview_snapshots (id, provider_id, external_id)',
         { count: 'exact' },
       )
     })
 
     it('orders by created_at descending', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges()
+      await repo.getUserFavoritesEdges(makePagination())
       expect(builder.order).toHaveBeenCalledWith('created_at', {
         ascending: false,
       })
     })
 
-    it('uses .range() with correct offsets for the default page', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges()
-      // page=1, pageSize=DEFAULT_PAGE_SIZE → range(0, DEFAULT_PAGE_SIZE - 1)
-      expect(builder.range).toHaveBeenCalledWith(0, DEFAULT_PAGE_SIZE - 1)
-    })
-
     it('uses .range() with correct offsets for a custom page and pageSize', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
       await repo.getUserFavoritesEdges({ page: 3, pageSize: 10 })
-      // page=3, pageSize=10 → range(20, 29)
       expect(builder.range).toHaveBeenCalledWith(20, 29)
     })
   })
 
-  describe('success — mapping', () => {
+  describe('success mapping', () => {
     it('returns Ok with a correctly mapped FavoriteEdge', async () => {
       const row = makeDbEdgeRow()
       const repo = setup({ data: [row], error: null, count: 1 })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data.edges).toHaveLength(1)
-        expect(result.data.edges[0]).toEqual({
+        expect(result.data.items).toHaveLength(1)
+        expect(result.data.items[0]).toEqual({
           createdAt: '2024-01-15T10:00:00+00:00',
           assetSummaryId: VALID_UUID,
           assetKey: {
-            provider: 'nasa_ivl',
+            providerId: 'nasa_ivl',
             externalId: 'asset-001',
           },
         })
@@ -154,29 +150,29 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
       ]
       const repo = setup({ data: rows, error: null, count: 2 })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data.edges).toHaveLength(2)
-        expect(result.data.edges[0].assetKey.externalId).toBe('asset-001')
-        expect(result.data.edges[1].assetKey.externalId).toBe('asset-002')
+        expect(result.data.items).toHaveLength(2)
+        expect(result.data.items[0].assetKey.externalId).toBe('asset-001')
+        expect(result.data.items[1].assetKey.externalId).toBe('asset-002')
       }
     })
 
     it('returns Ok with an empty edges array when there are no results', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data.edges).toEqual([])
+        expect(result.data.items).toEqual([])
       }
     })
   })
 
-  describe('success — pagination', () => {
+  describe('success pagination', () => {
     it('sets next to the next page number when more results exist', async () => {
       // 3 total, page 1 of size 2 → next = 2
       const repo = setup({
@@ -228,7 +224,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     it('sets next to null when count is null', async () => {
       const repo = setup({ data: [], error: null, count: null })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
@@ -241,7 +237,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     it('returns Err when Postgres returns an error', async () => {
       const repo = setup({ data: null, error: pgError, count: null })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsError(result)).toBe(true)
       if (resultIsError(result)) {
@@ -251,25 +247,25 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     })
 
     it('returns Err when the DB response fails Zod validation', async () => {
-      // missing required asset_summaries.id field
+      // missing required asset_preview_snapshots.id field
       const badData = [
         {
           created_at: '2024-01-15T10:00:00+00:00',
-          asset_summaries: { provider: 'nasa_ivl' },
+          asset_preview_snapshots: { provider_id: 'nasa_ivl' },
         },
       ]
       const repo = setup({ data: badData, error: null, count: 1 })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsError(result)).toBe(true)
     })
 
-    it('returns Err when asset_summaries has an unrecognized provider', async () => {
-      const badData = [makeDbEdgeRow({ provider: 'unknown_provider' })]
+    it('returns Err when asset_preview_snapshots has an unrecognized provider_id', async () => {
+      const badData = [makeDbEdgeRow({ provider_id: 'unknown_provider' })]
       const repo = setup({ data: badData, error: null, count: 1 })
 
-      const result = await repo.getUserFavoritesEdges()
+      const result = await repo.getUserFavoritesEdges(makePagination())
 
       expect(resultIsError(result)).toBe(true)
     })
@@ -298,11 +294,11 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
       expect(client.from).toHaveBeenCalledWith('favorites')
     })
 
-    it('selects only the asset_summaries provider and external_id', async () => {
+    it('selects only the asset_preview_snapshots provider_id and external_id', async () => {
       const repo = setup({ data: [], error: null })
       await repo.getUserFavoritesIndex()
       expect(builder.select).toHaveBeenCalledWith(
-        'asset_summaries (provider, external_id)',
+        'asset_preview_snapshots (provider_id, external_id)',
       )
     })
 
@@ -321,7 +317,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
     })
   })
 
-  describe('success — mapping', () => {
+  describe('success mapping', () => {
     it('returns Ok with a correctly mapped UserFavoriteIndex entry', async () => {
       const row = makeDbIndexRow()
       const repo = setup({ data: [row], error: null })
@@ -332,7 +328,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
       if (resultIsSuccess(result)) {
         expect(result.data).toHaveLength(1)
         expect(result.data[0]).toEqual({
-          provider: 'nasa_ivl',
+          providerId: 'nasa_ivl',
           externalId: 'asset-001',
         })
       }
@@ -381,8 +377,10 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
     })
 
     it('returns Err when the DB response fails Zod validation', async () => {
-      // provider field missing entirely
-      const badData = [{ asset_summaries: { external_id: 'asset-001' } }]
+      // provider_id field missing entirely
+      const badData = [
+        { asset_preview_snapshots: { external_id: 'asset-001' } },
+      ]
       const repo = setup({ data: badData, error: null })
 
       const result = await repo.getUserFavoritesIndex()
@@ -390,8 +388,8 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
       expect(resultIsError(result)).toBe(true)
     })
 
-    it('returns Err when asset_summaries has an unrecognized provider', async () => {
-      const badData = [makeDbIndexRow({ provider: 'unknown_provider' })]
+    it('returns Err when asset_preview_snapshots has an unrecognized provider_id', async () => {
+      const badData = [makeDbIndexRow({ provider_id: 'unknown_provider' })]
       const repo = setup({ data: badData, error: null })
 
       const result = await repo.getUserFavoritesIndex()

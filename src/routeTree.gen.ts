@@ -12,24 +12,26 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
+import { Route as pagesIndexRouteImport } from './routes/(pages)/index'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as pagesButtonsRouteImport } from './routes/(pages)/buttons'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
-import { Route as pagessearchIndexRouteImport } from './routes/(pages)/(search)/index'
-import { Route as ApiAssetAssetIdRouteImport } from './routes/api/asset/$assetId'
-import { Route as ApiAlbumsAlbumIdRouteImport } from './routes/api/albums/$albumId'
 import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
-import { Route as pagesAssetsAssetIdRouteImport } from './routes/(pages)/assets/$assetId'
-import { Route as pagesAlbumsAlbumIdRouteImport } from './routes/(pages)/albums/$albumId'
 import { Route as pagesuserFavoritesRouteImport } from './routes/(pages)/(user)/favorites'
+import { Route as pagessearchSearchRouteImport } from './routes/(pages)/(search)/search'
 import { Route as authAuthUpdatePasswordRouteImport } from './routes/(auth)/auth/update-password'
 import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth/forgot-password'
 import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
 import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
 import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
-import { Route as ApiAssetAssetIdMetadataRouteImport } from './routes/api/asset/$assetId.metadata'
+import { Route as ApiAssetProviderIdAssetIdRouteImport } from './routes/api/asset/$providerId.$assetId'
+import { Route as ApiAlbumsProviderIdAlbumIdRouteImport } from './routes/api/albums/$providerId.$albumId'
+import { Route as pagesAssetsProviderIdAssetIdRouteImport } from './routes/(pages)/assets/$providerId.$assetId'
+import { Route as pagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(pages)/albums/$providerId.$albumId'
 import { Route as pagesuserSettingsProfileRouteImport } from './routes/(pages)/(user)/settings/profile'
+import { Route as ApiAssetProviderIdAssetIdMetadataRouteImport } from './routes/api/asset/$providerId.$assetId.metadata'
 
 const CompleteProfileRoute = CompleteProfileRouteImport.update({
   id: '/complete-profile',
@@ -44,10 +46,20 @@ const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
+const pagesIndexRoute = pagesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => pagesRouteRoute,
+} as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
   getParentRoute: () => rootRouteImport,
+} as any)
+const pagesButtonsRoute = pagesButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => pagesRouteRoute,
 } as any)
 const authRegisterRoute = authRegisterRouteImport.update({
   id: '/register',
@@ -63,40 +75,20 @@ const pagesuserRouteRoute = pagesuserRouteRouteImport.update({
   id: '/(user)',
   getParentRoute: () => pagesRouteRoute,
 } as any)
-const pagessearchIndexRoute = pagessearchIndexRouteImport.update({
-  id: '/(search)/',
-  path: '/',
-  getParentRoute: () => pagesRouteRoute,
-} as any)
-const ApiAssetAssetIdRoute = ApiAssetAssetIdRouteImport.update({
-  id: '/api/asset/$assetId',
-  path: '/api/asset/$assetId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAlbumsAlbumIdRoute = ApiAlbumsAlbumIdRouteImport.update({
-  id: '/api/albums/$albumId',
-  path: '/api/albums/$albumId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
   id: '/profile/$profileId',
   path: '/profile/$profileId',
-  getParentRoute: () => pagesRouteRoute,
-} as any)
-const pagesAssetsAssetIdRoute = pagesAssetsAssetIdRouteImport.update({
-  id: '/assets/$assetId',
-  path: '/assets/$assetId',
-  getParentRoute: () => pagesRouteRoute,
-} as any)
-const pagesAlbumsAlbumIdRoute = pagesAlbumsAlbumIdRouteImport.update({
-  id: '/albums/$albumId',
-  path: '/albums/$albumId',
   getParentRoute: () => pagesRouteRoute,
 } as any)
 const pagesuserFavoritesRoute = pagesuserFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
   getParentRoute: () => pagesuserRouteRoute,
+} as any)
+const pagessearchSearchRoute = pagessearchSearchRouteImport.update({
+  id: '/(search)/search',
+  path: '/search',
+  getParentRoute: () => pagesRouteRoute,
 } as any)
 const authAuthUpdatePasswordRoute = authAuthUpdatePasswordRouteImport.update({
   id: '/auth/update-password',
@@ -123,57 +115,86 @@ const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => pagesuserRouteRoute,
 } as any)
-const ApiAssetAssetIdMetadataRoute = ApiAssetAssetIdMetadataRouteImport.update({
-  id: '/metadata',
-  path: '/metadata',
-  getParentRoute: () => ApiAssetAssetIdRoute,
-} as any)
+const ApiAssetProviderIdAssetIdRoute =
+  ApiAssetProviderIdAssetIdRouteImport.update({
+    id: '/api/asset/$providerId/$assetId',
+    path: '/api/asset/$providerId/$assetId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAlbumsProviderIdAlbumIdRoute =
+  ApiAlbumsProviderIdAlbumIdRouteImport.update({
+    id: '/api/albums/$providerId/$albumId',
+    path: '/api/albums/$providerId/$albumId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const pagesAssetsProviderIdAssetIdRoute =
+  pagesAssetsProviderIdAssetIdRouteImport.update({
+    id: '/assets/$providerId/$assetId',
+    path: '/assets/$providerId/$assetId',
+    getParentRoute: () => pagesRouteRoute,
+  } as any)
+const pagesAlbumsProviderIdAlbumIdRoute =
+  pagesAlbumsProviderIdAlbumIdRouteImport.update({
+    id: '/albums/$providerId/$albumId',
+    path: '/albums/$providerId/$albumId',
+    getParentRoute: () => pagesRouteRoute,
+  } as any)
 const pagesuserSettingsProfileRoute =
   pagesuserSettingsProfileRouteImport.update({
     id: '/settings/profile',
     path: '/settings/profile',
     getParentRoute: () => pagesuserRouteRoute,
   } as any)
+const ApiAssetProviderIdAssetIdMetadataRoute =
+  ApiAssetProviderIdAssetIdMetadataRouteImport.update({
+    id: '/metadata',
+    path: '/metadata',
+    getParentRoute: () => ApiAssetProviderIdAssetIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/complete-profile': typeof CompleteProfileRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
+  '/buttons': typeof pagesButtonsRoute
   '/api/search': typeof ApiSearchRoute
+  '/': typeof pagesIndexRoute
   '/auth/confirm': typeof authAuthConfirmRoute
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
-  '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
-  '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
-  '/': typeof pagessearchIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
+  '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
+  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
+  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/settings/': typeof pagesuserSettingsIndexRoute
+  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesByTo {
   '/complete-profile': typeof CompleteProfileRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
+  '/buttons': typeof pagesButtonsRoute
   '/api/search': typeof ApiSearchRoute
+  '/': typeof pagesIndexRoute
   '/auth/confirm': typeof authAuthConfirmRoute
   '/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
-  '/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
-  '/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
-  '/': typeof pagessearchIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
+  '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
+  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
+  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/settings': typeof pagesuserSettingsIndexRoute
+  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,21 +204,23 @@ export interface FileRoutesById {
   '/(pages)/(user)': typeof pagesuserRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
+  '/(pages)/buttons': typeof pagesButtonsRoute
   '/api/search': typeof ApiSearchRoute
+  '/(pages)/': typeof pagesIndexRoute
   '/(auth)/auth/confirm': typeof authAuthConfirmRoute
   '/(auth)/auth/confirm-error': typeof authAuthConfirmErrorRoute
   '/(auth)/auth/forgot-password': typeof authAuthForgotPasswordRoute
   '/(auth)/auth/update-password': typeof authAuthUpdatePasswordRoute
+  '/(pages)/(search)/search': typeof pagessearchSearchRoute
   '/(pages)/(user)/favorites': typeof pagesuserFavoritesRoute
-  '/(pages)/albums/$albumId': typeof pagesAlbumsAlbumIdRoute
-  '/(pages)/assets/$assetId': typeof pagesAssetsAssetIdRoute
   '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/albums/$albumId': typeof ApiAlbumsAlbumIdRoute
-  '/api/asset/$assetId': typeof ApiAssetAssetIdRouteWithChildren
-  '/(pages)/(search)/': typeof pagessearchIndexRoute
   '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/api/asset/$assetId/metadata': typeof ApiAssetAssetIdMetadataRoute
+  '/(pages)/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
+  '/(pages)/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
+  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
+  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/(pages)/(user)/settings/': typeof pagesuserSettingsIndexRoute
+  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -205,41 +228,45 @@ export interface FileRouteTypes {
     | '/complete-profile'
     | '/login'
     | '/register'
+    | '/buttons'
     | '/api/search'
+    | '/'
     | '/auth/confirm'
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/auth/update-password'
+    | '/search'
     | '/favorites'
-    | '/albums/$albumId'
-    | '/assets/$assetId'
     | '/profile/$profileId'
-    | '/api/albums/$albumId'
-    | '/api/asset/$assetId'
-    | '/'
     | '/settings/profile'
-    | '/api/asset/$assetId/metadata'
+    | '/albums/$providerId/$albumId'
+    | '/assets/$providerId/$assetId'
+    | '/api/albums/$providerId/$albumId'
+    | '/api/asset/$providerId/$assetId'
     | '/settings/'
+    | '/api/asset/$providerId/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/complete-profile'
     | '/login'
     | '/register'
+    | '/buttons'
     | '/api/search'
+    | '/'
     | '/auth/confirm'
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/auth/update-password'
+    | '/search'
     | '/favorites'
-    | '/albums/$albumId'
-    | '/assets/$assetId'
     | '/profile/$profileId'
-    | '/api/albums/$albumId'
-    | '/api/asset/$assetId'
-    | '/'
     | '/settings/profile'
-    | '/api/asset/$assetId/metadata'
+    | '/albums/$providerId/$albumId'
+    | '/assets/$providerId/$assetId'
+    | '/api/albums/$providerId/$albumId'
+    | '/api/asset/$providerId/$assetId'
     | '/settings'
+    | '/api/asset/$providerId/$assetId/metadata'
   id:
     | '__root__'
     | '/(auth)'
@@ -248,21 +275,23 @@ export interface FileRouteTypes {
     | '/(pages)/(user)'
     | '/(auth)/login'
     | '/(auth)/register'
+    | '/(pages)/buttons'
     | '/api/search'
+    | '/(pages)/'
     | '/(auth)/auth/confirm'
     | '/(auth)/auth/confirm-error'
     | '/(auth)/auth/forgot-password'
     | '/(auth)/auth/update-password'
+    | '/(pages)/(search)/search'
     | '/(pages)/(user)/favorites'
-    | '/(pages)/albums/$albumId'
-    | '/(pages)/assets/$assetId'
     | '/(pages)/profile/$profileId'
-    | '/api/albums/$albumId'
-    | '/api/asset/$assetId'
-    | '/(pages)/(search)/'
     | '/(pages)/(user)/settings/profile'
-    | '/api/asset/$assetId/metadata'
+    | '/(pages)/albums/$providerId/$albumId'
+    | '/(pages)/assets/$providerId/$assetId'
+    | '/api/albums/$providerId/$albumId'
+    | '/api/asset/$providerId/$assetId'
     | '/(pages)/(user)/settings/'
+    | '/api/asset/$providerId/$assetId/metadata'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,8 +299,8 @@ export interface RootRouteChildren {
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   CompleteProfileRoute: typeof CompleteProfileRoute
   ApiSearchRoute: typeof ApiSearchRoute
-  ApiAlbumsAlbumIdRoute: typeof ApiAlbumsAlbumIdRoute
-  ApiAssetAssetIdRoute: typeof ApiAssetAssetIdRouteWithChildren
+  ApiAlbumsProviderIdAlbumIdRoute: typeof ApiAlbumsProviderIdAlbumIdRoute
+  ApiAssetProviderIdAssetIdRoute: typeof ApiAssetProviderIdAssetIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -297,12 +326,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(pages)/': {
+      id: '/(pages)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof pagesIndexRouteImport
+      parentRoute: typeof pagesRouteRoute
+    }
     '/api/search': {
       id: '/api/search'
       path: '/api/search'
       fullPath: '/api/search'
       preLoaderRoute: typeof ApiSearchRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(pages)/buttons': {
+      id: '/(pages)/buttons'
+      path: '/buttons'
+      fullPath: '/buttons'
+      preLoaderRoute: typeof pagesButtonsRouteImport
+      parentRoute: typeof pagesRouteRoute
     }
     '/(auth)/register': {
       id: '/(auth)/register'
@@ -325,46 +368,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof pagesuserRouteRouteImport
       parentRoute: typeof pagesRouteRoute
     }
-    '/(pages)/(search)/': {
-      id: '/(pages)/(search)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof pagessearchIndexRouteImport
-      parentRoute: typeof pagesRouteRoute
-    }
-    '/api/asset/$assetId': {
-      id: '/api/asset/$assetId'
-      path: '/api/asset/$assetId'
-      fullPath: '/api/asset/$assetId'
-      preLoaderRoute: typeof ApiAssetAssetIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/albums/$albumId': {
-      id: '/api/albums/$albumId'
-      path: '/api/albums/$albumId'
-      fullPath: '/api/albums/$albumId'
-      preLoaderRoute: typeof ApiAlbumsAlbumIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(pages)/profile/$profileId': {
       id: '/(pages)/profile/$profileId'
       path: '/profile/$profileId'
       fullPath: '/profile/$profileId'
       preLoaderRoute: typeof pagesProfileProfileIdRouteImport
-      parentRoute: typeof pagesRouteRoute
-    }
-    '/(pages)/assets/$assetId': {
-      id: '/(pages)/assets/$assetId'
-      path: '/assets/$assetId'
-      fullPath: '/assets/$assetId'
-      preLoaderRoute: typeof pagesAssetsAssetIdRouteImport
-      parentRoute: typeof pagesRouteRoute
-    }
-    '/(pages)/albums/$albumId': {
-      id: '/(pages)/albums/$albumId'
-      path: '/albums/$albumId'
-      fullPath: '/albums/$albumId'
-      preLoaderRoute: typeof pagesAlbumsAlbumIdRouteImport
       parentRoute: typeof pagesRouteRoute
     }
     '/(pages)/(user)/favorites': {
@@ -373,6 +381,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/favorites'
       preLoaderRoute: typeof pagesuserFavoritesRouteImport
       parentRoute: typeof pagesuserRouteRoute
+    }
+    '/(pages)/(search)/search': {
+      id: '/(pages)/(search)/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof pagessearchSearchRouteImport
+      parentRoute: typeof pagesRouteRoute
     }
     '/(auth)/auth/update-password': {
       id: '/(auth)/auth/update-password'
@@ -409,12 +424,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
       parentRoute: typeof pagesuserRouteRoute
     }
-    '/api/asset/$assetId/metadata': {
-      id: '/api/asset/$assetId/metadata'
-      path: '/metadata'
-      fullPath: '/api/asset/$assetId/metadata'
-      preLoaderRoute: typeof ApiAssetAssetIdMetadataRouteImport
-      parentRoute: typeof ApiAssetAssetIdRoute
+    '/api/asset/$providerId/$assetId': {
+      id: '/api/asset/$providerId/$assetId'
+      path: '/api/asset/$providerId/$assetId'
+      fullPath: '/api/asset/$providerId/$assetId'
+      preLoaderRoute: typeof ApiAssetProviderIdAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/albums/$providerId/$albumId': {
+      id: '/api/albums/$providerId/$albumId'
+      path: '/api/albums/$providerId/$albumId'
+      fullPath: '/api/albums/$providerId/$albumId'
+      preLoaderRoute: typeof ApiAlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(pages)/assets/$providerId/$assetId': {
+      id: '/(pages)/assets/$providerId/$assetId'
+      path: '/assets/$providerId/$assetId'
+      fullPath: '/assets/$providerId/$assetId'
+      preLoaderRoute: typeof pagesAssetsProviderIdAssetIdRouteImport
+      parentRoute: typeof pagesRouteRoute
+    }
+    '/(pages)/albums/$providerId/$albumId': {
+      id: '/(pages)/albums/$providerId/$albumId'
+      path: '/albums/$providerId/$albumId'
+      fullPath: '/albums/$providerId/$albumId'
+      preLoaderRoute: typeof pagesAlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof pagesRouteRoute
     }
     '/(pages)/(user)/settings/profile': {
       id: '/(pages)/(user)/settings/profile'
@@ -422,6 +458,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/profile'
       preLoaderRoute: typeof pagesuserSettingsProfileRouteImport
       parentRoute: typeof pagesuserRouteRoute
+    }
+    '/api/asset/$providerId/$assetId/metadata': {
+      id: '/api/asset/$providerId/$assetId/metadata'
+      path: '/metadata'
+      fullPath: '/api/asset/$providerId/$assetId/metadata'
+      preLoaderRoute: typeof ApiAssetProviderIdAssetIdMetadataRouteImport
+      parentRoute: typeof ApiAssetProviderIdAssetIdRoute
     }
   }
 }
@@ -466,43 +509,50 @@ const pagesuserRouteRouteWithChildren = pagesuserRouteRoute._addFileChildren(
 
 interface pagesRouteRouteChildren {
   pagesuserRouteRoute: typeof pagesuserRouteRouteWithChildren
-  pagesAlbumsAlbumIdRoute: typeof pagesAlbumsAlbumIdRoute
-  pagesAssetsAssetIdRoute: typeof pagesAssetsAssetIdRoute
+  pagesButtonsRoute: typeof pagesButtonsRoute
+  pagesIndexRoute: typeof pagesIndexRoute
+  pagessearchSearchRoute: typeof pagessearchSearchRoute
   pagesProfileProfileIdRoute: typeof pagesProfileProfileIdRoute
-  pagessearchIndexRoute: typeof pagessearchIndexRoute
+  pagesAlbumsProviderIdAlbumIdRoute: typeof pagesAlbumsProviderIdAlbumIdRoute
+  pagesAssetsProviderIdAssetIdRoute: typeof pagesAssetsProviderIdAssetIdRoute
 }
 
 const pagesRouteRouteChildren: pagesRouteRouteChildren = {
   pagesuserRouteRoute: pagesuserRouteRouteWithChildren,
-  pagesAlbumsAlbumIdRoute: pagesAlbumsAlbumIdRoute,
-  pagesAssetsAssetIdRoute: pagesAssetsAssetIdRoute,
+  pagesButtonsRoute: pagesButtonsRoute,
+  pagesIndexRoute: pagesIndexRoute,
+  pagessearchSearchRoute: pagessearchSearchRoute,
   pagesProfileProfileIdRoute: pagesProfileProfileIdRoute,
-  pagessearchIndexRoute: pagessearchIndexRoute,
+  pagesAlbumsProviderIdAlbumIdRoute: pagesAlbumsProviderIdAlbumIdRoute,
+  pagesAssetsProviderIdAssetIdRoute: pagesAssetsProviderIdAssetIdRoute,
 }
 
 const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
   pagesRouteRouteChildren,
 )
 
-interface ApiAssetAssetIdRouteChildren {
-  ApiAssetAssetIdMetadataRoute: typeof ApiAssetAssetIdMetadataRoute
+interface ApiAssetProviderIdAssetIdRouteChildren {
+  ApiAssetProviderIdAssetIdMetadataRoute: typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
 
-const ApiAssetAssetIdRouteChildren: ApiAssetAssetIdRouteChildren = {
-  ApiAssetAssetIdMetadataRoute: ApiAssetAssetIdMetadataRoute,
-}
+const ApiAssetProviderIdAssetIdRouteChildren: ApiAssetProviderIdAssetIdRouteChildren =
+  {
+    ApiAssetProviderIdAssetIdMetadataRoute:
+      ApiAssetProviderIdAssetIdMetadataRoute,
+  }
 
-const ApiAssetAssetIdRouteWithChildren = ApiAssetAssetIdRoute._addFileChildren(
-  ApiAssetAssetIdRouteChildren,
-)
+const ApiAssetProviderIdAssetIdRouteWithChildren =
+  ApiAssetProviderIdAssetIdRoute._addFileChildren(
+    ApiAssetProviderIdAssetIdRouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,
   pagesRouteRoute: pagesRouteRouteWithChildren,
   CompleteProfileRoute: CompleteProfileRoute,
   ApiSearchRoute: ApiSearchRoute,
-  ApiAlbumsAlbumIdRoute: ApiAlbumsAlbumIdRoute,
-  ApiAssetAssetIdRoute: ApiAssetAssetIdRouteWithChildren,
+  ApiAlbumsProviderIdAlbumIdRoute: ApiAlbumsProviderIdAlbumIdRoute,
+  ApiAssetProviderIdAssetIdRoute: ApiAssetProviderIdAssetIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

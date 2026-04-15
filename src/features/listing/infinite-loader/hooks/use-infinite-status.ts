@@ -30,7 +30,7 @@ export function useInfiniteStatus(options: {
   }, [hasNextPage, loadedCount])
 
   useEffect(() => {
-    if (error) setStatus('Couldn\u2019t load more results.')
+    if (error) setStatus("Couldn't load more results.")
   }, [error])
 
   return status

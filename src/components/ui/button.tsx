@@ -1,4 +1,5 @@
 import { Button as ReactAriaButton } from 'react-aria-components'
+import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
 
 const buttonCss = {
@@ -6,6 +7,7 @@ const buttonCss = {
   padding: '0.5rem 1rem',
   borderRadius: '4px',
   fontSize: '1rem',
+  gap: '0.5rem',
   cursor: 'pointer',
   outline: 'none',
   display: 'inline-flex',
@@ -34,14 +36,28 @@ const secondaryCss = {
 type ButtonVariant = 'primary' | 'secondary'
 
 export type ButtonProps = RacButtonProps & {
+  ref?: Ref<HTMLButtonElement>
+  icon?: React.ComponentType<{ size: number }>
   variant?: ButtonVariant
 }
 
-export function Button({ variant = 'secondary', ...props }: ButtonProps) {
+export function Button({
+  children,
+  variant = 'secondary',
+  icon: Icon,
+  ...props
+}: ButtonProps) {
   return (
     <ReactAriaButton
       css={[buttonCss, variant === 'primary' ? primaryCss : secondaryCss]}
       {...props}
-    />
+    >
+      {(state) => (
+        <>
+          {typeof children === 'function' ? children(state) : children}
+          {Icon && <Icon size={16} />}
+        </>
+      )}
+    </ReactAriaButton>
   )
 }

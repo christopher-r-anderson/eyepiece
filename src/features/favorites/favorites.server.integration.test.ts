@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, vi } from 'vitest'
 import { _internals } from './favorites.server'
 import { ToggleFavoriteErrorCodes } from './favorites.const'
-import type { AssetSummaryId } from '@/domain/asset/asset.schema'
+import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
 import { createAdminClient, it } from '@/test/integration-fixtures'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
@@ -49,11 +49,11 @@ const { toggleFavoriteForUser } = _internals
 async function seedAssetSummary(
   admin: ReturnType<typeof createAdminClient>,
   externalId: string,
-): Promise<AssetSummaryId> {
+): Promise<AssetPreviewSnapshotId> {
   const { data, error } = await admin
-    .from('asset_summaries')
+    .from('asset_preview_snapshots')
     .insert({
-      provider: 'nasa_ivl',
+      provider_id: 'nasa_ivl',
       external_id: externalId,
       title: `Integration test asset ${externalId}`,
       thumb_href: 'https://images.example.com/thumb.jpg',
@@ -69,26 +69,26 @@ async function seedAssetSummary(
 async function getFavoritesCount(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
-  assetSummaryId: AssetSummaryId,
+  assetSummaryId: AssetPreviewSnapshotId,
 ): Promise<number> {
   const { count, error } = await admin
     .from('favorites')
     .select('*', { count: 'exact', head: true })
     .eq('owner_id', ownerId)
-    .eq('asset_summary_id', assetSummaryId)
+    .eq('asset_preview_snapshot_id', assetSummaryId)
   if (error) throw new Error(`getFavoritesCount: ${error.message}`)
   return count ?? 0
 }
 
 async function cleanupAssetSummaries(
-  ids: Array<AssetSummaryId>,
+  ids: Array<AssetPreviewSnapshotId>,
 ): Promise<void> {
   if (ids.length === 0) return
   const { error } = await createAdminClient()
-    .from('asset_summaries')
+    .from('asset_preview_snapshots')
     .delete()
     .in('id', ids)
-  if (error) console.error('Failed to clean up asset_summaries:', error)
+  if (error) console.error('Failed to clean up asset_preview_snapshots:', error)
 }
 
 // ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ async function cleanupAssetSummaries(
 // ---------------------------------------------------------------------------
 
 describe('toggleFavoriteForUser', () => {
-  const summaryIds: Array<AssetSummaryId> = []
+  const summaryIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
     await cleanupAssetSummaries(summaryIds)
@@ -140,7 +140,7 @@ describe('toggleFavoriteForUser', () => {
     // Seed the pre-existing favorite
     await adminClient
       .from('favorites')
-      .insert({ owner_id: user.id, asset_summary_id: summaryId })
+      .insert({ owner_id: user.id, asset_preview_snapshot_id: summaryId })
 
     const result = await toggleFavoriteForUser(client, user.id, summaryId)
 
@@ -176,18 +176,18 @@ describe('toggleFavoriteForUser', () => {
     expect(await getFavoritesCount(adminClient, user.id, summaryId)).toBe(0)
   })
 
-  it('returns Err when the asset_summary_id does not exist (FK violation)', async ({
+  it('returns Err when the asset_preview_snapshot_id does not exist (FK violation)', async ({
     client,
     user,
   }) => {
     // This UUID doesn't correspond to any asset_summary row
     const nonExistentId =
-      'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' as AssetSummaryId
+      'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' as AssetPreviewSnapshotId
 
     const result = await toggleFavoriteForUser(client, user.id, nonExistentId)
 
     // The insert will fail with a FK violation; the delete returns count=0 first
-    // then the insert fails — we expect an Err
+    // then the insert fails
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)

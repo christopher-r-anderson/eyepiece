@@ -3,7 +3,7 @@ import { LoadMoreButton } from './load-more-button'
 import type { ComponentPropsWithoutRef } from 'react'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
 import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
-import { VisuallyHidden } from '@/components/ui/i18n'
+import { VisuallyHidden } from '@/components/ui/a11y'
 
 export function InfiniteLoader({
   children,

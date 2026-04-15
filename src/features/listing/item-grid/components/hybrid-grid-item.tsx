@@ -2,7 +2,6 @@ import { useGridListItem } from 'react-aria'
 import { useRef } from 'react'
 import type { ListState, useListState } from '@react-stately/list'
 import type { ReactNode } from 'react'
-import type { GridItem } from '@/features/listing/item-grid/hooks/use-grid-list-state'
 
 function isFromInteractiveTarget(event: Event) {
   const t = event.target as HTMLElement | null
@@ -12,19 +11,22 @@ function isFromInteractiveTarget(event: Event) {
   )
 }
 
-export type HybridGridItemProvidedProps<T extends GridItem> = {
+export type HybridGridItemProvidedProps<T extends object> = {
   isVirtualized: boolean
   state: ListState<T>
+  itemKey: string
 }
 
-export function HybridGridItem<T extends GridItem>({
+export function HybridGridItem<T extends object>({
   item,
+  itemKey,
   state,
   onRowAction,
   children,
   isVirtualized,
 }: {
   item: T
+  itemKey: string
   state: ReturnType<typeof useListState<T>>
   onRowAction?: (item: T) => void
   children: ReactNode
@@ -32,7 +34,7 @@ export function HybridGridItem<T extends GridItem>({
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
-  const node = state.collection.getItem(item.id)
+  const node = state.collection.getItem(itemKey)
   if (!node) return null
 
   const { rowProps, gridCellProps } = useGridListItem(

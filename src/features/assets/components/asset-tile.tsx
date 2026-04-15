@@ -5,14 +5,15 @@ import type {
   ComponentPropsWithoutRef,
   ReactNode,
 } from 'react'
-import type { AssetSummary } from '@/domain/asset/asset.schema'
+import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { Link } from '@/components/ui/link'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 interface AssetTileProps extends Omit<
   ComponentPropsWithRef<'div'>,
   'children'
 > {
-  asset: AssetSummary
+  assetPreview: AssetPreview
   relatedLinks?: ReactNode
   actions?: ReactNode
 }
@@ -60,13 +61,16 @@ const captionTextCss = {
   textOverflow: 'ellipsis',
 }
 
-const Thumbnail = ({ asset }: { asset: AssetSummary }) => {
+const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
   return (
     <Link
-      to="/assets/$assetId"
-      params={{ assetId: asset.externalId }}
+      to="/assets/$providerId/$assetId"
+      params={{
+        providerId: assetPreview.key.providerId,
+        assetId: assetPreview.key.externalId,
+      }}
       state={(prev) => ({ ...prev, returnUrl: href })}
       onClick={() => setDetailClicked(true)}
       css={{
@@ -78,15 +82,17 @@ const Thumbnail = ({ asset }: { asset: AssetSummary }) => {
         <img
           css={thumbnailCss}
           style={{
-            viewTransitionName: detailClicked ? `asset-${asset.id}` : undefined,
+            viewTransitionName: detailClicked
+              ? `asset-${toAssetKeyString(assetPreview.key)}`
+              : undefined,
           }}
-          src={asset.thumbnail.href}
+          src={assetPreview.thumbnail.href}
           alt=""
-          width={asset.thumbnail.width}
-          height={asset.thumbnail.height}
+          width={assetPreview.thumbnail.width}
+          height={assetPreview.thumbnail.height}
         />
         <figcaption css={captionCss}>
-          <p css={captionTextCss}>{asset.title}</p>
+          <p css={captionTextCss}>{assetPreview.title}</p>
         </figcaption>
       </figure>
     </Link>
@@ -123,14 +129,14 @@ const actionsBarCss = {
 }
 
 export function AssetTile({
-  asset,
+  assetPreview,
   relatedLinks,
   actions,
   ...props
 }: AssetTileProps) {
   return (
     <div css={containerCss} {...props}>
-      <Thumbnail asset={asset} />
+      <Thumbnail assetPreview={assetPreview} />
       {relatedLinks && <div css={relatedCss}>{relatedLinks}</div>}
       {actions && <div css={actionsBarCss}>{actions}</div>}
     </div>
