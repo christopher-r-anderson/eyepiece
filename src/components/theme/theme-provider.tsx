@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { Global } from '@emotion/react'
 import { ScriptOnce } from '@tanstack/react-router'
-import { darkTheme, lightTheme } from './themes'
 import type { ReactNode } from 'react'
 
 const THEME_STORAGE_KEY = 'theme-mode'
@@ -46,20 +44,6 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   return (
     <ThemeToggleContext.Provider value={{ toggleTheme, theme }}>
       <ScriptOnce>{THEME_SCRIPT}</ScriptOnce>
-      <Global
-        styles={{
-          ':root': {
-            ...lightTheme.colors,
-            [`&[${THEME_ATTR_NAME}="dark"]`]: {
-              ...darkTheme.colors,
-            },
-          },
-          body: {
-            background: 'var(--background)',
-            color: 'var(--text)',
-          },
-        }}
-      />
       {children}
     </ThemeToggleContext.Provider>
   )

@@ -9,6 +9,8 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { useEffect } from 'react'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
+import tokensCss from '../tokens.css?url'
+import themeCss from '../theme.css?url'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
@@ -32,7 +34,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: tokensCss },
+      { rel: 'stylesheet', href: themeCss },
+      { rel: 'stylesheet', href: appCss },
+    ],
   }),
 
   component: RootComponent,
