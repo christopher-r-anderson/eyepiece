@@ -25,6 +25,7 @@ export function ModalDialog({
   title,
 }: ModalDialogProps) {
   const titleId = useId()
+
   // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
     <ModalOverlay
@@ -48,9 +49,12 @@ export function ModalDialog({
             backgroundColor: 'var(--background)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-4)',
             maxHeight: '90vh',
             maxWidth: '90vw',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-overlay)',
+            overflow: 'hidden',
           }}
         >
           <div
@@ -59,10 +63,18 @@ export function ModalDialog({
               justifyContent: 'space-between',
               gap: 'var(--space-3)',
               alignItems: 'center',
-              padding: '0 var(--space-4)',
+              padding: 'var(--space-4) var(--space-5) var(--space-3)',
             }}
           >
-            <Heading id={titleId} slot="title">
+            <Heading
+              id={titleId}
+              slot="title"
+              css={{
+                flex: '1 1 auto',
+                marginBlockEnd: 0,
+                minWidth: 0,
+              }}
+            >
               {title}
             </Heading>
 
@@ -76,16 +88,37 @@ export function ModalDialog({
                 height: 'var(--size-touch-target-min)',
                 cursor: 'pointer',
                 justifyContent: 'center',
+                padding: 0,
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'transparent',
+                color: 'var(--text)',
+                opacity: 0.8,
+                flexShrink: 0,
+                transition:
+                  'background-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast)',
+                '&[data-hovered]': {
+                  backgroundColor: 'var(--tertiary-bg)',
+                  color: 'var(--text)',
+                  opacity: 1,
+                },
+                '&[data-focus-visible], &[data-pressed]': {
+                  opacity: 1,
+                },
+                '&[data-focus-visible]': {
+                  outline: '1px solid var(--outline-color)',
+                  outlineOffset: '2px',
+                },
               }}
             >
-              <XIcon />
+              <XIcon size={18} weight="bold" />
             </Button>
           </div>
           <div
             css={{
               minHeight: 0,
               overflowY: 'auto',
-              padding: 'var(--space-4)',
+              padding: '0 var(--space-5) var(--space-5)',
             }}
           >
             {children}
