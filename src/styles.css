@@ -11,6 +11,10 @@ html {
   color: var(--text);
 }
 
+html[data-modal-open='true'] {
+  scrollbar-gutter: auto !important;
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);

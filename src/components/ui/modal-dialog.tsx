@@ -7,7 +7,24 @@ import {
   Modal as RacModal,
 } from 'react-aria-components'
 import { useId } from 'react-aria'
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+
+const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
+
+let openModalCount = 0
+
+function syncModalOpenAttribute() {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  if (openModalCount > 0) {
+    document.documentElement.setAttribute(MODAL_OPEN_ATTRIBUTE, 'true')
+  } else {
+    document.documentElement.removeAttribute(MODAL_OPEN_ATTRIBUTE)
+  }
+}
 
 export type ModalDialogProps = {
   children: ReactNode
@@ -25,6 +42,20 @@ export function ModalDialog({
   title,
 }: ModalDialogProps) {
   const titleId = useId()
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    openModalCount += 1
+    syncModalOpenAttribute()
+
+    return () => {
+      openModalCount = Math.max(0, openModalCount - 1)
+      syncModalOpenAttribute()
+    }
+  }, [isOpen])
 
   // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
