@@ -61,7 +61,6 @@ const buttonCss = {
     '1px solid color-mix(in oklab, var(--border-color) 80%, var(--text) 20%)',
   backgroundColor:
     'color-mix(in oklab, var(--secondary-bg) 78%, var(--background) 22%)',
-  boxShadow: 'inset 0 1px 0 color-mix(in oklab, white 12%, transparent)',
   '&[data-hovered]': {
     backgroundColor:
       'color-mix(in oklab, var(--secondary-bg) 70%, var(--background) 30%)',
