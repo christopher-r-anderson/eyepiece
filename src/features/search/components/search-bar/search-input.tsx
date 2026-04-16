@@ -36,6 +36,7 @@ export function SearchInput(props: SearchFieldProps) {
       <Button
         css={{
           background: 'transparent',
+          borderColor: 'transparent',
           minHeight: 'auto',
           color: props.value ? 'var(--text)' : 'var(--text-muted)',
           fontSize: '1em',
