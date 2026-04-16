@@ -32,6 +32,8 @@ const searchBarCss = {
   boxShadow: 'var(--shadow-sm)',
 }
 
+const SELECTED_PROVIDER_INLINE_MIN_WIDTH = '34rem'
+
 function searchParams(
   query: SearchQuery,
   filters: SearchFilters,
@@ -185,7 +187,7 @@ export function SelectedProviderSearchBar({
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
-          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+          [`@container (min-width: ${SELECTED_PROVIDER_INLINE_MIN_WIDTH})`]: {
             gridTemplateColumns: 'minmax(0, 7rem) minmax(0, 1fr) auto',
             gap: 'var(--space-4)',
             alignItems: 'center',
