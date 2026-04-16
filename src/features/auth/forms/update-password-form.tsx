@@ -52,10 +52,10 @@ export function UpdatePasswordForm({
       aria-busy={isPending || undefined}
       controls={
         <div
-          style={{
+          css={{
             display: 'flex',
             justifyContent: 'flex-end',
-            marginBlockStart: '1rem',
+            marginBlockStart: 'var(--space-4)',
           }}
         >
           <Button variant="primary" type="submit" isDisabled={isPending}>

@@ -17,7 +17,7 @@ export function Menu<T extends object>(props: MenuProps<T>) {
         backgroundColor: 'var(--secondary-bg)',
         display: 'flex',
         flexDirection: 'column',
-        minWidth: '10rem',
+        minWidth: '12rem',
         borderRadius: 'inherit',
         overflow: 'hidden',
         // focus ring still shows *on the first menu item* when opening the menu via the keyboard
@@ -35,8 +35,8 @@ export function MenuItem(props: MenuItemProps) {
       {...props}
       css={{
         color: 'var(--secondary-text)',
-        padding: '0.5rem 1rem',
-        borderRadius: '4px',
+        padding: 'var(--space-2) var(--space-4)',
+        borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
         '&:hover': {
           backgroundColor: 'var(--tertiary-bg)',

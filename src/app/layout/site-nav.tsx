@@ -25,10 +25,10 @@ export function SiteNav({
         display: 'grid',
         gridTemplateColumns: '1fr auto',
         gridTemplateAreas: '"logo links" "search search"',
-        fontSize: '1.5rem',
-        gap: '1rem',
+        fontSize: 'var(--text-xl)',
+        gap: 'var(--space-4)',
         alignItems: 'center',
-        padding: '1rem',
+        padding: 'var(--space-4)',
         '@media (min-width: 769px)': {
           gridTemplateColumns: 'auto 1fr auto',
           gridTemplateAreas: '"logo search links"',
@@ -72,7 +72,7 @@ export function SiteNav({
           gridArea: 'links',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem',
+          gap: 'var(--space-4)',
         }}
       >
         <ThemeToggleButton />

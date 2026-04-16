@@ -54,11 +54,11 @@ export function LoginForm({
       aria-busy={isPending || undefined}
       controls={
         <div
-          style={{
+          css={{
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'center',
-            marginBlockStart: '1rem',
+            marginBlockStart: 'var(--space-4)',
           }}
         >
           <div css={{ marginInlineEnd: 'auto' }}>{forgotPasswordLink}</div>

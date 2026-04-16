@@ -74,7 +74,7 @@ const buttonCss = {
 const itemCss = {
   display: 'flex',
   alignItems: 'center',
-  gap: '.5em',
+  gap: 'var(--space-2)',
   cursor: 'pointer',
   lineHeight: 'var(--line-height-tight)',
 }

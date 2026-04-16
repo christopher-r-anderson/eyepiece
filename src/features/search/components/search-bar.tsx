@@ -23,10 +23,10 @@ const searchBarCss = {
   color: 'var(--secondary-text)',
   display: 'flex',
   flexBasis: 'auto',
-  gap: '1rem',
+  gap: 'var(--space-4)',
   alignItems: 'center',
-  padding: '.5rem',
-  borderRadius: '0.5rem',
+  padding: 'var(--space-2)',
+  borderRadius: 'var(--radius-md)',
   border: '1px solid var(--border-color)',
   boxShadow: 'var(--shadow-sm)',
 }
@@ -101,9 +101,9 @@ export function AnyProviderSearchBar({
         aria-label="Choose a library to search"
         css={{
           display: 'flex',
-          gap: '0.5rem',
+          gap: 'var(--space-2)',
           width: '100%',
-          marginTop: '0.5rem',
+          marginTop: 'var(--space-2)',
         }}
       >
         <ProviderButton
@@ -172,10 +172,10 @@ export function SelectedProviderSearchBar({
           color: 'var(--secondary-text)',
           display: 'flex',
           flexBasis: 'auto',
-          gap: '1rem',
+          gap: 'var(--space-4)',
           alignItems: 'center',
-          padding: '.5rem',
-          borderRadius: '0.5rem',
+          padding: 'var(--space-2)',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
         }}
@@ -218,11 +218,11 @@ export function SelectedProviderSearchBar({
 }
 
 const filtersPanelCss = {
-  marginTop: '0.5rem',
-  padding: '1rem',
+  marginTop: 'var(--space-2)',
+  padding: 'var(--space-4)',
   background: 'var(--secondary-bg)',
   color: 'var(--secondary-text)',
-  borderRadius: '0.5rem',
+  borderRadius: 'var(--radius-md)',
   border: '1px solid var(--border-color)',
   boxShadow: 'var(--shadow-sm)',
 }

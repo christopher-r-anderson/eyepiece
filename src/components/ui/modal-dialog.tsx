@@ -34,32 +34,32 @@ export function ModalDialog({
       css={{
         position: 'fixed',
         inset: 0,
-        zIndex: Infinity,
+        zIndex: 'var(--z-overlay)',
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <RacModal css={{ maxHeight: '100vh', padding: '2rem' }}>
+      <RacModal css={{ maxHeight: '100vh', padding: 'var(--space-6)' }}>
         <Dialog
           aria-labelledby={titleId}
           css={{
             backgroundColor: 'var(--background)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
+            gap: 'var(--space-4)',
             maxHeight: '90vh',
             maxWidth: '90vw',
           }}
         >
           <div
-            style={{
+            css={{
               display: 'flex',
               justifyContent: 'space-between',
-              gap: 12,
+              gap: 'var(--space-3)',
               alignItems: 'center',
-              padding: '0 1rem',
+              padding: '0 var(--space-4)',
             }}
           >
             <Heading id={titleId} slot="title">
@@ -72,8 +72,8 @@ export function ModalDialog({
               css={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                width: 32,
-                height: 32,
+                width: 'var(--size-touch-target-min)',
+                height: 'var(--size-touch-target-min)',
                 cursor: 'pointer',
                 justifyContent: 'center',
               }}
@@ -81,7 +81,13 @@ export function ModalDialog({
               <XIcon />
             </Button>
           </div>
-          <div css={{ minHeight: 0, overflowY: 'auto', padding: '1rem' }}>
+          <div
+            css={{
+              minHeight: 0,
+              overflowY: 'auto',
+              padding: 'var(--space-4)',
+            }}
+          >
             {children}
           </div>
         </Dialog>

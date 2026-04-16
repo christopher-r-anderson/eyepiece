@@ -33,7 +33,7 @@ export function MetadataTable({ data }: { data: Metadata }) {
             color: 'var(--secondary-text)',
           },
           'th, td': {
-            padding: '0.5rem',
+            padding: 'var(--space-2)',
           },
           'th:first-of-type': {
             borderRight: '1px solid var(--border-color)',

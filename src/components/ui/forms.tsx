@@ -36,7 +36,7 @@ export type FormProps = {
 } & RacFormProps
 
 const formCss = {
-  padding: '1rem',
+  padding: 'var(--space-4)',
   margin: '0 auto',
 }
 
@@ -98,8 +98,8 @@ export function InputGroup(props: ComponentPropsWithoutRef<'div'>) {
       css={{
         display: 'grid',
         gridTemplateColumns: 'auto minmax(10ch, 30ch)',
-        columnGap: '0.75rem',
-        rowGap: '1.5rem',
+        columnGap: 'var(--space-3)',
+        rowGap: 'var(--space-5)',
       }}
     />
   )
@@ -167,8 +167,8 @@ export function TextField({
         <Text
           slot="description"
           css={{
-            fontSize: '0.75rem',
-            marginTop: '0.5rem',
+            fontSize: 'var(--text-xs)',
+            marginTop: 'var(--space-2)',
             gridColumn: '1 / -1',
           }}
         >
@@ -177,10 +177,10 @@ export function TextField({
       )}
       <FieldError
         css={{
-          color: 'red',
-          fontSize: '0.85rem',
+          color: 'var(--danger-text)',
+          fontSize: 'var(--text-sm)',
           gridColumn: '1 / -1',
-          paddingBlockStart: '0.5em',
+          paddingBlockStart: 'var(--space-2)',
         }}
       />
     </RacTextField>

@@ -12,7 +12,7 @@ import type { Interpolation, Theme } from '@emotion/react'
 const listBoxCss = {
   display: 'grid',
   gap: 'var(--space-1)',
-  minWidth: '12rem',
+  minWidth: '16ch',
   padding: 'var(--space-2)',
   borderRadius: 'var(--radius-lg)',
   border:
