@@ -18,12 +18,14 @@ export function UpsertProfileForm({
   initialData,
   isDisabled,
   onSuccess,
+  surface,
 }: {
   actionType: ActionType
   headingLevel: HeadingLevel
   initialData?: FormDataObject
   isDisabled?: boolean
   onSuccess: () => void
+  surface?: 'plain' | 'panel'
 }) {
   const headingId = useId()
   const profilesCommands = useProfilesCommands()
@@ -49,6 +51,7 @@ export function UpsertProfileForm({
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
+      surface={surface}
       aria-labelledby={headingId}
       aria-busy={isPending || undefined}
       controls={

@@ -1,14 +1,24 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import { SearchInput } from '@/features/search/components/search-bar/search-input'
+import { YearRangeSlider } from '@/features/search/components/providers/nasa-ivl-filters/year-range-slider'
+import { ToggleButton } from '@/components/ui/toggle-button'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/ui/tabs'
+import { Switch } from '@/components/ui/switch'
 
 export const Route = createFileRoute('/dev/ui/controls')({
   component: DevUiControlsPage,
 })
 
 function DevUiControlsPage() {
+  const [searchValue, setSearchValue] = useState('Crab Nebula')
+  const [switchSelected, setSwitchSelected] = useState(false)
+  const [toggleSelected, setToggleSelected] = useState(true)
+  const [years, setYears] = useState<[number, number]>([1995, 2024])
+
   return (
     <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
       <section css={{ display: 'grid', gap: 'var(--space-4)' }}>
@@ -22,6 +32,7 @@ function DevUiControlsPage() {
         <div
           css={{
             display: 'grid',
+            alignItems: 'start',
             gap: 'var(--space-4)',
             gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
           }}
@@ -73,6 +84,78 @@ function DevUiControlsPage() {
               </TabPanels>
             </Tabs>
           </article>
+
+          <article
+            css={{
+              display: 'grid',
+              gap: 'var(--space-3)',
+              padding: 'var(--space-4)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-lg)',
+            }}
+          >
+            <h3 css={{ margin: 0 }}>Switches and Toggles</h3>
+            <div
+              css={{
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 'var(--space-3)',
+              }}
+            >
+              <Switch
+                aria-label="Example switch"
+                isSelected={switchSelected}
+                onChange={setSwitchSelected}
+              >
+                {switchSelected ? 'On' : 'Off'}
+              </Switch>
+              <ToggleButton
+                aria-label="Example toggle button"
+                isSelected={toggleSelected}
+                onChange={setToggleSelected}
+              >
+                {toggleSelected ? 'Selected' : 'Idle'}
+              </ToggleButton>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        css={{
+          display: 'grid',
+          gap: 'var(--space-4)',
+          padding: 'var(--space-4)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+        }}
+      >
+        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
+          <h3 css={{ margin: 0 }}>Search and Range Inputs</h3>
+          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
+            Search fields and sliders.
+          </p>
+        </div>
+
+        <div css={{ display: 'grid', gap: 'var(--space-4)' }}>
+          <SearchInput
+            aria-label="Search examples"
+            value={searchValue}
+            onChange={setSearchValue}
+          />
+
+          <YearRangeSlider
+            aria-label="Example year range"
+            value={years}
+            minValue={1900}
+            maxValue={2025}
+            onChange={(newYears) => {
+              if (Array.isArray(newYears) && newYears.length === 2) {
+                setYears([newYears[0], newYears[1]])
+              }
+            }}
+          />
         </div>
       </section>
 

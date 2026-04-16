@@ -19,9 +19,11 @@ const updatePasswordSchema = z.object({
 export function UpdatePasswordForm({
   headingLevel,
   onSuccess,
+  surface,
 }: {
   headingLevel: HeadingLevel
   onSuccess: () => void
+  surface?: 'plain' | 'panel'
 }) {
   const id = useId()
   const userQuery = useCurrentUserQuery()
@@ -46,6 +48,7 @@ export function UpdatePasswordForm({
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
+      surface={surface}
       aria-busy={isPending || undefined}
       controls={
         <div

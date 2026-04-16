@@ -9,8 +9,6 @@ export function SearchInput(props: SearchFieldProps) {
     <SearchField
       {...props}
       css={{
-        display: 'inline-flex',
-        alignItems: 'center',
         flexGrow: 1,
       }}
     >
@@ -19,6 +17,7 @@ export function SearchInput(props: SearchFieldProps) {
         css={{
           background: 'transparent',
           border: 0,
+          color: 'inherit',
           fontSize: '1em',
           width: '100%',
           '&:focus': {
@@ -26,20 +25,21 @@ export function SearchInput(props: SearchFieldProps) {
             boxShadow: '0 1px 0 0 var(--border-color)',
           },
           '&::-webkit-search-cancel-button': { display: 'none' },
-          '&::placeholder': { color: 'var(--primary-text-muted)' },
+          '&::placeholder': { color: 'var(--text-muted)' },
           '&:autofill': {
-            boxShadow: '0 1px 0 0 yellow, inset 0 0 0 100px var(--primary-bg)',
-            WebkitTextFillColor: 'var(--primary-text)',
+            boxShadow:
+              '0 1px 0 0 var(--border-color), inset 0 0 0 100px var(--tertiary-bg)',
+            WebkitTextFillColor: 'var(--text)',
           },
         }}
       />
       <Button
         css={{
           background: 'transparent',
-          color: props.value
-            ? 'var(--primary-text)'
-            : 'var(--primary-text-muted)',
+          minHeight: 'auto',
+          color: props.value ? 'var(--text)' : 'var(--text-muted)',
           fontSize: '1em',
+          padding: 0,
         }}
       >
         <XIcon />

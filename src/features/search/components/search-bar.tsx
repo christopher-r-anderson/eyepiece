@@ -19,14 +19,16 @@ import { getIdProp, getLabelProp } from '@/components/ui/select.utils'
 import { VisuallyHidden } from '@/components/ui/a11y'
 
 const searchBarCss = {
-  background: 'var(--primary-bg)',
+  background: 'var(--secondary-bg)',
+  color: 'var(--secondary-text)',
   display: 'flex',
   flexBasis: 'auto',
   gap: '1rem',
   alignItems: 'center',
   padding: '.5rem',
   borderRadius: '0.5rem',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  border: '1px solid var(--border-color)',
+  boxShadow: 'var(--shadow-sm)',
 }
 
 function searchParams(
@@ -166,14 +168,16 @@ export function SelectedProviderSearchBar({
     >
       <div
         css={{
-          background: 'var(--primary-bg)',
+          background: 'var(--secondary-bg)',
+          color: 'var(--secondary-text)',
           display: 'flex',
           flexBasis: 'auto',
           gap: '1rem',
           alignItems: 'center',
           padding: '.5rem',
           borderRadius: '0.5rem',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          border: '1px solid var(--border-color)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <VisuallyHidden>
@@ -216,9 +220,11 @@ export function SelectedProviderSearchBar({
 const filtersPanelCss = {
   marginTop: '0.5rem',
   padding: '1rem',
-  background: 'var(--primary-bg)',
+  background: 'var(--secondary-bg)',
+  color: 'var(--secondary-text)',
   borderRadius: '0.5rem',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  border: '1px solid var(--border-color)',
+  boxShadow: 'var(--shadow-sm)',
 }
 
 function FiltersPanel({ children }: { children: React.ReactNode }) {

@@ -1,17 +1,17 @@
 :root {
-  --background: oklch(0.973 0.0133 286.1503);
-  --text: oklch(0.3015 0.0572 282.4176);
-  --text-muted: oklch(0.5426 0.0465 284.7435);
-  --text-accent: oklch(0.5417 0.179 288.0332);
-  --link-color: oklch(0.5417 0.179 288.0332);
-  --border-color: oklch(0.9115 0.0216 285.9625);
+  --background: oklch(0.958 0.008 286);
+  --text: oklch(0.282 0.034 282);
+  --text-muted: oklch(0.516 0.02 284);
+  --text-accent: oklch(0.532 0.162 288);
+  --link-color: oklch(0.532 0.162 288);
+  --border-color: oklch(0.84 0.018 286);
   --outline-color: black;
-  --primary-bg: oklch(0.5417 0.179 288.0332);
+  --primary-bg: oklch(0.59 0.168 288);
   --primary-text: oklch(1 0 0);
-  --primary-text-muted: oklch(0.7166 0.0462 285.1741);
-  --secondary-bg: oklch(0.9174 0.0435 292.6901);
-  --secondary-text: oklch(0.4143 0.1039 288.1742);
-  --tertiary-bg: oklch(from var(--secondary-bg) calc(l + 0.1) c h);
+  --primary-text-muted: oklch(0.83 0.026 286);
+  --secondary-bg: oklch(0.985 0.008 286);
+  --secondary-text: oklch(0.35 0.052 286);
+  --tertiary-bg: oklch(0.944 0.016 286);
   --tertiary-text: var(--secondary-text);
   --success-bg: oklch(0.9026 0.074 160.4542);
   --success-text: oklch(0.396 0.1022 160.5193);

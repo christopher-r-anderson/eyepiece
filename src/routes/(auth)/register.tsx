@@ -25,6 +25,7 @@ function RegisterPage() {
       >
         <RegistrationForm
           headingLevel={1}
+          surface="panel"
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}
         />

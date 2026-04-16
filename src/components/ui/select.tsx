@@ -55,7 +55,20 @@ const selectCss = {
 const buttonCss = {
   width: '100%',
   display: 'flex',
+  alignItems: 'center',
   justifyContent: 'space-between',
+  border:
+    '1px solid color-mix(in oklab, var(--border-color) 80%, var(--text) 20%)',
+  backgroundColor:
+    'color-mix(in oklab, var(--secondary-bg) 78%, var(--background) 22%)',
+  boxShadow: 'inset 0 1px 0 color-mix(in oklab, white 12%, transparent)',
+  '&[data-hovered]': {
+    backgroundColor:
+      'color-mix(in oklab, var(--secondary-bg) 70%, var(--background) 30%)',
+  },
+  '&[data-pressed]': {
+    transform: 'none',
+  },
 }
 
 const itemCss = {
@@ -63,16 +76,11 @@ const itemCss = {
   alignItems: 'center',
   gap: '.5em',
   cursor: 'pointer',
+  lineHeight: 'var(--line-height-tight)',
 }
 
 const listItemCss = {
   ...itemCss,
-  padding: '0.5em',
-  '&[data-hovered], &[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
-    background: 'var(--secondary-bg)',
-    color: 'var(--secondary-text)',
-  },
 }
 
 // react aria includes an `href` key in domProps even when it is `undefined`
@@ -142,11 +150,8 @@ function ClientSelect<T extends object>({
         </SelectValue>
         <Caret />
       </Button>
-      <Popover css={{ backgroundColor: 'var(--primary-bg)' }}>
-        <ListBox
-          items={items}
-          css={{ backgroundColor: 'var(--primary-bg)', width: '100%' }}
-        >
+      <Popover placement="bottom start" offset={4}>
+        <ListBox items={items} css={{ width: '100%' }}>
           {(item) => (
             <ListBoxItem
               id={getItemId(item)}

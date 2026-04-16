@@ -24,10 +24,12 @@ export function RegistrationForm({
   headingLevel,
   next,
   onSuccess,
+  surface,
 }: {
   headingLevel: HeadingLevel
   next?: string
   onSuccess: () => void
+  surface?: 'plain' | 'panel'
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
@@ -51,6 +53,7 @@ export function RegistrationForm({
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
+      surface={surface}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={

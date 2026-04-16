@@ -31,12 +31,9 @@ const ThemeToggleButton = (props: SwitchProps) => {
           aria-label="Toggle Light and Dark Mode"
           {...props}
           onChange={toggleTheme}
-          css={{
-            display: 'inline-flex',
-            alignItems: 'center',
-          }}
           isSelected={theme === 'dark'}
           isDisabled={!isThemeSet}
+          variant="subtle"
         >
           {theme === 'dark' ? <ToggleRightIcon /> : <ToggleLeftIcon />}
         </Switch>

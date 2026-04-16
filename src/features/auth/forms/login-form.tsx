@@ -26,6 +26,7 @@ export function LoginForm({
   headingLevel,
   onSuccess,
   forgotPasswordLink,
+  surface,
 }: LoginProps) {
   const id = useId()
   const { commands } = useAuth()
@@ -48,6 +49,7 @@ export function LoginForm({
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
+      surface={surface}
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={

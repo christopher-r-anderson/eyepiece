@@ -5,7 +5,6 @@ import {
   Form as RacForm,
   TextField as RacTextField,
   Text,
-  ToggleButton,
 } from 'react-aria-components'
 import { useId } from 'react-aria'
 import { useState } from 'react'
@@ -14,6 +13,7 @@ import {
   StableVisibilityStack,
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
+import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import type {
   FormProps as RacFormProps,
@@ -32,17 +32,32 @@ export function FormError({ error }: { error?: string }) {
 export type FormProps = {
   formError?: string
   controls?: React.ReactNode
+  surface?: 'plain' | 'panel'
 } & RacFormProps
 
-export function Form({ children, formError, controls, ...props }: FormProps) {
+const formCss = {
+  padding: '1rem',
+  margin: '0 auto',
+}
+
+const panelFormCss = {
+  ...formCss,
+  padding: 'var(--space-5)',
+  border: '1px solid var(--border-color)',
+  borderRadius: 'var(--radius-lg)',
+  backgroundColor: 'var(--secondary-bg)',
+  boxShadow: 'var(--shadow-sm)',
+}
+
+export function Form({
+  children,
+  formError,
+  controls,
+  surface = 'plain',
+  ...props
+}: FormProps) {
   return (
-    <RacForm
-      {...props}
-      css={{
-        padding: '1rem',
-        margin: '0 auto',
-      }}
-    >
+    <RacForm {...props} css={surface === 'panel' ? panelFormCss : formCss}>
       {children}
       {formError && <FormError error={formError} />}
       {controls}
@@ -133,7 +148,14 @@ export function TextField({
           <ToggleButton
             aria-label="Toggle password visibility"
             aria-controls={inputId}
-            css={{ display: 'flex', alignItems: 'center' }}
+            variant="subtle"
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              minWidth: 'auto',
+              minHeight: 'auto',
+              padding: 0,
+            }}
             isSelected={showPassword}
             onPress={() => setShowPassword((prev) => !prev)}
           >

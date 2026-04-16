@@ -1,23 +1,37 @@
 import { Button as ReactAriaButton } from 'react-aria-components'
 import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
+import type { Interpolation, Theme } from '@emotion/react'
 
 const buttonCss = {
   border: 'none',
-  padding: '0.5rem 1rem',
-  borderRadius: '4px',
-  fontSize: '1rem',
-  gap: '0.5rem',
+  minHeight: 'var(--size-control-height)',
+  padding: 'var(--space-2) var(--space-4)',
+  borderRadius: 'var(--radius-md)',
+  fontSize: 'var(--text-base)',
+  fontWeight: 600,
+  lineHeight: 'var(--line-height-tight)',
+  gap: 'var(--space-2)',
   cursor: 'pointer',
   outline: 'none',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
+  whiteSpace: 'nowrap',
+  transition:
+    'background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast)',
   '&[data-focused]': {
     outline: 'none',
   },
   '&[data-focus-visible]': {
     outline: '1px solid var(--outline-color)',
+  },
+  '&[data-pressed]': {
+    transform: 'translateY(1px)',
+  },
+  '&[data-disabled]': {
+    cursor: 'default',
+    opacity: 0.7,
   },
 }
 
@@ -28,8 +42,15 @@ const primaryCss = {
 }
 
 const secondaryCss = {
+  border:
+    '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
   backgroundColor: 'var(--secondary-bg)',
   color: 'var(--secondary-text)',
+  boxShadow: 'inset 0 1px 0 color-mix(in oklab, white 35%, transparent)',
+  '&[data-hovered]': {
+    backgroundColor:
+      'color-mix(in oklab, var(--secondary-bg) 72%, var(--tertiary-bg) 28%)',
+  },
   '&[data-disabled]': { color: 'var(--primary-text-muted)' },
 }
 
@@ -39,17 +60,23 @@ export type ButtonProps = RacButtonProps & {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
   variant?: ButtonVariant
+  css?: Interpolation<Theme>
 }
 
 export function Button({
   children,
   variant = 'secondary',
   icon: Icon,
+  css: cssProp,
   ...props
 }: ButtonProps) {
   return (
     <ReactAriaButton
-      css={[buttonCss, variant === 'primary' ? primaryCss : secondaryCss]}
+      css={[
+        buttonCss,
+        variant === 'primary' ? primaryCss : secondaryCss,
+        cssProp,
+      ]}
       {...props}
     >
       {(state) => (
