@@ -8,7 +8,7 @@ import { useThemeToggle } from './theme-provider'
 import type { SwitchProps } from '@/components/ui/switch'
 import { Switch } from '@/components/ui/switch'
 
-const ThemeToggleButton = (props: SwitchProps) => {
+const ThemeSwitch = (props: SwitchProps) => {
   const { theme, toggleTheme } = useThemeToggle()
   const isThemeSet = theme !== undefined
   // autocomplete explicitly off to avoid hydration mismatch issues in firefox
@@ -52,4 +52,4 @@ const ThemeToggleButton = (props: SwitchProps) => {
   )
 }
 
-export default ThemeToggleButton
+export default ThemeSwitch
