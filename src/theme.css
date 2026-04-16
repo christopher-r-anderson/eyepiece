@@ -5,6 +5,11 @@
   --text-accent: oklch(0.532 0.162 288);
   --link-color: oklch(0.532 0.162 288);
   --border-color: oklch(0.84 0.018 286);
+  --separator-color: color-mix(
+    in oklab,
+    var(--border-color) 55%,
+    var(--text) 45%
+  );
   --outline-color: black;
   --primary-bg: oklch(0.59 0.168 288);
   --primary-text: oklch(1 0 0);
@@ -30,6 +35,11 @@
   --text-accent: oklch(0.7162 0.1597 290.3962);
   --link-color: oklch(0.7162 0.1597 290.3962);
   --border-color: oklch(0.3261 0.0597 282.5832);
+  --separator-color: color-mix(
+    in oklab,
+    var(--border-color) 55%,
+    var(--text) 45%
+  );
   --outline-color: white;
   --primary-bg: oklch(0.7162 0.1597 290.3962);
   --primary-text: oklch(0.1743 0.0227 283.7998);
