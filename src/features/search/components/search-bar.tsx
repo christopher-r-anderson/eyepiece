@@ -19,19 +19,6 @@ import { Select } from '@/components/ui/select'
 import { getIdProp, getLabelProp } from '@/components/ui/select.utils'
 import { VisuallyHidden } from '@/components/ui/a11y'
 
-const searchBarCss = {
-  background: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  display: 'flex',
-  flexBasis: 'auto',
-  gap: 'var(--space-4)',
-  alignItems: 'center',
-  padding: 'var(--space-2)',
-  borderRadius: 'var(--radius-md)',
-  border: '1px solid var(--border-color)',
-  boxShadow: 'var(--shadow-sm)',
-}
-
 const SELECTED_PROVIDER_INLINE_MIN_WIDTH = '34rem'
 
 function searchParams(
@@ -93,13 +80,11 @@ export function AnyProviderSearchBar({
       }}
       {...props}
     >
-      <div css={searchBarCss}>
-        <SearchInput
-          aria-label="Search keywords"
-          value={query}
-          onChange={setQuery}
-        />
-      </div>
+      <SearchInput
+        aria-label="Search keywords"
+        value={query}
+        onChange={setQuery}
+      />
       <div
         role="group"
         aria-label="Choose a library to search"
