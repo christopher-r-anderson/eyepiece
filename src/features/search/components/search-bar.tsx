@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useId } from 'react-aria'
+import { COMPACT_LAYOUT_MIN_WIDTH } from '../../../lib/breakpoints'
 import { SearchInput } from './search-bar/search-input'
 import { ProviderButton } from './search-bar/provider-button'
 import { SubmitButton } from './search-bar/submit-button'
@@ -18,18 +19,18 @@ import { Select } from '@/components/ui/select'
 import { getIdProp, getLabelProp } from '@/components/ui/select.utils'
 import { VisuallyHidden } from '@/components/ui/a11y'
 
-const searchBarCss = {
-  background: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  display: 'flex',
-  flexBasis: 'auto',
-  gap: '1rem',
-  alignItems: 'center',
-  padding: '.5rem',
-  borderRadius: '0.5rem',
-  border: '1px solid var(--border-color)',
-  boxShadow: 'var(--shadow-sm)',
+const SELECTED_PROVIDER_INLINE_MIN_WIDTH = '34rem'
+const searchValidationMessageCss = {
+  color: 'var(--danger-text)',
+  fontSize: 'var(--text-sm)',
 }
+
+const ANY_PROVIDER_HELP_TEXT =
+  'Use either of the search buttons to pick your library.'
+const ANY_PROVIDER_VALIDATION_MESSAGE =
+  'Enter search keywords before choosing a library.'
+const SELECTED_PROVIDER_VALIDATION_MESSAGE =
+  'Enter search keywords before searching.'
 
 function searchParams(
   query: SearchQuery,
@@ -49,11 +50,29 @@ export function AnyProviderSearchBar({
   initialQuery = '',
   ...props
 }: AnyProviderSearchBarProps) {
+  const helperTextId = useId()
+  const validationMessageId = useId()
   const [query, setQuery] = useState(initialQuery)
+  const [showValidationMessage, setShowValidationMessage] = useState(false)
   const nasaButtonRef = useRef<HTMLButtonElement | null>(null)
   const sioaButtonRef = useRef<HTMLButtonElement | null>(null)
   const navigate = useNavigate()
   const isValid = query.trim().length > 0
+  const describedBy = showValidationMessage
+    ? `${helperTextId} ${validationMessageId}`
+    : helperTextId
+
+  function updateQuery(nextQuery: string) {
+    setQuery(nextQuery)
+
+    if (nextQuery.trim().length > 0) {
+      setShowValidationMessage(false)
+    }
+  }
+
+  function showValidation() {
+    setShowValidationMessage(true)
+  }
 
   function handleProviderKeyDown(
     event: React.KeyboardEvent<HTMLButtonElement>,
@@ -71,8 +90,11 @@ export function AnyProviderSearchBar({
   }
   function runSearch(providerId: ProviderId) {
     if (!isValid) {
+      showValidation()
       return
     }
+
+    setShowValidationMessage(false)
     navigate({
       to: '/search',
       search: searchParams(query, { providerId, filters: {} }),
@@ -80,35 +102,44 @@ export function AnyProviderSearchBar({
   }
   return (
     <Form
-      aria-describedby="search-provider-help"
+      aria-describedby={describedBy}
+      css={{ width: '100%' }}
       onSubmit={(event) => {
         event.preventDefault()
-        if (isValid) {
-          nasaButtonRef.current?.focus()
+        if (!isValid) {
+          showValidation()
+          return
         }
+
+        setShowValidationMessage(false)
+        nasaButtonRef.current?.focus()
       }}
       {...props}
     >
-      <div css={searchBarCss}>
-        <SearchInput
-          aria-label="Search keywords"
-          value={query}
-          onChange={setQuery}
-        />
-      </div>
+      <SearchInput
+        aria-label="Search keywords"
+        aria-describedby={describedBy}
+        aria-invalid={showValidationMessage || undefined}
+        value={query}
+        onChange={updateQuery}
+      />
       <div
         role="group"
         aria-label="Choose a library to search"
+        aria-describedby={describedBy}
         css={{
-          display: 'flex',
-          gap: '0.5rem',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          gap: 'var(--space-2)',
           width: '100%',
-          marginTop: '0.5rem',
+          marginTop: 'var(--space-2)',
+          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          },
         }}
       >
         <ProviderButton
           ref={nasaButtonRef}
-          isDisabled={!isValid}
           organization="NASA"
           library="Image and Video Library"
           onPress={() => runSearch(NASA_IVL_PROVIDER_ID)}
@@ -116,16 +147,22 @@ export function AnyProviderSearchBar({
         />
         <ProviderButton
           ref={sioaButtonRef}
-          isDisabled={!isValid}
           organization="Smithsonian Institution"
           library="National Air and Space Museum"
           onPress={() => runSearch(SI_OA_PROVIDER_ID)}
           onKeyDown={(e) => handleProviderKeyDown(e, SI_OA_PROVIDER_ID)}
         />
       </div>
-      <p id="search-provider-help">
-        Use either of the search buttons to pick your library.
-      </p>
+      <p id={helperTextId}>{ANY_PROVIDER_HELP_TEXT}</p>
+      {showValidationMessage && (
+        <p
+          id={validationMessageId}
+          role="alert"
+          css={searchValidationMessageCss}
+        >
+          {ANY_PROVIDER_VALIDATION_MESSAGE}
+        </p>
+      )}
     </Form>
   )
 }
@@ -145,20 +182,35 @@ export function SelectedProviderSearchBar({
   initialFilters,
   ...props
 }: SelectedProviderSearchBarProps) {
+  const validationMessageId = useId()
   const [query, setQuery] = useState(initialQuery)
   const [filters, setFilters] = useState(initialFilters)
+  const [showValidationMessage, setShowValidationMessage] = useState(false)
   const providerLabelId = useId()
   const navigate = useNavigate()
   const isValid = query.trim().length > 0
   const providerId = filters.providerId
 
+  function updateQuery(nextQuery: string) {
+    setQuery(nextQuery)
+
+    if (nextQuery.trim().length > 0) {
+      setShowValidationMessage(false)
+    }
+  }
+
   return (
     <Form
+      aria-describedby={showValidationMessage ? validationMessageId : undefined}
+      css={{ width: '100%' }}
       onSubmit={(event) => {
         event.preventDefault()
         if (!isValid) {
+          setShowValidationMessage(true)
           return
         }
+
+        setShowValidationMessage(false)
         navigate({
           to: '/search',
           search: searchParams(query, filters),
@@ -170,14 +222,19 @@ export function SelectedProviderSearchBar({
         css={{
           background: 'var(--secondary-bg)',
           color: 'var(--secondary-text)',
-          display: 'flex',
-          flexBasis: 'auto',
-          gap: '1rem',
-          alignItems: 'center',
-          padding: '.5rem',
-          borderRadius: '0.5rem',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          gap: 'var(--space-2)',
+          alignItems: 'stretch',
+          padding: 'var(--space-2)',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
+          [`@container (min-width: ${SELECTED_PROVIDER_INLINE_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'minmax(0, 7rem) minmax(0, 1fr) auto',
+            gap: 'var(--space-4)',
+            alignItems: 'center',
+          },
         }}
       >
         <VisuallyHidden>
@@ -186,7 +243,7 @@ export function SelectedProviderSearchBar({
         <Select
           aria-labelledby={providerLabelId}
           items={PROVIDERS}
-          css={{ width: '7em' }}
+          css={{ width: '100%' }}
           value={providerId}
           getItemId={getIdProp}
           getItemText={getLabelProp}
@@ -197,9 +254,26 @@ export function SelectedProviderSearchBar({
             }
           }}
         />
-        <SearchInput aria-label="Keywords" value={query} onChange={setQuery} />
-        <SubmitButton isDisabled={!isValid} />
+        <SearchInput
+          aria-label="Keywords"
+          aria-describedby={
+            showValidationMessage ? validationMessageId : undefined
+          }
+          aria-invalid={showValidationMessage || undefined}
+          value={query}
+          onChange={updateQuery}
+        />
+        <SubmitButton />
       </div>
+      {showValidationMessage && (
+        <p
+          id={validationMessageId}
+          role="alert"
+          css={searchValidationMessageCss}
+        >
+          {SELECTED_PROVIDER_VALIDATION_MESSAGE}
+        </p>
+      )}
       {providerId === NASA_IVL_PROVIDER_ID && (
         <FiltersPanel>
           <NasaIvlFilters
@@ -218,13 +292,14 @@ export function SelectedProviderSearchBar({
 }
 
 const filtersPanelCss = {
-  marginTop: '0.5rem',
-  padding: '1rem',
+  marginTop: 'var(--space-2)',
+  padding: 'var(--space-4)',
   background: 'var(--secondary-bg)',
   color: 'var(--secondary-text)',
-  borderRadius: '0.5rem',
+  borderRadius: 'var(--radius-md)',
   border: '1px solid var(--border-color)',
   boxShadow: 'var(--shadow-sm)',
+  overflowX: 'auto' as const,
 }
 
 function FiltersPanel({ children }: { children: React.ReactNode }) {

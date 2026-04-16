@@ -5,7 +5,13 @@ import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useAuth } from '@/features/auth/auth.provider'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  COMPACT_FORM_ACTIONS_MIN_WIDTH,
+  Form,
+  InputGroup,
+  TextField,
+  formActionButtonCss,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -54,15 +60,24 @@ export function LoginForm({
       aria-busy={isPending || undefined}
       controls={
         <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
+          css={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr)',
+            gap: 'var(--space-3)',
             alignItems: 'center',
-            marginBlockStart: '1rem',
+            marginBlockStart: 'var(--space-4)',
+            [`@container (min-width: ${COMPACT_FORM_ACTIONS_MIN_WIDTH})`]: {
+              gridTemplateColumns: 'minmax(0, 1fr) auto',
+            },
           }}
         >
-          <div css={{ marginInlineEnd: 'auto' }}>{forgotPasswordLink}</div>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <div css={{ minWidth: 0 }}>{forgotPasswordLink}</div>
+          <Button
+            variant="primary"
+            type="submit"
+            isDisabled={isPending}
+            css={formActionButtonCss}
+          >
             Log In
           </Button>
         </div>

@@ -26,11 +26,16 @@ function LoginPage() {
           </Link>
         }
       />
-      <p>
+      <p
+        css={{
+          margin: 'var(--space-4) 0 0',
+          lineHeight: 'var(--line-height-base)',
+        }}
+      >
         Don't have an account yet?{' '}
         <Link
           to="/register"
-          css={{ textDecoration: 'underline', marginLeft: '0.5rem' }}
+          css={{ textDecoration: 'underline', marginLeft: 'var(--space-2)' }}
         >
           Register
         </Link>

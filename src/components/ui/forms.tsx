@@ -9,12 +9,14 @@ import {
 import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
+import { COMPACT_LAYOUT_MIN_WIDTH } from '../../lib/breakpoints'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import type { Interpolation, Theme } from '@emotion/react'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
@@ -33,11 +35,39 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
   surface?: 'plain' | 'panel'
+  css?: Interpolation<Theme>
 } & RacFormProps
 
+export const COMPACT_FORM_ACTIONS_MIN_WIDTH = '40rem'
+
+export const formActionsCss = {
+  display: 'flex',
+  flexWrap: 'wrap' as const,
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  gap: 'var(--space-3)',
+  marginBlockStart: 'var(--space-4)',
+}
+
+export const formActionButtonCss = {
+  width: '100%',
+  [`@container (min-width: ${COMPACT_FORM_ACTIONS_MIN_WIDTH})`]: {
+    width: 'auto',
+  },
+}
+
+export const formStatusPanelCss = {
+  width: '100%',
+  maxWidth: '32rem',
+  display: 'grid',
+  gap: 'var(--space-3)',
+}
+
 const formCss = {
-  padding: '1rem',
+  width: '100%',
+  padding: 'var(--space-4)',
   margin: '0 auto',
+  containerType: 'inline-size' as const,
 }
 
 const panelFormCss = {
@@ -51,13 +81,17 @@ const panelFormCss = {
 
 export function Form({
   children,
+  css: cssProp,
   formError,
   controls,
   surface = 'plain',
   ...props
 }: FormProps) {
   return (
-    <RacForm {...props} css={surface === 'panel' ? panelFormCss : formCss}>
+    <RacForm
+      {...props}
+      css={[surface === 'panel' ? panelFormCss : formCss, cssProp]}
+    >
       {children}
       {formError && <FormError error={formError} />}
       {controls}
@@ -97,9 +131,13 @@ export function InputGroup(props: ComponentPropsWithoutRef<'div'>) {
       {...props}
       css={{
         display: 'grid',
-        gridTemplateColumns: 'auto minmax(10ch, 30ch)',
-        columnGap: '0.75rem',
-        rowGap: '1.5rem',
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        rowGap: 'var(--space-4)',
+        [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+          gridTemplateColumns: 'auto minmax(10ch, 30ch)',
+          columnGap: 'var(--space-3)',
+          rowGap: 'var(--space-5)',
+        },
       }}
     />
   )
@@ -134,11 +172,12 @@ export function TextField({
         gridColumn: '1 / -1',
         display: 'grid',
         gridTemplateColumns: 'subgrid',
+        minWidth: 0,
       }}
       {...props}
     >
       <Label css={{ textAlign: 'left' }}>{label}</Label>
-      <div css={{ display: 'flex' }}>
+      <div css={{ display: 'flex', minWidth: 0 }}>
         <Input
           placeholder={placeholder}
           css={{ width: '100%', maxWidth: '100%' }}
@@ -167,8 +206,8 @@ export function TextField({
         <Text
           slot="description"
           css={{
-            fontSize: '0.75rem',
-            marginTop: '0.5rem',
+            fontSize: 'var(--text-xs)',
+            marginTop: 'var(--space-2)',
             gridColumn: '1 / -1',
           }}
         >
@@ -177,10 +216,10 @@ export function TextField({
       )}
       <FieldError
         css={{
-          color: 'red',
-          fontSize: '0.85rem',
+          color: 'var(--danger-text)',
+          fontSize: 'var(--text-sm)',
           gridColumn: '1 / -1',
-          paddingBlockStart: '0.5em',
+          paddingBlockStart: 'var(--space-2)',
         }}
       />
     </RacTextField>

@@ -8,7 +8,14 @@ export const Route = createFileRoute('/(pages)/buttons')({
 
 function RouteComponent() {
   return (
-    <div>
+    <div
+      css={{
+        width: '100%',
+        maxWidth: '40rem',
+        display: 'grid',
+        gap: 'var(--space-4)',
+      }}
+    >
       <h1>Buttons</h1>
       <p>This page is for testing button styles.</p>
       <p>
@@ -18,20 +25,26 @@ function RouteComponent() {
         <Button icon={MagnifyingGlassIcon}>Secondary Button</Button>
       </p>
       <p>
-        <Button style={{ width: '600px' }} icon={MagnifyingGlassIcon}>
+        <Button
+          css={{ width: 'min(100%, 37.5rem)' }}
+          icon={MagnifyingGlassIcon}
+        >
           Secondary Button
         </Button>
       </p>
       <p>
-        <Button style={{ width: '600px' }} icon={MagnifyingGlassIcon}>
-          <span style={{ flex: 1 }}>Secondary Button</span>
+        <Button
+          css={{ width: 'min(100%, 37.5rem)' }}
+          icon={MagnifyingGlassIcon}
+        >
+          <span css={{ flex: 1, minWidth: 0 }}>Secondary Button</span>
         </Button>
       </p>
       <p>
-        <Button style={{ width: '600px' }}>
+        <Button css={{ width: 'min(100%, 37.5rem)' }}>
           {() => (
             <>
-              <span style={{ flex: 1 }}>Secondary Button</span>
+              <span css={{ flex: 1, minWidth: 0 }}>Secondary Button</span>
               <MagnifyingGlassIcon />
             </>
           )}

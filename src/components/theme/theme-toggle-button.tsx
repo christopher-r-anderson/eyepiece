@@ -4,7 +4,6 @@ import {
   ToggleLeftIcon,
   ToggleRightIcon,
 } from '@phosphor-icons/react/dist/ssr'
-import { Form } from '../ui/forms'
 import { useThemeToggle } from './theme-provider'
 import type { SwitchProps } from '@/components/ui/switch'
 import { Switch } from '@/components/ui/switch'
@@ -15,12 +14,22 @@ const ThemeToggleButton = (props: SwitchProps) => {
   // autocomplete explicitly off to avoid hydration mismatch issues in firefox
   // https://bugzilla.mozilla.org/show_bug.cgi?id=654072#c4
   return (
-    <Form autoComplete="off">
+    <form
+      autoComplete="off"
+      css={{
+        display: 'inline-flex',
+        width: 'fit-content',
+        flex: 'none',
+        fontSize: 'var(--text-base)',
+        padding: 0,
+        margin: 0,
+      }}
+    >
       <div
         css={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '4px',
+          gap: 'var(--space-2)',
           transition: 'opacity 0.3s ease',
         }}
         style={{ opacity: isThemeSet ? 1 : 0.3 }}
@@ -39,7 +48,7 @@ const ThemeToggleButton = (props: SwitchProps) => {
         </Switch>
         <MoonStarsIcon color="var(--text-muted)" />
       </div>
-    </Form>
+    </form>
   )
 }
 

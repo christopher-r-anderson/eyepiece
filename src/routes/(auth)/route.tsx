@@ -11,17 +11,24 @@ function AuthLayout() {
   return (
     <main
       css={{
+        width: '100%',
+        maxWidth: 'var(--size-content-max)',
         flexGrow: 1,
-        height: '100%',
-        paddingTop: '10rem',
+        margin: '0 auto',
+        padding:
+          'clamp(var(--space-6), 12vh, 10rem) var(--space-4) var(--space-7)',
       }}
     >
       <div
         css={{
-          maxWidth: '500px',
+          width: '100%',
+          maxWidth: '32rem',
           margin: '0 auto',
           backgroundColor: 'var(--tertiary-bg)',
-          padding: '1rem',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-sm)',
+          padding: 'var(--space-4)',
         }}
       >
         <Outlet />

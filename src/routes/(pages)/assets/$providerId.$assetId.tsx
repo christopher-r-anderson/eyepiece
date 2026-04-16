@@ -1,5 +1,6 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import { COMPACT_LAYOUT_MIN_WIDTH } from '../../../lib/breakpoints'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
@@ -67,7 +68,31 @@ function AssetPage() {
   })
   return (
     <>
-      <div css={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+      <div
+        css={{
+          display: 'grid',
+          gridTemplateColumns: 'auto auto',
+          justifyContent: 'start',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          alignSelf: 'stretch',
+          width: '100%',
+          maxWidth: 'var(--size-content-max)',
+          margin: '0 auto',
+          paddingInline: 'var(--space-4)',
+          containerType: 'inline-size',
+          '& > h1': {
+            gridColumn: '1 / -1',
+            margin: 0,
+          },
+          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'auto minmax(0, 1fr) auto auto',
+            '& > h1': {
+              gridColumn: 'auto',
+            },
+          },
+        }}
+      >
         {returnUrl && (
           <Link to={returnUrl}>
             <ArrowLeftIcon aria-label="Back to search results" />

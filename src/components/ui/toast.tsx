@@ -16,33 +16,33 @@ export interface ToastContent {
 
 const regionCss = {
   position: 'fixed' as const,
-  bottom: '3rem',
-  right: '3rem',
+  bottom: 'var(--space-7)',
+  right: 'var(--space-7)',
   display: 'flex' as const,
   flexDirection: 'column' as const,
-  gap: '0.5rem',
-  maxWidth: 'min(45ch, 100vw - 6rem)',
+  gap: 'var(--space-2)',
+  maxWidth: 'min(var(--size-reading-max), calc(100vw - (2 * var(--space-7))))',
 }
 
 const toastCss = {
   backgroundColor: 'var(--secondary-bg)',
   color: 'var(--secondary-text)',
   outline: '1px solid var(--outline-color)',
-  padding: '1rem',
+  padding: 'var(--space-4)',
   display: 'flex' as const,
   alignItems: 'flex-start' as const,
-  gap: '0.5rem',
+  gap: 'var(--space-2)',
 }
 
 const contentCss = {
   display: 'flex' as const,
   flexDirection: 'column' as const,
-  gap: '0.5rem',
+  gap: 'var(--space-2)',
 }
 
 const titleCss = {
-  fontWeight: 'bold' as const,
-  verticalAlign: 'center' as const,
+  fontWeight: 700,
+  lineHeight: 'var(--line-height-tight)',
 }
 
 const closeButtonCss = {

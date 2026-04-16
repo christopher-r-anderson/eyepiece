@@ -4,7 +4,13 @@ import { useProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
 import { Heading } from '@/components/ui/heading'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  InputGroup,
+  TextField,
+  formActionButtonCss,
+  formActionsCss,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -55,17 +61,12 @@ export function UpsertProfileForm({
       aria-labelledby={headingId}
       aria-busy={isPending || undefined}
       controls={
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBlockStart: '1rem',
-          }}
-        >
+        <div css={formActionsCss}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isDisabled || isPending}
+            css={formActionButtonCss}
           >
             {isUpdating ? 'Update' : 'Create'}
           </Button>

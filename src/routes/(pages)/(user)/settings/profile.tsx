@@ -40,7 +40,9 @@ function ProfilePage() {
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
       />
-      {showSuccessMessage && <p>Profile Updated.</p>}
+      {showSuccessMessage && (
+        <p css={{ marginTop: 'var(--space-4)' }}>Profile Updated.</p>
+      )}
     </>
   )
 }

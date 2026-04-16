@@ -4,7 +4,7 @@ import { urlToNextParam } from '@/lib/utils'
 import { requireAuthenticated } from '@/lib/guards'
 import { redirectSearchParamsSchema } from '@/lib/route.schema'
 import { useCountdown } from '@/lib/hooks/use-countdown'
-import { FormStatusSwitcher } from '@/components/ui/forms'
+import { FormStatusSwitcher, formStatusPanelCss } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
 
@@ -69,24 +69,24 @@ function SuccessRedirectMessage({
 }) {
   const isHome = next === '/'
   return (
-    <>
+    <section css={formStatusPanelCss}>
       <h1>Profile created!</h1>
       <p>
         Redirecting <Link to={next}>{isHome ? 'home' : 'back'}</Link> in{' '}
         {seconds}
         &hellip;
       </p>
-    </>
+    </section>
   )
 }
 
 function SuccessStandardMessage() {
   return (
-    <>
+    <section css={formStatusPanelCss}>
       <h1>Profile created!</h1>
       <p>
         Visit our <Link to="/">homepage</Link>
       </p>
-    </>
+    </section>
   )
 }

@@ -7,9 +7,23 @@ export const Route = createFileRoute('/(pages)/')({
 
 function HomePage() {
   return (
-    <>
-      <h1>Search Public Space Image Libraries</h1>
-      <AnyProviderSearchBar css={{ width: '100%', maxWidth: '720px' }} />
-    </>
+    <section
+      css={{
+        width: '100%',
+        maxWidth: '45rem',
+        margin: '0 auto',
+      }}
+    >
+      <h1
+        css={{
+          fontSize: 'clamp(var(--text-2xl), 5vw, 3rem)',
+          lineHeight: 'var(--line-height-tight)',
+          margin: 'var(--space-4) 0 var(--space-6)',
+        }}
+      >
+        Search Public Space Image Libraries
+      </h1>
+      <AnyProviderSearchBar css={{ width: '100%' }} />
+    </section>
   )
 }

@@ -7,7 +7,24 @@ import {
   Modal as RacModal,
 } from 'react-aria-components'
 import { useId } from 'react-aria'
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+
+const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
+
+let openModalCount = 0
+
+function syncModalOpenAttribute() {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  if (openModalCount > 0) {
+    document.documentElement.setAttribute(MODAL_OPEN_ATTRIBUTE, 'true')
+  } else {
+    document.documentElement.removeAttribute(MODAL_OPEN_ATTRIBUTE)
+  }
+}
 
 export type ModalDialogProps = {
   children: ReactNode
@@ -25,6 +42,21 @@ export function ModalDialog({
   title,
 }: ModalDialogProps) {
   const titleId = useId()
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    openModalCount += 1
+    syncModalOpenAttribute()
+
+    return () => {
+      openModalCount = Math.max(0, openModalCount - 1)
+      syncModalOpenAttribute()
+    }
+  }, [isOpen])
+
   // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
     <ModalOverlay
@@ -34,35 +66,46 @@ export function ModalDialog({
       css={{
         position: 'fixed',
         inset: 0,
-        zIndex: Infinity,
+        zIndex: 'var(--z-overlay)',
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <RacModal css={{ maxHeight: '100vh', padding: '2rem' }}>
+      <RacModal css={{ maxHeight: '100vh', padding: 'var(--space-6)' }}>
         <Dialog
           aria-labelledby={titleId}
           css={{
             backgroundColor: 'var(--background)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
             maxHeight: '90vh',
             maxWidth: '90vw',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-overlay)',
+            overflow: 'hidden',
           }}
         >
           <div
-            style={{
+            css={{
               display: 'flex',
               justifyContent: 'space-between',
-              gap: 12,
+              gap: 'var(--space-3)',
               alignItems: 'center',
-              padding: '0 1rem',
+              padding: 'var(--space-4) var(--space-5) var(--space-3)',
             }}
           >
-            <Heading id={titleId} slot="title">
+            <Heading
+              id={titleId}
+              slot="title"
+              css={{
+                flex: '1 1 auto',
+                marginBlockEnd: 0,
+                minWidth: 0,
+              }}
+            >
               {title}
             </Heading>
 
@@ -72,16 +115,43 @@ export function ModalDialog({
               css={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                width: 32,
-                height: 32,
+                width: 'var(--size-touch-target-min)',
+                height: 'var(--size-touch-target-min)',
                 cursor: 'pointer',
                 justifyContent: 'center',
+                padding: 0,
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'transparent',
+                color: 'var(--text)',
+                opacity: 0.8,
+                flexShrink: 0,
+                transition:
+                  'background-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast)',
+                '&[data-hovered]': {
+                  backgroundColor: 'var(--tertiary-bg)',
+                  color: 'var(--text)',
+                  opacity: 1,
+                },
+                '&[data-focus-visible], &[data-pressed]': {
+                  opacity: 1,
+                },
+                '&[data-focus-visible]': {
+                  outline: '1px solid var(--outline-color)',
+                  outlineOffset: '2px',
+                },
               }}
             >
-              <XIcon />
+              <XIcon size={18} weight="bold" />
             </Button>
           </div>
-          <div css={{ minHeight: 0, overflowY: 'auto', padding: '1rem' }}>
+          <div
+            css={{
+              minHeight: 0,
+              overflowY: 'auto',
+              padding: '0 var(--space-5) var(--space-5)',
+            }}
+          >
             {children}
           </div>
         </Dialog>

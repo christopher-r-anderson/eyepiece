@@ -5,7 +5,14 @@ import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuth } from '@/features/auth/auth.provider'
 import { Heading } from '@/components/ui/heading'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  InputGroup,
+  TextField,
+  formActionButtonCss,
+  formActionsCss,
+  formStatusPanelCss,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -52,14 +59,13 @@ export function ForgotPasswordForm({
       formError={state.error}
       surface={surface}
       controls={
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBlockStart: '1rem',
-          }}
-        >
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+        <div css={formActionsCss}>
+          <Button
+            variant="primary"
+            type="submit"
+            isDisabled={isPending}
+            css={formActionButtonCss}
+          >
             Reset Password
           </Button>
         </div>
@@ -90,9 +96,9 @@ export function ForgotPasswordSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <>
+    <div css={formStatusPanelCss}>
       <Heading headingLevel={headingLevel}>Password reset sent!</Heading>
       <p>Please check your email to reset your password.</p>
-    </>
+    </div>
   )
 }
