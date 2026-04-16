@@ -45,7 +45,60 @@ const mockAsset = {
   original: { href: 'https://example.com/o.tif', width: 4000, height: 3000 },
 }
 
+const nasaAsset = {
+  key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'PIA24439' },
+  title: 'Apollo Footprint',
+  description: 'Buzz Aldrin took this iconic image of a bootprint on the Moon.',
+  thumbnail: {
+    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~thumb.jpg',
+    width: 640,
+    height: 626,
+  },
+  image: {
+    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~large.jpg',
+    width: 1920,
+    height: 1880,
+  },
+  original: {
+    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~orig.jpg',
+    width: 3294,
+    height: 3226,
+  },
+}
+
+const sioaAsset = {
+  key: {
+    providerId: SI_OA_PROVIDER_ID,
+    externalId: 'ld1-1643400021979-1643400026497-0',
+  },
+  title: 'Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine',
+  description: 'Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine',
+  thumbnail: {
+    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_thumb',
+    width: 640,
+    height: 480,
+  },
+  image: {
+    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_screen',
+    width: 640,
+    height: 480,
+  },
+  original: {
+    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153.jpg',
+    width: 5760,
+    height: 3840,
+  },
+  mediaType: 'image',
+}
+
 const mockMetadata = { photographer: 'Neil Armstrong', date: '1969-07-20' }
+
+const nasaMetadata = {
+  'AVAIL:NASAID': 'PIA24439',
+  'AVAIL:Title': 'Apollo Footprint',
+  'AVAIL:Description':
+    'Buzz Aldrin took this iconic image of a bootprint on the Moon during the Apollo 11 moonwalk on July 20, 1969.',
+}
 
 // ---------------------------------------------------------------------------
 // GET /api/asset/:providerId/:assetId
@@ -77,6 +130,22 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
     expect(body).toEqual(mockAsset)
   })
 
+  it('returns provider-specific NASA asset detail JSON', async () => {
+    mockService.getAsset.mockResolvedValue(nasaAsset)
+
+    const response = await assetHandler({
+      params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'PIA24439' },
+    })
+
+    const body = await response.json()
+
+    expect(mockService.getAsset).toHaveBeenCalledWith({
+      providerId: NASA_IVL_PROVIDER_ID,
+      externalId: 'PIA24439',
+    })
+    expect(body).toEqual(nasaAsset)
+  })
+
   it('works with the SI-OA provider', async () => {
     await assetHandler({
       params: { providerId: SI_OA_PROVIDER_ID, assetId: 'sioa-image-42' },
@@ -86,6 +155,25 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
       providerId: SI_OA_PROVIDER_ID,
       externalId: 'sioa-image-42',
     })
+  })
+
+  it('returns provider-specific Smithsonian asset detail JSON', async () => {
+    mockService.getAsset.mockResolvedValue(sioaAsset)
+
+    const response = await assetHandler({
+      params: {
+        providerId: SI_OA_PROVIDER_ID,
+        assetId: 'ld1-1643400021979-1643400026497-0',
+      },
+    })
+
+    const body = await response.json()
+
+    expect(mockService.getAsset).toHaveBeenCalledWith({
+      providerId: SI_OA_PROVIDER_ID,
+      externalId: 'ld1-1643400021979-1643400026497-0',
+    })
+    expect(body).toEqual(sioaAsset)
   })
 
   it('throws a 400 response for an unrecognized providerId', async () => {
@@ -127,6 +215,22 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
     expect(body).toEqual(mockMetadata)
   })
 
+  it('returns provider-specific NASA metadata JSON', async () => {
+    mockService.getMetadata.mockResolvedValue(nasaMetadata)
+
+    const response = await metadataHandler({
+      params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'PIA24439' },
+    })
+
+    const body = await response.json()
+
+    expect(mockService.getMetadata).toHaveBeenCalledWith({
+      providerId: NASA_IVL_PROVIDER_ID,
+      externalId: 'PIA24439',
+    })
+    expect(body).toEqual(nasaMetadata)
+  })
+
   it('returns a null JSON body when the provider has no metadata capability', async () => {
     mockService.getMetadata.mockResolvedValue(null)
 
@@ -135,6 +239,25 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
     })
 
     const body = await response.json()
+    expect(body).toBeNull()
+  })
+
+  it('returns provider-specific Smithsonian metadata JSON as null', async () => {
+    mockService.getMetadata.mockResolvedValue(null)
+
+    const response = await metadataHandler({
+      params: {
+        providerId: SI_OA_PROVIDER_ID,
+        assetId: 'ld1-1643400021979-1643400026497-0',
+      },
+    })
+
+    const body = await response.json()
+
+    expect(mockService.getMetadata).toHaveBeenCalledWith({
+      providerId: SI_OA_PROVIDER_ID,
+      externalId: 'ld1-1643400021979-1643400026497-0',
+    })
     expect(body).toBeNull()
   })
 

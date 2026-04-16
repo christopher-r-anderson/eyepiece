@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getApiKey, makeSiOaAdapter } from './si-oa.provider'
 import type { SioaAssetItem } from '@/integrations/si-oa/types'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import contentFixture from '@/integrations/si-oa/__fixtures__/content.ld1-1643400021979-1643400026497-0.json'
+import searchFixture from '@/integrations/si-oa/__fixtures__/search.q.apollo.json'
 
 const { mockGetContent, mockSearch } = vi.hoisted(() => {
   return {
@@ -99,6 +101,33 @@ describe('makeSiOaAdapter', () => {
   })
 
   describe('getAsset', () => {
+    it('maps fixture-backed content responses', async () => {
+      mockGetContent.mockResolvedValue(contentFixture)
+
+      const adapter = makeSiOaAdapter('test-key')
+      const result = await adapter.getAsset(contentFixture.response.id)
+
+      expect(mockGetContent).toHaveBeenCalledWith(
+        contentFixture.response.id,
+        'test-key',
+      )
+      expect(result).not.toBeNull()
+      expect(result?.title).toBe(
+        'Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine',
+      )
+      expect(result?.key.externalId).toBe(contentFixture.response.id)
+      expect(result?.key.providerId).toBe(SI_OA_PROVIDER_ID)
+      expect(result?.original.href).toContain(
+        'NASM-A19721168000-NASM2018-10153.jpg',
+      )
+      expect(result?.image.href).toContain(
+        'NASM-A19721168000-NASM2018-10153_screen',
+      )
+      expect(result?.thumbnail.href).toContain(
+        'NASM-A19721168000-NASM2018-10153_thumb',
+      )
+    })
+
     it('fetches asset by ID and maps response', async () => {
       const mockAssetItem = createMockAssetItem()
       const mockResponse = {
@@ -130,6 +159,36 @@ describe('makeSiOaAdapter', () => {
   })
 
   describe('searchAssets', () => {
+    it('maps fixture-backed search responses', async () => {
+      mockSearch.mockResolvedValue(searchFixture)
+
+      const adapter = makeSiOaAdapter('test-key')
+      const result = await adapter.searchAssets(
+        'apollo',
+        {},
+        { page: 1, pageSize: 24 },
+      )
+
+      expect(result.items).toHaveLength(searchFixture.response.rows.length)
+      expect(result.items[0]?.title).toBe(
+        'Command and Service Modules, Apollo #105, ASTP Mockup',
+      )
+      expect(result.items[0]?.key.externalId).toBe(
+        searchFixture.response.rows[0]?.id,
+      )
+      expect(result.items[0]?.original.href).toContain(
+        'NASM-A19740798000-NASM2018-10165.jpg',
+      )
+      expect(result.items[0]?.image.href).toContain(
+        'NASM-A19740798000-NASM2018-10165_screen',
+      )
+      expect(result.items[0]?.thumbnail.href).toContain(
+        'NASM-A19740798000-NASM2018-10165_thumb',
+      )
+      expect(result.pagination.total).toBe(searchFixture.response.rowCount)
+      expect(result.pagination.next).toBe(2)
+    })
+
     it('searches assets and maps paginated response', async () => {
       const mockAsset1 = createMockAssetItem({ id: 'asset-1', title: 'First' })
       const mockAsset2 = createMockAssetItem({ id: 'asset-2', title: 'Second' })

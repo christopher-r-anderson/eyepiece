@@ -1,36 +1,56 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { stubFetchJsonOnce } from '../../test/utils/fetch-mock'
 import { getContent, search } from './client'
-
-const validAssetItem = {
-  id: 'NASM-A123',
-  title: 'Test Asset',
-  unitCode: 'NASM',
-  type: 'edanmdm',
-  url: 'edanmdm:nasm_123',
-  content: {
-    descriptiveNonRepeating: {
-      title: {
-        label: 'Title',
-        content: 'Test Asset',
-      },
-      record_ID: '123',
-      unit_code: 'NASM',
-      data_source: 'National Air and Space Museum',
-      metadata_usage: {
-        access: 'CC0',
-      },
-    },
-  },
-  hash: 'hash-123',
-  docSignature: 'sig-123',
-}
+import contentFixture from './__fixtures__/content.ld1-1643400021979-1643400026497-0.json'
+import searchFixture from './__fixtures__/search.q.apollo.json'
 
 afterEach(() => {
   vi.unstubAllGlobals()
 })
 
 describe('si-oa client', () => {
+  it('parses real q-search fixture responses', async () => {
+    stubFetchJsonOnce({ json: searchFixture })
+
+    const parsed = await search(
+      {
+        q: 'apollo AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+        start: 0,
+        rows: 24,
+      },
+      'key',
+    )
+
+    expect(parsed.response.rowCount).toBe(searchFixture.response.rowCount)
+    expect(parsed.response.message).toBe(searchFixture.response.message)
+    expect(parsed.response.rows).toHaveLength(
+      searchFixture.response.rows.length,
+    )
+    expect(parsed.response.rows[0]?.id).toBe(searchFixture.response.rows[0]?.id)
+    expect(parsed.response.rows[0]?.title).toBe(
+      'Command and Service Modules, Apollo #105, ASTP Mockup',
+    )
+  })
+
+  it('serializes fully built search params into the request URL', async () => {
+    const fetchMock = stubFetchJsonOnce({ json: searchFixture })
+
+    await search(
+      {
+        q: 'apollo AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+        start: 0,
+        rows: 24,
+      },
+      'key',
+    )
+
+    const requestUrl = fetchMock.mock.calls[0][0] as string
+    expect(requestUrl).toContain('/search')
+    expect(requestUrl).toContain('q=apollo+AND+online_media_type%3AImages')
+    expect(requestUrl).toContain('start=0')
+    expect(requestUrl).toContain('rows=24')
+  })
+
   it('redacts api keys in error messages', async () => {
     const apiKey = 'super-secret-api-key'
     stubFetchJsonOnce({
@@ -50,18 +70,58 @@ describe('si-oa client', () => {
     expect(message).not.toContain(apiKey)
   })
 
-  it('parses getContent responses into the expected schema', async () => {
+  it('falls back to status text when search errors omit a message', async () => {
     stubFetchJsonOnce({
-      json: {
-        status: 200,
-        responseCode: 1,
-        response: validAssetItem,
-      },
+      ok: false,
+      statusText: 'Too Many Requests',
+      json: {},
     })
 
-    const parsed = await getContent('NASM-A123', 'key')
+    await expect(search({ q: 'apollo' }, 'key')).rejects.toThrow(
+      'Error fetching Smithsonian search: Too Many Requests',
+    )
+  })
 
-    expect(parsed.response.id).toBe('NASM-A123')
-    expect(parsed.response.title).toBe('Test Asset')
+  it('parses getContent responses into the expected schema', async () => {
+    stubFetchJsonOnce({
+      json: contentFixture,
+    })
+
+    const parsed = await getContent(contentFixture.response.id, 'key')
+
+    expect(parsed.response.id).toBe(contentFixture.response.id)
+    expect(parsed.response.title).toBe(contentFixture.response.title)
+    expect(
+      parsed.response.content.descriptiveNonRepeating.online_media?.media[0]
+        ?.resources[1]?.label,
+    ).toBe('High-resolution JPEG')
+  })
+
+  it('redacts api keys in content error messages', async () => {
+    const apiKey = 'super-secret-api-key'
+    stubFetchJsonOnce({
+      ok: false,
+      statusText: 'Unauthorized',
+      json: { message: 'Invalid key' },
+    })
+
+    await expect(
+      getContent(contentFixture.response.id, apiKey),
+    ).rejects.toThrow('api_key=REDACTED')
+    await expect(
+      getContent(contentFixture.response.id, apiKey),
+    ).rejects.not.toThrow(apiKey)
+  })
+
+  it('falls back to status text when content errors omit a message', async () => {
+    stubFetchJsonOnce({
+      ok: false,
+      statusText: 'Gateway Timeout',
+      json: {},
+    })
+
+    await expect(getContent(contentFixture.response.id, 'key')).rejects.toThrow(
+      'Error fetching Smithsonian asset: Gateway Timeout',
+    )
   })
 })
