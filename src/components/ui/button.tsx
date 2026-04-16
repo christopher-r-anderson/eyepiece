@@ -46,7 +46,6 @@ const secondaryCss = {
     '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
   backgroundColor: 'var(--secondary-bg)',
   color: 'var(--secondary-text)',
-  boxShadow: 'inset 0 1px 0 color-mix(in oklab, white 35%, transparent)',
   '&[data-hovered]': {
     backgroundColor:
       'color-mix(in oklab, var(--secondary-bg) 72%, var(--tertiary-bg) 28%)',
