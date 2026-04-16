@@ -9,9 +9,10 @@ export function PageHeading(props: PageHeadingProps) {
     <Heading
       css={{
         color: 'var(--text-accent)',
-        fontSize: '2rem',
+        fontSize: 'clamp(var(--text-2xl), 4vw, 2.5rem)',
         fontWeight: 'bold',
-        margin: '1rem 0 2rem',
+        lineHeight: 'var(--line-height-tight)',
+        margin: 'var(--space-4) 0 var(--space-6)',
         padding: 0,
         alignSelf: 'flex-start',
       }}

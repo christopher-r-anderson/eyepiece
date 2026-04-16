@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useId } from 'react-aria'
+import { COMPACT_LAYOUT_MIN_WIDTH } from '../../../lib/breakpoints'
 import { SearchInput } from './search-bar/search-input'
 import { ProviderButton } from './search-bar/provider-button'
 import { SubmitButton } from './search-bar/submit-button'
@@ -81,6 +82,7 @@ export function AnyProviderSearchBar({
   return (
     <Form
       aria-describedby="search-provider-help"
+      css={{ width: '100%' }}
       onSubmit={(event) => {
         event.preventDefault()
         if (isValid) {
@@ -100,10 +102,14 @@ export function AnyProviderSearchBar({
         role="group"
         aria-label="Choose a library to search"
         css={{
-          display: 'flex',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
           gap: 'var(--space-2)',
           width: '100%',
           marginTop: 'var(--space-2)',
+          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          },
         }}
       >
         <ProviderButton
@@ -154,6 +160,7 @@ export function SelectedProviderSearchBar({
 
   return (
     <Form
+      css={{ width: '100%' }}
       onSubmit={(event) => {
         event.preventDefault()
         if (!isValid) {
@@ -170,14 +177,19 @@ export function SelectedProviderSearchBar({
         css={{
           background: 'var(--secondary-bg)',
           color: 'var(--secondary-text)',
-          display: 'flex',
-          flexBasis: 'auto',
-          gap: 'var(--space-4)',
-          alignItems: 'center',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          gap: 'var(--space-2)',
+          alignItems: 'stretch',
           padding: 'var(--space-2)',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
+          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'minmax(0, 7rem) minmax(0, 1fr) auto',
+            gap: 'var(--space-4)',
+            alignItems: 'center',
+          },
         }}
       >
         <VisuallyHidden>
@@ -186,7 +198,7 @@ export function SelectedProviderSearchBar({
         <Select
           aria-labelledby={providerLabelId}
           items={PROVIDERS}
-          css={{ width: '7em' }}
+          css={{ width: '100%' }}
           value={providerId}
           getItemId={getIdProp}
           getItemText={getLabelProp}
@@ -225,6 +237,7 @@ const filtersPanelCss = {
   borderRadius: 'var(--radius-md)',
   border: '1px solid var(--border-color)',
   boxShadow: 'var(--shadow-sm)',
+  overflowX: 'auto' as const,
 }
 
 function FiltersPanel({ children }: { children: React.ReactNode }) {

@@ -62,7 +62,14 @@ function SearchPage() {
   return (
     <>
       <PageHeading>{searchTitle(q)}</PageHeading>
-      <div css={{ maxWidth: '640px', margin: '3rem auto' }}>
+      <div
+        css={{
+          width: '100%',
+          maxWidth: '40rem',
+          margin: 'var(--space-7) auto',
+          paddingInline: 'var(--space-4)',
+        }}
+      >
         <SelectedProviderSearchBar
           key={formResetKey}
           initialQuery={q}

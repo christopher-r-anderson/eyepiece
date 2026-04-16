@@ -29,11 +29,16 @@ function RegisterPage() {
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}
         />
-        <p>
+        <p
+          css={{
+            margin: 'var(--space-4) 0 0',
+            lineHeight: 'var(--line-height-base)',
+          }}
+        >
           Already have an account?{' '}
           <Link
             to="/login"
-            css={{ textDecoration: 'underline', marginLeft: '0.5rem' }}
+            css={{ textDecoration: 'underline', marginLeft: 'var(--space-2)' }}
           >
             Log in
           </Link>

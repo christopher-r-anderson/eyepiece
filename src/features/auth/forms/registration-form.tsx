@@ -6,7 +6,14 @@ import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuth } from '@/features/auth/auth.provider'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  InputGroup,
+  TextField,
+  formActionButtonCss,
+  formActionsCss,
+  formStatusPanelCss,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -57,14 +64,13 @@ export function RegistrationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div
-          css={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBlockStart: 'var(--space-4)',
-          }}
-        >
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+        <div css={formActionsCss}>
+          <Button
+            variant="primary"
+            type="submit"
+            isDisabled={isPending}
+            css={formActionButtonCss}
+          >
             Register
           </Button>
         </div>
@@ -104,9 +110,9 @@ export function RegistrationSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <>
+    <div css={formStatusPanelCss}>
       <Heading headingLevel={headingLevel}>Registration successful!</Heading>
       <p>Please check your email to verify your account.</p>
-    </>
+    </div>
   )
 }

@@ -17,10 +17,23 @@ export function ProviderButton({
       type="button"
       variant="primary"
       icon={MagnifyingGlassIcon}
-      style={{ display: 'flex', flex: 1 }}
+      css={{
+        display: 'flex',
+        width: '100%',
+        minWidth: 0,
+        justifyContent: 'space-between',
+        whiteSpace: 'normal',
+        textAlign: 'left',
+      }}
       {...props}
     >
-      <span style={{ flex: 1 }}>
+      <span
+        css={{
+          flex: 1,
+          minWidth: 0,
+          lineHeight: 'var(--line-height-tight)',
+        }}
+      >
         {organization} <br /> {library}
       </span>
     </Button>

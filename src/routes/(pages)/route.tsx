@@ -18,13 +18,13 @@ function PagesLayout() {
     <main
       css={{
         width: '100%',
-        maxWidth: '1200px',
+        maxWidth: 'var(--size-content-max)',
         flexGrow: 1,
         margin: '0 auto',
-        padding: '0 2rem',
+        padding: '0 var(--space-4) var(--space-7)',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'stretch',
       }}
     >
       <Outlet />

@@ -1,3 +1,4 @@
+import { DETAIL_SPLIT_MIN_WIDTH } from '../../../../lib/breakpoints'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
@@ -7,10 +8,14 @@ export function AssetDetail({ asset }: { asset: Asset }) {
       css={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '2rem',
-        marginInline: '2rem',
-        maxWidth: '1200px',
-        '@media (min-width: 1024px)': {
+        gap: 'var(--space-6)',
+        alignSelf: 'stretch',
+        width: '100%',
+        maxWidth: 'var(--size-content-max)',
+        margin: '0 auto',
+        paddingInline: 'var(--space-4)',
+        containerType: 'inline-size',
+        [`@container (min-width: ${DETAIL_SPLIT_MIN_WIDTH})`]: {
           flexDirection: 'row',
         },
       }}
@@ -24,16 +29,21 @@ export function AssetDetail({ asset }: { asset: Asset }) {
         */}
       <img
         css={{
+          width: '100%',
           maxWidth: '100%',
           maxHeight: '65vh',
-          width: 'auto',
           height: 'auto',
           objectFit: 'scale-down',
           minHeight: '300px',
-          position: 'sticky',
-          top: '2rem',
-          alignSelf: 'flex-start',
+          position: 'static',
+          alignSelf: 'stretch',
           viewTransitionName: `asset-${toAssetKeyString(asset.key)}`,
+          [`@container (min-width: ${DETAIL_SPLIT_MIN_WIDTH})`]: {
+            width: 'auto',
+            position: 'sticky',
+            top: 'var(--space-6)',
+            alignSelf: 'flex-start',
+          },
         }}
         src={asset.image.href}
         alt={asset.title}
@@ -44,8 +54,8 @@ export function AssetDetail({ asset }: { asset: Asset }) {
         <div
           css={{
             maxWidth: 'calc(clamp(45ch, 90%, 75ch) + 1rem)',
-            margin: 'auto',
-            lineHeight: '1.5',
+            margin: 0,
+            lineHeight: 'var(--line-height-base)',
             whiteSpace: 'pre-line',
           }}
         >

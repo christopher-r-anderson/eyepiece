@@ -4,7 +4,14 @@ import { useId } from 'react-aria'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuth } from '@/features/auth/auth.provider'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  InputGroup,
+  TextField,
+  formActionButtonCss,
+  formActionsCss,
+  formStatusPanelCss,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -49,14 +56,13 @@ export function ResendConfirmationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBlockStart: '1rem',
-          }}
-        >
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+        <div css={formActionsCss}>
+          <Button
+            variant="primary"
+            type="submit"
+            isDisabled={isPending}
+            css={formActionButtonCss}
+          >
             Send
           </Button>
         </div>
@@ -87,9 +93,9 @@ export function ResendConfirmationSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <>
+    <div css={formStatusPanelCss}>
       <Heading headingLevel={headingLevel}>Confirmation Email Sent!</Heading>
       <p>Please check your email to confirm your account.</p>
-    </>
+    </div>
   )
 }
