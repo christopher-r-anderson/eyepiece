@@ -24,11 +24,17 @@ const Thumb = ({
       flexDirection: 'column',
       alignItems: 'center',
       cursor: 'pointer',
+      color: 'var(--text-accent)',
     }}
   >
     <CircleIcon weight="fill" />
     <SliderOutput
-      css={{ fontSize: '0.9rem', position: 'absolute', top: '1rem' }}
+      css={{
+        fontSize: '0.9rem',
+        position: 'absolute',
+        top: '1rem',
+        color: 'var(--text)',
+      }}
     >
       {children}
     </SliderOutput>
@@ -40,9 +46,9 @@ export function YearRangeSlider(props: SliderProps) {
     <Slider
       {...props}
       css={{
-        padding: '0.5rem 1.5rem 1.75rem 1rem',
-        backgroundColor: 'var(--primary-bg)',
-        color: 'var(--primary-text)',
+        backgroundColor: 'var(--tertiary-bg)',
+        color: 'var(--secondary-text)',
+        border: '1px solid var(--border-color)',
       }}
     >
       <SliderTrack
@@ -55,7 +61,7 @@ export function YearRangeSlider(props: SliderProps) {
             css={{
               display: 'flex',
               width: '100%',
-              borderTop: '1px solid var(--border-color)',
+              borderTop: '1px solid var(--text-muted)',
             }}
           >
             <Thumb name="yearStart" index={0}>

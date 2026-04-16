@@ -66,7 +66,14 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
   ]
 
   return (
-    <div css={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div
+      css={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        color: 'var(--secondary-text)',
+      }}
+    >
       <Label id={mediaTypeLabelId}>Media Type</Label>
       <Select
         aria-labelledby={mediaTypeLabelId}
@@ -74,6 +81,7 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
         value={mediaType}
         getItemId={getIdProp}
         getItemText={getLabelProp}
+        buttonVariant="secondary"
         onChange={(value) => {
           if (onChange) {
             const newMediaType = value as MediaTypes

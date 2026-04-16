@@ -52,6 +52,7 @@ function CompleteProfilePage() {
           actionType="create"
           onSuccess={onUpdateSuccess}
           headingLevel={1}
+          surface="panel"
           initialData={{ id: user.id }}
         />
       </FormStatusSwitcher>

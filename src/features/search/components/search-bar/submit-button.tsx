@@ -7,10 +7,18 @@ export function SubmitButton(props: ButtonProps) {
     <Button
       type="submit"
       aria-label="Search"
-      variant="primary"
       css={{
         background: 'transparent',
+        color: 'var(--secondary-text)',
         fontSize: '1em',
+        minHeight: 'auto',
+        padding: 0,
+        '&[data-hovered]': {
+          color: 'var(--text-accent)',
+        },
+        '&[data-disabled]': {
+          color: 'var(--text-muted)',
+        },
       }}
       {...props}
     >

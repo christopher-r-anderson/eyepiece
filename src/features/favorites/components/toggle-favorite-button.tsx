@@ -15,6 +15,9 @@ const favoriteToggleCss = {
   border: 'none',
   cursor: 'pointer',
   color: '#6a6a6a',
+  minWidth: 'auto',
+  minHeight: 'auto',
+  padding: 0,
   '&[data-hovered="true"]': {
     color: '#ffdf00',
   },

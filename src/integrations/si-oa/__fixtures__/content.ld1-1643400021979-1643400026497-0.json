@@ -1,0 +1,245 @@
+{
+  "status": 200,
+  "responseCode": 1,
+  "response": {
+    "id": "ld1-1643400021979-1643400026497-0",
+    "title": "Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine",
+    "unitCode": "NASM",
+    "type": "edanmdm",
+    "url": "edanmdm:nasm_A19721168000",
+    "content": {
+      "freetext": {
+        "name": [
+          {
+            "label": "Manufacturer",
+            "content": "Bell Aerosystems Company"
+          }
+        ],
+        "notes": [
+          {
+            "label": "Summary",
+            "content": "This is the Lunar Module Ascent Engine used to lift up the ascent portion of the Lunar Excursion Module (LEM) after the completion of a lunar landing mission for Project Apollo. The ascent portion of the LEM, carrying the Apollo two astronauts, then docked with the Command Module (CM) orbiting the Moon and flown by the CM Commander."
+          },
+          {
+            "label": "Summary",
+            "content": "The Ascent Engine engine produced 3,500 pounds of thrust and was built by the Bell Aerosystems Company. The engine was used successfully in all operational Apollo lunar missions between 1969 and 1972, except for Apollo 13 which did not reach the Moon. This engine was donated to the Smithsonian in 1972 by the Grumman Aerospace Co."
+          }
+        ],
+        "place": [
+          {
+            "label": "Country of Origin",
+            "content": "United States of America"
+          }
+        ],
+        "setName": [
+          {
+            "label": "See more items in",
+            "content": "National Air and Space Museum Collection"
+          }
+        ],
+        "creditLine": [
+          {
+            "label": "Credit Line",
+            "content": "Gift of Grumman Aerospace Corporation"
+          }
+        ],
+        "dataSource": [
+          {
+            "label": "Data Source",
+            "content": "National Air and Space Museum"
+          }
+        ],
+        "identifier": [
+          {
+            "label": "Inventory Number",
+            "content": "A19721168000"
+          }
+        ],
+        "objectType": [
+          {
+            "label": "Type",
+            "content": "PROPULSION-Rocket Engines"
+          }
+        ],
+        "objectRights": [
+          {
+            "label": "Restrictions & Rights",
+            "content": "CC0"
+          }
+        ],
+        "physicalDescription": [
+          {
+            "label": "Materials",
+            "content": "Overall metal; combustion chamber covering probably a phenolic"
+          },
+          {
+            "label": "Dimensions",
+            "content": "3-D: 61 × 134.6cm, 97.1kg (2 ft. × 4 ft. 5 in., 214lb.)"
+          }
+        ]
+      },
+      "indexedStructured": {
+        "name": ["Bell Aerosystems Company"],
+        "place": ["United States of America"],
+        "usage_flag": [
+          "Space",
+          "Rockets",
+          "Moon",
+          "Apollo Program",
+          "Missions",
+          "Engines"
+        ],
+        "geoLocation": [
+          {
+            "L2": {
+              "type": "Country",
+              "content": "United States of America"
+            }
+          }
+        ],
+        "object_type": [
+          "Rockets",
+          "Engines (power producing equipment)",
+          "Propulsion systems"
+        ],
+        "online_media_type": ["Images"]
+      },
+      "descriptiveNonRepeating": {
+        "guid": "http://n2t.net/ark:/65665/nv90b4ee9e7-085f-4851-816c-084f47ad7b1c",
+        "title": {
+          "label": "Object Name",
+          "content": "Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine"
+        },
+        "record_ID": "nasm_A19721168000",
+        "unit_code": "NASM",
+        "title_sort": "ROCKET ENGINE, LIQUID FUEL, APOLLO LUNAR MODULE ASCENT ENGINE",
+        "data_source": "National Air and Space Museum",
+        "record_link": "http://n2t.net/ark:/65665/nv90b4ee9e7-085f-4851-816c-084f47ad7b1c",
+        "online_media": {
+          "media": [
+            {
+              "id": "media:NASM-A19721168000-NASM2018-10153",
+              "guid": "http://n2t.net/ark:/65665/gf40e284cef-3a2f-4932-a3b2-0d1df3463011",
+              "type": "Images",
+              "idsId": "NASM-A19721168000-NASM2018-10153",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10153",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10153",
+              "altTextAccessibility": "White, metal, bell-shaped nozzle with electrical wires and control unit on top.",
+              "extDescrAccessibility": "The Lunar Module Ascent Engine was used to lift up the ascent portion of the Lunar Excursion Module (LEM) after the completion of a lunar landing mission for Project Apollo. The ascent portion of the LEM, carrying the Apollo two astronauts, then docked with the Command Module (CM) orbiting the Moon and flown by the CM Commander. ",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153.tif",
+                  "width": 5792,
+                  "height": 8688,
+                  "dimensions": "5792x8688"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153.jpg",
+                  "width": 5792,
+                  "height": 8688,
+                  "dimensions": "5792x8688"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-A19721168000-NASM2018-10154-000001",
+              "guid": "http://n2t.net/ark:/65665/gf430c14f4f-a93e-4d57-b6cc-e621abd10a6e",
+              "type": "Images",
+              "idsId": "NASM-A19721168000-NASM2018-10154-000001",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10154-000001",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10154-000001",
+              "altTextAccessibility": "Metal circle with smaller circle inside of nozzle",
+              "extDescrAccessibility": "The Lunar Module Ascent Engine was used to lift up the ascent portion of the Lunar Excursion Module after the completion of a lunar landing mission for Project Apollo. The ascent portion of the Lunar Excursion Modul, carrying the Apollo two astronauts, then docked with the Command Module orbiting the Moon and flown by the Command Module Commander. Highlighted in this image is the thrust chamber of the Apollo Lunar Module ascent engine.\n",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10154-000001.tif",
+                  "width": 8688,
+                  "height": 5792,
+                  "dimensions": "8688x5792"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10154-000001.jpg",
+                  "width": 8688,
+                  "height": 5792,
+                  "dimensions": "8688x5792"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10154-000001_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10154-000001_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-A19721168000-NASM2018-10152",
+              "guid": "http://n2t.net/ark:/65665/gf4350ac2da-8365-4025-a7b0-3aafa6063084",
+              "type": "Images",
+              "idsId": "NASM-A19721168000-NASM2018-10152",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10152",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-A19721168000-NASM2018-10152",
+              "altTextAccessibility": "White, metal, bell-shaped nozzle with electrical wires and control unit on top",
+              "extDescrAccessibility": "The Lunar Module Ascent Engine was used to lift up the ascent portion of the Lunar Excursion Module (LEM) after the completion of a lunar landing mission for Project Apollo. The ascent portion of the LEM, carrying the Apollo two astronauts, then docked with the Command Module (CM) orbiting the Moon and flown by the CM Commander. ",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10152.tif",
+                  "width": 5792,
+                  "height": 8688,
+                  "dimensions": "5792x8688"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10152.jpg",
+                  "width": 5792,
+                  "height": 8688,
+                  "dimensions": "5792x8688"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10152_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10152_thumb"
+                }
+              ]
+            }
+          ],
+          "mediaCount": 3
+        },
+        "metadata_usage": {
+          "access": "CC0"
+        }
+      }
+    },
+    "hash": "471eec3445f5b1264993754a3ef40dc12152c7f5",
+    "docSignature": "c0c83f472cbc241116fd54c7a8a85136",
+    "timestamp": "1663784943",
+    "lastTimeUpdated": "1769592851",
+    "version": ""
+  }
+}

@@ -17,7 +17,11 @@ import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as pagesButtonsRouteImport } from './routes/(pages)/buttons'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
+import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
+import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
+import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
 import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
 import { Route as pagesuserFavoritesRouteImport } from './routes/(pages)/(user)/favorites'
 import { Route as pagessearchSearchRouteImport } from './routes/(pages)/(search)/search'
@@ -71,9 +75,29 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => authRouteRoute,
 } as any)
+const DevUiRouteRoute = DevUiRouteRouteImport.update({
+  id: '/dev/ui',
+  path: '/dev/ui',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const pagesuserRouteRoute = pagesuserRouteRouteImport.update({
   id: '/(user)',
   getParentRoute: () => pagesRouteRoute,
+} as any)
+const DevUiIndexRoute = DevUiIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
+const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
+const DevUiControlsRoute = DevUiControlsRouteImport.update({
+  id: '/controls',
+  path: '/controls',
+  getParentRoute: () => DevUiRouteRoute,
 } as any)
 const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
   id: '/profile/$profileId',
@@ -154,6 +178,7 @@ const ApiAssetProviderIdAssetIdMetadataRoute =
 
 export interface FileRoutesByFullPath {
   '/complete-profile': typeof CompleteProfileRoute
+  '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/buttons': typeof pagesButtonsRoute
@@ -166,6 +191,9 @@ export interface FileRoutesByFullPath {
   '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/dev/ui/controls': typeof DevUiControlsRoute
+  '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui/': typeof DevUiIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
@@ -188,6 +216,9 @@ export interface FileRoutesByTo {
   '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/dev/ui/controls': typeof DevUiControlsRoute
+  '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui': typeof DevUiIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
@@ -202,6 +233,7 @@ export interface FileRoutesById {
   '/(pages)': typeof pagesRouteRouteWithChildren
   '/complete-profile': typeof CompleteProfileRoute
   '/(pages)/(user)': typeof pagesuserRouteRouteWithChildren
+  '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(pages)/buttons': typeof pagesButtonsRoute
@@ -214,6 +246,9 @@ export interface FileRoutesById {
   '/(pages)/(search)/search': typeof pagessearchSearchRoute
   '/(pages)/(user)/favorites': typeof pagesuserFavoritesRoute
   '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/dev/ui/controls': typeof DevUiControlsRoute
+  '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui/': typeof DevUiIndexRoute
   '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
   '/(pages)/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/(pages)/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
@@ -226,6 +261,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/complete-profile'
+    | '/dev/ui'
     | '/login'
     | '/register'
     | '/buttons'
@@ -238,6 +274,9 @@ export interface FileRouteTypes {
     | '/search'
     | '/favorites'
     | '/profile/$profileId'
+    | '/dev/ui/controls'
+    | '/dev/ui/feedback'
+    | '/dev/ui/'
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
@@ -260,6 +299,9 @@ export interface FileRouteTypes {
     | '/search'
     | '/favorites'
     | '/profile/$profileId'
+    | '/dev/ui/controls'
+    | '/dev/ui/feedback'
+    | '/dev/ui'
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
@@ -273,6 +315,7 @@ export interface FileRouteTypes {
     | '/(pages)'
     | '/complete-profile'
     | '/(pages)/(user)'
+    | '/dev/ui'
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(pages)/buttons'
@@ -285,6 +328,9 @@ export interface FileRouteTypes {
     | '/(pages)/(search)/search'
     | '/(pages)/(user)/favorites'
     | '/(pages)/profile/$profileId'
+    | '/dev/ui/controls'
+    | '/dev/ui/feedback'
+    | '/dev/ui/'
     | '/(pages)/(user)/settings/profile'
     | '/(pages)/albums/$providerId/$albumId'
     | '/(pages)/assets/$providerId/$assetId'
@@ -298,6 +344,7 @@ export interface RootRouteChildren {
   authRouteRoute: typeof authRouteRouteWithChildren
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   CompleteProfileRoute: typeof CompleteProfileRoute
+  DevUiRouteRoute: typeof DevUiRouteRouteWithChildren
   ApiSearchRoute: typeof ApiSearchRoute
   ApiAlbumsProviderIdAlbumIdRoute: typeof ApiAlbumsProviderIdAlbumIdRoute
   ApiAssetProviderIdAssetIdRoute: typeof ApiAssetProviderIdAssetIdRouteWithChildren
@@ -361,12 +408,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/dev/ui': {
+      id: '/dev/ui'
+      path: '/dev/ui'
+      fullPath: '/dev/ui'
+      preLoaderRoute: typeof DevUiRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(pages)/(user)': {
       id: '/(pages)/(user)'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof pagesuserRouteRouteImport
       parentRoute: typeof pagesRouteRoute
+    }
+    '/dev/ui/': {
+      id: '/dev/ui/'
+      path: '/'
+      fullPath: '/dev/ui/'
+      preLoaderRoute: typeof DevUiIndexRouteImport
+      parentRoute: typeof DevUiRouteRoute
+    }
+    '/dev/ui/feedback': {
+      id: '/dev/ui/feedback'
+      path: '/feedback'
+      fullPath: '/dev/ui/feedback'
+      preLoaderRoute: typeof DevUiFeedbackRouteImport
+      parentRoute: typeof DevUiRouteRoute
+    }
+    '/dev/ui/controls': {
+      id: '/dev/ui/controls'
+      path: '/controls'
+      fullPath: '/dev/ui/controls'
+      preLoaderRoute: typeof DevUiControlsRouteImport
+      parentRoute: typeof DevUiRouteRoute
     }
     '/(pages)/profile/$profileId': {
       id: '/(pages)/profile/$profileId'
@@ -531,6 +606,22 @@ const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
   pagesRouteRouteChildren,
 )
 
+interface DevUiRouteRouteChildren {
+  DevUiControlsRoute: typeof DevUiControlsRoute
+  DevUiFeedbackRoute: typeof DevUiFeedbackRoute
+  DevUiIndexRoute: typeof DevUiIndexRoute
+}
+
+const DevUiRouteRouteChildren: DevUiRouteRouteChildren = {
+  DevUiControlsRoute: DevUiControlsRoute,
+  DevUiFeedbackRoute: DevUiFeedbackRoute,
+  DevUiIndexRoute: DevUiIndexRoute,
+}
+
+const DevUiRouteRouteWithChildren = DevUiRouteRoute._addFileChildren(
+  DevUiRouteRouteChildren,
+)
+
 interface ApiAssetProviderIdAssetIdRouteChildren {
   ApiAssetProviderIdAssetIdMetadataRoute: typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
@@ -550,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,
   pagesRouteRoute: pagesRouteRouteWithChildren,
   CompleteProfileRoute: CompleteProfileRoute,
+  DevUiRouteRoute: DevUiRouteRouteWithChildren,
   ApiSearchRoute: ApiSearchRoute,
   ApiAlbumsProviderIdAlbumIdRoute: ApiAlbumsProviderIdAlbumIdRoute,
   ApiAssetProviderIdAssetIdRoute: ApiAssetProviderIdAssetIdRouteWithChildren,

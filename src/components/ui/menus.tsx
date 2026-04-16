@@ -1,5 +1,13 @@
-import { Menu as RacMenu, MenuItem as RacMenuItem } from 'react-aria-components'
-import type { MenuItemProps, MenuProps } from 'react-aria-components'
+import {
+  Menu as RacMenu,
+  MenuItem as RacMenuItem,
+  Popover as RacPopover,
+} from 'react-aria-components'
+import type {
+  MenuItemProps,
+  MenuProps,
+  PopoverProps as RacPopoverProps,
+} from 'react-aria-components'
 
 export function Menu<T extends object>(props: MenuProps<T>) {
   return (
@@ -9,9 +17,9 @@ export function Menu<T extends object>(props: MenuProps<T>) {
         backgroundColor: 'var(--secondary-bg)',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         minWidth: '10rem',
+        borderRadius: 'inherit',
+        overflow: 'hidden',
         // focus ring still shows *on the first menu item* when opening the menu via the keyboard
         '&:focus': {
           outline: 'none',
@@ -46,4 +54,19 @@ export function MenuItem(props: MenuItemProps) {
   )
 }
 
-export { MenuTrigger, Popover } from 'react-aria-components'
+export function Popover(props: RacPopoverProps) {
+  return (
+    <RacPopover
+      {...props}
+      css={{
+        border: '1px solid var(--border-color)',
+        borderRadius: 'var(--radius-lg)',
+        backgroundColor: 'var(--secondary-bg)',
+        boxShadow: 'var(--shadow-md)',
+        overflow: 'hidden',
+      }}
+    />
+  )
+}
+
+export { MenuTrigger } from 'react-aria-components'

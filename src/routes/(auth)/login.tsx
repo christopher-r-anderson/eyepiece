@@ -16,6 +16,7 @@ function LoginPage() {
     <>
       <LoginForm
         headingLevel={1}
+        surface="panel"
         onSuccess={() => {
           navigate({ to: next ?? '/' })
         }}

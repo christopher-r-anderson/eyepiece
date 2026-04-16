@@ -44,7 +44,11 @@ function UpdatePasswordPage() {
           )
         }
       >
-        <UpdatePasswordForm headingLevel={1} onSuccess={onUpdateSuccess} />
+        <UpdatePasswordForm
+          headingLevel={1}
+          surface="panel"
+          onSuccess={onUpdateSuccess}
+        />
       </FormStatusSwitcher>
     </>
   )
