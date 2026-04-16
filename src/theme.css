@@ -26,6 +26,23 @@
   --danger-text: oklch(0.4487 0.1496 25.3644);
   --info-bg: oklch(0.9165 0.0628 251.7636);
   --info-text: oklch(0.4285 0.1185 253.8633);
+  --asset-tile-bg: oklch(0.988 0.004 286);
+  --asset-tile-border: color-mix(
+    in oklab,
+    var(--border-color) 72%,
+    var(--text) 28%
+  );
+  --asset-tile-caption-bg: rgba(15, 21, 34, 0.74);
+  --asset-tile-caption-text: oklch(0.985 0.004 286);
+  --asset-tile-badge-bg: rgba(248, 249, 252, 0.9);
+  --asset-tile-badge-text: var(--text);
+  --asset-tile-badge-border: rgba(16, 22, 36, 0.16);
+  --asset-tile-action-bg: rgba(248, 249, 252, 0.72);
+  --asset-tile-action-border: rgba(16, 22, 36, 0.1);
+  --favorite-toggle-idle: var(--text-muted);
+  --favorite-toggle-hover: oklch(0.82 0.16 95);
+  --favorite-toggle-selected: oklch(0.9 0.18 96);
+  --favorite-toggle-glow: rgba(255, 214, 51, 0.34);
 }
 
 :root[data-theme='dark'] {
@@ -56,4 +73,17 @@
   --danger-text: oklch(0.8842 0.1206 24.6336);
   --info-bg: oklch(0.3473 0.0893 252.1054);
   --info-text: oklch(0.8618 0.1208 252.724);
+  --asset-tile-bg: oklch(0.25 0.045 283);
+  --asset-tile-border: color-mix(in oklab, var(--border-color) 64%, white 12%);
+  --asset-tile-caption-bg: rgba(7, 9, 16, 0.76);
+  --asset-tile-caption-text: oklch(0.94 0.02 286);
+  --asset-tile-badge-bg: rgba(21, 27, 43, 0.86);
+  --asset-tile-badge-text: var(--text);
+  --asset-tile-badge-border: rgba(245, 247, 255, 0.12);
+  --asset-tile-action-bg: rgba(21, 27, 43, 0.7);
+  --asset-tile-action-border: rgba(245, 247, 255, 0.08);
+  --favorite-toggle-idle: var(--text-muted);
+  --favorite-toggle-hover: oklch(0.84 0.16 95);
+  --favorite-toggle-selected: oklch(0.93 0.19 96);
+  --favorite-toggle-glow: rgba(255, 219, 76, 0.3);
 }

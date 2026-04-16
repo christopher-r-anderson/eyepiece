@@ -11,15 +11,16 @@ import { ToggleButton } from '@/components/ui/toggle-button'
 import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
 
 const favoriteToggleCss = {
-  backgroundColor: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  color: '#6a6a6a',
-  minWidth: 'auto',
-  minHeight: 'auto',
-  padding: 0,
+  '--toggle-icon-color': 'var(--favorite-toggle-idle)',
+  '--toggle-icon-hover-color': 'var(--favorite-toggle-hover)',
+  '--toggle-icon-hover-glow': 'var(--favorite-toggle-glow)',
+  '--toggle-icon-selected-color': 'var(--favorite-toggle-selected)',
+  '--toggle-icon-selected-glow': 'var(--favorite-toggle-glow)',
   '&[data-hovered="true"]': {
-    color: '#ffdf00',
+    transform: 'scale(1.06)',
+  },
+  '&[data-selected="true"]': {
+    transform: 'scale(1.02)',
   },
 }
 
@@ -67,11 +68,12 @@ export function ToggleFavoriteButton({
     <ToggleButton
       aria-label="Star"
       css={favoriteToggleCss}
+      variant="icon"
       isSelected={isSelected}
       isDisabled={isDisabled}
       onChange={onChange}
     >
-      <StarIcon size={18} weight={isSelected ? 'fill' : undefined} />
+      <StarIcon size={20} weight={isSelected ? 'fill' : 'regular'} />
     </ToggleButton>
   )
 }
