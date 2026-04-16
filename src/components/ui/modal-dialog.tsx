@@ -25,6 +25,7 @@ export function ModalDialog({
   title,
 }: ModalDialogProps) {
   const titleId = useId()
+  // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
     <ModalOverlay
       isOpen={isOpen}
