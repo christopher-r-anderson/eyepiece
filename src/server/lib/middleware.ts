@@ -1,5 +1,13 @@
 import { createMiddleware } from '@tanstack/react-start'
-import z from 'zod'
+import type { z } from 'zod'
+
+function formatValidationIssues(error: z.ZodError) {
+  return error.issues.map((issue) => ({
+    path: issue.path.join('.'),
+    code: issue.code,
+    message: issue.message,
+  }))
+}
 
 export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
   return createMiddleware().server(async ({ next, request }) => {
@@ -9,8 +17,16 @@ export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
     )
 
     if (!result.success) {
+      const issues = formatValidationIssues(result.error)
+
       return Response.json(
-        { error: z.treeifyError(result.error) },
+        {
+          error: {
+            code: 'INVALID_QUERY_PARAMS',
+            message: 'One or more query parameters are invalid.',
+            issues,
+          },
+        },
         { status: 400 },
       )
     }

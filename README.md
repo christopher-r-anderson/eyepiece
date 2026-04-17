@@ -19,6 +19,8 @@ pnpm install
 pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 
 # Set up your local env files by copying the examples and then updating them with your values.
+# `.env.local` is used for local app and build configuration.
+# `.env.test` is used for test-mode runs like Vitest.
 cp .env.example .env.local
 cp .env.test.example .env.test
 
@@ -26,6 +28,10 @@ cp .env.test.example .env.test
 pnpm print-supabase-env
 
 # `SI_OA_API_KEY` is your Smithsonian Institute Open Access API Key from https://api.data.gov/signup/
+
+# Sentry env vars are optional for local development and tests.
+# Leave `VITE_SENTRY_ENABLED=false` unless you are intentionally verifying the Sentry integration.
+# See "Local Development" in `docs/EnvironmentVariables.md` for further details.
 
 # To be able to run e2e tests, use one of the following:
 # Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions

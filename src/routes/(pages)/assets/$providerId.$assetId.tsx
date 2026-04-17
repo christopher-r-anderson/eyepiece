@@ -11,7 +11,7 @@ import {
   assetKeySchema,
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
-import { PrettyException } from '@/components/ui/error'
+import { RouteError } from '@/app/layout/route-error'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
@@ -122,11 +122,11 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
   errorComponent: ({ error }) => (
-    <>
-      <AssetHeading />
-      <p>Error loading asset.</p>
-      <PrettyException error={error} headingLevel={1} />
-    </>
+    <RouteError
+      error={error}
+      heading={<AssetHeading />}
+      message="Error loading asset."
+    />
   ),
   pendingComponent: () => (
     <>

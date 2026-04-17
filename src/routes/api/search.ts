@@ -25,15 +25,13 @@ export const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
   sioaSearchFiltersSchema.extend({ providerId: z.literal(SI_OA_PROVIDER_ID) }),
 ])
 
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
+  searchQueryParamSchema.and(paginationSchema).and(searchFiltersParamsSchema),
+)
+
 export const Route = createFileRoute('/api/search')({
   server: {
-    middleware: [
-      buildUrlSearchParamsMiddleware(
-        searchQueryParamSchema
-          .and(paginationSchema)
-          .and(searchFiltersParamsSchema),
-      ),
-    ],
+    middleware: [searchParamsMiddleware],
     handlers: {
       GET: async ({ context: { searchParams } }) => {
         const eyepiece = makeEyepieceProviderService()

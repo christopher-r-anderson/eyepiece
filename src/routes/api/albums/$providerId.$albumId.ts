@@ -8,9 +8,11 @@ import {
 } from '@/server/lib/utils'
 import { externalAlbumIdSchema } from '@/domain/album/album.schema'
 
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(paginationSchema)
+
 export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
   server: {
-    middleware: [buildUrlSearchParamsMiddleware(paginationSchema)],
+    middleware: [searchParamsMiddleware],
     handlers: {
       GET: async ({
         params: { providerId: providerIdString, albumId: albumIdString },
