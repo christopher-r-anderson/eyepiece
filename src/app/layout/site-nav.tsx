@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useLandmark } from 'react-aria'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
-import ThemeToggleButton from '@/components/theme/theme-toggle-button'
+import ThemeSwitch from '@/components/theme/theme-switch'
 import logo from '@/assets/eyepiece-logo.svg'
 import { UserStatus } from '@/features/auth/components/user-status'
 import {
@@ -102,7 +102,7 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
             },
           }}
         >
-          <ThemeToggleButton />
+          <ThemeSwitch />
           <Link to="/favorites">Favorites</Link>
           <UserStatus />
         </div>

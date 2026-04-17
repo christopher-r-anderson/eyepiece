@@ -39,11 +39,11 @@ const thumbnailCss = {
 }
 
 const captionCss = {
-  fontSize: '0.9rem',
-  backgroundColor: 'rgba(1, 1, 1, 0.5)',
+  fontSize: 'var(--text-sm)',
+  backgroundColor: 'var(--asset-tile-caption-bg)',
   backdropFilter: 'blur(4px)',
   position: 'absolute' as const,
-  padding: '0.5rem',
+  padding: 'var(--space-3)',
   bottom: 0,
   right: 0,
   left: 0,
@@ -51,7 +51,7 @@ const captionCss = {
 
 const captionTextCss = {
   margin: 0,
-  color: 'white',
+  color: 'var(--asset-tile-caption-text)',
   height: '2.2em',
   lineHeight: '1.1em',
   display: '-webkit-box',
@@ -76,6 +76,14 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
       css={{
         width: '100%',
         height: '100%',
+        display: 'block',
+        color: 'inherit',
+        borderRadius: 'calc(var(--radius-lg) - var(--space-2))',
+        overflow: 'hidden',
+        '&[data-focus-visible]': {
+          outline: '1px solid var(--outline-color)',
+          outlineOffset: '-2px',
+        },
       }}
     >
       <figure css={figureCss}>
@@ -100,32 +108,45 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
 }
 
 const containerCss = {
-  backgroundColor: 'black',
-  padding: '0.5rem',
-  borderRadius: '8px',
+  backgroundColor: 'var(--asset-tile-bg)',
+  padding: 'var(--space-2)',
+  borderRadius: 'var(--radius-lg)',
+  border: '1px solid var(--asset-tile-border)',
+  boxShadow: 'var(--shadow-sm)',
   position: 'relative' as const,
   display: 'flex',
   alignItems: 'center',
   aspectRatio: '1 / 1',
+  overflow: 'hidden',
 }
 
 const relatedCss = {
   position: 'absolute' as const,
-  top: '0.5rem',
-  left: '0.5rem',
+  top: 'var(--space-2)',
+  left: 'var(--space-2)',
   margin: 0,
-  padding: '0.25rem 0.5rem',
-  border: '1px solid black',
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  fontSize: '0.75rem',
+  padding: 'var(--space-1) var(--space-2)',
+  border: '1px solid var(--asset-tile-badge-border)',
+  borderRadius: 'var(--radius-sm)',
+  backgroundColor: 'var(--asset-tile-badge-bg)',
+  color: 'var(--asset-tile-badge-text)',
+  backdropFilter: 'blur(6px)',
+  boxShadow: 'var(--shadow-sm)',
+  fontSize: 'var(--text-xs)',
 }
 
 const actionsBarCss = {
   position: 'absolute' as const,
-  top: '0.5rem',
-  right: '0.5rem',
+  top: 'var(--space-1)',
+  right: 'var(--space-1)',
   display: 'flex',
   justifyContent: 'flex-end',
+  padding: 'var(--space-1)',
+  backgroundColor: 'var(--asset-tile-action-bg)',
+  color: 'var(--asset-tile-badge-text)',
+  border: '1px solid var(--asset-tile-action-border)',
+  borderRadius: 'var(--radius-md)',
+  backdropFilter: 'blur(4px)',
 }
 
 export function AssetTile({

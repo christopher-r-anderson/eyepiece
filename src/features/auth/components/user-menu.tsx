@@ -12,10 +12,27 @@ export function UserMenu() {
   const { data: user } = useCurrentUserQuery()
   return (
     <MenuTrigger>
-      <Button aria-label="User Menu">
+      <Button
+        aria-label="User Menu"
+        css={{
+          minWidth: 'calc(var(--size-control-height) - var(--space-1))',
+          minHeight: 'calc(var(--size-control-height) - var(--space-1))',
+          padding: 'var(--space-2)',
+          border: '1px solid transparent',
+          backgroundColor: 'transparent',
+          color: 'var(--primary-text-muted)',
+          '&[data-hovered]': {
+            color: 'var(--text)',
+            border:
+              '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
+            backgroundColor:
+              'color-mix(in oklab, var(--tertiary-bg) 72%, var(--background) 28%)',
+          },
+        }}
+      >
         <UserCircleIcon size={24} />
       </Button>
-      <Popover>
+      <Popover placement="bottom end" containerPadding={20}>
         <Menu>
           <MenuItem
             href={{

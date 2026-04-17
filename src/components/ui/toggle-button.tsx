@@ -35,6 +35,41 @@ const toggleButtonCss = {
   },
 }
 
+const iconToggleButtonCss = {
+  minHeight: 'auto',
+  minWidth: 'auto',
+  padding: 0,
+  borderRadius: 'var(--radius-sm)',
+  border: 'none',
+  backgroundColor: 'transparent',
+  color: 'var(--toggle-icon-color, var(--text-muted))',
+  transition:
+    'color var(--transition-fast), filter var(--transition-fast), transform var(--transition-fast), outline-color var(--transition-fast)',
+  '&[data-hovered]': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    color: 'var(--toggle-icon-hover-color, var(--text))',
+    filter:
+      'drop-shadow(0 0 0.45rem var(--toggle-icon-hover-glow, transparent))',
+  },
+  '&[data-selected]': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    color: 'var(--toggle-icon-selected-color, var(--text-accent))',
+    filter:
+      'drop-shadow(0 0 0.6rem var(--toggle-icon-selected-glow, transparent))',
+  },
+  '&[data-focus-visible]': {
+    outline: '1px solid var(--outline-color)',
+    outlineOffset: '3px',
+  },
+  '&[data-disabled]': {
+    opacity: 0.5,
+    cursor: 'default',
+    filter: 'none',
+  },
+}
+
 const defaultSelectedCss = {
   '&[data-selected]': {
     backgroundColor: 'var(--secondary-bg)',
@@ -52,7 +87,7 @@ const subtleSelectedCss = {
 }
 
 export type ToggleButtonProps = ComponentProps<typeof RacToggleButton> & {
-  variant?: 'default' | 'subtle'
+  variant?: 'default' | 'subtle' | 'icon'
   css?: Interpolation<Theme>
 }
 
@@ -65,7 +100,11 @@ export function ToggleButton({
     <RacToggleButton
       css={[
         toggleButtonCss,
-        variant === 'subtle' ? subtleSelectedCss : defaultSelectedCss,
+        variant === 'icon'
+          ? iconToggleButtonCss
+          : variant === 'subtle'
+            ? subtleSelectedCss
+            : defaultSelectedCss,
         cssProp,
       ]}
       {...props}

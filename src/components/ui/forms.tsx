@@ -187,13 +187,14 @@ export function TextField({
           <ToggleButton
             aria-label="Toggle password visibility"
             aria-controls={inputId}
-            variant="subtle"
+            variant="icon"
             css={{
               display: 'flex',
               alignItems: 'center',
-              minWidth: 'auto',
-              minHeight: 'auto',
-              padding: 0,
+              '--toggle-icon-color': 'var(--text-muted)',
+              '--toggle-icon-hover-color': 'var(--text)',
+              '--toggle-icon-selected-color': 'var(--text-accent)',
+              '--toggle-icon-selected-glow': 'transparent',
             }}
             isSelected={showPassword}
             onPress={() => setShowPassword((prev) => !prev)}
