@@ -101,25 +101,68 @@ describe('GET /api/albums/:providerId/:albumId handler', () => {
 
     expect(response.status).toBe(404)
     const body = await response.json()
-    expect(body).toMatchObject({ message: 'Album does not exist' })
+    expect(body).toEqual({
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Album does not exist',
+      },
+    })
   })
 
   it('throws a 400 response for an unrecognized providerId', async () => {
-    await expect(
-      handler({
+    let response: Response | undefined
+
+    try {
+      await handler({
         params: { providerId: 'not_valid', albumId: 'STS-107' },
         context: makeContext(),
-      }),
-    ).rejects.toMatchObject({ status: 400 })
+      })
+    } catch (error) {
+      response = error as Response
+    }
+
+    expect(response?.status).toBe(400)
+    await expect(response?.json()).resolves.toEqual({
+      error: {
+        code: 'INVALID_PATH_PARAMS',
+        message: 'Invalid providerId',
+        issues: [
+          {
+            code: 'invalid_value',
+            message: "Invalid providerId, received 'not_valid'",
+            path: 'providerId',
+          },
+        ],
+      },
+    })
   })
 
   it('throws a 400 response when the albumId is empty', async () => {
-    await expect(
-      handler({
+    let response: Response | undefined
+
+    try {
+      await handler({
         params: { providerId: NASA_IVL_PROVIDER_ID, albumId: '' },
         context: makeContext(),
-      }),
-    ).rejects.toMatchObject({ status: 400 })
+      })
+    } catch (error) {
+      response = error as Response
+    }
+
+    expect(response?.status).toBe(400)
+    await expect(response?.json()).resolves.toEqual({
+      error: {
+        code: 'INVALID_PATH_PARAMS',
+        message: 'Invalid albumId',
+        issues: [
+          {
+            code: 'too_small',
+            message: 'Too small: expected string to have >=1 characters',
+            path: 'albumId',
+          },
+        ],
+      },
+    })
   })
 
   it('forwards the pagination parameters to the service', async () => {

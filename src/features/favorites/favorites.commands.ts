@@ -1,10 +1,7 @@
 import { useMemo } from 'react'
-import {
-  
-  ToggleFavoriteErrorCodes
-} from './favorites.const'
+import { ToggleFavoriteErrorCodes } from './favorites.const'
 import { toggleFavorite } from './favorites.functions'
-import type {ToggleFavoriteErrorCode} from './favorites.const';
+import type { ToggleFavoriteErrorCode } from './favorites.const'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type { Result, ResultError } from '@/lib/result'

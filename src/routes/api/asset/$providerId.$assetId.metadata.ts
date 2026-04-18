@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
+import { createNotFoundResponse } from '@/server/lib/api-errors'
+import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
 import { parseOrThrowProviderId } from '@/server/lib/utils'
 
 export const Route = createFileRoute(
@@ -10,10 +12,26 @@ export const Route = createFileRoute(
       GET: async ({ params: { providerId: providerIdString, assetId } }) => {
         const eyepiece = makeEyepieceProviderService()
         const providerId = parseOrThrowProviderId(providerIdString)
-        const asset = await eyepiece.getMetadata({
-          providerId,
-          externalId: assetId,
-        })
+        let asset
+
+        try {
+          asset = await eyepiece.getMetadata({
+            providerId,
+            externalId: assetId,
+          })
+        } catch (error) {
+          rethrowHandledErrorWithContext(error, {
+            tags: {
+              'api.route': '/api/asset/$providerId/$assetId/metadata',
+              'http.method': 'GET',
+            },
+          })
+        }
+
+        if (asset === null) {
+          return createNotFoundResponse('Asset metadata does not exist')
+        }
+
         return Response.json(asset)
       },
     },

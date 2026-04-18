@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import { parseOrThrowBadRequest, parseOrThrowProviderId } from './utils'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import { shouldReportError } from '@/lib/error-observability'
 
 describe('parseOrThrowBadRequest', () => {
   it('returns parsed data when the input is valid', () => {
@@ -25,7 +26,20 @@ describe('parseOrThrowBadRequest', () => {
     expect(response?.status).toBe(400)
 
     const body = await response?.json()
-    expect(body?.message).toBe('Bad pagination')
+    expect(body).toEqual({
+      error: {
+        code: 'INVALID_INPUT',
+        message: 'Bad pagination',
+        issues: [
+          {
+            code: 'too_small',
+            message: 'Too small: expected number to be >=1',
+            path: 'page',
+          },
+        ],
+      },
+    })
+    expect(shouldReportError(response)).toBe(false)
   })
 })
 
@@ -47,6 +61,18 @@ describe('parseOrThrowProviderId', () => {
     expect(response?.status).toBe(400)
 
     const body = await response?.json()
-    expect(body?.message).toBe('Invalid providerId')
+    expect(body).toEqual({
+      error: {
+        code: 'INVALID_PATH_PARAMS',
+        message: 'Invalid providerId',
+        issues: [
+          {
+            code: 'invalid_value',
+            message: "Invalid providerId, received 'bad-provider'",
+            path: 'providerId',
+          },
+        ],
+      },
+    })
   })
 })

@@ -1,3 +1,4 @@
+import { createApiErrorResponse, formatValidationIssues } from './api-errors'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { z } from 'zod'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
@@ -9,15 +10,29 @@ export function parseOrThrowBadRequest<T extends z.ZodType>(
   schema: T,
   input: unknown,
   message: string = 'Invalid input',
+  options?: {
+    code?: string
+    path?: string
+  },
 ): z.infer<T> {
   const result = schema.safeParse(input)
   if (!result.success) {
     console.error(message, result.error)
-    throw Response.json({ message, cause: result.error }, { status: 400 })
+    throw createApiErrorResponse(
+      {
+        code: options?.code ?? 'INVALID_INPUT',
+        message,
+        issues: formatValidationIssues(result.error, options?.path),
+      },
+      400,
+    )
   }
   return result.data
 }
 
 export function parseOrThrowProviderId(input: unknown): ProviderId {
-  return parseOrThrowBadRequest(providerIdSchema, input, 'Invalid providerId')
+  return parseOrThrowBadRequest(providerIdSchema, input, 'Invalid providerId', {
+    code: 'INVALID_PATH_PARAMS',
+    path: 'providerId',
+  })
 }

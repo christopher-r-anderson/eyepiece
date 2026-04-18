@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AppException } from '@/lib/result'
+import { operationalErrorObservability } from '@/lib/error-observability'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -209,6 +211,37 @@ describe('GET /api/search handler', () => {
       handler({ context: makeContext(params) }),
     ).rejects.toMatchObject({
       name: 'ZodError',
+    })
+  })
+
+  it('rethrows handled provider failures with route context', async () => {
+    mockService.searchAssets.mockRejectedValue(
+      new AppException({
+        message: 'Provider failed',
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'providers',
+            operation: 'search.fetch',
+            'provider.id': NASA_IVL_PROVIDER_ID,
+          },
+        }),
+      }),
+    )
+
+    await expect(
+      handler({ context: makeContext(validNasaParams) }),
+    ).rejects.toMatchObject({
+      appError: {
+        observability: {
+          tags: {
+            feature: 'providers',
+            operation: 'search.fetch',
+            'provider.id': NASA_IVL_PROVIDER_ID,
+            'api.route': '/api/search',
+            'http.method': 'GET',
+          },
+        },
+      },
     })
   })
 })

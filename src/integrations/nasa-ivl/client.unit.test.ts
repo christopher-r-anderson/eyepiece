@@ -6,6 +6,7 @@ import invalidAlbumErrorFixture from './__fixtures__/album.invalid-album.error.j
 import metadataFixture from './__fixtures__/metadata.PIA24439.json'
 import assetSearchFixture from './__fixtures__/search.nasa-id.PIA24439.json'
 import querySearchFixture from './__fixtures__/search.q.apollo.json'
+import { ProviderClientError } from '@/integrations/provider-client-error'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -56,11 +57,18 @@ describe('nasa-ivl client search', () => {
   it('uses API reason details in thrown errors', async () => {
     stubFetchJsonOnce({
       ok: false,
+      status: 400,
       statusText: 'Bad Request',
       json: { reason: 'Invalid page' },
     })
 
-    await expect(search({ q: 'apollo' })).rejects.toThrow(
+    const request = search({ q: 'apollo' })
+
+    await expect(request).rejects.toMatchObject({
+      name: 'ProviderClientError',
+      status: 400,
+    })
+    await expect(request).rejects.toThrow(
       'Error fetching NASA media: Invalid page',
     )
   })
@@ -94,13 +102,22 @@ describe('nasa-ivl client search', () => {
   it('uses API reason details in album errors', async () => {
     stubFetchJsonOnce({
       ok: false,
+      status: 400,
       statusText: 'Bad Request',
       json: invalidAlbumErrorFixture,
     })
 
-    await expect(getAlbum('invalid-album', { page: 1 })).rejects.toThrow(
+    const request = getAlbum('invalid-album', { page: 1 })
+
+    await expect(request).rejects.toThrow(
       `Error fetching NASA media: ${invalidAlbumErrorFixture.reason}`,
     )
+    await expect(request).rejects.toMatchObject({
+      name: 'ProviderClientError',
+      status: 400,
+      kind: 'not_found',
+      operation: 'album.fetch',
+    })
   })
 
   it('parses fixture-backed metadata responses', async () => {
@@ -115,6 +132,7 @@ describe('nasa-ivl client search', () => {
   it('falls back to status text when metadata errors omit a reason', async () => {
     stubFetchJsonOnce({
       ok: false,
+      status: 403,
       statusText: 'Forbidden',
       json: {},
     })
@@ -122,5 +140,22 @@ describe('nasa-ivl client search', () => {
     await expect(getMetadata('PIA24439')).rejects.toThrow(
       'Error fetching NASA asset metadata: Forbidden',
     )
+  })
+
+  it('throws structured provider client errors for metadata failures', async () => {
+    stubFetchJsonOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      json: { reason: 'Missing metadata' },
+    })
+
+    const request = getMetadata('missing')
+
+    await expect(request).rejects.toBeInstanceOf(ProviderClientError)
+    await expect(request).rejects.toMatchObject({
+      operation: 'metadata.fetch',
+      status: 404,
+    })
   })
 })

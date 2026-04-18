@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AppException } from '@/lib/result'
+import { operationalErrorObservability } from '@/lib/error-observability'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -176,12 +178,80 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
     expect(body).toEqual(sioaAsset)
   })
 
+  it('returns a 404 JSON response when the asset does not exist', async () => {
+    mockService.getAsset.mockResolvedValue(null)
+
+    const response = await assetHandler({
+      params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'missing-asset' },
+    })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Asset does not exist',
+      },
+    })
+  })
+
   it('throws a 400 response for an unrecognized providerId', async () => {
+    let response: Response | undefined
+
+    try {
+      await assetHandler({
+        params: { providerId: 'bad_provider', assetId: 'AS11-40-5931' },
+      })
+    } catch (error) {
+      response = error as Response
+    }
+
+    expect(response?.status).toBe(400)
+    await expect(response?.json()).resolves.toEqual({
+      error: {
+        code: 'INVALID_PATH_PARAMS',
+        message: 'Invalid providerId',
+        issues: [
+          {
+            code: 'invalid_value',
+            message: "Invalid providerId, received 'bad_provider'",
+            path: 'providerId',
+          },
+        ],
+      },
+    })
+  })
+
+  it('rethrows handled provider failures with route context', async () => {
+    mockService.getAsset.mockRejectedValue(
+      new AppException({
+        message: 'Provider failed',
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'providers',
+            operation: 'asset.fetch',
+            'provider.id': NASA_IVL_PROVIDER_ID,
+          },
+        }),
+      }),
+    )
+
     await expect(
       assetHandler({
-        params: { providerId: 'bad_provider', assetId: 'AS11-40-5931' },
+        params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'AS11-40-5931' },
       }),
-    ).rejects.toMatchObject({ status: 400 })
+    ).rejects.toMatchObject({
+      appError: {
+        observability: {
+          tags: {
+            feature: 'providers',
+            operation: 'asset.fetch',
+            'provider.id': NASA_IVL_PROVIDER_ID,
+            'api.route': '/api/asset/$providerId/$assetId',
+            'http.method': 'GET',
+          },
+        },
+      },
+    })
   })
 })
 
@@ -231,19 +301,35 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
     expect(body).toEqual(nasaMetadata)
   })
 
-  it('returns a null JSON body when the provider has no metadata capability', async () => {
+  it('returns a 404 JSON response when metadata does not exist', async () => {
     mockService.getMetadata.mockResolvedValue(null)
+
+    const response = await metadataHandler({
+      params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'missing-asset' },
+    })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Asset metadata does not exist',
+      },
+    })
+  })
+
+  it('returns an empty metadata object when the provider has no metadata capability', async () => {
+    mockService.getMetadata.mockResolvedValue({})
 
     const response = await metadataHandler({
       params: { providerId: SI_OA_PROVIDER_ID, assetId: 'sioa-image-42' },
     })
 
     const body = await response.json()
-    expect(body).toBeNull()
+    expect(body).toEqual({})
   })
 
-  it('returns provider-specific Smithsonian metadata JSON as null', async () => {
-    mockService.getMetadata.mockResolvedValue(null)
+  it('returns provider-specific Smithsonian metadata JSON as an empty object', async () => {
+    mockService.getMetadata.mockResolvedValue({})
 
     const response = await metadataHandler({
       params: {
@@ -258,14 +344,33 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
       providerId: SI_OA_PROVIDER_ID,
       externalId: 'ld1-1643400021979-1643400026497-0',
     })
-    expect(body).toBeNull()
+    expect(body).toEqual({})
   })
 
   it('throws a 400 response for an unrecognized providerId', async () => {
-    await expect(
-      metadataHandler({
+    let response: Response | undefined
+
+    try {
+      await metadataHandler({
         params: { providerId: 'bad_provider', assetId: 'any-id' },
-      }),
-    ).rejects.toMatchObject({ status: 400 })
+      })
+    } catch (error) {
+      response = error as Response
+    }
+
+    expect(response?.status).toBe(400)
+    await expect(response?.json()).resolves.toEqual({
+      error: {
+        code: 'INVALID_PATH_PARAMS',
+        message: 'Invalid providerId',
+        issues: [
+          {
+            code: 'invalid_value',
+            message: "Invalid providerId, received 'bad_provider'",
+            path: 'providerId',
+          },
+        ],
+      },
+    })
   })
 })

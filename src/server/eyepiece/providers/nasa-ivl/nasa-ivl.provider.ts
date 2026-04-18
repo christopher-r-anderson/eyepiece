@@ -67,15 +67,18 @@ async function getAlbum(id: string, pagination: Pagination) {
   return response
 }
 
-async function getAsset(id: string): Promise<Asset> {
+async function getAsset(id: string): Promise<Asset | null> {
   // NOTE: use search + nasa_id because the only other "detail" endpoint is the
   // metadata.json file which contains a lot of duplicate and extraneous data
   // It does contain line breaks in descriptions, which we are currently opting to do without
   const nasaResponse = await nasaIvlSearch({
     nasa_id: id,
   })
+  if (nasaResponse.collection.items.length === 0) {
+    return null
+  }
   if (nasaResponse.collection.items.length !== 1) {
-    throw new Error(`Asset not found: ${id}`)
+    throw new Error(`Asset lookup returned multiple matches: ${id}`)
   }
   const item = nasaResponse.collection.items[0]
   return mapMediaItem(item)

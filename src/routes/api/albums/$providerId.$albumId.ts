@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
+import { createNotFoundResponse } from '@/server/lib/api-errors'
+import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
 import {
   parseOrThrowBadRequest,
   parseOrThrowProviderId,
@@ -23,17 +25,30 @@ export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
           externalAlbumIdSchema,
           albumIdString,
           'Invalid albumId',
+          {
+            code: 'INVALID_PATH_PARAMS',
+            path: 'albumId',
+          },
         )
         const service = makeEyepieceProviderService()
-        const album = await service.getAlbum(
-          { providerId, externalId: albumId },
-          pagination,
-        )
-        if (!album) {
-          return Response.json(
-            { message: 'Album does not exist' },
-            { status: 404 },
+        let album
+
+        try {
+          album = await service.getAlbum(
+            { providerId, externalId: albumId },
+            pagination,
           )
+        } catch (error) {
+          rethrowHandledErrorWithContext(error, {
+            tags: {
+              'api.route': '/api/albums/$providerId/$albumId',
+              'http.method': 'GET',
+            },
+          })
+        }
+
+        if (!album) {
+          return createNotFoundResponse('Album does not exist')
         }
         return Response.json(album)
       },

@@ -4,6 +4,7 @@ import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
+import { ProviderClientError } from '@/integrations/provider-client-error'
 
 const pagination = { page: 2, pageSize: 10 }
 
@@ -98,7 +99,7 @@ describe('makeEyepieceProviderService', () => {
     expect(result).toEqual(expected)
   })
 
-  it('returns null for getMetadata when the provider has no metadata capability', async () => {
+  it('returns an empty object for getMetadata when the provider has no metadata capability', async () => {
     const service = makeEyepieceProviderService()
 
     const result = await service.getMetadata({
@@ -106,7 +107,85 @@ describe('makeEyepieceProviderService', () => {
       externalId: 'asset-1',
     })
 
+    expect(result).toEqual({})
+  })
+
+  it('returns null for getAsset when the provider reports a 404', async () => {
+    siOaProvider.getAsset.mockRejectedValue(
+      new ProviderClientError({
+        providerId: SI_OA_PROVIDER_ID,
+        operation: 'asset.fetch',
+        status: 404,
+        url: 'https://example.com/content/missing',
+        message: 'missing',
+      }),
+    )
+    const service = makeEyepieceProviderService()
+
+    const result = await service.getAsset({
+      providerId: SI_OA_PROVIDER_ID,
+      externalId: 'missing',
+    })
+
     expect(result).toBeNull()
+  })
+
+  it('returns null for getAlbum when the provider reports a semantic not found', async () => {
+    nasaProvider.getAlbum.mockRejectedValue(
+      new ProviderClientError({
+        providerId: NASA_IVL_PROVIDER_ID,
+        operation: 'album.fetch',
+        status: 400,
+        kind: 'not_found',
+        url: 'https://images-api.nasa.gov/album/missing?page=1',
+        message: 'No assets found for album="missing" page=1',
+      }),
+    )
+    const service = makeEyepieceProviderService()
+
+    const result = await service.getAlbum(
+      { providerId: NASA_IVL_PROVIDER_ID, externalId: 'missing' },
+      pagination,
+    )
+
+    expect(result).toBeNull()
+  })
+
+  it('wraps provider failures with structured observability metadata', async () => {
+    siOaProvider.getAsset.mockRejectedValue(
+      new ProviderClientError({
+        providerId: SI_OA_PROVIDER_ID,
+        operation: 'asset.fetch',
+        status: 503,
+        url: 'https://example.com/content/broken',
+        message: 'Service unavailable',
+      }),
+    )
+    const service = makeEyepieceProviderService()
+
+    await expect(
+      service.getAsset({
+        providerId: SI_OA_PROVIDER_ID,
+        externalId: 'broken',
+      }),
+    ).rejects.toMatchObject({
+      appError: {
+        code: 'PROVIDER_REQUEST_FAILED',
+        observability: {
+          tags: {
+            feature: 'providers',
+            operation: 'asset.fetch',
+            'provider.id': SI_OA_PROVIDER_ID,
+          },
+          context: {
+            'asset.externalId': 'broken',
+            'provider.request.operation': 'asset.fetch',
+            'provider.request.status': 503,
+            'provider.request.url': 'https://example.com/content/broken',
+          },
+        },
+      },
+    })
   })
 
   it('routes NASA search requests with NASA filters', async () => {

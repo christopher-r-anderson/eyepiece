@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
+import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
 import {
   searchFiltersSchema,
   searchQuerySchema,
@@ -43,7 +44,19 @@ export const Route = createFileRoute('/api/search')({
           providerId,
           filters: providerFilters,
         })
-        const results = await eyepiece.searchAssets(q, filters, pagination)
+        let results
+
+        try {
+          results = await eyepiece.searchAssets(q, filters, pagination)
+        } catch (error) {
+          rethrowHandledErrorWithContext(error, {
+            tags: {
+              'api.route': '/api/search',
+              'http.method': 'GET',
+            },
+          })
+        }
+
         return Response.json(results)
       },
     },
