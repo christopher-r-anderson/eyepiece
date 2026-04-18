@@ -3,6 +3,7 @@ import {
   ASSET_PREVIEW_SNAPSHOT_STALE_TIME,
   ToggleFavoriteErrorCodes,
 } from './favorites.const'
+import type { ToggleFavoriteErrorCode } from './favorites.const'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type {
   AssetKey,
@@ -15,6 +16,10 @@ import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { getUser } from '@/features/auth/get-user'
+import {
+  expectedErrorObservability,
+  operationalErrorObservability,
+} from '@/lib/error-observability'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
 import { getOrigin } from '@/lib/utils'
 
@@ -23,7 +28,7 @@ async function toggleFavoriteForUser(
   client: SupabaseClient,
   userId: string,
   assetSummaryId: AssetPreviewSnapshotId,
-): Promise<Result<ToggleFavoriteResult>> {
+): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const { count, error: deleteError } = await client
     .from('favorites')
     .delete({ count: 'exact' })
@@ -33,8 +38,15 @@ async function toggleFavoriteForUser(
   if (deleteError) {
     console.error('Error deleting favorite for toggle:', deleteError)
     return Err({
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: deleteError,
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.delete',
+        },
+      }),
     })
   }
 
@@ -52,8 +64,15 @@ async function toggleFavoriteForUser(
   if (insertError && insertError.code !== '23505') {
     console.error('Error inserting favorite for toggle:', insertError)
     return Err({
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: insertError,
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.insert',
+        },
+      }),
     })
   }
 
@@ -63,10 +82,20 @@ async function toggleFavoriteForUser(
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleUserFavorite(
   assetSummaryId: AssetPreviewSnapshotId,
-): Promise<Result<ToggleFavoriteResult>> {
+): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const user = await getUser()
   if (!user) {
-    return Err({ message: ToggleFavoriteErrorCodes.AUTH_REQUIRED })
+    return Err({
+      code: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+      message: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+      observability: expectedErrorObservability({
+        level: 'info',
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.auth',
+        },
+      }),
+    })
   }
   const userClient = createUserSupabaseClient()
   return toggleFavoriteForUser(userClient, user.id, assetSummaryId)
@@ -78,7 +107,7 @@ async function _ensurePublicAssetSummaryForKey(
   serviceClient: SupabaseClient,
   eyepieceClient: EyepieceClient,
   assetKey: AssetKey,
-): Promise<Result<AssetPreviewSnapshotId>> {
+): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> {
   let assetSummaryId
 
   const { data: currentAssetSummary, error: currentAssetSummaryError } =
@@ -95,8 +124,16 @@ async function _ensurePublicAssetSummaryForKey(
       currentAssetSummaryError,
     )
     return Err({
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: currentAssetSummaryError,
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'asset-summary.lookup',
+          'provider.id': assetKey.providerId,
+        },
+      }),
     })
   }
   if (currentAssetSummary) {
@@ -116,8 +153,16 @@ async function _ensurePublicAssetSummaryForKey(
     } catch (error) {
       console.error('Error fetching asset details for favorite toggle:', error)
       return Err({
+        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: error,
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'favorites',
+            operation: 'asset-summary.fetch-asset',
+            'provider.id': assetKey.providerId,
+          },
+        }),
       })
     }
     const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
@@ -135,8 +180,16 @@ async function _ensurePublicAssetSummaryForKey(
         ensureImageRefError,
       )
       return Err({
+        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: ensureImageRefError,
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'favorites',
+            operation: 'asset-summary.ensure-snapshot',
+            'provider.id': assetKey.providerId,
+          },
+        }),
       })
     }
     assetSummaryId = ensuredAssetSummaryId
@@ -147,14 +200,24 @@ async function _ensurePublicAssetSummaryForKey(
       'No assetSummaryId returned from ensure_asset_preview_snapshot for toggle',
     )
     return Err({
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'asset-summary.missing-id',
+          'provider.id': assetKey.providerId,
+        },
+      }),
     })
   }
   return Ok(assetSummaryId)
 }
 
 const ensurePublicAssetSummary = createServerOnlyFn(
-  async (assetKey: AssetKey): Promise<Result<AssetPreviewSnapshotId>> => {
+  async (
+    assetKey: AssetKey,
+  ): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> => {
     const serviceClient = createServiceSupabaseClient()
     const eyepieceClient = createEyepieceClient({ origin: getOrigin() })
     return _ensurePublicAssetSummaryForKey(

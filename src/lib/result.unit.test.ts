@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  AppException,
   Err,
   Ok,
+  errorFromUnknown,
+  getEmbeddedResultError,
+  isAppException,
+  isResultError,
   resultIsError,
   resultIsSuccess,
   throwFromErrorResult,
@@ -48,6 +53,35 @@ describe('Err', () => {
     expect(result.error.code).toBe('INVALID_INPUT')
     expect(result.error.fieldErrors).toEqual({ email: 'Invalid email' })
     expect(result.error.cause).toBe(cause)
+  })
+
+  it('preserves optional observability metadata', () => {
+    const result = Err({
+      message: 'bad input',
+      observability: {
+        kind: 'expected',
+        level: 'warning',
+        report: false,
+        tags: { feature: 'profiles' },
+      },
+    })
+
+    expect(result.error.observability).toEqual({
+      kind: 'expected',
+      level: 'warning',
+      report: false,
+      tags: { feature: 'profiles' },
+    })
+  })
+})
+
+describe('isResultError', () => {
+  it('returns true for plain ResultError objects', () => {
+    expect(isResultError({ message: 'bad input' })).toBe(true)
+  })
+
+  it('returns false for Error instances', () => {
+    expect(isResultError(new Error('boom'))).toBe(false)
   })
 })
 
@@ -163,6 +197,71 @@ describe('throwFromErrorResult', () => {
 
   it('thrown AppException is an instanceof Error', () => {
     expect(() => throwFromErrorResult({ message: 'x' })).toThrow(Error)
+  })
+})
+
+describe('isAppException', () => {
+  it('returns true for AppException instances', () => {
+    expect(isAppException(new AppException({ message: 'boom' }))).toBe(true)
+  })
+
+  it('returns false for non-AppException values', () => {
+    expect(isAppException(new Error('boom'))).toBe(false)
+    expect(isAppException({ message: 'boom' })).toBe(false)
+  })
+})
+
+describe('errorFromUnknown', () => {
+  it('returns the embedded appError for AppException instances', () => {
+    const appError = { message: 'boom', code: 'EXPLODED' as const }
+
+    expect(errorFromUnknown(new AppException(appError))).toBe(appError)
+  })
+
+  it('passes through plain ResultError objects', () => {
+    const appError = { message: 'boom', code: 'EXPLODED' as const }
+
+    expect(errorFromUnknown(appError)).toBe(appError)
+  })
+
+  it('unwraps appError payloads attached to plain Error instances', () => {
+    const appError = { message: 'boom', code: 'EXPLODED' as const }
+    const transportedError = Object.assign(new Error('boom'), { appError })
+
+    expect(errorFromUnknown(transportedError)).toBe(appError)
+  })
+
+  it('wraps Error instances using the native message and cause', () => {
+    const original = new Error('root cause')
+
+    expect(errorFromUnknown(original)).toEqual({
+      message: 'root cause',
+      cause: original,
+    })
+  })
+
+  it('wraps non-Error values using the fallback message', () => {
+    expect(errorFromUnknown('oops', 'fallback')).toEqual({
+      message: 'fallback',
+      cause: 'oops',
+    })
+  })
+})
+
+describe('getEmbeddedResultError', () => {
+  it('returns embedded appError payloads when present on thrown errors', () => {
+    const appError = { message: 'boom', code: 'EXPLODED' as const }
+    const transportedError = Object.assign(new Error('boom'), { appError })
+
+    expect(getEmbeddedResultError(transportedError)).toBe(appError)
+  })
+
+  it('returns undefined when the embedded payload is not a ResultError', () => {
+    expect(
+      getEmbeddedResultError(
+        Object.assign(new Error('boom'), { appError: 123 }),
+      ),
+    ).toBeUndefined()
   })
 })
 

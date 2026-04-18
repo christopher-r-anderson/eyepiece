@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ToggleFavoriteErrorCodes } from './favorites.const'
+import { getResultErrorObservability } from '@/lib/error-observability'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -189,8 +190,10 @@ describe('toggleFavoriteForUser', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.cause).toBe(pgError)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(true)
     }
   })
 
@@ -210,8 +213,10 @@ describe('toggleFavoriteForUser', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.cause).toBe(pgError)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(true)
     }
   })
 
@@ -287,7 +292,9 @@ describe('toggleUserFavorite', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(false)
     }
   })
 

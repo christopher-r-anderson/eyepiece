@@ -28,6 +28,19 @@ describe('shouldCaptureRouteError', () => {
     ).toBe(false)
   })
 
+  it('does not capture transported handled errors with an appError payload', () => {
+    expect(
+      shouldCaptureRouteError(
+        Object.assign(new Error('AUTH_REQUIRED'), {
+          appError: {
+            code: 'AUTH_REQUIRED',
+            message: 'AUTH_REQUIRED',
+          },
+        }),
+      ),
+    ).toBe(false)
+  })
+
   it('captures unexpected errors', () => {
     expect(shouldCaptureRouteError(new Error('boom'))).toBe(true)
   })
