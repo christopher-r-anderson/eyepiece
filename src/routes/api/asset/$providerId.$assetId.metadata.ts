@@ -1,7 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
-import { createNotFoundResponse } from '@/server/lib/api-errors'
-import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
+import {
+  createNotFoundResponse,
+  createUnsupportedOperationResponse,
+} from '@/server/lib/api-errors'
+import {
+  getHandledError,
+  rethrowHandledErrorWithContext,
+} from '@/server/lib/handled-errors'
 import { parseOrThrowProviderId } from '@/server/lib/utils'
 
 export const Route = createFileRoute(
@@ -20,6 +26,14 @@ export const Route = createFileRoute(
             externalId: assetId,
           })
         } catch (error) {
+          if (
+            getHandledError(error)?.code === 'UNSUPPORTED_PROVIDER_OPERATION'
+          ) {
+            return createUnsupportedOperationResponse(
+              'Asset metadata is not supported for this provider',
+            )
+          }
+
           rethrowHandledErrorWithContext(error, {
             tags: {
               'api.route': '/api/asset/$providerId/$assetId/metadata',

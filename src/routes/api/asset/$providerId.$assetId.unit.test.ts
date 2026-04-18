@@ -265,6 +265,27 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
     mockService.getMetadata.mockResolvedValue(mockMetadata)
   })
 
+  it('returns a 501 JSON response when the provider does not support metadata', async () => {
+    mockService.getMetadata.mockRejectedValue(
+      new AppException({
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+        message: 'metadata.fetch is not supported for provider si_oa',
+      }),
+    )
+
+    const response = await metadataHandler({
+      params: { providerId: SI_OA_PROVIDER_ID, assetId: 'sioa-image-42' },
+    })
+
+    expect(response.status).toBe(501)
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+        message: 'Asset metadata is not supported for this provider',
+      },
+    })
+  })
+
   it('calls getMetadata with the parsed asset key', async () => {
     await metadataHandler({
       params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'AS11-40-5931' },
@@ -315,36 +336,6 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
         message: 'Asset metadata does not exist',
       },
     })
-  })
-
-  it('returns an empty metadata object when the provider has no metadata capability', async () => {
-    mockService.getMetadata.mockResolvedValue({})
-
-    const response = await metadataHandler({
-      params: { providerId: SI_OA_PROVIDER_ID, assetId: 'sioa-image-42' },
-    })
-
-    const body = await response.json()
-    expect(body).toEqual({})
-  })
-
-  it('returns provider-specific Smithsonian metadata JSON as an empty object', async () => {
-    mockService.getMetadata.mockResolvedValue({})
-
-    const response = await metadataHandler({
-      params: {
-        providerId: SI_OA_PROVIDER_ID,
-        assetId: 'ld1-1643400021979-1643400026497-0',
-      },
-    })
-
-    const body = await response.json()
-
-    expect(mockService.getMetadata).toHaveBeenCalledWith({
-      providerId: SI_OA_PROVIDER_ID,
-      externalId: 'ld1-1643400021979-1643400026497-0',
-    })
-    expect(body).toEqual({})
   })
 
   it('throws a 400 response for an unrecognized providerId', async () => {

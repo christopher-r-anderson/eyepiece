@@ -11,3 +11,26 @@ export const providerIdSchema = z.enum(PROVIDERS, {
 })
 
 export type ProviderId = z.infer<typeof providerIdSchema>
+
+export type ProviderCapabilities = {
+  albums?: true
+  metadata?: true
+}
+
+export const PROVIDER_CAPABILITIES = {
+  [NASA_IVL_PROVIDER_ID]: {
+    albums: true,
+    metadata: true,
+  },
+  [SI_OA_PROVIDER_ID]: {},
+} as const satisfies Record<ProviderId, ProviderCapabilities>
+
+export function providerSupportsAlbums(providerId: ProviderId) {
+  const capabilities: ProviderCapabilities = PROVIDER_CAPABILITIES[providerId]
+  return capabilities.albums === true
+}
+
+export function providerSupportsMetadata(providerId: ProviderId) {
+  const capabilities: ProviderCapabilities = PROVIDER_CAPABILITIES[providerId]
+  return capabilities.metadata === true
+}

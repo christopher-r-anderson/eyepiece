@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AppException } from '@/lib/result'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -60,6 +61,28 @@ describe('GET /api/albums/:providerId/:albumId handler', () => {
   beforeEach(() => {
     mockService.getAlbum.mockReset()
     mockService.getAlbum.mockResolvedValue(firstPage)
+  })
+
+  it('returns a 501 JSON response when the provider does not support albums', async () => {
+    mockService.getAlbum.mockRejectedValue(
+      new AppException({
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+        message: 'album.fetch is not supported for provider si_oa',
+      }),
+    )
+
+    const response = await handler({
+      params: { providerId: SI_OA_PROVIDER_ID, albumId: 'some-album' },
+      context: makeContext(),
+    })
+
+    expect(response.status).toBe(501)
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+        message: 'Album lookup is not supported for this provider',
+      },
+    })
   })
 
   it('calls getAlbum with the parsed asset key and pagination', async () => {
@@ -165,11 +188,11 @@ describe('GET /api/albums/:providerId/:albumId handler', () => {
     })
   })
 
-  it('forwards the pagination parameters to the service', async () => {
+  it('forwards the pagination parameters for providers with album support', async () => {
     mockService.getAlbum.mockResolvedValue(emptyPage)
 
     await handler({
-      params: { providerId: SI_OA_PROVIDER_ID, albumId: 'some-album' },
+      params: { providerId: NASA_IVL_PROVIDER_ID, albumId: 'some-album' },
       context: makeContext({ page: 3, pageSize: 12 }),
     })
 

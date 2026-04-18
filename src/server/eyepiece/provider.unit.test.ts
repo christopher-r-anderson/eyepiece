@@ -16,6 +16,7 @@ function makeBaseProvider(): BaseProvider<
 > {
   return {
     getProviderId: () => NASA_IVL_PROVIDER_ID,
+    capabilities: {},
     getSearchFiltersSchema: () => filtersSchema,
     searchAssets: () =>
       Promise.resolve({
@@ -27,10 +28,11 @@ function makeBaseProvider(): BaseProvider<
 }
 
 describe('provider capability guards', () => {
-  it('detects album capability based on getAlbum presence', () => {
+  it('detects album capability from explicit provider capabilities', () => {
     const baseProvider = makeBaseProvider()
     const albumsProvider = {
       ...baseProvider,
+      capabilities: { albums: true as const },
       getAlbum: () =>
         Promise.resolve({
           items: [],
@@ -42,10 +44,11 @@ describe('provider capability guards', () => {
     expect(hasAlbums(albumsProvider)).toBe(true)
   })
 
-  it('detects metadata capability based on getMetadata presence', () => {
+  it('detects metadata capability from explicit provider capabilities', () => {
     const baseProvider = makeBaseProvider()
     const metadataProvider = {
       ...baseProvider,
+      capabilities: { metadata: true as const },
       getMetadata: () => Promise.resolve({}),
     }
 
@@ -56,6 +59,7 @@ describe('provider capability guards', () => {
   it('narrows provider types after guard checks', async () => {
     const provider = {
       ...makeBaseProvider(),
+      capabilities: { albums: true as const, metadata: true as const },
       getAlbum: () =>
         Promise.resolve({
           items: [],

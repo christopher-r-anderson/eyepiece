@@ -2,8 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
-import { createNotFoundResponse } from '@/server/lib/api-errors'
-import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
+import {
+  createNotFoundResponse,
+  createUnsupportedOperationResponse,
+} from '@/server/lib/api-errors'
+import {
+  getHandledError,
+  rethrowHandledErrorWithContext,
+} from '@/server/lib/handled-errors'
 import {
   parseOrThrowBadRequest,
   parseOrThrowProviderId,
@@ -39,6 +45,14 @@ export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
             pagination,
           )
         } catch (error) {
+          if (
+            getHandledError(error)?.code === 'UNSUPPORTED_PROVIDER_OPERATION'
+          ) {
+            return createUnsupportedOperationResponse(
+              'Album lookup is not supported for this provider',
+            )
+          }
+
           rethrowHandledErrorWithContext(error, {
             tags: {
               'api.route': '/api/albums/$providerId/$albumId',

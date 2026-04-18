@@ -46,6 +46,20 @@ export function withHandledErrorContext<TErrorCode extends string | undefined>(
   }
 }
 
+export function getHandledError(
+  error: unknown,
+): ResultError<string | undefined> | undefined {
+  if (isAppException(error)) {
+    return error.appError
+  }
+
+  if (isResultError(error)) {
+    return error
+  }
+
+  return undefined
+}
+
 export function rethrowHandledErrorWithContext(
   error: unknown,
   augment: ObservabilityAugment,

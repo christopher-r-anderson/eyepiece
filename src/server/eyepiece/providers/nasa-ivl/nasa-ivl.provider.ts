@@ -17,11 +17,14 @@ import type { Asset, Metadata } from '@/domain/asset/asset.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import {
+  NASA_IVL_PROVIDER_ID,
+  PROVIDER_CAPABILITIES,
+} from '@/domain/provider/provider.schema'
+import {
   getAlbum as nasaIvlGetAlbum,
   getMetadata as nasaIvlGetMetadata,
   search as nasaIvlSearch,
 } from '@/integrations/nasa-ivl/client'
-import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { nasaIvlSearchFiltersSchema } from '@/domain/search/providers/nasa-ivl-filters'
 
 export function makeNasaIvlAdapter(): BaseProvider<
@@ -32,6 +35,7 @@ export function makeNasaIvlAdapter(): BaseProvider<
   MetadataCapability {
   return {
     getProviderId: () => NASA_IVL_PROVIDER_ID,
+    capabilities: PROVIDER_CAPABILITIES[NASA_IVL_PROVIDER_ID],
     getSearchFiltersSchema: () => nasaIvlSearchFiltersSchema,
     getAlbum,
     getAsset,

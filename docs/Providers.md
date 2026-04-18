@@ -33,6 +33,7 @@ The server-side contract lives in `src/server/eyepiece/provider.ts`.
 Every provider implements a `BaseProvider` with these required operations:
 
 - `getProviderId`
+- `capabilities`
 - `getSearchFiltersSchema`
 - `searchAssets`
 - `getAsset`
@@ -42,7 +43,13 @@ Providers can also opt into additional capabilities:
 - `AlbumsCapability` for `getAlbum`
 - `MetadataCapability` for `getMetadata`
 
-Capability support is checked at runtime with `hasAlbums` and `hasMetadata`. This keeps the common contract small while allowing providers to expose richer behavior when the upstream source supports it.
+Capability support is explicit on the provider contract via `capabilities`, and is checked at runtime with `hasAlbums` and `hasMetadata`. This keeps the common contract small while making optional behavior intentional instead of inferred from method presence.
+
+Optional capability semantics are distinct from missing resources:
+
+- unsupported optional operations return `UNSUPPORTED_PROVIDER_OPERATION`
+- supported lookups return `null` only when the upstream provider reports a missing resource
+- operational upstream failures are wrapped as `PROVIDER_REQUEST_FAILED`
 
 ### Provider Service
 
@@ -170,6 +177,8 @@ When adding a provider, decide only what the upstream source can support today:
 - If it can search, implement `searchAssets`.
 - If it exposes album or collection membership that Eyepiece should surface, implement `getAlbum`.
 - If it exposes structured detail data worth returning as raw metadata, implement `getMetadata`.
+
+Set `capabilities` to match those optional operations explicitly. Do not emulate unsupported operations by returning empty values such as `{}` or `null` from a provider that does not actually support them.
 
 A provider does not need to support every capability to be useful.
 

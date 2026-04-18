@@ -11,6 +11,7 @@ const pagination = { page: 2, pageSize: 10 }
 const { nasaProvider, siOaProvider } = vi.hoisted(() => ({
   nasaProvider: {
     getProviderId: () => 'nasa_ivl',
+    capabilities: { albums: true, metadata: true },
     getSearchFiltersSchema: vi.fn(),
     getAlbum: vi.fn(),
     getAsset: vi.fn(),
@@ -19,6 +20,7 @@ const { nasaProvider, siOaProvider } = vi.hoisted(() => ({
   },
   siOaProvider: {
     getProviderId: () => 'si_oa',
+    capabilities: {},
     getSearchFiltersSchema: vi.fn(),
     getAsset: vi.fn(),
     searchAssets: vi.fn(),
@@ -58,15 +60,19 @@ describe('makeEyepieceProviderService', () => {
     expect(result).toEqual(expected)
   })
 
-  it('returns null for getAlbum when the provider has no album capability', async () => {
+  it('throws for getAlbum when the provider has no album capability', async () => {
     const service = makeEyepieceProviderService()
 
-    const result = await service.getAlbum(
-      { providerId: SI_OA_PROVIDER_ID, externalId: 'album-1' },
-      pagination,
-    )
-
-    expect(result).toBeNull()
+    await expect(
+      service.getAlbum(
+        { providerId: SI_OA_PROVIDER_ID, externalId: 'album-1' },
+        pagination,
+      ),
+    ).rejects.toMatchObject({
+      appError: {
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+      },
+    })
   })
 
   it('delegates getAsset to the provider selected by asset key', async () => {
@@ -99,15 +105,19 @@ describe('makeEyepieceProviderService', () => {
     expect(result).toEqual(expected)
   })
 
-  it('returns an empty object for getMetadata when the provider has no metadata capability', async () => {
+  it('throws for getMetadata when the provider has no metadata capability', async () => {
     const service = makeEyepieceProviderService()
 
-    const result = await service.getMetadata({
-      providerId: SI_OA_PROVIDER_ID,
-      externalId: 'asset-1',
+    await expect(
+      service.getMetadata({
+        providerId: SI_OA_PROVIDER_ID,
+        externalId: 'asset-1',
+      }),
+    ).rejects.toMatchObject({
+      appError: {
+        code: 'UNSUPPORTED_PROVIDER_OPERATION',
+      },
     })
-
-    expect(result).toEqual({})
   })
 
   it('returns null for getAsset when the provider reports a 404', async () => {

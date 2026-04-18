@@ -43,3 +43,13 @@ export function createNotFoundResponse(
     404,
   )
 }
+
+export function createUnsupportedOperationResponse(message: string): Response {
+  return createApiErrorResponse(
+    {
+      code: 'UNSUPPORTED_PROVIDER_OPERATION',
+      message,
+    },
+    501,
+  )
+}

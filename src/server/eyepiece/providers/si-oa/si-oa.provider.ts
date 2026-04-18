@@ -8,12 +8,15 @@ import type {
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { BaseProvider } from '../../provider'
 import type { SearchQuery } from '@/domain/search/search.schema'
+import {
+  PROVIDER_CAPABILITIES,
+  SI_OA_PROVIDER_ID,
+} from '@/domain/provider/provider.schema'
 import { sioaSearchFiltersSchema } from '@/domain/search/providers/si-oa-filters'
 import {
   getContent as sioaGetContent,
   search as sioaSearch,
 } from '@/integrations/si-oa/client'
-import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
 export function getApiKey() {
   const apiKey = process.env.SI_OA_API_KEY
@@ -30,6 +33,7 @@ export function makeSiOaAdapter(
 ): BaseProvider<typeof SI_OA_PROVIDER_ID, typeof sioaSearchFiltersSchema> {
   return {
     getProviderId: () => SI_OA_PROVIDER_ID,
+    capabilities: PROVIDER_CAPABILITIES[SI_OA_PROVIDER_ID],
     getSearchFiltersSchema: () => sioaSearchFiltersSchema,
     getAsset: async function (id: string) {
       const sioaResponse = await sioaGetContent(id, apiKey)

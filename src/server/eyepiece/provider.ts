@@ -1,17 +1,21 @@
 import type { z } from 'zod'
 import type { Asset, Metadata } from '@/domain/asset/asset.schema'
 import type {
+  ProviderCapabilities,
+  ProviderId,
+} from '@/domain/provider/provider.schema'
+import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
-import type { ProviderId } from '@/domain/provider/provider.schema'
 
 export interface BaseProvider<
   TProviderId extends ProviderId,
   TFilters extends z.ZodType,
 > {
   getProviderId: () => TProviderId
+  capabilities: ProviderCapabilities
   getSearchFiltersSchema: () => TFilters
   searchAssets: (
     query: SearchQuery,
@@ -40,7 +44,10 @@ export function hasAlbums<
 >(
   provider: BaseProvider<TProviderId, TFilters>,
 ): provider is BaseProvider<TProviderId, TFilters> & AlbumsCapability {
-  return (provider as any).getAlbum !== undefined
+  return (
+    provider.capabilities.albums === true &&
+    (provider as any).getAlbum !== undefined
+  )
 }
 
 export function hasMetadata<
@@ -49,5 +56,8 @@ export function hasMetadata<
 >(
   provider: BaseProvider<TProviderId, TFilters>,
 ): provider is BaseProvider<TProviderId, TFilters> & MetadataCapability {
-  return (provider as any).getMetadata !== undefined
+  return (
+    provider.capabilities.metadata === true &&
+    (provider as any).getMetadata !== undefined
+  )
 }

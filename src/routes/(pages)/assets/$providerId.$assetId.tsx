@@ -12,7 +12,10 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
 import { RouteError } from '@/app/layout/route-error'
-import { providerIdSchema } from '@/domain/provider/provider.schema'
+import {
+  providerIdSchema,
+  providerSupportsMetadata,
+} from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
@@ -139,6 +142,7 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
 function AssetPage() {
   const { assetKey } = Route.useRouteContext()
   const { data } = useSuspenseAsset(assetKey)
+  const canViewMetadata = providerSupportsMetadata(assetKey.providerId)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
@@ -160,7 +164,9 @@ function AssetPage() {
         </div>
         <div css={assetHeaderActionsCss}>
           <FavoriteButton assetKey={assetKey} />
-          <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+          {canViewMetadata ? (
+            <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+          ) : null}
         </div>
       </div>
       <AssetDetail asset={data} />

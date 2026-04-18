@@ -19,6 +19,7 @@ const EXPECTED_ERROR_CODES = new Set([
   'INVALID_INPUT',
   'INVALID_QUERY_PARAMS',
   'NOT_FOUND',
+  'UNSUPPORTED_PROVIDER_OPERATION',
   'VALIDATE_SEARCH',
 ])
 
@@ -27,6 +28,7 @@ const EXPECTED_ERROR_CODE_PATTERNS = [
   /forbidden/i,
   /invalid/i,
   /not[_-]?found/i,
+  /unsupported/i,
   /validation/i,
 ]
 

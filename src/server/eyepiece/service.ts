@@ -9,7 +9,10 @@ import type {
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import { AppException } from '@/lib/result'
-import { operationalErrorObservability } from '@/lib/error-observability'
+import {
+  expectedErrorObservability,
+  operationalErrorObservability,
+} from '@/lib/error-observability'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -70,6 +73,23 @@ function toProviderAppException(
   })
 }
 
+function toUnsupportedProviderOperationException(
+  providerId: ProviderId,
+  operation: 'album.fetch' | 'metadata.fetch',
+) {
+  return new AppException({
+    code: 'UNSUPPORTED_PROVIDER_OPERATION',
+    message: `${operation} is not supported for provider ${providerId}`,
+    observability: expectedErrorObservability({
+      tags: {
+        feature: 'providers',
+        operation,
+        'provider.id': providerId,
+      },
+    }),
+  })
+}
+
 async function runProviderOperation<T>({
   providerId,
   operation,
@@ -101,18 +121,22 @@ export function makeEyepieceProviderService() {
       pagination: Pagination,
     ): Promise<PaginatedCollection<Asset> | null> {
       const provider = getProvider(assetKey.providerId)
-      if (hasAlbums(provider)) {
-        return await runProviderOperation({
-          providerId: assetKey.providerId,
-          operation: 'album.fetch',
-          context: {
-            'asset.externalId': assetKey.externalId,
-          },
-          run: () => provider.getAlbum(assetKey.externalId, pagination),
-          onNotFound: () => null,
-        })
+      if (!hasAlbums(provider)) {
+        throw toUnsupportedProviderOperationException(
+          assetKey.providerId,
+          'album.fetch',
+        )
       }
-      return null
+
+      return await runProviderOperation({
+        providerId: assetKey.providerId,
+        operation: 'album.fetch',
+        context: {
+          'asset.externalId': assetKey.externalId,
+        },
+        run: () => provider.getAlbum(assetKey.externalId, pagination),
+        onNotFound: () => null,
+      })
     },
     getAsset: async function getAsset(
       assetKey: AssetKey,
@@ -132,18 +156,22 @@ export function makeEyepieceProviderService() {
       assetKey: AssetKey,
     ): Promise<Metadata | null> {
       const provider = getProvider(assetKey.providerId)
-      if (hasMetadata(provider)) {
-        return await runProviderOperation({
-          providerId: assetKey.providerId,
-          operation: 'metadata.fetch',
-          context: {
-            'asset.externalId': assetKey.externalId,
-          },
-          run: () => provider.getMetadata(assetKey.externalId),
-          onNotFound: () => null,
-        })
+      if (!hasMetadata(provider)) {
+        throw toUnsupportedProviderOperationException(
+          assetKey.providerId,
+          'metadata.fetch',
+        )
       }
-      return {}
+
+      return await runProviderOperation({
+        providerId: assetKey.providerId,
+        operation: 'metadata.fetch',
+        context: {
+          'asset.externalId': assetKey.externalId,
+        },
+        run: () => provider.getMetadata(assetKey.externalId),
+        onNotFound: () => null,
+      })
     },
     searchAssets: async function searchAssets(
       query: SearchQuery,
