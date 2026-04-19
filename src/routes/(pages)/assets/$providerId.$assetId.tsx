@@ -124,13 +124,7 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
   head: ({ loaderData }) => ({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
-  errorComponent: ({ error }) => (
-    <RouteError
-      error={error}
-      heading={<AssetHeading />}
-      message="Error loading asset."
-    />
-  ),
+  errorComponent: AssetRouteError,
   pendingComponent: () => (
     <>
       <AssetHeading />
@@ -138,6 +132,24 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
     </>
   ),
 })
+
+function AssetRouteError({ error }: { error: unknown }) {
+  const { providerId } = Route.useParams()
+
+  return (
+    <RouteError
+      error={error}
+      heading={<AssetHeading />}
+      message="Error loading asset."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'assets',
+        providerId,
+        operation: 'load_asset',
+      }}
+    />
+  )
+}
 
 function AssetPage() {
   const { assetKey } = Route.useRouteContext()

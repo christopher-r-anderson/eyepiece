@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { notFound, redirect } from '@tanstack/react-router'
-import { shouldCaptureRouteError } from './route-error'
+import {
+  getRouteErrorSentryMetadata,
+  shouldCaptureRouteError,
+} from './route-error'
 
 describe('shouldCaptureRouteError', () => {
   it('does not capture TanStack redirect control flow', () => {
@@ -43,5 +46,58 @@ describe('shouldCaptureRouteError', () => {
 
   it('captures unexpected errors', () => {
     expect(shouldCaptureRouteError(new Error('boom'))).toBe(true)
+  })
+})
+
+describe('getRouteErrorSentryMetadata', () => {
+  it('adds low-noise tags and context for route boundaries', () => {
+    expect(
+      getRouteErrorSentryMetadata({
+        pathname: '/assets/nasa_ivl/PIA12235',
+        captureContext: {
+          boundaryKind: 'route',
+          feature: 'assets',
+          providerId: 'nasa_ivl',
+          operation: 'load_asset',
+        },
+      }),
+    ).toEqual({
+      tags: {
+        boundary_kind: 'route',
+        feature: 'assets',
+        provider_id: 'nasa_ivl',
+        operation: 'load_asset',
+      },
+      context: {
+        routePath: '/assets/nasa_ivl/PIA12235',
+        boundaryKind: 'route',
+        feature: 'assets',
+        providerId: 'nasa_ivl',
+        operation: 'load_asset',
+      },
+    })
+  })
+
+  it('prefers an explicit route path override when one is provided', () => {
+    expect(
+      getRouteErrorSentryMetadata({
+        pathname: '/search',
+        captureContext: {
+          boundaryKind: 'catch',
+          feature: 'search',
+          routePath: '/search?q=apollo',
+        },
+      }),
+    ).toEqual({
+      tags: {
+        boundary_kind: 'catch',
+        feature: 'search',
+      },
+      context: {
+        routePath: '/search?q=apollo',
+        boundaryKind: 'catch',
+        feature: 'search',
+      },
+    })
   })
 })

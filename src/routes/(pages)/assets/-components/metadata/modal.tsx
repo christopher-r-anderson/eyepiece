@@ -26,7 +26,16 @@ export function MetadataModal({
       <CatchBoundary
         getResetKey={() => toAssetKeyString(assetKey)}
         errorComponent={({ error }) => (
-          <CapturedAlertError error={error} message="Couldn't load metadata." />
+          <CapturedAlertError
+            error={error}
+            message="Couldn't load metadata."
+            captureContext={{
+              boundaryKind: 'catch',
+              feature: 'assets',
+              providerId: assetKey.providerId,
+              operation: 'load_metadata',
+            }}
+          />
         )}
       >
         <Suspense fallback={<p role="status">Loading metadata…</p>}>

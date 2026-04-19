@@ -1,5 +1,9 @@
 import { Suspense } from 'react'
-import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
+import {
+  CatchBoundary,
+  createFileRoute,
+  useRouterState,
+} from '@tanstack/react-router'
 import { z } from 'zod'
 import { hashKey } from '@tanstack/react-query'
 import { SearchResults } from './-components/search-results'
@@ -44,14 +48,35 @@ export const Route = createFileRoute('/(pages)/(search)/search')({
       },
     ],
   }),
-  errorComponent: ({ error }) => (
+  errorComponent: SearchRouteError,
+})
+
+export function getSearchErrorProviderId(search: unknown) {
+  const result = searchFiltersSchema.safeParse(search)
+
+  return result.success ? result.data.providerId : undefined
+}
+
+function SearchRouteError({ error }: { error: unknown }) {
+  const rawSearch = useRouterState({
+    select: (state) => state.location.search,
+  })
+  const providerId = getSearchErrorProviderId(rawSearch)
+
+  return (
     <RouteError
       error={error}
       heading={<PageHeading>Search Error</PageHeading>}
       message="Error loading search."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'search',
+        providerId,
+        operation: 'load_search_page',
+      }}
     />
-  ),
-})
+  )
+}
 
 function SearchPage() {
   const search = Route.useSearch()
@@ -79,7 +104,16 @@ function SearchPage() {
       <CatchBoundary
         getResetKey={() => hashKey(['search-page-results', q, filters])}
         errorComponent={({ error }) => (
-          <CapturedPrettyError error={error} headingLevel={1} />
+          <CapturedPrettyError
+            error={error}
+            headingLevel={1}
+            captureContext={{
+              boundaryKind: 'catch',
+              feature: 'search',
+              providerId: filters.providerId,
+              operation: 'load_search_results',
+            }}
+          />
         )}
       >
         <Suspense fallback={<AssetGridSkeleton />}>
