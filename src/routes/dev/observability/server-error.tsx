@@ -13,7 +13,8 @@ export const Route = createFileRoute('/dev/observability/server-error')({
       <h1 css={{ margin: 0 }}>Server Error Scenario</h1>
       <p>
         This route intentionally throws during a full document request so the
-        existing server-side Sentry middleware can capture it. It does not
+        existing server-side Sentry middleware can capture it. The page keeps
+        the UI summary stable and does not render raw stack traces. It does not
         verify route-boundary tags.
       </p>
       <PrettyException error={error} headingLevel={2} />
