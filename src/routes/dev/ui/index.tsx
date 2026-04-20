@@ -16,6 +16,11 @@ const sections = [
     description: 'Toast and modal patterns.',
     to: '/dev/ui/feedback',
   },
+  {
+    title: 'Observability',
+    description: 'Trigger deterministic client and server error scenarios.',
+    to: '/dev/ui/observability',
+  },
 ] as const
 
 function DevUiOverviewPage() {
@@ -29,7 +34,7 @@ function DevUiOverviewPage() {
       <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
         <h2 css={{ margin: 0, fontSize: 'var(--text-xl)' }}>Start Here</h2>
         <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-          Shared UI sections.
+          Shared UI sections and verification tools.
         </p>
       </div>
 

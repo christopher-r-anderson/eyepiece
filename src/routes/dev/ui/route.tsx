@@ -11,9 +11,10 @@ export const Route = createFileRoute('/dev/ui')({
 })
 
 const navLinks = [
-  { to: '/dev/ui', label: 'Overview' },
-  { to: '/dev/ui/controls', label: 'Controls' },
-  { to: '/dev/ui/feedback', label: 'Feedback' },
+  { to: '/dev/ui', label: 'Overview', exact: true },
+  { to: '/dev/ui/controls', label: 'Controls', exact: true },
+  { to: '/dev/ui/feedback', label: 'Feedback', exact: true },
+  { to: '/dev/ui/observability', label: 'Observability', exact: false },
 ] as const
 
 function DevUiLayout() {
@@ -66,7 +67,7 @@ function DevUiLayout() {
               color: 'var(--text-muted)',
             }}
           >
-            Shared components and interaction patterns.
+            Shared components, interaction patterns, and observability checks.
           </p>
         </div>
         <nav
@@ -82,7 +83,7 @@ function DevUiLayout() {
             <Link
               key={link.to}
               to={link.to}
-              activeOptions={{ exact: true }}
+              activeOptions={{ exact: link.exact }}
               activeProps={{
                 className: 'is-active',
               }}

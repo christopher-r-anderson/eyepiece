@@ -20,6 +20,7 @@ import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
 import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
+import { Route as DevUiObservabilityRouteImport } from './routes/dev/ui/observability'
 import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
 import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
@@ -30,6 +31,8 @@ import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth
 import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
 import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
 import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
+import { Route as DevUiObservabilityServerErrorRouteImport } from './routes/dev/ui/observability.server-error'
+import { Route as DevUiObservabilityHandled400RouteImport } from './routes/dev/ui/observability.handled-400'
 import { Route as ApiAssetProviderIdAssetIdRouteImport } from './routes/api/asset/$providerId.$assetId'
 import { Route as ApiAlbumsProviderIdAlbumIdRouteImport } from './routes/api/albums/$providerId.$albumId'
 import { Route as pagesAssetsProviderIdAssetIdRouteImport } from './routes/(pages)/assets/$providerId.$assetId'
@@ -89,6 +92,11 @@ const DevUiIndexRoute = DevUiIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DevUiRouteRoute,
 } as any)
+const DevUiObservabilityRoute = DevUiObservabilityRouteImport.update({
+  id: '/observability',
+  path: '/observability',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
 const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -139,6 +147,18 @@ const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => pagesuserRouteRoute,
 } as any)
+const DevUiObservabilityServerErrorRoute =
+  DevUiObservabilityServerErrorRouteImport.update({
+    id: '/server-error',
+    path: '/server-error',
+    getParentRoute: () => DevUiObservabilityRoute,
+  } as any)
+const DevUiObservabilityHandled400Route =
+  DevUiObservabilityHandled400RouteImport.update({
+    id: '/handled-400',
+    path: '/handled-400',
+    getParentRoute: () => DevUiObservabilityRoute,
+  } as any)
 const ApiAssetProviderIdAssetIdRoute =
   ApiAssetProviderIdAssetIdRouteImport.update({
     id: '/api/asset/$providerId/$assetId',
@@ -193,12 +213,15 @@ export interface FileRoutesByFullPath {
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui/observability': typeof DevUiObservabilityRouteWithChildren
   '/dev/ui/': typeof DevUiIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
   '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
   '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
+  '/dev/ui/observability/handled-400': typeof DevUiObservabilityHandled400Route
+  '/dev/ui/observability/server-error': typeof DevUiObservabilityServerErrorRoute
   '/settings/': typeof pagesuserSettingsIndexRoute
   '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
@@ -218,12 +241,15 @@ export interface FileRoutesByTo {
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui/observability': typeof DevUiObservabilityRouteWithChildren
   '/dev/ui': typeof DevUiIndexRoute
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
   '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
   '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
+  '/dev/ui/observability/handled-400': typeof DevUiObservabilityHandled400Route
+  '/dev/ui/observability/server-error': typeof DevUiObservabilityServerErrorRoute
   '/settings': typeof pagesuserSettingsIndexRoute
   '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
@@ -248,12 +274,15 @@ export interface FileRoutesById {
   '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/dev/ui/observability': typeof DevUiObservabilityRouteWithChildren
   '/dev/ui/': typeof DevUiIndexRoute
   '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
   '/(pages)/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/(pages)/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
   '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
   '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
+  '/dev/ui/observability/handled-400': typeof DevUiObservabilityHandled400Route
+  '/dev/ui/observability/server-error': typeof DevUiObservabilityServerErrorRoute
   '/(pages)/(user)/settings/': typeof pagesuserSettingsIndexRoute
   '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
 }
@@ -276,12 +305,15 @@ export interface FileRouteTypes {
     | '/profile/$profileId'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/dev/ui/observability'
     | '/dev/ui/'
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
     | '/api/albums/$providerId/$albumId'
     | '/api/asset/$providerId/$assetId'
+    | '/dev/ui/observability/handled-400'
+    | '/dev/ui/observability/server-error'
     | '/settings/'
     | '/api/asset/$providerId/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
@@ -301,12 +333,15 @@ export interface FileRouteTypes {
     | '/profile/$profileId'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/dev/ui/observability'
     | '/dev/ui'
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
     | '/api/albums/$providerId/$albumId'
     | '/api/asset/$providerId/$assetId'
+    | '/dev/ui/observability/handled-400'
+    | '/dev/ui/observability/server-error'
     | '/settings'
     | '/api/asset/$providerId/$assetId/metadata'
   id:
@@ -330,12 +365,15 @@ export interface FileRouteTypes {
     | '/(pages)/profile/$profileId'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/dev/ui/observability'
     | '/dev/ui/'
     | '/(pages)/(user)/settings/profile'
     | '/(pages)/albums/$providerId/$albumId'
     | '/(pages)/assets/$providerId/$assetId'
     | '/api/albums/$providerId/$albumId'
     | '/api/asset/$providerId/$assetId'
+    | '/dev/ui/observability/handled-400'
+    | '/dev/ui/observability/server-error'
     | '/(pages)/(user)/settings/'
     | '/api/asset/$providerId/$assetId/metadata'
   fileRoutesById: FileRoutesById
@@ -429,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevUiIndexRouteImport
       parentRoute: typeof DevUiRouteRoute
     }
+    '/dev/ui/observability': {
+      id: '/dev/ui/observability'
+      path: '/observability'
+      fullPath: '/dev/ui/observability'
+      preLoaderRoute: typeof DevUiObservabilityRouteImport
+      parentRoute: typeof DevUiRouteRoute
+    }
     '/dev/ui/feedback': {
       id: '/dev/ui/feedback'
       path: '/feedback'
@@ -498,6 +543,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
       parentRoute: typeof pagesuserRouteRoute
+    }
+    '/dev/ui/observability/server-error': {
+      id: '/dev/ui/observability/server-error'
+      path: '/server-error'
+      fullPath: '/dev/ui/observability/server-error'
+      preLoaderRoute: typeof DevUiObservabilityServerErrorRouteImport
+      parentRoute: typeof DevUiObservabilityRoute
+    }
+    '/dev/ui/observability/handled-400': {
+      id: '/dev/ui/observability/handled-400'
+      path: '/handled-400'
+      fullPath: '/dev/ui/observability/handled-400'
+      preLoaderRoute: typeof DevUiObservabilityHandled400RouteImport
+      parentRoute: typeof DevUiObservabilityRoute
     }
     '/api/asset/$providerId/$assetId': {
       id: '/api/asset/$providerId/$assetId'
@@ -606,15 +665,30 @@ const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
   pagesRouteRouteChildren,
 )
 
+interface DevUiObservabilityRouteChildren {
+  DevUiObservabilityHandled400Route: typeof DevUiObservabilityHandled400Route
+  DevUiObservabilityServerErrorRoute: typeof DevUiObservabilityServerErrorRoute
+}
+
+const DevUiObservabilityRouteChildren: DevUiObservabilityRouteChildren = {
+  DevUiObservabilityHandled400Route: DevUiObservabilityHandled400Route,
+  DevUiObservabilityServerErrorRoute: DevUiObservabilityServerErrorRoute,
+}
+
+const DevUiObservabilityRouteWithChildren =
+  DevUiObservabilityRoute._addFileChildren(DevUiObservabilityRouteChildren)
+
 interface DevUiRouteRouteChildren {
   DevUiControlsRoute: typeof DevUiControlsRoute
   DevUiFeedbackRoute: typeof DevUiFeedbackRoute
+  DevUiObservabilityRoute: typeof DevUiObservabilityRouteWithChildren
   DevUiIndexRoute: typeof DevUiIndexRoute
 }
 
 const DevUiRouteRouteChildren: DevUiRouteRouteChildren = {
   DevUiControlsRoute: DevUiControlsRoute,
   DevUiFeedbackRoute: DevUiFeedbackRoute,
+  DevUiObservabilityRoute: DevUiObservabilityRouteWithChildren,
   DevUiIndexRoute: DevUiIndexRoute,
 }
 

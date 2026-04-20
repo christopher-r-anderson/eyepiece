@@ -47,6 +47,21 @@ pnpm supabase start # if not already started
 pnpm dev
 ```
 
+#### Observability Verification
+
+If you are intentionally verifying the Sentry integration locally:
+
+1. Set `VITE_SENTRY_ENABLED=true` and provide a valid `VITE_SENTRY_DSN` in `.env.local`.
+2. Start the app with `pnpm dev` and visit `/dev/ui/observability`.
+3. Trigger the four scenarios in the workbench:
+   client render error, handled UI boundary error, server thrown error, and handled 400 response.
+4. Confirm that the client render error reaches Sentry with route and boundary metadata.
+5. Use the full-reload server-error control and confirm that the resulting request reaches Sentry through the existing server request and function middleware.
+6. Confirm that handled form errors and handled 400 responses remain visible in the UI without creating noisy Sentry events.
+7. If you are signed in locally, confirm client-side events are associated with the authenticated user id.
+
+Current limitations: request-scoped server-side user context is still deferred, and the server-thrown route does not currently prove route-boundary metadata on server events.
+
 #### Site authentication
 
 There will be an existing user you can log in to the local site with:

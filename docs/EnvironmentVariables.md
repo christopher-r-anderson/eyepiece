@@ -47,6 +47,20 @@ Local development should normally leave Sentry disabled.
 - Local development usually does not need separate `SENTRY_*` runtime vars because the server falls back to the `VITE_SENTRY_*` values.
 - `SENTRY_AUTH_TOKEN` is only needed locally if you want a local `pnpm build` to upload source maps which is normally handled by the Netlify build server.
 
+When you do want to verify observability locally, set `VITE_SENTRY_ENABLED=true`, provide a valid `VITE_SENTRY_DSN`, and use the dev-only workbench at `/dev/ui/observability` to exercise the supported scenarios.
+
+#### Local Observability Checklist
+
+Use `/dev/ui/observability` to confirm the current intended behavior:
+
+1. Client render error: should be reported with route and boundary metadata.
+2. Handled UI boundary error: should remain visible in the form and stay low-noise.
+3. Server thrown error: should be triggered via the full-reload control and reported by the existing server request and function middleware.
+4. Handled 400 response: should render in the boundary UI and should not be reported.
+5. Signed-in local session: client-side events should be associated with the user id only.
+
+Current limitations: request-scoped server-side user attachment is still deferred, and this local check does not currently prove route-boundary metadata on server-side events.
+
 ### Tests
 
 Tests should leave Sentry disabled.
