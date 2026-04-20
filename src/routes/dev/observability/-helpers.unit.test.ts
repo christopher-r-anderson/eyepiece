@@ -4,7 +4,7 @@ import {
   DEV_OBSERVABILITY_VALIDATION_ERROR_BODY,
   createDevObservabilityValidationResponse,
   throwDevObservabilityServerError,
-} from './-observability.helpers'
+} from './-helpers'
 
 describe('observability.helpers', () => {
   it('throws the deterministic server error message', () => {

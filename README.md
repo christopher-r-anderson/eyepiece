@@ -49,10 +49,10 @@ pnpm dev
 
 #### Observability Verification
 
-If you are intentionally verifying the Sentry integration locally:
+To verify the Sentry integration locally:
 
 1. Set `VITE_SENTRY_ENABLED=true` and provide a valid `VITE_SENTRY_DSN` in `.env.local`.
-2. Start the app with `pnpm dev` and visit `/dev/ui/observability`.
+2. Start the app with `pnpm dev` and visit `/dev/observability`.
 3. Trigger the four scenarios in the workbench:
    client render error, handled UI boundary error, server thrown error, and handled 400 response.
 4. Confirm that the client render error reaches Sentry with route and boundary metadata.

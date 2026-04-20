@@ -1,12 +1,7 @@
-import { Outlet, createFileRoute, notFound } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { Link } from '@/components/ui/link'
 
 export const Route = createFileRoute('/dev/ui')({
-  beforeLoad: () => {
-    if (!import.meta.env.DEV) {
-      throw notFound()
-    }
-  },
   component: DevUiLayout,
 })
 
@@ -14,7 +9,6 @@ const navLinks = [
   { to: '/dev/ui', label: 'Overview', exact: true },
   { to: '/dev/ui/controls', label: 'Controls', exact: true },
   { to: '/dev/ui/feedback', label: 'Feedback', exact: true },
-  { to: '/dev/ui/observability', label: 'Observability', exact: false },
 ] as const
 
 function DevUiLayout() {
@@ -51,6 +45,7 @@ function DevUiLayout() {
           >
             Development Only
           </p>
+          <Link to="/dev">Back to dev landing</Link>
           <h1
             css={{
               margin: 0,
@@ -67,7 +62,7 @@ function DevUiLayout() {
               color: 'var(--text-muted)',
             }}
           >
-            Shared components, interaction patterns, and observability checks.
+            Shared components and interaction patterns.
           </p>
         </div>
         <nav

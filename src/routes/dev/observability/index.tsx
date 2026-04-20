@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { CapturedPrettyError } from '@/app/layout/route-error'
-import { Err, Ok } from '@/lib/result'
 import { Link } from '@/components/ui/link'
+import { Err, Ok } from '@/lib/result'
 
 const handledScenarioSchema = z.object({
   displayName: z.string().min(1),
@@ -29,16 +29,47 @@ function handledScenarioAction(data: z.infer<typeof handledScenarioSchema>) {
   )
 }
 
-export const Route = createFileRoute('/dev/ui/observability')({
-  component: DevUiObservabilityPage,
+export const Route = createFileRoute('/dev/observability/')({
+  component: DevObservabilityPage,
 })
 
-function DevUiObservabilityPage() {
+function DevObservabilityPage() {
   const [renderAttempt, setRenderAttempt] = useState(0)
   const [shouldThrowRenderError, setShouldThrowRenderError] = useState(false)
 
   return (
     <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
+      <header css={{ display: 'grid', gap: 'var(--space-3)' }}>
+        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
+          <p
+            css={{
+              margin: 0,
+              color: 'var(--text-accent)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Development Only
+          </p>
+          <Link to="/dev">Back to dev landing</Link>
+          <h1
+            css={{
+              margin: 0,
+              fontSize: 'var(--text-2xl)',
+              lineHeight: 'var(--line-height-tight)',
+            }}
+          >
+            Observability Workbench
+          </h1>
+          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
+            Use these scenarios to verify the current Sentry and error-boundary
+            behavior in development.
+          </p>
+        </div>
+      </header>
+
       <section
         css={{
           display: 'grid',
@@ -46,15 +77,6 @@ function DevUiObservabilityPage() {
           maxWidth: 'var(--size-reading-max)',
         }}
       >
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <h2 css={{ margin: 0, fontSize: 'var(--text-xl)' }}>
-            Observability Workbench
-          </h2>
-          <p css={{ margin: 0 }}>
-            Use these deterministic scenarios to verify the current Sentry and
-            error-boundary behavior in development.
-          </p>
-        </div>
         <ol css={{ margin: 0, paddingInlineStart: '1.25rem' }}>
           <li>
             Client render error should be captured with boundary metadata.
@@ -133,10 +155,10 @@ function DevUiObservabilityPage() {
           />
           <Button
             onPress={() => {
-              window.location.assign('/dev/ui/observability/server-error')
+              window.location.assign('/dev/observability/server-error')
             }}
           >
-            Open server error route with full reload
+            Open server error route
           </Button>
         </article>
 
@@ -145,7 +167,7 @@ function DevUiObservabilityPage() {
             title="Handled 400 Validation Error"
             description="Triggers a handled 400 route response that should stay low-noise."
           />
-          <Link to="/dev/ui/observability/handled-400">
+          <Link to="/dev/observability/handled-400">
             Open handled 400 route
           </Link>
         </article>
@@ -198,7 +220,7 @@ function ScenarioHeading({
 }) {
   return (
     <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-      <h3 css={{ margin: 0, fontSize: 'var(--text-lg)' }}>{title}</h3>
+      <h2 css={{ margin: 0, fontSize: 'var(--text-lg)' }}>{title}</h2>
       <p css={{ margin: 0 }}>{description}</p>
     </div>
   )
