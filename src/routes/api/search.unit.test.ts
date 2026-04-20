@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as MiddlewareModule from '@/server/lib/middleware'
 import { AppException } from '@/lib/result'
 import { operationalErrorObservability } from '@/lib/error-observability'
+import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -12,6 +14,15 @@ import {
 
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => (config: unknown) => config,
+  isRedirect: () => false,
+  isNotFound: () => false,
+  notFound: vi.fn(),
+}))
+
+vi.mock('@tanstack/react-start', () => ({
+  createMiddleware: () => ({
+    server: (handler: unknown) => handler,
+  }),
 }))
 
 vi.mock('@/server/lib/middleware', () => ({
@@ -35,8 +46,16 @@ vi.mock('@/server/eyepiece/service', () => ({
 // raw config object, giving us access to server.handlers.GET.
 // ---------------------------------------------------------------------------
 
-const { Route } = await import('./search')
+const { buildUrlSearchParamsMiddleware } = await vi.importActual<
+  typeof MiddlewareModule
+>('@/server/lib/middleware')
+
+const { Route, searchFiltersParamsSchema, searchQueryParamSchema } =
+  await import('./search')
 const handler = (Route as any).server.handlers.GET
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
+  searchQueryParamSchema.and(paginationSchema).and(searchFiltersParamsSchema),
+) as any
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -62,6 +81,23 @@ const validSioaParams = {
 }
 
 const emptyPage = { items: [], pagination: { next: null, total: 0 } }
+
+async function expectBadRequest(
+  request: Promise<unknown>,
+  expectedBody: unknown,
+) {
+  try {
+    const response = (await request) as Response
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual(expectedBody)
+  } catch (error) {
+    const response = error as Response
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual(expectedBody)
+  }
+}
 
 const nasaSearchResults = {
   items: [
@@ -194,24 +230,56 @@ describe('GET /api/search handler', () => {
     )
   })
 
-  it('throws a 400 response when the search query is missing', async () => {
-    const { q: _omit, ...withoutQ } = validNasaParams
-
-    await expect(
-      handler({ context: makeContext(withoutQ) }),
-    ).rejects.toMatchObject({
-      name: 'ZodError',
-    })
+  it('returns a 400 response from middleware when the search query is missing', async () => {
+    await expectBadRequest(
+      searchParamsMiddleware({
+        request: new Request(
+          'https://example.com/api/search?providerId=nasa_ivl&page=1&pageSize=24&mediaType=image',
+        ),
+        next: vi.fn(),
+      }),
+      {
+        error: {
+          code: 'INVALID_QUERY_PARAMS',
+          message: 'One or more query parameters are invalid.',
+          issues: [
+            {
+              code: 'invalid_type',
+              message: 'Invalid input: expected string, received undefined',
+              path: 'q',
+            },
+          ],
+        },
+      },
+    )
   })
 
-  it('throws a 400 response when the providerId is invalid', async () => {
-    const params = { ...validNasaParams, providerId: 'not_a_provider' }
+  it('returns a 400 response from middleware when the providerId is invalid', async () => {
+    const next = vi.fn()
 
-    await expect(
-      handler({ context: makeContext(params) }),
-    ).rejects.toMatchObject({
-      name: 'ZodError',
-    })
+    await expectBadRequest(
+      searchParamsMiddleware({
+        request: new Request(
+          'https://example.com/api/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&mediaType=image',
+        ),
+        next,
+      }),
+      {
+        error: {
+          code: 'INVALID_QUERY_PARAMS',
+          message: 'One or more query parameters are invalid.',
+          issues: [
+            {
+              code: 'invalid_union',
+              message: 'Invalid input',
+              path: 'providerId',
+            },
+          ],
+        },
+      },
+    )
+
+    expect(next).not.toHaveBeenCalled()
   })
 
   it('rethrows handled provider failures with route context', async () => {

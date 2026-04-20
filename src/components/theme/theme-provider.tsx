@@ -60,7 +60,7 @@ const THEME_SCRIPT = `(function() {
       theme = mode
     }
     document.documentElement.setAttribute('${THEME_ATTR_NAME}', theme)
-  } catch (e) {
-    console.warn('Theme script failed', e)
+  } catch {
+    document.documentElement.setAttribute('${THEME_ATTR_NAME}', 'light')
   }
 })();`
