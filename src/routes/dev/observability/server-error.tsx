@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DevBackLink } from '../-components'
 import { throwDevObservabilityServerError } from './-helpers'
 import { PrettyException } from '@/components/ui/error'
-import { Link } from '@/components/ui/link'
+import { Heading } from '@/components/ui/heading'
 
 export const Route = createFileRoute('/dev/observability/server-error')({
   loader: () => {
@@ -10,7 +11,9 @@ export const Route = createFileRoute('/dev/observability/server-error')({
   component: () => null,
   errorComponent: ({ error }) => (
     <div css={{ display: 'grid', gap: 'var(--space-4)' }}>
-      <h1 css={{ margin: 0 }}>Server Error Scenario</h1>
+      <Heading headingLevel={2} css={{ marginBlockEnd: 0 }}>
+        Server Error Scenario
+      </Heading>
       <p>
         This route intentionally throws during a full document request so the
         existing server-side Sentry middleware can capture it. The page keeps
@@ -18,7 +21,9 @@ export const Route = createFileRoute('/dev/observability/server-error')({
         verify route-boundary tags.
       </p>
       <PrettyException error={error} headingLevel={2} />
-      <Link to="/dev/observability">Back to observability workbench</Link>
+      <DevBackLink to="/dev/observability">
+        Back to observability workbench
+      </DevBackLink>
     </div>
   ),
 })

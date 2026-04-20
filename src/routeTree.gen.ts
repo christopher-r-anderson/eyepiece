@@ -20,6 +20,7 @@ import { Route as pagesButtonsRouteImport } from './routes/(pages)/buttons'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
+import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
 import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
 import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
 import { Route as DevObservabilityIndexRouteImport } from './routes/dev/observability/index'
@@ -95,6 +96,11 @@ const DevUiRouteRoute = DevUiRouteRouteImport.update({
   path: '/ui',
   getParentRoute: () => DevRouteRoute,
 } as any)
+const DevObservabilityRouteRoute = DevObservabilityRouteRouteImport.update({
+  id: '/observability',
+  path: '/observability',
+  getParentRoute: () => DevRouteRoute,
+} as any)
 const pagesuserRouteRoute = pagesuserRouteRouteImport.update({
   id: '/(user)',
   getParentRoute: () => pagesRouteRoute,
@@ -105,9 +111,9 @@ const DevUiIndexRoute = DevUiIndexRouteImport.update({
   getParentRoute: () => DevUiRouteRoute,
 } as any)
 const DevObservabilityIndexRoute = DevObservabilityIndexRouteImport.update({
-  id: '/observability/',
-  path: '/observability/',
-  getParentRoute: () => DevRouteRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevObservabilityRouteRoute,
 } as any)
 const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
   id: '/feedback',
@@ -121,15 +127,15 @@ const DevUiControlsRoute = DevUiControlsRouteImport.update({
 } as any)
 const DevObservabilityServerErrorRoute =
   DevObservabilityServerErrorRouteImport.update({
-    id: '/observability/server-error',
-    path: '/observability/server-error',
-    getParentRoute: () => DevRouteRoute,
+    id: '/server-error',
+    path: '/server-error',
+    getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
 const DevObservabilityHandled400Route =
   DevObservabilityHandled400RouteImport.update({
-    id: '/observability/handled-400',
-    path: '/observability/handled-400',
-    getParentRoute: () => DevRouteRoute,
+    id: '/handled-400',
+    path: '/handled-400',
+    getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
 const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
   id: '/profile/$profileId',
@@ -211,6 +217,7 @@ const ApiAssetProviderIdAssetIdMetadataRoute =
 export interface FileRoutesByFullPath {
   '/dev': typeof DevRouteRouteWithChildren
   '/complete-profile': typeof CompleteProfileRoute
+  '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
@@ -275,6 +282,7 @@ export interface FileRoutesById {
   '/dev': typeof DevRouteRouteWithChildren
   '/complete-profile': typeof CompleteProfileRoute
   '/(pages)/(user)': typeof pagesuserRouteRouteWithChildren
+  '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
@@ -308,6 +316,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/dev'
     | '/complete-profile'
+    | '/dev/observability'
     | '/dev/ui'
     | '/login'
     | '/register'
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/complete-profile'
     | '/(pages)/(user)'
+    | '/dev/observability'
     | '/dev/ui'
     | '/(auth)/login'
     | '/(auth)/register'
@@ -489,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevUiRouteRouteImport
       parentRoute: typeof DevRouteRoute
     }
+    '/dev/observability': {
+      id: '/dev/observability'
+      path: '/observability'
+      fullPath: '/dev/observability'
+      preLoaderRoute: typeof DevObservabilityRouteRouteImport
+      parentRoute: typeof DevRouteRoute
+    }
     '/(pages)/(user)': {
       id: '/(pages)/(user)'
       path: ''
@@ -505,10 +522,10 @@ declare module '@tanstack/react-router' {
     }
     '/dev/observability/': {
       id: '/dev/observability/'
-      path: '/observability'
+      path: '/'
       fullPath: '/dev/observability/'
       preLoaderRoute: typeof DevObservabilityIndexRouteImport
-      parentRoute: typeof DevRouteRoute
+      parentRoute: typeof DevObservabilityRouteRoute
     }
     '/dev/ui/feedback': {
       id: '/dev/ui/feedback'
@@ -526,17 +543,17 @@ declare module '@tanstack/react-router' {
     }
     '/dev/observability/server-error': {
       id: '/dev/observability/server-error'
-      path: '/observability/server-error'
+      path: '/server-error'
       fullPath: '/dev/observability/server-error'
       preLoaderRoute: typeof DevObservabilityServerErrorRouteImport
-      parentRoute: typeof DevRouteRoute
+      parentRoute: typeof DevObservabilityRouteRoute
     }
     '/dev/observability/handled-400': {
       id: '/dev/observability/handled-400'
-      path: '/observability/handled-400'
+      path: '/handled-400'
       fullPath: '/dev/observability/handled-400'
       preLoaderRoute: typeof DevObservabilityHandled400RouteImport
-      parentRoute: typeof DevRouteRoute
+      parentRoute: typeof DevObservabilityRouteRoute
     }
     '/(pages)/profile/$profileId': {
       id: '/(pages)/profile/$profileId'
@@ -701,6 +718,23 @@ const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
   pagesRouteRouteChildren,
 )
 
+interface DevObservabilityRouteRouteChildren {
+  DevObservabilityHandled400Route: typeof DevObservabilityHandled400Route
+  DevObservabilityServerErrorRoute: typeof DevObservabilityServerErrorRoute
+  DevObservabilityIndexRoute: typeof DevObservabilityIndexRoute
+}
+
+const DevObservabilityRouteRouteChildren: DevObservabilityRouteRouteChildren = {
+  DevObservabilityHandled400Route: DevObservabilityHandled400Route,
+  DevObservabilityServerErrorRoute: DevObservabilityServerErrorRoute,
+  DevObservabilityIndexRoute: DevObservabilityIndexRoute,
+}
+
+const DevObservabilityRouteRouteWithChildren =
+  DevObservabilityRouteRoute._addFileChildren(
+    DevObservabilityRouteRouteChildren,
+  )
+
 interface DevUiRouteRouteChildren {
   DevUiControlsRoute: typeof DevUiControlsRoute
   DevUiFeedbackRoute: typeof DevUiFeedbackRoute
@@ -718,19 +752,15 @@ const DevUiRouteRouteWithChildren = DevUiRouteRoute._addFileChildren(
 )
 
 interface DevRouteRouteChildren {
+  DevObservabilityRouteRoute: typeof DevObservabilityRouteRouteWithChildren
   DevUiRouteRoute: typeof DevUiRouteRouteWithChildren
   DevIndexRoute: typeof DevIndexRoute
-  DevObservabilityHandled400Route: typeof DevObservabilityHandled400Route
-  DevObservabilityServerErrorRoute: typeof DevObservabilityServerErrorRoute
-  DevObservabilityIndexRoute: typeof DevObservabilityIndexRoute
 }
 
 const DevRouteRouteChildren: DevRouteRouteChildren = {
+  DevObservabilityRouteRoute: DevObservabilityRouteRouteWithChildren,
   DevUiRouteRoute: DevUiRouteRouteWithChildren,
   DevIndexRoute: DevIndexRoute,
-  DevObservabilityHandled400Route: DevObservabilityHandled400Route,
-  DevObservabilityServerErrorRoute: DevObservabilityServerErrorRoute,
-  DevObservabilityIndexRoute: DevObservabilityIndexRoute,
 }
 
 const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(

@@ -1,4 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
+import {
+  DevLinkCard,
+  DevPageIntro,
+  devCardGridCss,
+  devPageSectionCss,
+} from './-components'
 import { Link } from '@/components/ui/link'
 
 export const Route = createFileRoute('/dev/')({
@@ -21,71 +27,20 @@ const sections = [
 
 function DevOverviewPage() {
   return (
-    <section
-      css={{
-        display: 'grid',
-        gap: 'var(--space-section-gap)',
-      }}
-    >
-      <header css={{ display: 'grid', gap: 'var(--space-3)' }}>
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <p
-            css={{
-              margin: 0,
-              color: 'var(--text-accent)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Development Only
-          </p>
-          <h1
-            css={{
-              margin: 0,
-              fontSize: 'var(--text-2xl)',
-              lineHeight: 'var(--line-height-tight)',
-            }}
-          >
-            Dev Workbenches
-          </h1>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Development mode only manual preview and test areas.
-          </p>
-        </div>
-      </header>
+    <section css={devPageSectionCss}>
+      <DevPageIntro
+        title="Dev Workbenches"
+        description="Development mode only manual preview and test areas."
+      />
 
-      <div
-        css={{
-          display: 'grid',
-          alignItems: 'start',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
-          gap: 'var(--space-4)',
-        }}
-      >
+      <div css={devCardGridCss}>
         {sections.map((section) => (
-          <article
+          <DevLinkCard
             key={section.to}
-            css={{
-              display: 'grid',
-              gap: 'var(--space-3)',
-              padding: 'var(--space-5)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'var(--secondary-bg)',
-              color: 'var(--secondary-text)',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-              <h2 css={{ margin: 0, fontSize: 'var(--text-lg)' }}>
-                {section.title}
-              </h2>
-              <p css={{ margin: 0 }}>{section.description}</p>
-            </div>
-            <Link to={section.to}>Open {section.title}</Link>
-          </article>
+            title={section.title}
+            description={section.description}
+            action={<Link to={section.to}>Open {section.title}</Link>}
+          />
         ))}
       </div>
     </section>

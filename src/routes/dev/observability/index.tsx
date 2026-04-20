@@ -1,6 +1,12 @@
 import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import {
+  DevLinkCard,
+  DevPanel,
+  DevTitleBlock,
+  devCardGridCss,
+} from '../-components'
 import { Button } from '@/components/ui/button'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
@@ -39,44 +45,11 @@ function DevObservabilityPage() {
 
   return (
     <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
-      <header css={{ display: 'grid', gap: 'var(--space-3)' }}>
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <p
-            css={{
-              margin: 0,
-              color: 'var(--text-accent)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Development Only
-          </p>
-          <Link to="/dev">Back to dev landing</Link>
-          <h1
-            css={{
-              margin: 0,
-              fontSize: 'var(--text-2xl)',
-              lineHeight: 'var(--line-height-tight)',
-            }}
-          >
-            Observability Workbench
-          </h1>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Use these scenarios to verify the current Sentry and error-boundary
-            behavior in development.
-          </p>
-        </div>
-      </header>
-
-      <section
-        css={{
-          display: 'grid',
-          gap: 'var(--space-3)',
-          maxWidth: 'var(--size-reading-max)',
-        }}
-      >
+      <DevPanel css={{ maxWidth: 'var(--size-reading-max)' }}>
+        <DevTitleBlock
+          title="Verification Checklist"
+          description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."
+        />
         <ol css={{ margin: 0, paddingInlineStart: '1.25rem' }}>
           <li>
             Client render error should be captured with boundary metadata.
@@ -90,20 +63,19 @@ function DevObservabilityPage() {
             Handled 400 responses should render but should not be reported.
           </li>
         </ol>
-      </section>
+      </DevPanel>
 
       <div
         css={{
-          display: 'grid',
-          gap: 'var(--space-4)',
+          ...devCardGridCss,
           gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))',
-          alignItems: 'start',
         }}
       >
-        <article css={scenarioCardCss}>
-          <ScenarioHeading
+        <DevPanel as="article">
+          <DevTitleBlock
             title="Client Render Error"
             description="Throws during render inside a local catch boundary."
+            headingLevel={3}
           />
           <CatchBoundary
             getResetKey={() => `${renderAttempt}:${shouldThrowRenderError}`}
@@ -138,39 +110,40 @@ function DevObservabilityPage() {
               </Button>
             )}
           </CatchBoundary>
-        </article>
+        </DevPanel>
 
-        <article css={scenarioCardCss}>
-          <ScenarioHeading
+        <DevPanel as="article">
+          <DevTitleBlock
             title="Handled UI Boundary Error"
             description="Exercises the shared form boundary with structured handled field errors."
+            headingLevel={3}
           />
           <HandledObservabilityForm />
-        </article>
+        </DevPanel>
 
-        <article css={scenarioCardCss}>
-          <ScenarioHeading
-            title="Server Thrown Error"
-            description="Performs a full document navigation into a throwing route so the request passes through the existing server middleware."
-          />
-          <Button
-            onPress={() => {
-              window.location.assign('/dev/observability/server-error')
-            }}
-          >
-            Open server error route
-          </Button>
-        </article>
+        <DevLinkCard
+          title="Server Thrown Error"
+          description="Performs a full document navigation into a throwing route so the request passes through the existing server middleware."
+          action={
+            <Button
+              onPress={() => {
+                window.location.assign('/dev/observability/server-error')
+              }}
+            >
+              Open server error route
+            </Button>
+          }
+        />
 
-        <article css={scenarioCardCss}>
-          <ScenarioHeading
-            title="Handled 400 Validation Error"
-            description="Triggers a handled 400 route response that should stay low-noise."
-          />
-          <Link to="/dev/observability/handled-400">
-            Open handled 400 route
-          </Link>
-        </article>
+        <DevLinkCard
+          title="Handled 400 Validation Error"
+          description="Triggers a handled 400 route response that should stay low-noise."
+          action={
+            <Link to="/dev/observability/handled-400">
+              Open handled 400 route
+            </Link>
+          }
+        />
       </div>
     </div>
   )
@@ -209,28 +182,4 @@ function HandledObservabilityForm() {
       </InputGroup>
     </Form>
   )
-}
-
-function ScenarioHeading({
-  title,
-  description,
-}: {
-  title: string
-  description: string
-}) {
-  return (
-    <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-      <h2 css={{ margin: 0, fontSize: 'var(--text-lg)' }}>{title}</h2>
-      <p css={{ margin: 0 }}>{description}</p>
-    </div>
-  )
-}
-
-const scenarioCardCss = {
-  display: 'grid',
-  gap: 'var(--space-4)',
-  padding: 'var(--space-5)',
-  border: '1px solid var(--border-color)',
-  borderRadius: 'var(--radius-lg)',
-  backgroundColor: 'var(--secondary-bg)',
 }
