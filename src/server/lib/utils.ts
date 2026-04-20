@@ -1,6 +1,7 @@
 import { createApiErrorResponse, formatValidationIssues } from './api-errors'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { z } from 'zod'
+import { logErrorWithObservability } from '@/lib/error-logging'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 
 // params: {parse} will cause types in server routes to look correct, but the parsing will not actually be run
@@ -17,8 +18,7 @@ export function parseOrThrowBadRequest<T extends z.ZodType>(
 ): z.infer<T> {
   const result = schema.safeParse(input)
   if (!result.success) {
-    console.error(message, result.error)
-    throw createApiErrorResponse(
+    const response = createApiErrorResponse(
       {
         code: options?.code ?? 'INVALID_INPUT',
         message,
@@ -26,6 +26,12 @@ export function parseOrThrowBadRequest<T extends z.ZodType>(
       },
       400,
     )
+
+    logErrorWithObservability(message, response, {
+      validationError: result.error,
+    })
+
+    throw response
   }
   return result.data
 }

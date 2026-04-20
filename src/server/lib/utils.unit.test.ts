@@ -1,10 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { parseOrThrowBadRequest, parseOrThrowProviderId } from './utils'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { shouldReportError } from '@/lib/error-observability'
 
 describe('parseOrThrowBadRequest', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('returns parsed data when the input is valid', () => {
     const schema = z.object({ page: z.coerce.number().min(1) })
 
@@ -15,6 +19,12 @@ describe('parseOrThrowBadRequest', () => {
 
   it('throws a 400 Response and logs the validation error when input is invalid', async () => {
     const schema = z.object({ page: z.coerce.number().min(1) })
+    const consoleWarn = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined)
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
 
     let response: Response | undefined
     try {
@@ -39,6 +49,16 @@ describe('parseOrThrowBadRequest', () => {
         ],
       },
     })
+    expect(consoleWarn).toHaveBeenCalledWith('Bad pagination', {
+      error: response,
+      observability: {
+        kind: 'expected',
+        level: 'warning',
+        shouldReport: false,
+      },
+      validationError: expect.any(z.ZodError),
+    })
+    expect(consoleError).not.toHaveBeenCalled()
     expect(shouldReportError(response)).toBe(false)
   })
 })

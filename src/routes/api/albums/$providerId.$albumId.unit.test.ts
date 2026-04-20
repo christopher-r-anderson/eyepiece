@@ -11,6 +11,9 @@ import {
 
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => (config: unknown) => config,
+  isRedirect: () => false,
+  isNotFound: () => false,
+  notFound: vi.fn(),
 }))
 
 vi.mock('@/server/lib/middleware', () => ({
@@ -52,6 +55,22 @@ const asset = {
 }
 const emptyPage = { items: [], pagination: { next: null, total: 0 } }
 const firstPage = { items: [asset], pagination: { next: null, total: 1 } }
+
+async function expectBadRequest(
+  request: Promise<unknown>,
+  expectedBody: unknown,
+) {
+  await expect(request).rejects.toMatchObject({ status: 400 })
+
+  try {
+    await request
+  } catch (error) {
+    const response = error as Response
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual(expectedBody)
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -103,6 +122,50 @@ describe('GET /api/albums/:providerId/:albumId handler', () => {
     )
   })
 
+  it('returns the route-specific 400 response for invalid album IDs', async () => {
+    await expectBadRequest(
+      handler({
+        params: { providerId: NASA_IVL_PROVIDER_ID, albumId: '' },
+        context: makeContext(),
+      }),
+      {
+        error: {
+          code: 'INVALID_PATH_PARAMS',
+          message: 'Invalid albumId',
+          issues: [
+            {
+              code: 'too_small',
+              message: 'Too small: expected string to have >=1 characters',
+              path: 'albumId',
+            },
+          ],
+        },
+      },
+    )
+  })
+
+  it('returns a 400 response when the provider ID is invalid', async () => {
+    await expectBadRequest(
+      handler({
+        params: { providerId: 'bad-provider', albumId: 'STS-107' },
+        context: makeContext(),
+      }),
+      {
+        error: {
+          code: 'INVALID_PATH_PARAMS',
+          message: 'Invalid providerId',
+          issues: [
+            {
+              code: 'invalid_value',
+              message: "Invalid providerId, received 'bad-provider'",
+              path: 'providerId',
+            },
+          ],
+        },
+      },
+    )
+  })
+
   it('returns a 200 JSON response with the album page', async () => {
     const response = await handler({
       params: { providerId: NASA_IVL_PROVIDER_ID, albumId: 'STS-107' },
@@ -128,62 +191,6 @@ describe('GET /api/albums/:providerId/:albumId handler', () => {
       error: {
         code: 'NOT_FOUND',
         message: 'Album does not exist',
-      },
-    })
-  })
-
-  it('throws a 400 response for an unrecognized providerId', async () => {
-    let response: Response | undefined
-
-    try {
-      await handler({
-        params: { providerId: 'not_valid', albumId: 'STS-107' },
-        context: makeContext(),
-      })
-    } catch (error) {
-      response = error as Response
-    }
-
-    expect(response?.status).toBe(400)
-    await expect(response?.json()).resolves.toEqual({
-      error: {
-        code: 'INVALID_PATH_PARAMS',
-        message: 'Invalid providerId',
-        issues: [
-          {
-            code: 'invalid_value',
-            message: "Invalid providerId, received 'not_valid'",
-            path: 'providerId',
-          },
-        ],
-      },
-    })
-  })
-
-  it('throws a 400 response when the albumId is empty', async () => {
-    let response: Response | undefined
-
-    try {
-      await handler({
-        params: { providerId: NASA_IVL_PROVIDER_ID, albumId: '' },
-        context: makeContext(),
-      })
-    } catch (error) {
-      response = error as Response
-    }
-
-    expect(response?.status).toBe(400)
-    await expect(response?.json()).resolves.toEqual({
-      error: {
-        code: 'INVALID_PATH_PARAMS',
-        message: 'Invalid albumId',
-        issues: [
-          {
-            code: 'too_small',
-            message: 'Too small: expected string to have >=1 characters',
-            path: 'albumId',
-          },
-        ],
       },
     })
   })

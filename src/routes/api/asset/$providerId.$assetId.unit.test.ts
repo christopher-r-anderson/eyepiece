@@ -12,6 +12,9 @@ import {
 
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => (config: unknown) => config,
+  isRedirect: () => false,
+  isNotFound: () => false,
+  notFound: vi.fn(),
 }))
 
 const mockService = {
@@ -102,6 +105,22 @@ const nasaMetadata = {
     'Buzz Aldrin took this iconic image of a bootprint on the Moon during the Apollo 11 moonwalk on July 20, 1969.',
 }
 
+async function expectBadRequest(
+  request: Promise<unknown>,
+  expectedBody: unknown,
+) {
+  await expect(request).rejects.toMatchObject({ status: 400 })
+
+  try {
+    await request
+  } catch (error) {
+    const response = error as Response
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual(expectedBody)
+  }
+}
+
 // ---------------------------------------------------------------------------
 // GET /api/asset/:providerId/:assetId
 // ---------------------------------------------------------------------------
@@ -130,6 +149,27 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
 
     const body = await response.json()
     expect(body).toEqual(mockAsset)
+  })
+
+  it('returns a 400 response when the provider ID is invalid', async () => {
+    await expectBadRequest(
+      assetHandler({
+        params: { providerId: 'bad-provider', assetId: 'AS11-40-5931' },
+      }),
+      {
+        error: {
+          code: 'INVALID_PATH_PARAMS',
+          message: 'Invalid providerId',
+          issues: [
+            {
+              code: 'invalid_value',
+              message: "Invalid providerId, received 'bad-provider'",
+              path: 'providerId',
+            },
+          ],
+        },
+      },
+    )
   })
 
   it('returns provider-specific NASA asset detail JSON', async () => {
@@ -190,33 +230,6 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
       error: {
         code: 'NOT_FOUND',
         message: 'Asset does not exist',
-      },
-    })
-  })
-
-  it('throws a 400 response for an unrecognized providerId', async () => {
-    let response: Response | undefined
-
-    try {
-      await assetHandler({
-        params: { providerId: 'bad_provider', assetId: 'AS11-40-5931' },
-      })
-    } catch (error) {
-      response = error as Response
-    }
-
-    expect(response?.status).toBe(400)
-    await expect(response?.json()).resolves.toEqual({
-      error: {
-        code: 'INVALID_PATH_PARAMS',
-        message: 'Invalid providerId',
-        issues: [
-          {
-            code: 'invalid_value',
-            message: "Invalid providerId, received 'bad_provider'",
-            path: 'providerId',
-          },
-        ],
       },
     })
   })
@@ -297,6 +310,27 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
     })
   })
 
+  it('returns a 400 response when the metadata route provider ID is invalid', async () => {
+    await expectBadRequest(
+      metadataHandler({
+        params: { providerId: 'bad-provider', assetId: 'AS11-40-5931' },
+      }),
+      {
+        error: {
+          code: 'INVALID_PATH_PARAMS',
+          message: 'Invalid providerId',
+          issues: [
+            {
+              code: 'invalid_value',
+              message: "Invalid providerId, received 'bad-provider'",
+              path: 'providerId',
+            },
+          ],
+        },
+      },
+    )
+  })
+
   it('returns a JSON response with the metadata', async () => {
     const response = await metadataHandler({
       params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'AS11-40-5931' },
@@ -334,33 +368,6 @@ describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
       error: {
         code: 'NOT_FOUND',
         message: 'Asset metadata does not exist',
-      },
-    })
-  })
-
-  it('throws a 400 response for an unrecognized providerId', async () => {
-    let response: Response | undefined
-
-    try {
-      await metadataHandler({
-        params: { providerId: 'bad_provider', assetId: 'any-id' },
-      })
-    } catch (error) {
-      response = error as Response
-    }
-
-    expect(response?.status).toBe(400)
-    await expect(response?.json()).resolves.toEqual({
-      error: {
-        code: 'INVALID_PATH_PARAMS',
-        message: 'Invalid providerId',
-        issues: [
-          {
-            code: 'invalid_value',
-            message: "Invalid providerId, received 'bad_provider'",
-            path: 'providerId',
-          },
-        ],
       },
     })
   })

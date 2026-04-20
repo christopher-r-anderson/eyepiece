@@ -20,6 +20,7 @@ import {
   expectedErrorObservability,
   operationalErrorObservability,
 } from '@/lib/error-observability'
+import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
 import { getOrigin } from '@/lib/utils'
 
@@ -36,8 +37,7 @@ async function toggleFavoriteForUser(
     .eq('asset_preview_snapshot_id', assetSummaryId)
 
   if (deleteError) {
-    console.error('Error deleting favorite for toggle:', deleteError)
-    return Err({
+    const errorResult = {
       code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: deleteError,
@@ -47,7 +47,11 @@ async function toggleFavoriteForUser(
           operation: 'toggle.delete',
         },
       }),
-    })
+    }
+
+    logErrorWithObservability('Favorite toggle delete failed', errorResult)
+
+    return Err(errorResult)
   }
 
   if (count === 1) {
@@ -62,8 +66,7 @@ async function toggleFavoriteForUser(
 
   // 23505 uniqueness violation, likely a double click race condition and not a practical issue
   if (insertError && insertError.code !== '23505') {
-    console.error('Error inserting favorite for toggle:', insertError)
-    return Err({
+    const errorResult = {
       code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: insertError,
@@ -73,7 +76,11 @@ async function toggleFavoriteForUser(
           operation: 'toggle.insert',
         },
       }),
-    })
+    }
+
+    logErrorWithObservability('Favorite toggle insert failed', errorResult)
+
+    return Err(errorResult)
   }
 
   return Ok({ assetSummaryId, isFavorited: true })
@@ -119,11 +126,7 @@ async function _ensurePublicAssetSummaryForKey(
       .maybeSingle()
 
   if (currentAssetSummaryError) {
-    console.error(
-      'Error checking existing asset summary for favorite toggle:',
-      currentAssetSummaryError,
-    )
-    return Err({
+    const errorResult = {
       code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: currentAssetSummaryError,
@@ -134,7 +137,14 @@ async function _ensurePublicAssetSummaryForKey(
           'provider.id': assetKey.providerId,
         },
       }),
-    })
+    }
+
+    logErrorWithObservability(
+      'Favorite asset summary lookup failed',
+      errorResult,
+    )
+
+    return Err(errorResult)
   }
   if (currentAssetSummary) {
     const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
@@ -151,8 +161,7 @@ async function _ensurePublicAssetSummaryForKey(
     try {
       asset = await eyepieceClient.getAsset(assetKey)
     } catch (error) {
-      console.error('Error fetching asset details for favorite toggle:', error)
-      return Err({
+      const errorResult = {
         code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: error,
@@ -163,7 +172,11 @@ async function _ensurePublicAssetSummaryForKey(
             'provider.id': assetKey.providerId,
           },
         }),
-      })
+      }
+
+      logErrorWithObservability('Favorite asset fetch failed', errorResult)
+
+      return Err(errorResult)
     }
     const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
       await serviceClient.rpc('ensure_asset_preview_snapshot', {
@@ -175,11 +188,7 @@ async function _ensurePublicAssetSummaryForKey(
         p_thumb_height: asset.thumbnail.height,
       })
     if (ensureImageRefError) {
-      console.error(
-        'Error ensuring image ref for favorite toggle:',
-        ensureImageRefError,
-      )
-      return Err({
+      const errorResult = {
         code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: ensureImageRefError,
@@ -190,16 +199,20 @@ async function _ensurePublicAssetSummaryForKey(
             'provider.id': assetKey.providerId,
           },
         }),
-      })
+      }
+
+      logErrorWithObservability(
+        'Favorite asset summary ensure failed',
+        errorResult,
+      )
+
+      return Err(errorResult)
     }
     assetSummaryId = ensuredAssetSummaryId
   }
 
   if (!assetSummaryId) {
-    console.error(
-      'No assetSummaryId returned from ensure_asset_preview_snapshot for toggle',
-    )
-    return Err({
+    const errorResult = {
       code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       observability: operationalErrorObservability({
@@ -209,7 +222,11 @@ async function _ensurePublicAssetSummaryForKey(
           'provider.id': assetKey.providerId,
         },
       }),
-    })
+    }
+
+    logErrorWithObservability('Favorite asset summary id missing', errorResult)
+
+    return Err(errorResult)
   }
   return Ok(assetSummaryId)
 }
