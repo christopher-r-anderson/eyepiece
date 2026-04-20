@@ -3,10 +3,12 @@ import { notFound, redirect } from '@tanstack/react-router'
 import {
   expectedErrorObservability,
   getErrorObservability,
+  getErrorSentryMetadata,
   getResultErrorObservability,
   operationalErrorObservability,
   shouldReportError,
 } from './error-observability'
+import { AppException } from './result'
 
 describe('expectedErrorObservability', () => {
   it('defaults expected handled errors to non-reporting warnings', () => {
@@ -156,5 +158,39 @@ describe('shouldReportError', () => {
   it('returns the reporting flag from the shared policy', () => {
     expect(shouldReportError(new Response(null, { status: 400 }))).toBe(false)
     expect(shouldReportError(new Error('boom'))).toBe(true)
+  })
+})
+
+describe('getErrorSentryMetadata', () => {
+  it('returns explicit observability tags and context from app exceptions', () => {
+    const error = new AppException({
+      code: 'PROVIDER_REQUEST_FAILED',
+      message: 'Provider request failed',
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'providers',
+          operation: 'asset.fetch',
+        },
+        context: {
+          page: 2,
+          query: 'apollo',
+        },
+      }),
+    })
+
+    expect(getErrorSentryMetadata(error)).toEqual({
+      tags: {
+        feature: 'providers',
+        operation: 'asset.fetch',
+      },
+      context: {
+        page: 2,
+        query: 'apollo',
+      },
+    })
+  })
+
+  it('returns undefined when an error has no explicit metadata', () => {
+    expect(getErrorSentryMetadata(new Error('boom'))).toBeUndefined()
   })
 })

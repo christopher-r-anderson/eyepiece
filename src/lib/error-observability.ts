@@ -3,6 +3,7 @@ import { getEmbeddedResultError, isAppException, isResultError } from './result'
 import type {
   ResultError,
   ResultErrorObservability,
+  ResultErrorObservabilityContextValue,
   ResultErrorObservabilityKind,
   ResultErrorObservabilityLevel,
 } from './result'
@@ -11,6 +12,11 @@ export type ErrorObservability = {
   kind: ResultErrorObservabilityKind
   level: ResultErrorObservabilityLevel
   shouldReport: boolean
+}
+
+export type ErrorSentryMetadata = {
+  tags: Record<string, string>
+  context?: Record<string, ResultErrorObservabilityContextValue>
 }
 
 const EXPECTED_ERROR_CODES = new Set([
@@ -101,6 +107,22 @@ function getExplicitObservability(
   })
 }
 
+function getResultErrorSentryMetadata(
+  error: ResultError<string | undefined>,
+): ErrorSentryMetadata | undefined {
+  const tags = error.observability?.tags ?? {}
+  const context = error.observability?.context
+
+  if (Object.keys(tags).length === 0 && !context) {
+    return undefined
+  }
+
+  return {
+    tags,
+    context,
+  }
+}
+
 export function getResultErrorObservability<
   TErrorCode extends string | undefined,
 >(error: ResultError<TErrorCode>): ErrorObservability {
@@ -169,6 +191,26 @@ export function getErrorObservability(error: unknown): ErrorObservability {
   }
 
   return toObservability({ kind: 'operational', level: 'error' })
+}
+
+export function getErrorSentryMetadata(
+  error: unknown,
+): ErrorSentryMetadata | undefined {
+  if (isAppException(error)) {
+    return getResultErrorSentryMetadata(error.appError)
+  }
+
+  if (isResultError(error)) {
+    return getResultErrorSentryMetadata(error)
+  }
+
+  const embeddedResultError = getEmbeddedResultError(error)
+
+  if (embeddedResultError) {
+    return getResultErrorSentryMetadata(embeddedResultError)
+  }
+
+  return undefined
 }
 
 export function shouldReportError(error: unknown) {
