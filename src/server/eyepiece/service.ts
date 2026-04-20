@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/tanstackstart-react'
 import * as nasaIvlAdapter from './providers/nasa-ivl/nasa-ivl.provider'
 import * as sioaAdapter from './providers/si-oa/si-oa.provider'
 import { hasAlbums, hasMetadata } from './provider'
@@ -34,6 +35,8 @@ type ProviderOperation =
   | 'asset.fetch'
   | 'metadata.fetch'
   | 'search.fetch'
+
+type ProviderOperationContext = Record<string, string | number | boolean | null>
 
 function isNotFoundProviderError(error: unknown) {
   return (
@@ -90,6 +93,43 @@ function toUnsupportedProviderOperationException(
   })
 }
 
+function getProviderSpanAttributes({
+  providerId,
+  operation,
+  context,
+}: {
+  providerId: ProviderId
+  operation: ProviderOperation
+  context?: ProviderOperationContext
+}) {
+  const attributes: Record<string, string | number | boolean> = {
+    'eyepiece.provider.id': providerId,
+    'eyepiece.provider.operation': operation,
+  }
+
+  if (operation !== 'search.fetch' || !context) {
+    return attributes
+  }
+
+  if (typeof context.page === 'number') {
+    attributes['eyepiece.search.page'] = context.page
+  }
+
+  if (typeof context.pageSize === 'number') {
+    attributes['eyepiece.search.page_size'] = context.pageSize
+  }
+
+  if (typeof context.query === 'string') {
+    attributes['eyepiece.search.query_length'] = context.query.length
+  }
+
+  if (typeof context.hasFilters === 'boolean') {
+    attributes['eyepiece.search.has_filters'] = context.hasFilters
+  }
+
+  return attributes
+}
+
 async function runProviderOperation<T>({
   providerId,
   operation,
@@ -99,19 +139,39 @@ async function runProviderOperation<T>({
 }: {
   providerId: ProviderId
   operation: ProviderOperation
-  context?: Record<string, string | number | boolean | null>
+  context?: ProviderOperationContext
   run: () => Promise<T>
   onNotFound?: () => T
 }): Promise<T> {
-  try {
-    return await run()
-  } catch (error) {
-    if (onNotFound && isNotFoundProviderError(error)) {
-      return onNotFound()
-    }
+  return Sentry.startSpan(
+    {
+      name: `provider.${operation}`,
+      op: 'provider.fetch',
+      attributes: getProviderSpanAttributes({
+        providerId,
+        operation,
+        context,
+      }),
+    },
+    async (span) => {
+      try {
+        const result = await run()
 
-    throw toProviderAppException(providerId, operation, error, context)
-  }
+        span.setAttribute('eyepiece.provider.result', 'success')
+
+        return result
+      } catch (error) {
+        if (onNotFound && isNotFoundProviderError(error)) {
+          span.setAttribute('eyepiece.provider.result', 'not_found')
+          return onNotFound()
+        }
+
+        span.setAttribute('eyepiece.provider.result', 'error')
+
+        throw toProviderAppException(providerId, operation, error, context)
+      }
+    },
+  )
 }
 
 export function makeEyepieceProviderService() {
@@ -185,6 +245,7 @@ export function makeEyepieceProviderService() {
           query,
           page: pagination.page,
           pageSize: pagination.pageSize,
+          hasFilters: Object.keys(filters.filters).length > 0,
         },
         run: async () => {
           switch (filters.providerId) {
