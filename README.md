@@ -58,9 +58,9 @@ To verify the Sentry integration locally:
 4. Confirm that the client render error reaches Sentry with route and boundary metadata.
 5. Use the full-reload server-error control and confirm that the resulting request reaches Sentry through the existing server request and function middleware.
 6. Confirm that handled form errors and handled 400 responses remain visible in the UI without creating noisy Sentry events.
-7. If you are signed in locally, confirm client-side events are associated with the authenticated user id.
+7. If you are signed in locally, confirm client-side and server-side events are associated with the authenticated user id.
 
-Current limitations: request-scoped server-side user context is still deferred, and the server-thrown route does not currently prove route-boundary metadata on server events.
+Current limitations: the server-thrown route does not currently prove route-boundary metadata on server events.
 
 #### Site authentication
 

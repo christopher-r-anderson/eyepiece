@@ -57,9 +57,9 @@ Use `/dev/observability` to confirm the current intended behavior:
 2. Handled UI boundary error: should remain visible in the form and stay low-noise.
 3. Server thrown error: should be triggered via the full-reload control and reported by the existing server request and function middleware.
 4. Handled 400 response: should render in the boundary UI and should not be reported.
-5. Signed-in local session: client-side events should be associated with the user id only.
+5. Signed-in local session: client-side and server-side events should both be associated with the user id.
 
-Current limitations: request-scoped server-side user attachment is still deferred, and this local check does not currently prove route-boundary metadata on server-side events.
+Current limitations: this local check does not currently prove route-boundary metadata on server-side events.
 
 ### Tests
 

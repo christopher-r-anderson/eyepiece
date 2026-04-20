@@ -11,8 +11,8 @@ const developmentServerErrorLoggingMiddleware =
 export const startInstance = createStart(() => {
   return {
     requestMiddleware: [
-      developmentServerErrorLoggingMiddleware,
       sentryRequestMiddleware,
+      developmentServerErrorLoggingMiddleware,
     ],
     functionMiddleware: [sentryFunctionMiddleware],
   }

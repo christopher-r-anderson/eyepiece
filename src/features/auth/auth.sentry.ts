@@ -31,6 +31,10 @@ export function toSentryUser(user: User | null | undefined) {
   }
 }
 
+export function setSentryUserIdContext(userId: string | null | undefined) {
+  Sentry.setUser(userId ? { id: userId } : null)
+}
+
 export function setSentryUserContext(user: User | null | undefined) {
-  Sentry.setUser(toSentryUser(user))
+  setSentryUserIdContext(toSentryUser(user)?.id)
 }
