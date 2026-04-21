@@ -11,8 +11,11 @@ import {
   assetKeySchema,
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
-import { PrettyException } from '@/components/ui/error'
-import { providerIdSchema } from '@/domain/provider/provider.schema'
+import { RouteError } from '@/app/layout/route-error'
+import {
+  providerIdSchema,
+  providerSupportsMetadata,
+} from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
@@ -121,13 +124,7 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
   head: ({ loaderData }) => ({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
-  errorComponent: ({ error }) => (
-    <>
-      <AssetHeading />
-      <p>Error loading asset.</p>
-      <PrettyException error={error} headingLevel={1} />
-    </>
-  ),
+  errorComponent: AssetRouteError,
   pendingComponent: () => (
     <>
       <AssetHeading />
@@ -136,9 +133,28 @@ export const Route = createFileRoute('/(pages)/assets/$providerId/$assetId')({
   ),
 })
 
+function AssetRouteError({ error }: { error: unknown }) {
+  const { providerId } = Route.useParams()
+
+  return (
+    <RouteError
+      error={error}
+      heading={<AssetHeading />}
+      message="Error loading asset."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'assets',
+        providerId,
+        operation: 'load_asset',
+      }}
+    />
+  )
+}
+
 function AssetPage() {
   const { assetKey } = Route.useRouteContext()
   const { data } = useSuspenseAsset(assetKey)
+  const canViewMetadata = providerSupportsMetadata(assetKey.providerId)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
@@ -160,7 +176,9 @@ function AssetPage() {
         </div>
         <div css={assetHeaderActionsCss}>
           <FavoriteButton assetKey={assetKey} />
-          <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+          {canViewMetadata ? (
+            <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+          ) : null}
         </div>
       </div>
       <AssetDetail asset={data} />

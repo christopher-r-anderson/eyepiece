@@ -22,6 +22,14 @@ import {
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
 
+function showForgotPasswordSearch<T extends Record<string, unknown>>(prev: T) {
+  return {
+    ...stripAuthSearchParams(prev),
+    auth: 'login' as const,
+    fp: 1 as const,
+  }
+}
+
 export function AuthModalController({
   modal: { authMode, showForgotPassword },
 }: {
@@ -93,15 +101,7 @@ function LoginSection({
         headingLevel={3}
         onSuccess={onSuccess}
         forgotPasswordLink={
-          <Link
-            to="."
-            search={(prev) => ({
-              ...stripAuthSearchParams(prev),
-              auth: 'login',
-              fp: 1,
-            })}
-            viewTransition={false}
-          >
+          <Link to="." search={showForgotPasswordSearch} viewTransition={false}>
             Forgot Password?
           </Link>
         }

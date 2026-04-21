@@ -57,7 +57,6 @@ export function ToggleFavoriteButton({
           ) {
             onUnauthorized()
           } else {
-            console.error('Error toggling favorite', toggleFavoritesError)
             onError(toggleFavoritesError)
           }
         },

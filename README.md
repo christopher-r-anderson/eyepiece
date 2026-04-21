@@ -19,6 +19,8 @@ pnpm install
 pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 
 # Set up your local env files by copying the examples and then updating them with your values.
+# `.env.local` is used for local app and build configuration.
+# `.env.test` is used for test-mode runs like Vitest.
 cp .env.example .env.local
 cp .env.test.example .env.test
 
@@ -26,6 +28,10 @@ cp .env.test.example .env.test
 pnpm print-supabase-env
 
 # `SI_OA_API_KEY` is your Smithsonian Institute Open Access API Key from https://api.data.gov/signup/
+
+# Sentry env vars are optional for local development and tests.
+# Leave `VITE_SENTRY_ENABLED=false` unless you are intentionally verifying the Sentry integration.
+# See "Local Development" in `docs/EnvironmentVariables.md` for further details.
 
 # To be able to run e2e tests, use one of the following:
 # Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions
@@ -40,6 +46,29 @@ pnpm playwright install --with-deps
 pnpm supabase start # if not already started
 pnpm dev
 ```
+
+### Observability
+
+Eyepiece uses Sentry for client-side and server-side observability.
+
+- Client-side observability is initialized from the router and includes route-aware tracing and Replay when enabled.
+- Server-side observability is initialized from the server entry and captures request and server-function failures through shared middleware.
+- Shared error observability rules keep expected errors, such as handled form errors and 400 responses, out of Sentry.
+- When a user is signed in, both client and server events are associated with the authenticated user id.
+
+For the main integration points and development guidance, see [docs/Observability.md](docs/Observability.md).
+
+#### Local Observability Verification
+
+To verify the Sentry integration locally:
+
+1. Set `VITE_SENTRY_ENABLED=true` and provide a valid `VITE_SENTRY_DSN` in `.env.local`.
+2. Start the app with `pnpm dev` and visit `/dev/observability`.
+3. Confirm that the client render error reaches Sentry with route and boundary metadata.
+4. Confirm that handled form errors remain visible in the UI but do not show up in Sentry.
+5. Use the full-reload server-error control and confirm that the request is captured on the server.
+6. Confirm that the handled 400 response renders in the boundary UI but does not show up in Sentry.
+7. If you are signed in locally, confirm client-side and server-side events are associated with the authenticated user id.
 
 #### Site authentication
 

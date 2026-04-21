@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { getUser } from './get-user'
+import { setSentryUserContext } from './auth.sentry'
 import type { QueryClient } from '@tanstack/react-query'
 import type { User } from './auth.types'
 
@@ -11,7 +12,11 @@ export const authKeys = {
 export function getCurrentUserQueryOptions() {
   return queryOptions({
     queryKey: authKeys.user(),
-    queryFn: async (): Promise<User | null> => getUser(),
+    queryFn: async (): Promise<User | null> => {
+      const user = await getUser()
+      setSentryUserContext(user)
+      return user
+    },
     staleTime: Infinity,
   })
 }

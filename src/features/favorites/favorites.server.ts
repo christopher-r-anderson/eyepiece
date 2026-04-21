@@ -3,6 +3,7 @@ import {
   ASSET_PREVIEW_SNAPSHOT_STALE_TIME,
   ToggleFavoriteErrorCodes,
 } from './favorites.const'
+import type { ToggleFavoriteErrorCode } from './favorites.const'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type {
   AssetKey,
@@ -15,6 +16,11 @@ import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { getUser } from '@/features/auth/get-user'
+import {
+  expectedErrorObservability,
+  operationalErrorObservability,
+} from '@/lib/error-observability'
+import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
 import { getOrigin } from '@/lib/utils'
 
@@ -23,7 +29,7 @@ async function toggleFavoriteForUser(
   client: SupabaseClient,
   userId: string,
   assetSummaryId: AssetPreviewSnapshotId,
-): Promise<Result<ToggleFavoriteResult>> {
+): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const { count, error: deleteError } = await client
     .from('favorites')
     .delete({ count: 'exact' })
@@ -31,11 +37,21 @@ async function toggleFavoriteForUser(
     .eq('asset_preview_snapshot_id', assetSummaryId)
 
   if (deleteError) {
-    console.error('Error deleting favorite for toggle:', deleteError)
-    return Err({
+    const errorResult = {
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: deleteError,
-    })
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.delete',
+        },
+      }),
+    }
+
+    logErrorWithObservability('Favorite toggle delete failed', errorResult)
+
+    return Err(errorResult)
   }
 
   if (count === 1) {
@@ -50,11 +66,21 @@ async function toggleFavoriteForUser(
 
   // 23505 uniqueness violation, likely a double click race condition and not a practical issue
   if (insertError && insertError.code !== '23505') {
-    console.error('Error inserting favorite for toggle:', insertError)
-    return Err({
+    const errorResult = {
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: insertError,
-    })
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.insert',
+        },
+      }),
+    }
+
+    logErrorWithObservability('Favorite toggle insert failed', errorResult)
+
+    return Err(errorResult)
   }
 
   return Ok({ assetSummaryId, isFavorited: true })
@@ -63,10 +89,20 @@ async function toggleFavoriteForUser(
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleUserFavorite(
   assetSummaryId: AssetPreviewSnapshotId,
-): Promise<Result<ToggleFavoriteResult>> {
+): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const user = await getUser()
   if (!user) {
-    return Err({ message: ToggleFavoriteErrorCodes.AUTH_REQUIRED })
+    return Err({
+      code: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+      message: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+      observability: expectedErrorObservability({
+        level: 'info',
+        tags: {
+          feature: 'favorites',
+          operation: 'toggle.auth',
+        },
+      }),
+    })
   }
   const userClient = createUserSupabaseClient()
   return toggleFavoriteForUser(userClient, user.id, assetSummaryId)
@@ -78,7 +114,7 @@ async function _ensurePublicAssetSummaryForKey(
   serviceClient: SupabaseClient,
   eyepieceClient: EyepieceClient,
   assetKey: AssetKey,
-): Promise<Result<AssetPreviewSnapshotId>> {
+): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> {
   let assetSummaryId
 
   const { data: currentAssetSummary, error: currentAssetSummaryError } =
@@ -90,14 +126,25 @@ async function _ensurePublicAssetSummaryForKey(
       .maybeSingle()
 
   if (currentAssetSummaryError) {
-    console.error(
-      'Error checking existing asset summary for favorite toggle:',
-      currentAssetSummaryError,
-    )
-    return Err({
+    const errorResult = {
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       cause: currentAssetSummaryError,
-    })
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'asset-summary.lookup',
+          'provider.id': assetKey.providerId,
+        },
+      }),
+    }
+
+    logErrorWithObservability(
+      'Favorite asset summary lookup failed',
+      errorResult,
+    )
+
+    return Err(errorResult)
   }
   if (currentAssetSummary) {
     const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
@@ -114,11 +161,22 @@ async function _ensurePublicAssetSummaryForKey(
     try {
       asset = await eyepieceClient.getAsset(assetKey)
     } catch (error) {
-      console.error('Error fetching asset details for favorite toggle:', error)
-      return Err({
+      const errorResult = {
+        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: error,
-      })
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'favorites',
+            operation: 'asset-summary.fetch-asset',
+            'provider.id': assetKey.providerId,
+          },
+        }),
+      }
+
+      logErrorWithObservability('Favorite asset fetch failed', errorResult)
+
+      return Err(errorResult)
     }
     const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
       await serviceClient.rpc('ensure_asset_preview_snapshot', {
@@ -130,31 +188,53 @@ async function _ensurePublicAssetSummaryForKey(
         p_thumb_height: asset.thumbnail.height,
       })
     if (ensureImageRefError) {
-      console.error(
-        'Error ensuring image ref for favorite toggle:',
-        ensureImageRefError,
-      )
-      return Err({
+      const errorResult = {
+        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
         cause: ensureImageRefError,
-      })
+        observability: operationalErrorObservability({
+          tags: {
+            feature: 'favorites',
+            operation: 'asset-summary.ensure-snapshot',
+            'provider.id': assetKey.providerId,
+          },
+        }),
+      }
+
+      logErrorWithObservability(
+        'Favorite asset summary ensure failed',
+        errorResult,
+      )
+
+      return Err(errorResult)
     }
     assetSummaryId = ensuredAssetSummaryId
   }
 
   if (!assetSummaryId) {
-    console.error(
-      'No assetSummaryId returned from ensure_asset_preview_snapshot for toggle',
-    )
-    return Err({
+    const errorResult = {
+      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
       message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-    })
+      observability: operationalErrorObservability({
+        tags: {
+          feature: 'favorites',
+          operation: 'asset-summary.missing-id',
+          'provider.id': assetKey.providerId,
+        },
+      }),
+    }
+
+    logErrorWithObservability('Favorite asset summary id missing', errorResult)
+
+    return Err(errorResult)
   }
   return Ok(assetSummaryId)
 }
 
 const ensurePublicAssetSummary = createServerOnlyFn(
-  async (assetKey: AssetKey): Promise<Result<AssetPreviewSnapshotId>> => {
+  async (
+    assetKey: AssetKey,
+  ): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> => {
     const serviceClient = createServiceSupabaseClient()
     const eyepieceClient = createEyepieceClient({ origin: getOrigin() })
     return _ensurePublicAssetSummaryForKey(

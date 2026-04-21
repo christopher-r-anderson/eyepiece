@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
+import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
+import { parseOrThrowBadRequest } from '@/server/lib/utils'
 import {
   searchFiltersSchema,
   searchQuerySchema,
@@ -25,27 +27,59 @@ export const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
   sioaSearchFiltersSchema.extend({ providerId: z.literal(SI_OA_PROVIDER_ID) }),
 ])
 
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
+  searchQueryParamSchema.and(paginationSchema).and(searchFiltersParamsSchema),
+)
+
+const INVALID_SEARCH_PARAMS_MESSAGE =
+  'One or more query parameters are invalid.'
+
 export const Route = createFileRoute('/api/search')({
   server: {
-    middleware: [
-      buildUrlSearchParamsMiddleware(
-        searchQueryParamSchema
-          .and(paginationSchema)
-          .and(searchFiltersParamsSchema),
-      ),
-    ],
+    middleware: [searchParamsMiddleware],
     handlers: {
       GET: async ({ context: { searchParams } }) => {
         const eyepiece = makeEyepieceProviderService()
-        const { q } = searchQueryParamSchema.parse(searchParams)
-        const pagination = paginationSchema.parse(searchParams)
-        const filterParams = searchFiltersParamsSchema.parse(searchParams)
-        const { providerId, ...providerFilters } = filterParams
-        const filters = searchFiltersSchema.parse({
-          providerId,
-          filters: providerFilters,
-        })
-        const results = await eyepiece.searchAssets(q, filters, pagination)
+        const parsedSearchParams = parseOrThrowBadRequest(
+          searchQueryParamSchema
+            .and(paginationSchema)
+            .and(searchFiltersParamsSchema),
+          searchParams,
+          INVALID_SEARCH_PARAMS_MESSAGE,
+          {
+            code: 'INVALID_QUERY_PARAMS',
+          },
+        )
+        const { q, page, pageSize, providerId, ...providerFilters } =
+          parsedSearchParams
+        const filters = parseOrThrowBadRequest(
+          searchFiltersSchema,
+          {
+            providerId,
+            filters: providerFilters,
+          },
+          INVALID_SEARCH_PARAMS_MESSAGE,
+          {
+            code: 'INVALID_QUERY_PARAMS',
+          },
+        )
+        const pagination = {
+          page,
+          pageSize,
+        }
+        let results
+
+        try {
+          results = await eyepiece.searchAssets(q, filters, pagination)
+        } catch (error) {
+          rethrowHandledErrorWithContext(error, {
+            tags: {
+              'api.route': '/api/search',
+              'http.method': 'GET',
+            },
+          })
+        }
+
         return Response.json(results)
       },
     },

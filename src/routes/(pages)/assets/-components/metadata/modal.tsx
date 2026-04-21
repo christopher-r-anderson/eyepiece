@@ -5,6 +5,7 @@ import { MetadataTable } from '@/features/assets/components/metadata'
 import { useSuspenseMetadata } from '@/features/assets/assets.queries'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { CapturedAlertError } from '@/app/layout/route-error'
 
 export function MetadataModal({
   assetKey,
@@ -24,7 +25,18 @@ export function MetadataModal({
     >
       <CatchBoundary
         getResetKey={() => toAssetKeyString(assetKey)}
-        errorComponent={() => <p role="alert">Couldn't load metadata.</p>}
+        errorComponent={({ error }) => (
+          <CapturedAlertError
+            error={error}
+            message="Couldn't load metadata."
+            captureContext={{
+              boundaryKind: 'catch',
+              feature: 'assets',
+              providerId: assetKey.providerId,
+              operation: 'load_metadata',
+            }}
+          />
+        )}
       >
         <Suspense fallback={<p role="status">Loading metadata…</p>}>
           <MetadataModalContent assetKey={assetKey} />

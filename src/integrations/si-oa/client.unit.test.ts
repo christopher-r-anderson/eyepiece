@@ -3,6 +3,7 @@ import { stubFetchJsonOnce } from '../../test/utils/fetch-mock'
 import { getContent, search } from './client'
 import contentFixture from './__fixtures__/content.ld1-1643400021979-1643400026497-0.json'
 import searchFixture from './__fixtures__/search.q.apollo.json'
+import { ProviderClientError } from '@/integrations/provider-client-error'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -55,6 +56,7 @@ describe('si-oa client', () => {
     const apiKey = 'super-secret-api-key'
     stubFetchJsonOnce({
       ok: false,
+      status: 401,
       statusText: 'Unauthorized',
       json: { message: 'Invalid key' },
     })
@@ -105,17 +107,16 @@ describe('si-oa client', () => {
       json: { message: 'Invalid key' },
     })
 
-    await expect(
-      getContent(contentFixture.response.id, apiKey),
-    ).rejects.toThrow('api_key=REDACTED')
-    await expect(
-      getContent(contentFixture.response.id, apiKey),
-    ).rejects.not.toThrow(apiKey)
+    const request = getContent(contentFixture.response.id, apiKey)
+
+    await expect(request).rejects.toThrow('api_key=REDACTED')
+    await expect(request).rejects.not.toThrow(apiKey)
   })
 
   it('falls back to status text when content errors omit a message', async () => {
     stubFetchJsonOnce({
       ok: false,
+      status: 504,
       statusText: 'Gateway Timeout',
       json: {},
     })
@@ -123,5 +124,22 @@ describe('si-oa client', () => {
     await expect(getContent(contentFixture.response.id, 'key')).rejects.toThrow(
       'Error fetching Smithsonian asset: Gateway Timeout',
     )
+  })
+
+  it('throws structured provider client errors for content failures', async () => {
+    stubFetchJsonOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      json: { message: 'Missing record' },
+    })
+
+    const request = getContent(contentFixture.response.id, 'key')
+
+    await expect(request).rejects.toBeInstanceOf(ProviderClientError)
+    await expect(request).rejects.toMatchObject({
+      operation: 'asset.fetch',
+      status: 404,
+    })
   })
 })

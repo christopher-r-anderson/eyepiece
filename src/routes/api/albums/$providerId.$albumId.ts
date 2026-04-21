@@ -3,14 +3,24 @@ import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
 import {
+  createNotFoundResponse,
+  createUnsupportedOperationResponse,
+} from '@/server/lib/api-errors'
+import {
+  getHandledError,
+  rethrowHandledErrorWithContext,
+} from '@/server/lib/handled-errors'
+import {
   parseOrThrowBadRequest,
   parseOrThrowProviderId,
 } from '@/server/lib/utils'
 import { externalAlbumIdSchema } from '@/domain/album/album.schema'
 
+const searchParamsMiddleware = buildUrlSearchParamsMiddleware(paginationSchema)
+
 export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
   server: {
-    middleware: [buildUrlSearchParamsMiddleware(paginationSchema)],
+    middleware: [searchParamsMiddleware],
     handlers: {
       GET: async ({
         params: { providerId: providerIdString, albumId: albumIdString },
@@ -21,17 +31,38 @@ export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
           externalAlbumIdSchema,
           albumIdString,
           'Invalid albumId',
+          {
+            code: 'INVALID_PATH_PARAMS',
+            path: 'albumId',
+          },
         )
         const service = makeEyepieceProviderService()
-        const album = await service.getAlbum(
-          { providerId, externalId: albumId },
-          pagination,
-        )
-        if (!album) {
-          return Response.json(
-            { message: 'Album does not exist' },
-            { status: 404 },
+        let album
+
+        try {
+          album = await service.getAlbum(
+            { providerId, externalId: albumId },
+            pagination,
           )
+        } catch (error) {
+          if (
+            getHandledError(error)?.code === 'UNSUPPORTED_PROVIDER_OPERATION'
+          ) {
+            return createUnsupportedOperationResponse(
+              'Album lookup is not supported for this provider',
+            )
+          }
+
+          rethrowHandledErrorWithContext(error, {
+            tags: {
+              'api.route': '/api/albums/$providerId/$albumId',
+              'http.method': 'GET',
+            },
+          })
+        }
+
+        if (!album) {
+          return createNotFoundResponse('Album does not exist')
         }
         return Response.json(album)
       },

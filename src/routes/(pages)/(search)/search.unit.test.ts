@@ -21,7 +21,7 @@ vi.mock('@/lib/utils', () => ({
   getTitleText: (title: string) => `Eyepiece | ${title}`,
 }))
 
-const { Route } = await import('./search')
+const { Route, getSearchErrorProviderId } = await import('./search')
 const route = Route as any
 
 describe('search page route', () => {
@@ -91,5 +91,24 @@ describe('search page route', () => {
     })
 
     expect(head.meta).toEqual([{ title: 'Eyepiece | Search for "apollo"' }])
+  })
+
+  it('extracts providerId for error capture when raw search is valid', () => {
+    expect(
+      getSearchErrorProviderId({
+        q: 'apollo',
+        providerId: NASA_IVL_PROVIDER_ID,
+        filters: {},
+      }),
+    ).toBe(NASA_IVL_PROVIDER_ID)
+  })
+
+  it('returns no providerId for invalid raw search state', () => {
+    expect(
+      getSearchErrorProviderId({
+        q: 123,
+        providerId: 'not-a-provider',
+      }),
+    ).toBeUndefined()
   })
 })

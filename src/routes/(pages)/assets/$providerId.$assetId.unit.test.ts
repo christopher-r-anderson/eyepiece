@@ -1,5 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import { cleanup, render, screen } from '@testing-library/react'
+import { createElement } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ReactNode } from 'react'
+import {
+  NASA_IVL_PROVIDER_ID,
+  SI_OA_PROVIDER_ID,
+} from '@/domain/provider/provider.schema'
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal()
@@ -15,12 +21,84 @@ vi.mock('@/features/assets/assets.queries', () => ({
   useSuspenseAsset: vi.fn(),
 }))
 
+vi.mock('../-components/favorite-button', () => ({
+  FavoriteButton: () => createElement('button', { type: 'button' }, 'favorite'),
+}))
+
+vi.mock('./-components/metadata/button', () => ({
+  MetadataButton: () => createElement('button', { type: 'button' }, 'metadata'),
+}))
+
+vi.mock('./-components/asset-detail', () => ({
+  AssetDetail: () => createElement('div', null, 'asset detail'),
+}))
+
+vi.mock('@/components/ui/link', () => ({
+  Link: ({ children }: { children: ReactNode }) =>
+    createElement('a', null, children),
+}))
+
 vi.mock('@/lib/utils', () => ({
   getTitleText: (title: string) => `Eyepiece | ${title}`,
 }))
 
 const { Route } = await import('./$providerId.$assetId')
 const route = Route as any
+const mockUseSuspenseAsset = vi.mocked(
+  (await import('@/features/assets/assets.queries')).useSuspenseAsset,
+)
+
+afterEach(() => {
+  cleanup()
+})
+
+describe('asset page component', () => {
+  beforeEach(() => {
+    route.useRouteContext = vi.fn()
+    mockUseSuspenseAsset.mockReset()
+    mockUseSuspenseAsset.mockReturnValue({
+      data: {
+        key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'AS17-148-22727' },
+        title: 'The Blue Marble',
+      },
+    } as ReturnType<typeof mockUseSuspenseAsset>)
+  })
+
+  it('shows the metadata button for providers with metadata support', () => {
+    route.useRouteContext.mockReturnValue({
+      assetKey: {
+        providerId: NASA_IVL_PROVIDER_ID,
+        externalId: 'AS17-148-22727',
+      },
+    })
+
+    render(route.component())
+
+    expect(screen.getByRole('button', { name: 'metadata' })).toBeTruthy()
+  })
+
+  it('hides the metadata button for providers without metadata support', () => {
+    route.useRouteContext.mockReturnValue({
+      assetKey: {
+        providerId: SI_OA_PROVIDER_ID,
+        externalId: 'ld1-1643400021979-1643400026497-0',
+      },
+    })
+    mockUseSuspenseAsset.mockReturnValue({
+      data: {
+        key: {
+          providerId: SI_OA_PROVIDER_ID,
+          externalId: 'ld1-1643400021979-1643400026497-0',
+        },
+        title: 'Smithsonian Asset',
+      },
+    } as ReturnType<typeof mockUseSuspenseAsset>)
+
+    render(route.component())
+
+    expect(screen.queryByRole('button', { name: 'metadata' })).toBeNull()
+  })
+})
 
 describe('asset page route', () => {
   beforeEach(() => {

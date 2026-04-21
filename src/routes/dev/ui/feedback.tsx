@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { DevPanel, DevTitleBlock, devPageSectionCss } from '../-components'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { Button } from '@/components/ui/button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
@@ -13,22 +14,12 @@ function DevUiFeedbackPage() {
   const queueToast = useQueueToastMessage()
 
   return (
-    <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
-      <section
-        css={{
-          display: 'grid',
-          gap: 'var(--space-4)',
-          padding: 'var(--space-4)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-        }}
-      >
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <h2 css={{ margin: 0, fontSize: 'var(--text-xl)' }}>Feedback</h2>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Use this page to trigger overlays and transient UI.
-          </p>
-        </div>
+    <div css={devPageSectionCss}>
+      <DevPanel css={{ padding: 'var(--space-4)' }}>
+        <DevTitleBlock
+          title="Feedback"
+          description="Use this page to trigger overlays and transient UI."
+        />
 
         <div
           css={{
@@ -52,7 +43,7 @@ function DevUiFeedbackPage() {
             Queue toast
           </Button>
         </div>
-      </section>
+      </DevPanel>
 
       <ModalDialog
         title="UI workbench modal"
@@ -61,7 +52,7 @@ function DevUiFeedbackPage() {
         onOpenChange={setIsModalOpen}
       >
         <div css={{ display: 'grid', gap: 'var(--space-3)' }}>
-          <p css={{ margin: 0 }}>
+          <p>
             Preview modal spacing, close controls, and responsive constraints.
           </p>
           <Button onPress={() => setIsModalOpen(false)}>Close modal</Button>

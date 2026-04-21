@@ -4,6 +4,10 @@ import { useRouteContext, useRouter } from '@tanstack/react-router'
 import { onUserChange } from './auth.events'
 import { makeAuthCommands } from './auth.commands'
 import { authKeys } from './auth.queries'
+import {
+  createSentryUserContextSync,
+  setSentryUserContext,
+} from './auth.sentry'
 import type { AuthCommands } from './auth.commands'
 import type { ReactNode } from 'react'
 import { meKey } from '@/lib/query-keys'
@@ -16,13 +20,30 @@ function useAuthSubscription() {
     select: (context) => context.userSupabaseClient,
   })
   useEffect(() => {
-    return onUserChange(supabaseClient, (user) => {
+    let isMounted = true
+    const sentryUserContextSync =
+      createSentryUserContextSync(setSentryUserContext)
+    const unsubscribe = onUserChange(supabaseClient, (user) => {
+      sentryUserContextSync.applyAuthEventUser(user)
       queryClient.setQueryData(authKeys.user(), user)
       queryClient.removeQueries({
         queryKey: meKey,
       })
       router.invalidate()
     })
+
+    void supabaseClient.auth.getSession().then(({ data }) => {
+      if (!isMounted) {
+        return
+      }
+
+      sentryUserContextSync.applyBootstrapUser(data.session?.user ?? null)
+    })
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
   }, [queryClient, supabaseClient, router])
 }
 

@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import * as TanstackQuery from './integrations/tanstack-query/root-provider'
-
+import { initClientSentry } from './integrations/sentry/client'
 import { routeTree } from './routeTree.gen'
 import { NotFoundPage } from './app/layout/not-found'
 import { getPublicSupabaseClientContext } from './integrations/supabase/providers/public-provider'
@@ -42,6 +42,8 @@ export const getRouter = () => {
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
+
+  initClientSentry(router)
 
   return router
 }

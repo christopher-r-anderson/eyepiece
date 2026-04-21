@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeUserFavoritesCommands } from './favorites.commands'
+import { ToggleFavoriteErrorCodes } from './favorites.const'
 import { toggleFavorite } from './favorites.functions'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
@@ -67,6 +68,29 @@ describe('makeUserFavoritesCommands().toggleFavorite', () => {
     }
   })
 
+  it('preserves AppException-style codes when the server throws handled errors', async () => {
+    const thrown = Object.assign(
+      new Error(ToggleFavoriteErrorCodes.AUTH_REQUIRED),
+      {
+        name: 'AppException',
+        appError: {
+          code: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+          message: ToggleFavoriteErrorCodes.AUTH_REQUIRED,
+        },
+      },
+    )
+    mockToggleFavorite.mockRejectedValueOnce(thrown)
+    const commands = makeUserFavoritesCommands()
+
+    const result = await commands.toggleFavorite(ASSET_KEY)
+
+    expect(resultIsError(result)).toBe(true)
+    if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
+      expect(result.error.message).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
+    }
+  })
+
   it('returns Err with a fallback message when a non-Error is thrown', async () => {
     mockToggleFavorite.mockRejectedValueOnce('oops plain string')
     const commands = makeUserFavoritesCommands()
@@ -78,6 +102,7 @@ describe('makeUserFavoritesCommands().toggleFavorite', () => {
       expect(result.error.message).toBe(
         'An unknown (and invalid) error occurred',
       )
+      expect(result.error.cause).toBe('oops plain string')
     }
   })
 })

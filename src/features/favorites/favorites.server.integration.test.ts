@@ -190,6 +190,7 @@ describe('toggleFavoriteForUser', () => {
     // then the insert fails
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
     }
   })

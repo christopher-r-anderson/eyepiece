@@ -81,7 +81,7 @@ describe('makeNasaIvlAdapter', () => {
     expect(result?.title).toBe('Apollo Footprint')
   })
 
-  it('throws when detail lookup does not return exactly one asset', async () => {
+  it('returns null when detail lookup does not find an asset', async () => {
     mockSearch.mockResolvedValue({
       ...assetSearchFixture,
       collection: {
@@ -92,8 +92,25 @@ describe('makeNasaIvlAdapter', () => {
 
     const adapter = makeNasaIvlAdapter()
 
-    await expect(adapter.getAsset('missing-id')).rejects.toThrow(
-      'Asset not found: missing-id',
+    await expect(adapter.getAsset('missing-id')).resolves.toBeNull()
+  })
+
+  it('throws when detail lookup returns multiple assets', async () => {
+    mockSearch.mockResolvedValue({
+      ...assetSearchFixture,
+      collection: {
+        ...assetSearchFixture.collection,
+        items: [
+          ...assetSearchFixture.collection.items,
+          ...assetSearchFixture.collection.items,
+        ],
+      },
+    })
+
+    const adapter = makeNasaIvlAdapter()
+
+    await expect(adapter.getAsset('PIA24439')).rejects.toThrow(
+      'Asset lookup returned multiple matches: PIA24439',
     )
   })
 

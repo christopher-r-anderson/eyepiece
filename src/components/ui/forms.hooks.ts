@@ -1,13 +1,24 @@
 import { useActionState } from 'react'
 import { z } from 'zod'
 import { createFormState } from './forms.types'
-import type { Action, FormDataObject, FormState } from './forms.types'
-import type { ZodError, ZodType } from 'zod'
-import type { ErrorCode } from '@/lib/result'
+import type {
+  Action,
+  ClientActionResultError,
+  ErrorMessages,
+  FormDataObject,
+  FormSchema,
+  FormState,
+} from './forms.types'
+import type { ZodError } from 'zod'
+import type {
+  ErrorCode,
+  ResultError,
+  ResultErrorFieldErrors,
+} from '@/lib/result'
 import { resultIsError } from '@/lib/result'
 
 export function useTypedActionState<
-  TSchema extends ZodType,
+  TSchema extends FormSchema,
   TResultData,
   TErrorCode extends ErrorCode = undefined,
 >(
@@ -32,7 +43,7 @@ export function useTypedActionState<
 }
 
 export function createTypedAction<
-  TSchema extends ZodType,
+  TSchema extends FormSchema,
   TResultData,
   TErrorCode extends ErrorCode = undefined,
 >(
@@ -41,9 +52,9 @@ export function createTypedAction<
   initialData?: FormDataObject,
 ) {
   const formAction = async function formAction(
-    _previousState: FormState<TSchema>,
+    _previousState: FormState<TSchema, TErrorCode>,
     formData: FormData,
-  ): Promise<FormState<TSchema>> {
+  ): Promise<FormState<TSchema, TErrorCode>> {
     const validation = schema.safeParse(Object.fromEntries(formData))
     if (!validation.success) {
       const { formError, fieldErrors } = extractZodErrors(validation.error)
@@ -57,10 +68,10 @@ export function createTypedAction<
 
     const result = await action(validation.data)
     if (resultIsError(result)) {
-      return createFormState.actionError<TSchema>(
+      return createFormState.actionError<TSchema, TErrorCode>(
         dropBlobs(Object.fromEntries(formData.entries())),
         validation.data,
-        result.error.message,
+        toClientActionResultError(schema, result.error),
       )
     }
 
@@ -70,6 +81,48 @@ export function createTypedAction<
   }
   const initialState = createFormState.idle(initialData)
   return [formAction, initialState] as const
+}
+
+function toClientActionResultError<
+  TSchema extends FormSchema,
+  TErrorCode extends ErrorCode = undefined,
+>(
+  schema: TSchema,
+  error: ResultError<TErrorCode>,
+): ClientActionResultError<TSchema, TErrorCode> {
+  return {
+    message: error.message,
+    code: getResultErrorCode(error),
+    fieldErrors: filterFieldErrorsForSchema(schema, error.fieldErrors),
+  }
+}
+
+function getResultErrorCode<TErrorCode extends ErrorCode = undefined>(
+  error: ResultError<TErrorCode>,
+): TErrorCode {
+  return ('code' in error ? error.code : undefined) as TErrorCode
+}
+
+function filterFieldErrorsForSchema<TSchema extends FormSchema>(
+  schema: TSchema,
+  fieldErrors?: ResultErrorFieldErrors,
+): ErrorMessages<TSchema> | undefined {
+  if (!fieldErrors) {
+    return undefined
+  }
+
+  const schemaFieldNames = getSchemaFieldNames(schema)
+  const filteredFieldErrors = Object.fromEntries(
+    Object.entries(fieldErrors).filter(([key]) => schemaFieldNames.has(key)),
+  )
+
+  return Object.keys(filteredFieldErrors).length > 0
+    ? (filteredFieldErrors as ErrorMessages<TSchema>)
+    : undefined
+}
+
+function getSchemaFieldNames(schema: FormSchema): ReadonlySet<string> {
+  return new Set(Object.keys(schema.shape))
 }
 
 function dropBlobs(

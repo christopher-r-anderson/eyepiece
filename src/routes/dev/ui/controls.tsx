@@ -1,6 +1,12 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import {
+  DevPanel,
+  DevTitleBlock,
+  devCardGridCss,
+  devPageSectionCss,
+} from '../-components'
 import { Button } from '@/components/ui/button'
 import { Form, InputGroup, TextField } from '@/components/ui/forms'
 import { SearchInput } from '@/features/search/components/search-bar/search-input'
@@ -20,33 +26,16 @@ function DevUiControlsPage() {
   const [years, setYears] = useState<[number, number]>([1995, 2024])
 
   return (
-    <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
+    <div css={devPageSectionCss}>
       <section css={{ display: 'grid', gap: 'var(--space-4)' }}>
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <h2 css={{ margin: 0, fontSize: 'var(--text-xl)' }}>Controls</h2>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Buttons, tabs, and form fields.
-          </p>
-        </div>
+        <DevTitleBlock
+          title="Controls"
+          description="Buttons, tabs, and form fields."
+        />
 
-        <div
-          css={{
-            display: 'grid',
-            alignItems: 'start',
-            gap: 'var(--space-4)',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
-          }}
-        >
-          <article
-            css={{
-              display: 'grid',
-              gap: 'var(--space-3)',
-              padding: 'var(--space-4)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-            }}
-          >
-            <h3 css={{ margin: 0 }}>Buttons</h3>
+        <div css={devCardGridCss}>
+          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+            <DevTitleBlock title="Buttons" headingLevel={3} />
             <div
               css={{
                 display: 'flex',
@@ -59,18 +48,10 @@ function DevUiControlsPage() {
               <Button variant="primary">Primary</Button>
               <Button icon={MagnifyingGlassIcon}>Search</Button>
             </div>
-          </article>
+          </DevPanel>
 
-          <article
-            css={{
-              display: 'grid',
-              gap: 'var(--space-3)',
-              padding: 'var(--space-4)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-            }}
-          >
-            <h3 css={{ margin: 0 }}>Tabs</h3>
+          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+            <DevTitleBlock title="Tabs" headingLevel={3} />
             <Tabs defaultSelectedKey="overview">
               <TabList aria-label="UI workbench tabs">
                 <Tab id="overview">Overview</Tab>
@@ -83,18 +64,10 @@ function DevUiControlsPage() {
                 <TabPanel id="notes">Parent tab primitives.</TabPanel>
               </TabPanels>
             </Tabs>
-          </article>
+          </DevPanel>
 
-          <article
-            css={{
-              display: 'grid',
-              gap: 'var(--space-3)',
-              padding: 'var(--space-4)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-            }}
-          >
-            <h3 css={{ margin: 0 }}>Switches and Toggles</h3>
+          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+            <DevTitleBlock title="Switches and Toggles" headingLevel={3} />
             <div
               css={{
                 display: 'flex',
@@ -118,25 +91,16 @@ function DevUiControlsPage() {
                 {toggleSelected ? 'Selected' : 'Idle'}
               </ToggleButton>
             </div>
-          </article>
+          </DevPanel>
         </div>
       </section>
 
-      <section
-        css={{
-          display: 'grid',
-          gap: 'var(--space-4)',
-          padding: 'var(--space-4)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-        }}
-      >
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <h3 css={{ margin: 0 }}>Search and Range Inputs</h3>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Search fields and sliders.
-          </p>
-        </div>
+      <DevPanel css={{ padding: 'var(--space-4)' }}>
+        <DevTitleBlock
+          title="Search and Range Inputs"
+          description="Search fields and sliders."
+          headingLevel={3}
+        />
 
         <div css={{ display: 'grid', gap: 'var(--space-4)' }}>
           <SearchInput
@@ -157,23 +121,14 @@ function DevUiControlsPage() {
             }}
           />
         </div>
-      </section>
+      </DevPanel>
 
-      <section
-        css={{
-          display: 'grid',
-          gap: 'var(--space-4)',
-          padding: 'var(--space-4)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-        }}
-      >
-        <div css={{ display: 'grid', gap: 'var(--space-2)' }}>
-          <h3 css={{ margin: 0 }}>Form Fields</h3>
-          <p css={{ margin: 0, maxWidth: 'var(--size-reading-max)' }}>
-            Current shared text field patterns.
-          </p>
-        </div>
+      <DevPanel css={{ padding: 'var(--space-4)' }}>
+        <DevTitleBlock
+          title="Form Fields"
+          description="Current shared text field patterns."
+          headingLevel={3}
+        />
         <Form controls={<Button type="submit">Submit</Button>}>
           <InputGroup>
             <TextField
@@ -192,7 +147,7 @@ function DevUiControlsPage() {
             />
           </InputGroup>
         </Form>
-      </section>
+      </DevPanel>
     </div>
   )
 }

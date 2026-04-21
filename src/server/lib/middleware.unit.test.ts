@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { buildUrlSearchParamsMiddleware } from './middleware'
+import { shouldReportError } from '@/lib/error-observability'
 
 vi.mock('@tanstack/react-start', () => ({
   createMiddleware: () => ({
@@ -43,6 +44,9 @@ describe('buildUrlSearchParamsMiddleware', () => {
     expect(next).not.toHaveBeenCalled()
 
     const body = await response.json()
-    expect(body.error.properties.page.errors[0]).toMatch('Too small')
+    expect(body.error.code).toBe('INVALID_QUERY_PARAMS')
+    expect(body.error.issues[0].path).toBe('page')
+    expect(body.error.issues[0].message).toMatch('Too small')
+    expect(shouldReportError(response)).toBe(false)
   })
 })

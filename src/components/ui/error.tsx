@@ -1,6 +1,54 @@
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Heading } from '@/components/ui/heading'
 
+const SHOW_EXCEPTION_DETAILS = import.meta.env.DEV
+
+function getErrorCode(error: Error) {
+  if ('code' in error && typeof error.code === 'string') {
+    return error.code
+  }
+
+  return undefined
+}
+
+export function getPrettyExceptionDisplay(
+  error: unknown,
+  options?: { showDetails?: boolean },
+) {
+  const showDetails = options?.showDetails ?? SHOW_EXCEPTION_DETAILS
+
+  if (!(error instanceof Error)) {
+    return {
+      title: 'Unknown error',
+      message: 'An unexpected error occurred.',
+      name: undefined,
+      code: undefined,
+      cause: undefined,
+      showDetails: false,
+    }
+  }
+
+  if (!showDetails) {
+    return {
+      title: 'Error',
+      message: 'An unexpected error occurred.',
+      name: undefined,
+      code: undefined,
+      cause: undefined,
+      showDetails: false,
+    }
+  }
+
+  return {
+    title: 'Error',
+    message: error.message || 'An unexpected error occurred.',
+    name: error.name || undefined,
+    code: getErrorCode(error),
+    cause: error.cause,
+    showDetails: true,
+  }
+}
+
 const PrettyError = ({
   error,
   headingLevel,
@@ -8,46 +56,40 @@ const PrettyError = ({
   error: Error
   headingLevel: HeadingLevel
 }) => {
+  const display = getPrettyExceptionDisplay(error)
+
   return (
     <>
-      <Heading headingLevel={headingLevel}>Error</Heading>
+      <Heading headingLevel={headingLevel}>{display.title}</Heading>
       <dl>
-        {error.name && (
+        {display.name && (
           <>
             <dt>Name</dt>
             <dd>
-              <pre>{error.name}</pre>
+              <pre>{display.name}</pre>
             </dd>
           </>
         )}
-        {'code' in error && typeof error.code === 'string' && (
+        {display.code && (
           <>
             <dt>Code</dt>
             <dd>
-              <pre>{error.code}</pre>
+              <pre>{display.code}</pre>
             </dd>
           </>
         )}
-        {error.message && (
+        {display.message && (
           <>
             <dt>Message</dt>
             <dd>
-              <pre>{error.message}</pre>
-            </dd>
-          </>
-        )}
-        {error.stack && (
-          <>
-            <dt>Stack</dt>
-            <dd>
-              <pre>{error.stack}</pre>
+              <pre>{display.message}</pre>
             </dd>
           </>
         )}
       </dl>
-      {error.cause && (
+      {display.cause && (
         <PrettyException
-          error={error.cause}
+          error={display.cause}
           headingLevel={
             (headingLevel < 6 ? headingLevel + 1 : 6) as HeadingLevel
           }
@@ -64,13 +106,16 @@ export function PrettyException({
   error: unknown
   headingLevel: HeadingLevel
 }) {
+  const display = getPrettyExceptionDisplay(error)
+
   if (error instanceof Error) {
     return <PrettyError error={error} headingLevel={headingLevel} />
   }
+
   return (
     <div>
-      <Heading headingLevel={headingLevel}>Unknown error</Heading>
-      <p>An unexpected error occurred.</p>
+      <Heading headingLevel={headingLevel}>{display.title}</Heading>
+      <p>{display.message}</p>
     </div>
   )
 }

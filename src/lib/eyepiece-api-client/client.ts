@@ -10,6 +10,13 @@ import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { createPaginatedCollectionSchema } from '@/domain/pagination/pagination.schema'
 import { assetSchema, metadataSchema } from '@/domain/asset/asset.schema'
 
+type ApiErrorBody = {
+  error?: {
+    code?: string
+    message?: string
+  }
+}
+
 export function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
   pages,
   ...rest
@@ -30,6 +37,25 @@ function assertSsrHasOrigin(origin: string, path: string) {
       ].join('\n'),
     )
   }
+}
+
+async function readApiErrorMessage(response: Response) {
+  try {
+    const body = (await response.json()) as ApiErrorBody
+    if (typeof body.error?.message === 'string' && body.error.message) {
+      return body.error.message
+    }
+  } catch {}
+
+  return response.statusText || `Request failed with status ${response.status}`
+}
+
+async function throwApiClientError(
+  prefix: string,
+  response: Response,
+): Promise<never> {
+  const message = await readApiErrorMessage(response)
+  throw new Error(`${prefix}: ${message}`)
 }
 
 type EyepieceClientOptions = { origin?: string }
@@ -67,7 +93,7 @@ export function createEyepieceClient({
         ),
       )
       if (!res.ok) {
-        throw new Error(`Error fetching album: ${res.statusText}`)
+        await throwApiClientError('Error fetching album', res)
       }
       const data = await res.json()
       return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)
@@ -80,7 +106,7 @@ export function createEyepieceClient({
         ),
       )
       if (!res.ok) {
-        throw new Error(`Error fetching asset: ${res.statusText}`)
+        await throwApiClientError('Error fetching asset', res)
       }
       const data = await res.json()
       return assetSchema.parse(data)
@@ -93,7 +119,7 @@ export function createEyepieceClient({
         ),
       )
       if (!res.ok) {
-        throw new Error(`Error fetching asset metadata: ${res.statusText}`)
+        await throwApiClientError('Error fetching asset metadata', res)
       }
       const data = await res.json()
       return metadataSchema.parse(data)
@@ -110,7 +136,7 @@ export function createEyepieceClient({
         ),
       )
       if (!res.ok) {
-        throw new Error(`Error searching assets: ${res.statusText}`)
+        await throwApiClientError('Error searching assets', res)
       }
       const data = await res.json()
       return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)

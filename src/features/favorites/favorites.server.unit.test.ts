@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ToggleFavoriteErrorCodes } from './favorites.const'
+import { getResultErrorObservability } from '@/lib/error-observability'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -177,6 +178,9 @@ describe('toggleFavoriteForUser', () => {
   it('returns Err when the delete query fails', async () => {
     const { toggleFavoriteForUser } = await setupToggleFavoriteForUser()
     const pgError = { code: 'PGRST301', message: 'permission denied' }
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
     const client = makeClient({
       deleteResponse: { count: null, error: pgError },
     })
@@ -189,9 +193,32 @@ describe('toggleFavoriteForUser', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.cause).toBe(pgError)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(true)
     }
+    expect(consoleError).toHaveBeenCalledWith('Favorite toggle delete failed', {
+      error: {
+        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+        cause: pgError,
+        observability: {
+          kind: 'operational',
+          level: 'error',
+          report: true,
+          tags: {
+            feature: 'favorites',
+            operation: 'toggle.delete',
+          },
+        },
+      },
+      observability: {
+        kind: 'operational',
+        level: 'error',
+        shouldReport: true,
+      },
+    })
   })
 
   it('returns Err when the insert fails with a non-uniqueness error', async () => {
@@ -210,8 +237,10 @@ describe('toggleFavoriteForUser', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.cause).toBe(pgError)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(true)
     }
   })
 
@@ -287,7 +316,9 @@ describe('toggleUserFavorite', () => {
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
+      expect(result.error.code).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.AUTH_REQUIRED)
+      expect(getResultErrorObservability(result.error).shouldReport).toBe(false)
     }
   })
 
