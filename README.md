@@ -47,20 +47,28 @@ pnpm supabase start # if not already started
 pnpm dev
 ```
 
-#### Observability Verification
+### Observability
+
+Eyepiece uses Sentry for client-side and server-side observability.
+
+- Client-side observability is initialized from the router and includes route-aware tracing and Replay when enabled.
+- Server-side observability is initialized from the server entry and captures request and server-function failures through shared middleware.
+- Shared error observability rules keep expected errors, such as handled form errors and 400 responses, out of Sentry.
+- When a user is signed in, both client and server events are associated with the authenticated user id.
+
+For the main integration points and development guidance, see [docs/Observability.md](docs/Observability.md).
+
+#### Local Observability Verification
 
 To verify the Sentry integration locally:
 
 1. Set `VITE_SENTRY_ENABLED=true` and provide a valid `VITE_SENTRY_DSN` in `.env.local`.
 2. Start the app with `pnpm dev` and visit `/dev/observability`.
-3. Trigger the four scenarios in the workbench:
-   client render error, handled UI boundary error, server thrown error, and handled 400 response.
-4. Confirm that the client render error reaches Sentry with route and boundary metadata.
-5. Use the full-reload server-error control and confirm that the resulting request reaches Sentry through the existing server request and function middleware.
-6. Confirm that handled form errors and handled 400 responses remain visible in the UI without creating noisy Sentry events.
+3. Confirm that the client render error reaches Sentry with route and boundary metadata.
+4. Confirm that handled form errors remain visible in the UI but do not show up in Sentry.
+5. Use the full-reload server-error control and confirm that the request is captured on the server.
+6. Confirm that the handled 400 response renders in the boundary UI but does not show up in Sentry.
 7. If you are signed in locally, confirm client-side and server-side events are associated with the authenticated user id.
-
-Current limitations: the server-thrown route does not currently prove route-boundary metadata on server events.
 
 #### Site authentication
 
