@@ -1,5 +1,8 @@
 import { useMemo } from 'react'
-import type { AlbumKey } from '@/domain/album/album.schema'
+import type {
+  AlbumCollectionMetadata,
+  AlbumKey,
+} from '@/domain/album/album.schema'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type {
   PaginatedCollection,
@@ -12,7 +15,7 @@ export interface AlbumsRepo {
   getAlbum: (
     albumKey: AlbumKey,
     pagination: Pagination,
-  ) => Promise<PaginatedCollection<Asset>>
+  ) => Promise<PaginatedCollection<Asset, AlbumCollectionMetadata>>
 }
 
 export function makeAlbumsRepo(client: EyepieceClient) {

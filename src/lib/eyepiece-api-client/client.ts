@@ -1,12 +1,16 @@
 import { defaultStringifySearch } from '@tanstack/react-router'
 import type { InfiniteData } from '@tanstack/react-query'
-import type { AlbumKey } from '@/domain/album/album.schema'
+import type {
+  AlbumCollectionMetadata,
+  AlbumKey,
+} from '@/domain/album/album.schema'
 import type { Asset, AssetKey, Metadata } from '@/domain/asset/asset.schema'
 import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
+import { albumCollectionMetadataSchema } from '@/domain/album/album.schema'
 import {
   SEARCH_URL,
   buildAlbumUrl,
@@ -71,7 +75,7 @@ export type EyepieceClient = {
   getAlbum: (
     albumKey: AlbumKey,
     pagination: Pagination,
-  ) => Promise<PaginatedCollection<Asset>>
+  ) => Promise<PaginatedCollection<Asset, AlbumCollectionMetadata>>
   getMetadata: (key: AssetKey) => Promise<Metadata>
   searchAssets: (
     query: SearchQuery,
@@ -102,7 +106,10 @@ export function createEyepieceClient({
         await throwApiClientError('Error fetching album', res)
       }
       const data = await res.json()
-      return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)
+      return createPaginatedCollectionSchema(
+        assetSchema,
+        albumCollectionMetadataSchema,
+      ).parse(data)
     },
 
     getAsset: async function getAsset(key: AssetKey) {

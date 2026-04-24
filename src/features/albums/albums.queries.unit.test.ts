@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getInfiniteAlbumOptions } from './albums.queries'
+import { flattenAlbumSelector, getInfiniteAlbumOptions } from './albums.queries'
 import type { AlbumsRepo } from './albums.repo'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
@@ -88,5 +88,38 @@ describe('getInfiniteAlbumOptions', () => {
     const options = getInfiniteAlbumOptions({ repo, albumKey, select })
 
     expect(options.select).toBe(select)
+  })
+})
+
+describe('flattenAlbumSelector', () => {
+  it('keeps collection metadata from the first page while flattening items', () => {
+    const selected = flattenAlbumSelector({
+      pages: [
+        {
+          items: [
+            {
+              key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'a1' },
+              title: 'A',
+            },
+          ],
+          pagination: { next: 2, total: 2 },
+          collection: { title: 'Album Title' },
+        },
+        {
+          items: [
+            {
+              key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'a2' },
+              title: 'B',
+            },
+          ],
+          pagination: { next: null, total: 2 },
+          collection: { title: 'Should not replace first page title' },
+        },
+      ],
+      pageParams: [1, 2],
+    } as any)
+
+    expect(selected.items).toHaveLength(2)
+    expect(selected.collection).toEqual({ title: 'Album Title' })
   })
 })

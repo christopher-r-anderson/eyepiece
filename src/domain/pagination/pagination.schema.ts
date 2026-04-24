@@ -20,16 +20,42 @@ export function paginateSchema<T extends z.ZodRawShape>(
 
 export function createPaginatedCollectionSchema<TItem>(
   itemSchema: z.ZodType<TItem>,
+): z.ZodObject<{
+  items: z.ZodArray<z.ZodType<TItem>>
+  pagination: z.ZodObject<{
+    next: z.ZodNullable<z.ZodNumber>
+    total: z.ZodNumber
+  }>
+}>
+export function createPaginatedCollectionSchema<TItem, TCollection>(
+  itemSchema: z.ZodType<TItem>,
+  collectionSchema: z.ZodType<TCollection>,
+): z.ZodObject<{
+  items: z.ZodArray<z.ZodType<TItem>>
+  pagination: z.ZodObject<{
+    next: z.ZodNullable<z.ZodNumber>
+    total: z.ZodNumber
+  }>
+  collection: z.ZodOptional<z.ZodType<TCollection>>
+}>
+export function createPaginatedCollectionSchema<TItem, TCollection>(
+  itemSchema: z.ZodType<TItem>,
+  collectionSchema?: z.ZodType<TCollection>,
 ) {
-  return z.object({
+  const base = z.object({
     items: z.array(itemSchema),
     pagination: z.object({
       next: z.number().nullable(),
       total: z.number(),
     }),
   })
+  if (collectionSchema) {
+    return base.extend({ collection: collectionSchema.optional() })
+  }
+  return base
 }
 
-export type PaginatedCollection<TItem> = z.infer<
-  ReturnType<typeof createPaginatedCollectionSchema<TItem>>
->
+export type PaginatedCollection<TItem, TCollection = never> = {
+  items: Array<TItem>
+  pagination: { next: number | null; total: number }
+} & ([TCollection] extends [never] ? object : { collection?: TCollection })

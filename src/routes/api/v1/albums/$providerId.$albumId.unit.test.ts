@@ -54,7 +54,11 @@ const asset = {
   thumbnail: { href: 'https://example.com/t.jpg', width: 200, height: 150 },
 }
 const emptyPage = { items: [], pagination: { next: null, total: 0 } }
-const firstPage = { items: [asset], pagination: { next: null, total: 1 } }
+const firstPage = {
+  items: [asset],
+  pagination: { next: null, total: 1 },
+  collection: { title: 'Apollo 11' },
+}
 
 async function expectBadRequest(
   request: Promise<unknown>,

@@ -3,6 +3,7 @@ import * as nasaIvlAdapter from './providers/nasa-ivl/nasa-ivl.provider'
 import * as sioaAdapter from './providers/si-oa/si-oa.provider'
 import { hasAlbums, hasMetadata } from './provider'
 import type { Asset, AssetKey, Metadata } from '@/domain/asset/asset.schema'
+import type { AlbumCollectionMetadata } from '@/domain/album/album.schema'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import type {
@@ -179,7 +180,7 @@ export function makeEyepieceProviderService() {
     getAlbum: async function getAlbum(
       assetKey: AssetKey,
       pagination: Pagination,
-    ): Promise<PaginatedCollection<Asset> | null> {
+    ): Promise<PaginatedCollection<Asset, AlbumCollectionMetadata> | null> {
       const provider = getProvider(assetKey.providerId)
       if (!hasAlbums(provider)) {
         throw toUnsupportedProviderOperationException(

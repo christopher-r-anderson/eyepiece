@@ -4,6 +4,14 @@ import {
   providerIdSchema,
 } from '../provider/provider.schema'
 
+export const albumCollectionMetadataSchema = z.object({
+  title: z.string(),
+})
+
+export type AlbumCollectionMetadata = z.infer<
+  typeof albumCollectionMetadataSchema
+>
+
 export const externalAlbumIdSchema = z.string().min(1)
 
 export type ExternalAlbumId = z.infer<typeof externalAlbumIdSchema>
