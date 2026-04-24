@@ -9,9 +9,10 @@ import {
   rethrowHandledErrorWithContext,
 } from '@/server/lib/handled-errors'
 import { parseOrThrowProviderId } from '@/server/lib/utils'
+import { V1_ROUTE_PATHS } from '@/lib/api-paths'
 
 export const Route = createFileRoute(
-  '/api/asset/$providerId/$assetId/metadata',
+  '/api/v1/asset/$providerId/$assetId/metadata',
 )({
   server: {
     handlers: {
@@ -36,7 +37,7 @@ export const Route = createFileRoute(
 
           rethrowHandledErrorWithContext(error, {
             tags: {
-              'api.route': '/api/asset/$providerId/$assetId/metadata',
+              'api.route': V1_ROUTE_PATHS.assetMetadata,
               'http.method': 'GET',
             },
           })

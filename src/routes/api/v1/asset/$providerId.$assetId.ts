@@ -3,8 +3,9 @@ import { makeEyepieceProviderService } from '@/server/eyepiece/service'
 import { createNotFoundResponse } from '@/server/lib/api-errors'
 import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
 import { parseOrThrowProviderId } from '@/server/lib/utils'
+import { V1_ROUTE_PATHS } from '@/lib/api-paths'
 
-export const Route = createFileRoute('/api/asset/$providerId/$assetId')({
+export const Route = createFileRoute('/api/v1/asset/$providerId/$assetId')({
   server: {
     handlers: {
       GET: async ({ params: { providerId: providerIdString, assetId } }) => {
@@ -20,7 +21,7 @@ export const Route = createFileRoute('/api/asset/$providerId/$assetId')({
         } catch (error) {
           rethrowHandledErrorWithContext(error, {
             tags: {
-              'api.route': '/api/asset/$providerId/$assetId',
+              'api.route': V1_ROUTE_PATHS.asset,
               'http.method': 'GET',
             },
           })

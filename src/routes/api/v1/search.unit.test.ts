@@ -163,7 +163,7 @@ const sioaSearchResults = {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('GET /api/search handler', () => {
+describe('GET /api/v1/search handler', () => {
   beforeEach(() => {
     mockService.searchAssets.mockReset()
     mockService.searchAssets.mockResolvedValue(emptyPage)
@@ -234,7 +234,7 @@ describe('GET /api/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/search?providerId=nasa_ivl&page=1&pageSize=24&mediaType=image',
+          'https://example.com/api/v1/search?providerId=nasa_ivl&page=1&pageSize=24&mediaType=image',
         ),
         next: vi.fn(),
       }),
@@ -260,7 +260,7 @@ describe('GET /api/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&mediaType=image',
+          'https://example.com/api/v1/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&mediaType=image',
         ),
         next,
       }),
@@ -305,7 +305,7 @@ describe('GET /api/search handler', () => {
             feature: 'providers',
             operation: 'search.fetch',
             'provider.id': NASA_IVL_PROVIDER_ID,
-            'api.route': '/api/search',
+            'api.route': '/api/v1/search',
             'http.method': 'GET',
           },
         },

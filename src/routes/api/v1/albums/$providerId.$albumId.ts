@@ -15,10 +15,11 @@ import {
   parseOrThrowProviderId,
 } from '@/server/lib/utils'
 import { externalAlbumIdSchema } from '@/domain/album/album.schema'
+import { V1_ROUTE_PATHS } from '@/lib/api-paths'
 
 const searchParamsMiddleware = buildUrlSearchParamsMiddleware(paginationSchema)
 
-export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
+export const Route = createFileRoute('/api/v1/albums/$providerId/$albumId')({
   server: {
     middleware: [searchParamsMiddleware],
     handlers: {
@@ -55,7 +56,7 @@ export const Route = createFileRoute('/api/albums/$providerId/$albumId')({
 
           rethrowHandledErrorWithContext(error, {
             tags: {
-              'api.route': '/api/albums/$providerId/$albumId',
+              'api.route': V1_ROUTE_PATHS.album,
               'http.method': 'GET',
             },
           })

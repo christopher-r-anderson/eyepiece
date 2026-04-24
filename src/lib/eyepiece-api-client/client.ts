@@ -7,6 +7,12 @@ import type {
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
+import {
+  SEARCH_URL,
+  buildAlbumUrl,
+  buildAssetMetadataUrl,
+  buildAssetUrl,
+} from '@/lib/api-paths'
 import { createPaginatedCollectionSchema } from '@/domain/pagination/pagination.schema'
 import { assetSchema, metadataSchema } from '@/domain/asset/asset.schema'
 
@@ -89,7 +95,7 @@ export function createEyepieceClient({
     getAlbum: async function getAlbum(key: AlbumKey, pagination: Pagination) {
       const res = await fetch(
         withOrigin(
-          `/api/albums/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}${defaultStringifySearch(pagination)}`,
+          `${buildAlbumUrl(key.providerId, key.externalId)}${defaultStringifySearch(pagination)}`,
         ),
       )
       if (!res.ok) {
@@ -101,9 +107,7 @@ export function createEyepieceClient({
 
     getAsset: async function getAsset(key: AssetKey) {
       const res = await fetch(
-        withOrigin(
-          `/api/asset/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}`,
-        ),
+        withOrigin(buildAssetUrl(key.providerId, key.externalId)),
       )
       if (!res.ok) {
         await throwApiClientError('Error fetching asset', res)
@@ -114,9 +118,7 @@ export function createEyepieceClient({
 
     getMetadata: async function getMetadata(key: AssetKey) {
       const res = await fetch(
-        withOrigin(
-          `/api/asset/${encodeURIComponent(key.providerId)}/${encodeURIComponent(key.externalId)}/metadata`,
-        ),
+        withOrigin(buildAssetMetadataUrl(key.providerId, key.externalId)),
       )
       if (!res.ok) {
         await throwApiClientError('Error fetching asset metadata', res)
@@ -132,7 +134,7 @@ export function createEyepieceClient({
     ) {
       const res = await fetch(
         withOrigin(
-          `/api/search${defaultStringifySearch({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
+          `${SEARCH_URL}${defaultStringifySearch({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
         ),
       )
       if (!res.ok) {

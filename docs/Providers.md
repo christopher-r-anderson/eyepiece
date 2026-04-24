@@ -83,10 +83,10 @@ The provider flow is consistent across search and detail pages:
 
 The main provider-aware API routes are:
 
-- `src/routes/api/search.ts`
-- `src/routes/api/asset/$providerId.$assetId.ts`
-- `src/routes/api/asset/$providerId.$assetId.metadata.ts`
-- `src/routes/api/albums/$providerId.$albumId.ts`
+- `src/routes/api/v1/search.ts`
+- `src/routes/api/v1/asset/$providerId.$assetId.ts`
+- `src/routes/api/v1/asset/$providerId.$assetId.metadata.ts`
+- `src/routes/api/v1/albums/$providerId.$albumId.ts`
 
 ## Search
 
@@ -105,7 +105,7 @@ Current filter schemas live in:
 
 ### Search API
 
-`src/routes/api/search.ts` accepts query text, pagination, and provider-specific filter params. The route normalizes those values into the shared `SearchFilters` shape before calling the provider service.
+`src/routes/api/v1/search.ts` accepts query text, pagination, and provider-specific filter params. The route normalizes those values into the shared `SearchFilters` shape before calling the provider service.
 
 This keeps the public API consistent while still allowing each provider to define its own filter surface.
 
@@ -161,7 +161,7 @@ Adding a provider is mostly a matter of updating the provider-specific seams tha
 1. Add the new provider ID to `src/domain/provider/provider.schema.ts`.
 2. Add a provider-specific search filters schema under `src/domain/search/providers/`.
 3. Extend `searchFiltersSchema` in `src/domain/search/search.schema.ts`.
-4. Update `src/routes/api/search.ts` so query params can be parsed for the new provider.
+4. Update `src/routes/api/v1/search.ts` so query params can be parsed for the new provider.
 5. Implement a new adapter under `src/server/eyepiece/providers/<provider>/` that satisfies `BaseProvider` and any optional capabilities it supports.
 6. Add or reuse an upstream integration client under `src/integrations/<provider>/`.
 7. Register the adapter in `src/server/eyepiece/service.ts`.
@@ -206,7 +206,7 @@ For most provider changes, these are the files to inspect first:
 
 - `src/domain/provider/provider.schema.ts`
 - `src/domain/search/search.schema.ts`
-- `src/routes/api/search.ts`
+- `src/routes/api/v1/search.ts`
 - `src/server/eyepiece/provider.ts`
 - `src/server/eyepiece/service.ts`
 - `src/server/eyepiece/providers/`

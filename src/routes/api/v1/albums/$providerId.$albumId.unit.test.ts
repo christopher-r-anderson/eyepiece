@@ -76,7 +76,7 @@ async function expectBadRequest(
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('GET /api/albums/:providerId/:albumId handler', () => {
+describe('GET /api/v1/albums/:providerId/:albumId handler', () => {
   beforeEach(() => {
     mockService.getAlbum.mockReset()
     mockService.getAlbum.mockResolvedValue(firstPage)
