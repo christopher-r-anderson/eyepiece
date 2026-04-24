@@ -15,7 +15,6 @@ import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
 import { Route as pagesIndexRouteImport } from './routes/(pages)/index'
-import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as pagesButtonsRouteImport } from './routes/(pages)/buttons'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -28,6 +27,7 @@ import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
 import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
 import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
+import { Route as ApiV1SearchRouteImport } from './routes/api/v1/search'
 import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
 import { Route as pagesuserFavoritesRouteImport } from './routes/(pages)/(user)/favorites'
 import { Route as pagessearchSearchRouteImport } from './routes/(pages)/(search)/search'
@@ -36,12 +36,12 @@ import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth
 import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
 import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
 import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
-import { Route as ApiAssetProviderIdAssetIdRouteImport } from './routes/api/asset/$providerId.$assetId'
-import { Route as ApiAlbumsProviderIdAlbumIdRouteImport } from './routes/api/albums/$providerId.$albumId'
 import { Route as pagesAssetsProviderIdAssetIdRouteImport } from './routes/(pages)/assets/$providerId.$assetId'
 import { Route as pagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(pages)/albums/$providerId.$albumId'
 import { Route as pagesuserSettingsProfileRouteImport } from './routes/(pages)/(user)/settings/profile'
-import { Route as ApiAssetProviderIdAssetIdMetadataRouteImport } from './routes/api/asset/$providerId.$assetId.metadata'
+import { Route as ApiV1AssetProviderIdAssetIdRouteImport } from './routes/api/v1/asset/$providerId.$assetId'
+import { Route as ApiV1AlbumsProviderIdAlbumIdRouteImport } from './routes/api/v1/albums/$providerId.$albumId'
+import { Route as ApiV1AssetProviderIdAssetIdMetadataRouteImport } from './routes/api/v1/asset/$providerId.$assetId.metadata'
 
 const CompleteProfileRoute = CompleteProfileRouteImport.update({
   id: '/complete-profile',
@@ -70,11 +70,6 @@ const pagesIndexRoute = pagesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => pagesRouteRoute,
-} as any)
-const ApiSearchRoute = ApiSearchRouteImport.update({
-  id: '/api/search',
-  path: '/api/search',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const pagesButtonsRoute = pagesButtonsRouteImport.update({
   id: '/buttons',
@@ -137,6 +132,11 @@ const DevObservabilityHandled400Route =
     path: '/handled-400',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
+const ApiV1SearchRoute = ApiV1SearchRouteImport.update({
+  id: '/api/v1/search',
+  path: '/api/v1/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
   id: '/profile/$profileId',
   path: '/profile/$profileId',
@@ -177,18 +177,6 @@ const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => pagesuserRouteRoute,
 } as any)
-const ApiAssetProviderIdAssetIdRoute =
-  ApiAssetProviderIdAssetIdRouteImport.update({
-    id: '/api/asset/$providerId/$assetId',
-    path: '/api/asset/$providerId/$assetId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiAlbumsProviderIdAlbumIdRoute =
-  ApiAlbumsProviderIdAlbumIdRouteImport.update({
-    id: '/api/albums/$providerId/$albumId',
-    path: '/api/albums/$providerId/$albumId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const pagesAssetsProviderIdAssetIdRoute =
   pagesAssetsProviderIdAssetIdRouteImport.update({
     id: '/assets/$providerId/$assetId',
@@ -207,11 +195,23 @@ const pagesuserSettingsProfileRoute =
     path: '/settings/profile',
     getParentRoute: () => pagesuserRouteRoute,
   } as any)
-const ApiAssetProviderIdAssetIdMetadataRoute =
-  ApiAssetProviderIdAssetIdMetadataRouteImport.update({
+const ApiV1AssetProviderIdAssetIdRoute =
+  ApiV1AssetProviderIdAssetIdRouteImport.update({
+    id: '/api/v1/asset/$providerId/$assetId',
+    path: '/api/v1/asset/$providerId/$assetId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiV1AlbumsProviderIdAlbumIdRoute =
+  ApiV1AlbumsProviderIdAlbumIdRouteImport.update({
+    id: '/api/v1/albums/$providerId/$albumId',
+    path: '/api/v1/albums/$providerId/$albumId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiV1AssetProviderIdAssetIdMetadataRoute =
+  ApiV1AssetProviderIdAssetIdMetadataRouteImport.update({
     id: '/metadata',
     path: '/metadata',
-    getParentRoute: () => ApiAssetProviderIdAssetIdRoute,
+    getParentRoute: () => ApiV1AssetProviderIdAssetIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -222,7 +222,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/buttons': typeof pagesButtonsRoute
-  '/api/search': typeof ApiSearchRoute
   '/': typeof pagesIndexRoute
   '/dev/': typeof DevIndexRoute
   '/auth/confirm': typeof authAuthConfirmRoute
@@ -232,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/api/v1/search': typeof ApiV1SearchRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
@@ -241,17 +241,16 @@ export interface FileRoutesByFullPath {
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
-  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/settings/': typeof pagesuserSettingsIndexRoute
-  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
+  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
+  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesByTo {
   '/complete-profile': typeof CompleteProfileRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/buttons': typeof pagesButtonsRoute
-  '/api/search': typeof ApiSearchRoute
   '/': typeof pagesIndexRoute
   '/dev': typeof DevIndexRoute
   '/auth/confirm': typeof authAuthConfirmRoute
@@ -261,6 +260,7 @@ export interface FileRoutesByTo {
   '/search': typeof pagessearchSearchRoute
   '/favorites': typeof pagesuserFavoritesRoute
   '/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/api/v1/search': typeof ApiV1SearchRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
@@ -270,10 +270,10 @@ export interface FileRoutesByTo {
   '/settings/profile': typeof pagesuserSettingsProfileRoute
   '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
-  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/settings': typeof pagesuserSettingsIndexRoute
-  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
+  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
+  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -287,7 +287,6 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(pages)/buttons': typeof pagesButtonsRoute
-  '/api/search': typeof ApiSearchRoute
   '/(pages)/': typeof pagesIndexRoute
   '/dev/': typeof DevIndexRoute
   '/(auth)/auth/confirm': typeof authAuthConfirmRoute
@@ -297,6 +296,7 @@ export interface FileRoutesById {
   '/(pages)/(search)/search': typeof pagessearchSearchRoute
   '/(pages)/(user)/favorites': typeof pagesuserFavoritesRoute
   '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
+  '/api/v1/search': typeof ApiV1SearchRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
@@ -306,10 +306,10 @@ export interface FileRoutesById {
   '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
   '/(pages)/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
   '/(pages)/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/api/albums/$providerId/$albumId': typeof ApiAlbumsProviderIdAlbumIdRoute
-  '/api/asset/$providerId/$assetId': typeof ApiAssetProviderIdAssetIdRouteWithChildren
   '/(pages)/(user)/settings/': typeof pagesuserSettingsIndexRoute
-  '/api/asset/$providerId/$assetId/metadata': typeof ApiAssetProviderIdAssetIdMetadataRoute
+  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
+  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -321,7 +321,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/buttons'
-    | '/api/search'
     | '/'
     | '/dev/'
     | '/auth/confirm'
@@ -331,6 +330,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/favorites'
     | '/profile/$profileId'
+    | '/api/v1/search'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
@@ -340,17 +340,16 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
-    | '/api/albums/$providerId/$albumId'
-    | '/api/asset/$providerId/$assetId'
     | '/settings/'
-    | '/api/asset/$providerId/$assetId/metadata'
+    | '/api/v1/albums/$providerId/$albumId'
+    | '/api/v1/asset/$providerId/$assetId'
+    | '/api/v1/asset/$providerId/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/complete-profile'
     | '/login'
     | '/register'
     | '/buttons'
-    | '/api/search'
     | '/'
     | '/dev'
     | '/auth/confirm'
@@ -360,6 +359,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/favorites'
     | '/profile/$profileId'
+    | '/api/v1/search'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
@@ -369,10 +369,10 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
-    | '/api/albums/$providerId/$albumId'
-    | '/api/asset/$providerId/$assetId'
     | '/settings'
-    | '/api/asset/$providerId/$assetId/metadata'
+    | '/api/v1/albums/$providerId/$albumId'
+    | '/api/v1/asset/$providerId/$assetId'
+    | '/api/v1/asset/$providerId/$assetId/metadata'
   id:
     | '__root__'
     | '/(auth)'
@@ -385,7 +385,6 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(pages)/buttons'
-    | '/api/search'
     | '/(pages)/'
     | '/dev/'
     | '/(auth)/auth/confirm'
@@ -395,6 +394,7 @@ export interface FileRouteTypes {
     | '/(pages)/(search)/search'
     | '/(pages)/(user)/favorites'
     | '/(pages)/profile/$profileId'
+    | '/api/v1/search'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
@@ -404,10 +404,10 @@ export interface FileRouteTypes {
     | '/(pages)/(user)/settings/profile'
     | '/(pages)/albums/$providerId/$albumId'
     | '/(pages)/assets/$providerId/$assetId'
-    | '/api/albums/$providerId/$albumId'
-    | '/api/asset/$providerId/$assetId'
     | '/(pages)/(user)/settings/'
-    | '/api/asset/$providerId/$assetId/metadata'
+    | '/api/v1/albums/$providerId/$albumId'
+    | '/api/v1/asset/$providerId/$assetId'
+    | '/api/v1/asset/$providerId/$assetId/metadata'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -415,9 +415,9 @@ export interface RootRouteChildren {
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   DevRouteRoute: typeof DevRouteRouteWithChildren
   CompleteProfileRoute: typeof CompleteProfileRoute
-  ApiSearchRoute: typeof ApiSearchRoute
-  ApiAlbumsProviderIdAlbumIdRoute: typeof ApiAlbumsProviderIdAlbumIdRoute
-  ApiAssetProviderIdAssetIdRoute: typeof ApiAssetProviderIdAssetIdRouteWithChildren
+  ApiV1SearchRoute: typeof ApiV1SearchRoute
+  ApiV1AlbumsProviderIdAlbumIdRoute: typeof ApiV1AlbumsProviderIdAlbumIdRoute
+  ApiV1AssetProviderIdAssetIdRoute: typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -463,13 +463,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof pagesIndexRouteImport
       parentRoute: typeof pagesRouteRoute
-    }
-    '/api/search': {
-      id: '/api/search'
-      path: '/api/search'
-      fullPath: '/api/search'
-      preLoaderRoute: typeof ApiSearchRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/(pages)/buttons': {
       id: '/(pages)/buttons'
@@ -555,6 +548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityHandled400RouteImport
       parentRoute: typeof DevObservabilityRouteRoute
     }
+    '/api/v1/search': {
+      id: '/api/v1/search'
+      path: '/api/v1/search'
+      fullPath: '/api/v1/search'
+      preLoaderRoute: typeof ApiV1SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(pages)/profile/$profileId': {
       id: '/(pages)/profile/$profileId'
       path: '/profile/$profileId'
@@ -611,20 +611,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
       parentRoute: typeof pagesuserRouteRoute
     }
-    '/api/asset/$providerId/$assetId': {
-      id: '/api/asset/$providerId/$assetId'
-      path: '/api/asset/$providerId/$assetId'
-      fullPath: '/api/asset/$providerId/$assetId'
-      preLoaderRoute: typeof ApiAssetProviderIdAssetIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/albums/$providerId/$albumId': {
-      id: '/api/albums/$providerId/$albumId'
-      path: '/api/albums/$providerId/$albumId'
-      fullPath: '/api/albums/$providerId/$albumId'
-      preLoaderRoute: typeof ApiAlbumsProviderIdAlbumIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(pages)/assets/$providerId/$assetId': {
       id: '/(pages)/assets/$providerId/$assetId'
       path: '/assets/$providerId/$assetId'
@@ -646,12 +632,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof pagesuserSettingsProfileRouteImport
       parentRoute: typeof pagesuserRouteRoute
     }
-    '/api/asset/$providerId/$assetId/metadata': {
-      id: '/api/asset/$providerId/$assetId/metadata'
+    '/api/v1/asset/$providerId/$assetId': {
+      id: '/api/v1/asset/$providerId/$assetId'
+      path: '/api/v1/asset/$providerId/$assetId'
+      fullPath: '/api/v1/asset/$providerId/$assetId'
+      preLoaderRoute: typeof ApiV1AssetProviderIdAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/albums/$providerId/$albumId': {
+      id: '/api/v1/albums/$providerId/$albumId'
+      path: '/api/v1/albums/$providerId/$albumId'
+      fullPath: '/api/v1/albums/$providerId/$albumId'
+      preLoaderRoute: typeof ApiV1AlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/asset/$providerId/$assetId/metadata': {
+      id: '/api/v1/asset/$providerId/$assetId/metadata'
       path: '/metadata'
-      fullPath: '/api/asset/$providerId/$assetId/metadata'
-      preLoaderRoute: typeof ApiAssetProviderIdAssetIdMetadataRouteImport
-      parentRoute: typeof ApiAssetProviderIdAssetIdRoute
+      fullPath: '/api/v1/asset/$providerId/$assetId/metadata'
+      preLoaderRoute: typeof ApiV1AssetProviderIdAssetIdMetadataRouteImport
+      parentRoute: typeof ApiV1AssetProviderIdAssetIdRoute
     }
   }
 }
@@ -767,19 +767,19 @@ const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(
   DevRouteRouteChildren,
 )
 
-interface ApiAssetProviderIdAssetIdRouteChildren {
-  ApiAssetProviderIdAssetIdMetadataRoute: typeof ApiAssetProviderIdAssetIdMetadataRoute
+interface ApiV1AssetProviderIdAssetIdRouteChildren {
+  ApiV1AssetProviderIdAssetIdMetadataRoute: typeof ApiV1AssetProviderIdAssetIdMetadataRoute
 }
 
-const ApiAssetProviderIdAssetIdRouteChildren: ApiAssetProviderIdAssetIdRouteChildren =
+const ApiV1AssetProviderIdAssetIdRouteChildren: ApiV1AssetProviderIdAssetIdRouteChildren =
   {
-    ApiAssetProviderIdAssetIdMetadataRoute:
-      ApiAssetProviderIdAssetIdMetadataRoute,
+    ApiV1AssetProviderIdAssetIdMetadataRoute:
+      ApiV1AssetProviderIdAssetIdMetadataRoute,
   }
 
-const ApiAssetProviderIdAssetIdRouteWithChildren =
-  ApiAssetProviderIdAssetIdRoute._addFileChildren(
-    ApiAssetProviderIdAssetIdRouteChildren,
+const ApiV1AssetProviderIdAssetIdRouteWithChildren =
+  ApiV1AssetProviderIdAssetIdRoute._addFileChildren(
+    ApiV1AssetProviderIdAssetIdRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {
@@ -787,9 +787,10 @@ const rootRouteChildren: RootRouteChildren = {
   pagesRouteRoute: pagesRouteRouteWithChildren,
   DevRouteRoute: DevRouteRouteWithChildren,
   CompleteProfileRoute: CompleteProfileRoute,
-  ApiSearchRoute: ApiSearchRoute,
-  ApiAlbumsProviderIdAlbumIdRoute: ApiAlbumsProviderIdAlbumIdRoute,
-  ApiAssetProviderIdAssetIdRoute: ApiAssetProviderIdAssetIdRouteWithChildren,
+  ApiV1SearchRoute: ApiV1SearchRoute,
+  ApiV1AlbumsProviderIdAlbumIdRoute: ApiV1AlbumsProviderIdAlbumIdRoute,
+  ApiV1AssetProviderIdAssetIdRoute:
+    ApiV1AssetProviderIdAssetIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

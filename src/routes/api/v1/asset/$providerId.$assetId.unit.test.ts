@@ -122,10 +122,10 @@ async function expectBadRequest(
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/asset/:providerId/:assetId
+// GET /api/v1/asset/:providerId/:assetId
 // ---------------------------------------------------------------------------
 
-describe('GET /api/asset/:providerId/:assetId handler', () => {
+describe('GET /api/v1/asset/:providerId/:assetId handler', () => {
   beforeEach(() => {
     mockService.getAsset.mockReset()
     mockService.getAsset.mockResolvedValue(mockAsset)
@@ -259,7 +259,7 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
             feature: 'providers',
             operation: 'asset.fetch',
             'provider.id': NASA_IVL_PROVIDER_ID,
-            'api.route': '/api/asset/$providerId/$assetId',
+            'api.route': '/api/v1/asset/$providerId/$assetId',
             'http.method': 'GET',
           },
         },
@@ -269,10 +269,10 @@ describe('GET /api/asset/:providerId/:assetId handler', () => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/asset/:providerId/:assetId/metadata
+// GET /api/v1/asset/:providerId/:assetId/metadata
 // ---------------------------------------------------------------------------
 
-describe('GET /api/asset/:providerId/:assetId/metadata handler', () => {
+describe('GET /api/v1/asset/:providerId/:assetId/metadata handler', () => {
   beforeEach(() => {
     mockService.getMetadata.mockReset()
     mockService.getMetadata.mockResolvedValue(mockMetadata)
