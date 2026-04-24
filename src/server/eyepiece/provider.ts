@@ -8,6 +8,7 @@ import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
+import type { AlbumCollectionMetadata } from '@/domain/album/album.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 
 export interface BaseProvider<
@@ -31,7 +32,7 @@ export interface AlbumsCapability {
   getAlbum: (
     id: string,
     pagination: Pagination,
-  ) => Promise<PaginatedCollection<Asset>>
+  ) => Promise<PaginatedCollection<Asset, AlbumCollectionMetadata>>
 }
 
 export interface MetadataCapability {

@@ -60,4 +60,26 @@ describe('createPaginatedCollectionSchema', () => {
     expect(parsed.pagination.next).toBeNull()
     expect(parsed.pagination.total).toBe(1)
   })
+
+  it('includes optional collection metadata when a collection schema is provided', () => {
+    const schema = createPaginatedCollectionSchema(
+      z.object({ id: z.string() }),
+      z.object({ title: z.string() }),
+    )
+
+    const withCollection = schema.parse({
+      items: [{ id: 'a1' }],
+      pagination: { next: null, total: 1 },
+      collection: { title: 'My Album' },
+    })
+
+    expect(withCollection.collection).toEqual({ title: 'My Album' })
+
+    const withoutCollection = schema.parse({
+      items: [],
+      pagination: { next: null, total: 0 },
+    })
+
+    expect(withoutCollection.collection).toBeUndefined()
+  })
 })

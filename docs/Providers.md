@@ -88,6 +88,22 @@ The main provider-aware API routes are:
 - `src/routes/api/v1/asset/$providerId.$assetId.metadata.ts`
 - `src/routes/api/v1/albums/$providerId.$albumId.ts`
 
+## Collection Responses
+
+Collection responses share the same `PaginatedCollection<TItem, TCollection>` contract from `src/domain/pagination/pagination.schema.ts`.
+
+- `TItem` is the item type in `items`.
+- `TCollection` is optional collection-level metadata exposed as `collection`.
+
+Every paginated response keeps the same core shape:
+
+- `items`
+- `pagination` with `next` and `total`
+
+When a response needs collection-level metadata, it can provide the second generic without changing pagination semantics or introducing a separate wrapper type.
+
+Albums currently use `PaginatedCollection<Asset, AlbumCollectionMetadata>`, where `collection.title` is used for display title/heading text.
+
 ## Search
 
 ### Search Schema

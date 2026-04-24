@@ -13,6 +13,7 @@ import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
+import type { AlbumCollectionMetadata } from '@/domain/album/album.schema'
 import type { Asset, Metadata } from '@/domain/asset/asset.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
@@ -64,9 +65,10 @@ async function getAlbum(id: string, pagination: Pagination) {
     )
   }
   const next = calculateNextPage(pagination, assets.length, total)
-  const response: PaginatedCollection<Asset> = {
+  const response: PaginatedCollection<Asset, AlbumCollectionMetadata> = {
     items: assets,
     pagination: { next, total },
+    collection: { title: id },
   }
   return response
 }
