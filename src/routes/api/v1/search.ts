@@ -15,6 +15,7 @@ import {
 } from '@/domain/provider/provider.schema'
 import { nasaIvlSearchFiltersSchema } from '@/domain/search/providers/nasa-ivl-filters'
 import { sioaSearchFiltersSchema } from '@/domain/search/providers/si-oa-filters'
+import { V1_ROUTE_PATHS } from '@/lib/api-paths'
 
 export const searchQueryParamSchema = z.object({
   q: searchQuerySchema,
@@ -34,7 +35,7 @@ const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
 const INVALID_SEARCH_PARAMS_MESSAGE =
   'One or more query parameters are invalid.'
 
-export const Route = createFileRoute('/api/search')({
+export const Route = createFileRoute('/api/v1/search')({
   server: {
     middleware: [searchParamsMiddleware],
     handlers: {
@@ -63,18 +64,15 @@ export const Route = createFileRoute('/api/search')({
             code: 'INVALID_QUERY_PARAMS',
           },
         )
-        const pagination = {
-          page,
-          pageSize,
-        }
+
         let results
 
         try {
-          results = await eyepiece.searchAssets(q, filters, pagination)
+          results = await eyepiece.searchAssets(q, filters, { page, pageSize })
         } catch (error) {
           rethrowHandledErrorWithContext(error, {
             tags: {
-              'api.route': '/api/search',
+              'api.route': V1_ROUTE_PATHS.search,
               'http.method': 'GET',
             },
           })
