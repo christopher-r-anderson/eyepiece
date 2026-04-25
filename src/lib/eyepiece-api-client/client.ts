@@ -10,15 +10,18 @@ import type {
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
-import { albumCollectionMetadataSchema } from '@/domain/album/album.schema'
 import {
   SEARCH_URL,
   buildAlbumUrl,
   buildAssetMetadataUrl,
   buildAssetUrl,
 } from '@/lib/api-paths'
-import { createPaginatedCollectionSchema } from '@/domain/pagination/pagination.schema'
-import { assetSchema, metadataSchema } from '@/domain/asset/asset.schema'
+import {
+  albumResponseSchema,
+  assetMetadataResponseSchema,
+  assetResponseSchema,
+  searchResponseSchema,
+} from '@/lib/eyepiece-api-contracts'
 
 type ApiErrorBody = {
   error?: {
@@ -106,10 +109,7 @@ export function createEyepieceClient({
         await throwApiClientError('Error fetching album', res)
       }
       const data = await res.json()
-      return createPaginatedCollectionSchema(
-        assetSchema,
-        albumCollectionMetadataSchema,
-      ).parse(data)
+      return albumResponseSchema.parse(data)
     },
 
     getAsset: async function getAsset(key: AssetKey) {
@@ -120,7 +120,7 @@ export function createEyepieceClient({
         await throwApiClientError('Error fetching asset', res)
       }
       const data = await res.json()
-      return assetSchema.parse(data)
+      return assetResponseSchema.parse(data)
     },
 
     getMetadata: async function getMetadata(key: AssetKey) {
@@ -131,7 +131,7 @@ export function createEyepieceClient({
         await throwApiClientError('Error fetching asset metadata', res)
       }
       const data = await res.json()
-      return metadataSchema.parse(data)
+      return assetMetadataResponseSchema.parse(data)
     },
 
     searchAssets: async function searchAssets(
@@ -148,7 +148,7 @@ export function createEyepieceClient({
         await throwApiClientError('Error searching assets', res)
       }
       const data = await res.json()
-      return createPaginatedCollectionSchema<Asset>(assetSchema).parse(data)
+      return searchResponseSchema.parse(data)
     },
   }
 }

@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as MiddlewareModule from '@/server/lib/middleware'
 import { AppException } from '@/lib/result'
 import { operationalErrorObservability } from '@/lib/error-observability'
-import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
+import { searchRequestSchema } from '@/lib/eyepiece-api-contracts'
 
 // ---------------------------------------------------------------------------
 // Module mocks
@@ -50,11 +50,10 @@ const { buildUrlSearchParamsMiddleware } = await vi.importActual<
   typeof MiddlewareModule
 >('@/server/lib/middleware')
 
-const { Route, searchFiltersParamsSchema, searchQueryParamSchema } =
-  await import('./search')
+const { Route } = await import('./search')
 const handler = (Route as any).server.handlers.GET
 const searchParamsMiddleware = buildUrlSearchParamsMiddleware(
-  searchQueryParamSchema.and(paginationSchema).and(searchFiltersParamsSchema),
+  searchRequestSchema,
 ) as any
 
 // ---------------------------------------------------------------------------

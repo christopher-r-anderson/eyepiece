@@ -4,7 +4,6 @@ import {
   createFileRoute,
   useRouterState,
 } from '@tanstack/react-router'
-import { z } from 'zod'
 import { hashKey } from '@tanstack/react-query'
 import { SearchResults } from './-components/search-results'
 import { getTitleText } from '@/lib/utils'
@@ -13,18 +12,12 @@ import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { SelectedProviderSearchBar } from '@/features/search/components/search-bar'
-import {
-  searchFiltersSchema,
-  searchQuerySchema,
-} from '@/domain/search/search.schema'
+import { searchFiltersSchema } from '@/domain/search/search.schema'
+import { searchQueryParamSchema } from '@/lib/eyepiece-api-contracts'
 
 function searchTitle(query: string) {
   return `Search for "${query}"`
 }
-
-const searchQueryParamSchema = z.object({
-  q: searchQuerySchema,
-})
 
 export const Route = createFileRoute('/(pages)/(search)/search')({
   component: SearchPage,
