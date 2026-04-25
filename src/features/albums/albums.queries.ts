@@ -54,13 +54,6 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
   })
 }
 
-export function useSuspenseInfiniteAlbum(albumKey: AlbumKey) {
-  const repo = useAlbumsRepo()
-  return useSuspenseInfiniteQuery(
-    getInfiniteAlbumOptions({ repo, albumKey, select: flattenAlbumSelector }),
-  )
-}
-
 export function useSuspenseInfiniteAlbumAssets(albumKey: AlbumKey) {
   const repo = useAlbumsRepo()
   return useSuspenseInfiniteQuery(

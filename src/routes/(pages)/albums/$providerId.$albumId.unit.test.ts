@@ -14,10 +14,8 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 })
 
 const mockEnsureInfiniteAlbum = vi.fn()
-const mockUseSuspenseInfiniteAlbum = vi.fn()
 vi.mock('@/features/albums/albums.queries', () => ({
   ensureInfiniteAlbum: mockEnsureInfiniteAlbum,
-  useSuspenseInfiniteAlbum: mockUseSuspenseInfiniteAlbum,
 }))
 
 vi.mock('./-components/album-assets', () => ({
@@ -38,40 +36,22 @@ afterEach(() => {
 describe('album page component', () => {
   beforeEach(() => {
     route.useRouteContext = vi.fn()
+    route.useLoaderData = vi.fn()
     route.useRouteContext.mockReturnValue({
       albumKey: {
         providerId: NASA_IVL_PROVIDER_ID,
         externalId: 'GSFC_MASTERFILE_STS-107',
       },
     })
-    mockUseSuspenseInfiniteAlbum.mockReset()
   })
 
-  it('prefers collection title for the page heading', () => {
-    mockUseSuspenseInfiniteAlbum.mockReturnValue({
-      data: {
-        collection: { title: 'Mission Highlights' },
-      },
-    })
+  it('renders loader title in page heading', () => {
+    route.useLoaderData.mockReturnValue({ title: 'Mission Highlights' })
 
     render(route.component())
 
     expect(
       screen.getByRole('heading', { name: 'Mission Highlights' }),
-    ).toBeTruthy()
-  })
-
-  it('falls back to album external id when collection title is missing', () => {
-    mockUseSuspenseInfiniteAlbum.mockReturnValue({
-      data: {
-        collection: undefined,
-      },
-    })
-
-    render(route.component())
-
-    expect(
-      screen.getByRole('heading', { name: 'GSFC_MASTERFILE_STS-107' }),
     ).toBeTruthy()
   })
 })
@@ -124,6 +104,21 @@ describe('album page route', () => {
       albumKey,
     })
     expect(result).toEqual({ title: 'sioa-collection-42' })
+  })
+
+  it('loader falls back to album external id when collection title is missing', async () => {
+    const result = await route.loader({
+      context: {
+        eyepieceClient: { request: vi.fn() },
+        queryClient: { prefetchInfiniteQuery: vi.fn() },
+        albumKey: {
+          providerId: NASA_IVL_PROVIDER_ID,
+          externalId: 'GSFC_MASTERFILE_STS-107',
+        },
+      },
+    })
+
+    expect(result).toEqual({ title: 'GSFC_MASTERFILE_STS-107' })
   })
 
   it('uses loader title for document metadata and falls back when missing', () => {

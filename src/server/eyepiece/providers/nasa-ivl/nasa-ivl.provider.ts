@@ -45,6 +45,14 @@ export function makeNasaIvlAdapter(): BaseProvider<
   }
 }
 
+function toDisplayTitle(albumId: string) {
+  return albumId
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
 async function getAlbum(id: string, pagination: Pagination) {
   // NASA Albums do not support page size, instead always returning 100 items per page
   // Therefore, we need to calculate which NASA album pages to fetch
@@ -68,7 +76,9 @@ async function getAlbum(id: string, pagination: Pagination) {
   const response: PaginatedCollection<Asset, AlbumCollectionMetadata> = {
     items: assets,
     pagination: { next, total },
-    collection: { title: id },
+    // NASA IVL does not return a collection-level title for album responses.
+    // Use a display-friendly fallback derived from the album identifier.
+    collection: { title: toDisplayTitle(id) },
   }
   return response
 }
