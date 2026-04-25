@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
-import { paginationSchema } from '@/domain/pagination/pagination.schema'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
 import {
   createNotFoundResponse,
@@ -16,8 +15,10 @@ import {
 } from '@/server/lib/utils'
 import { externalAlbumIdSchema } from '@/domain/album/album.schema'
 import { V1_ROUTE_PATHS } from '@/lib/api-paths'
+import { albumRequestSchema } from '@/lib/eyepiece-api-contracts'
 
-const searchParamsMiddleware = buildUrlSearchParamsMiddleware(paginationSchema)
+const searchParamsMiddleware =
+  buildUrlSearchParamsMiddleware(albumRequestSchema)
 
 export const Route = createFileRoute('/api/v1/albums/$providerId/$albumId')({
   server: {
