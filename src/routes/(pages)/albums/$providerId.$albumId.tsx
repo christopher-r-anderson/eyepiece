@@ -3,10 +3,7 @@ import { AlbumAssets } from './-components/album-assets'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { RouteError } from '@/app/layout/route-error'
 import { albumKeySchema } from '@/domain/album/album.schema'
-import {
-  ensureInfiniteAlbum,
-  useSuspenseInfiniteAlbum,
-} from '@/features/albums/albums.queries'
+import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 
@@ -51,8 +48,7 @@ export const Route = createFileRoute('/(pages)/albums/$providerId/$albumId')({
 
 function AlbumPage() {
   const { albumKey } = Route.useRouteContext()
-  const { data } = useSuspenseInfiniteAlbum(albumKey)
-  const title = data.collection?.title ?? albumKey.externalId
+  const { title } = Route.useLoaderData()
   return (
     <>
       <PageHeading>{title}</PageHeading>

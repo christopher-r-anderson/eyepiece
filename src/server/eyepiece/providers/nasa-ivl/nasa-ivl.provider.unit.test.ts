@@ -136,6 +136,7 @@ describe('makeNasaIvlAdapter', () => {
       albumFixture.collection.metadata.total_hits,
     )
     expect(result.pagination.next).toBeNull()
+    expect(result.collection?.title).toBe('Apollo At 50')
   })
 
   it('propagates album fetch errors', async () => {

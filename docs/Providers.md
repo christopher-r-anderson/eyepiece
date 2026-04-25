@@ -104,6 +104,8 @@ When a response needs collection-level metadata, it can provide the second gener
 
 Albums currently use `PaginatedCollection<Asset, AlbumCollectionMetadata>`, where `collection.title` is used for display title/heading text.
 
+For NASA IVL specifically, the `/album/{id}` response does not expose a collection-level title. The adapter provides a display-friendly fallback derived from the album identifier.
+
 ## Search
 
 ### Search Schema
