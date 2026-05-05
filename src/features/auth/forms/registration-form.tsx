@@ -4,7 +4,7 @@ import { useId } from 'react-aria'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuth } from '@/features/auth/auth.provider'
+import { useAuthCommands } from '@/features/auth/auth.commands-provider'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,
@@ -40,7 +40,7 @@ export function RegistrationForm({
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
-  const { commands } = useAuth()
+  const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
     registrationSchema,

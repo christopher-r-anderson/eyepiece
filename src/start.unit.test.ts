@@ -15,14 +15,18 @@ vi.mock('@/integrations/tanstack-start/request-middleware', () => ({
   createDevelopmentServerErrorLoggingMiddleware: vi.fn(
     () => 'development-logging-middleware',
   ),
+  createSetCookieSafetyNetMiddleware: vi.fn(
+    () => 'set-cookie-safety-net-middleware',
+  ),
 }))
 
 describe('startInstance', () => {
-  it('registers the Sentry request middleware before development logging', () => {
+  it('registers request middleware in the expected order', () => {
     expect(startInstance).toEqual({
       requestMiddleware: [
         'sentry-request-middleware',
         'development-logging-middleware',
+        'set-cookie-safety-net-middleware',
       ],
       functionMiddleware: ['sentry-function-middleware'],
     })

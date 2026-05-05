@@ -139,6 +139,9 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
 }
 
 export function useUserFavoritesRepo() {
-  const supabaseClient = useUserSupabaseClient()
-  return useMemo(() => makeUserFavoritesRepo(supabaseClient), [supabaseClient])
+  const userSupabaseClient = useUserSupabaseClient()
+  return useMemo(
+    () => makeUserFavoritesRepo(userSupabaseClient),
+    [userSupabaseClient],
+  )
 }

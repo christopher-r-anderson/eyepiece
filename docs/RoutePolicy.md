@@ -1,0 +1,222 @@
+# Route Policy
+
+## Route Classes
+
+Choose a route class first. The class determines server auth behavior, cache policy, and client auth-command scope.
+
+| Class                | Typical routes                                         | Server user session       | Cache-Control                                               | Client auth commands         |
+| -------------------- | ------------------------------------------------------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| Public content pages | /(public)/(pages) subtree                              | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
+| Auth-form pages      | /(public)/(auth) subtree                               | Anonymous flow            | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Whole route content          |
+| Private pages        | /(private)/(pages) subtree                             | Required                  | private, no-store                                           | Whole route content          |
+| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password) | Required                  | private, no-store                                           | Whole route content          |
+| Public API           | /(public)/api subtree                                  | Not used                  | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | None                         |
+| Token callbacks      | /(token-callbacks) subtree (e.g. /auth/confirm)        | Not yet established       | private, no-store                                           | None                         |
+
+## Route Tree Structure
+
+```text
+(public)/              ← policy root: null userSupabaseClient, PUBLIC_ROUTE_POLICY, public Cache-Control
+  (pages)/             ← content pages: <main> layout, auth modal island,
+                          useEnsureProfileExists (client-side check post-hydration)
+  (auth)/              ← auth-form pages: card panel layout, AuthCommandsProvider
+  api/                 ← public API endpoints (no React layout)
+
+(private)/             ← policy root: authenticated, private Cache-Control,
+                          UserSupabaseClientProvider + AuthCommandsProvider
+  (pages)/             ← content pages: <main> layout,
+                          userHasProfile check (server-side, SSR gate)
+  (auth)/              ← post-auth flow pages: card panel layout (providers inherited)
+
+(token-callbacks)/     ← token-bearing anonymous routes: private Cache-Control,
+                          null userSupabaseClient, PRIVATE_ANONYMOUS_ROUTE_POLICY
+```
+
+Public pages remain cache-safe because SSR document output does not branch on user identity.
+
+Profile completion is encouraged client-side: authenticated users without a profile are redirected after hydration via `useEnsureProfileExists()`, preserving cache safety while maintaining proactive guidance.
+
+## Boundary Rules
+
+Each policy root route file declares:
+
+- Cache-Control header policy for the entire subtree
+- Server capability (userSupabaseClient null/non-null) via beforeLoad
+- Route policy constant for policy-gated server helpers
+
+Layout routes below each policy root add React-level concerns (providers, HTML structure)
+without changing the inherited server policy.
+
+Server boundary behavior is composed from shared boundary definitions in `src/lib/route-boundaries.ts`.
+Client command scope remains explicit in JSX (no implicit auto-wrap behavior).
+
+## Cache Policy vs Cache Profile
+
+Treat these as separate concerns:
+
+- Cache policy (public vs private) is immutable per policy root and must not be overridden by descendants.
+- Cache profile (TTL values) may be tuned per route when needed, but only within the inherited policy scope.
+
+Rules:
+
+- Do not set `routePolicy` in descendant route files.
+- Do not use raw `Cache-Control` string literals in route files.
+- Use `getPublicDocumentCacheControlHeader(profile)` for public TTL tuning.
+- Use `getPrivateDocumentCacheControlHeader()` for private no-store responses.
+
+The default public profile is defined by `DEFAULT_PUBLIC_DOCUMENT_CACHE_PROFILE` in `src/lib/route-policy.ts`.
+Boundary helpers and middleware use these route-policy helpers so cache strings remain centralized.
+
+## Server Enforcement
+
+Server-side access to the user Supabase client is policy-gated.
+
+- Public policy: server user client access forbidden
+- Authenticated policy: server user client access allowed
+- Server code requiring the user client must call requireUserSupabaseClient(context)
+
+This is the hard SSR/cache safety line.
+
+## Auth Guard Behavior
+
+Authenticated guards must handle three cases:
+
+1. Unauthenticated user:
+   - Redirect to login with next/redirect target
+
+2. Intentional redirect thrown in auth flow:
+   - Rethrow redirect unchanged
+
+3. Unexpected auth-check failure (network/service/runtime):
+   - Treat as auth check failure path
+   - Redirect safely to login using current location
+
+The login redirect keeps the existing payload semantics:
+
+- `next` is derived from `urlToNextParam(location.href)`
+- no explicit status code is added for this redirect path
+
+This keeps behavior deterministic and avoids leaking failures into page rendering paths.
+
+## Client Auth Commands
+
+AuthCommandsProvider exposes useAuthCommands for imperative auth actions.
+
+Command surface:
+
+- login
+- register
+- resetPassword
+- resendRegisterConfirmation
+- updatePassword
+- logout
+
+Rules:
+
+- useAuthCommands only inside AuthCommandsProvider
+- User pages: provider wraps full route content
+- Public pages: provider wraps only specific client islands that need commands
+- Auth-form pages: provider wraps route content for form actions
+
+Logout behavior:
+
+- On success: rely on `AuthStateSync` (`SIGNED_OUT`) to invalidate route data
+- On failure: show a toast (`Log out failed`) and log with `logErrorWithObservability`
+
+## Auth State Sync
+
+Auth state subscription is global and mounted once.
+
+`AuthStateSync` must be mounted exactly once in provider scope where all required hooks are valid:
+
+- user Supabase client context
+- query client context
+- TanStack Router hooks
+
+Responsibilities:
+
+- Listen to auth state changes
+- Update auth query cache
+- Sync observability user context
+- Call `router.invalidate()` after auth changes
+
+Do not mount additional auth subscriptions in route components or islands.
+
+## Public Page User-Specific UI Pattern
+
+User-specific UI on public pages must be client-only.
+
+Pattern:
+
+1. Render SSR-safe fallback content
+2. After hydration, render client island
+3. Wrap island in AuthCommandsProvider only if commands are needed
+
+Typical examples:
+
+- Header user status/menu island
+- Auth modal controller island
+- Favorite interactions that become user-aware post-hydration
+
+## Adding New Routes
+
+### New public content page
+
+1. Place route under `/(public)/(pages)/`
+2. Use `publicSupabaseClient` for any data loading (no user session)
+3. For user-specific UI, use `ClientOnly` islands post-hydration
+4. Scope `AuthCommandsProvider` to the island only if commands are needed
+
+### New auth-form page (public, anonymous)
+
+1. Place route under `/(public)/(auth)/`
+2. Add `beforeLoad: requireAnonymous` if the page should redirect logged-in users
+3. Access auth commands via the `AuthCommandsProvider` inherited from the layout
+
+### New private content page
+
+1. Place route under `/(private)/(pages)/`
+2. Authentication, `UserSupabaseClientProvider`, and `AuthCommandsProvider` are inherited
+3. Use route context `user` and policy-gated server user client access where needed
+
+### New post-authentication auth-flow page
+
+1. Place route under `/(private)/(auth)/`
+2. Authentication and providers are inherited from the `(private)` root
+3. The card panel layout is inherited from the `(private)/(auth)` layout
+
+### New public API endpoint
+
+1. Place route under `/(public)/api/`
+2. No React layout, server handlers only
+3. Public caching is inherited from the `(public)` root
+4. If this endpoint needs custom public TTLs, set `headers` with `getPublicDocumentCacheControlHeader(profile)` (do not change route policy)
+
+### New token-callback handler
+
+1. Place route under `/(token-callbacks)/`
+2. No React layout, server handlers only
+3. privateAnonymousBoundary (private Cache-Control, null user client) is inherited from the root
+
+## Naming Conventions
+
+Names should describe actual behavior:
+
+- AuthCommandsProvider: command context only
+- useAuthCommands: consumes command context
+- AuthStateSync: global auth subscription and router/query sync
+- Route policy module: policy types/constants/helpers
+- Guards module: auth/profile guard logic
+- Route boundaries module: shared route option composition
+
+## Merge Checklist
+
+1. Route class selected correctly
+2. Cache header policy matches class
+3. beforeLoad behavior matches class
+4. Public SSR document path does not depend on user identity
+5. Client auth command scope is explicit and minimal on public pages
+6. Exactly one auth subscription exists at app level
+7. Server user client access is only via policy-gated context path
+8. Auth check failure handling follows redirect-aware guard rules
+9. Descendant routes do not override route policy or use raw Cache-Control literals

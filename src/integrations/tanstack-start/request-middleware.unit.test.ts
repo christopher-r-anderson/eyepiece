@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createDevelopmentServerErrorLoggingMiddleware } from './request-middleware'
+import {
+  createDevelopmentServerErrorLoggingMiddleware,
+  createSetCookieSafetyNetMiddleware,
+} from './request-middleware'
 
 vi.mock('@tanstack/react-start', () => ({
   createMiddleware: () => ({
@@ -153,5 +156,72 @@ describe('createDevelopmentServerErrorLoggingMiddleware', () => {
 
     consoleError.mockRestore()
     process.env.NODE_ENV = nodeEnv
+  })
+})
+
+describe('createSetCookieSafetyNetMiddleware', () => {
+  it('overrides cache-control for HTML responses that set Supabase auth cookies', async () => {
+    const middleware = createSetCookieSafetyNetMiddleware() as any
+    const response = new Response('<html></html>', {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=300',
+      },
+    })
+    response.headers.append('set-cookie', 'foo=bar; Path=/')
+    response.headers.append('set-cookie', 'sb-auth-token=abc; Path=/; HttpOnly')
+
+    const next = vi.fn().mockResolvedValue(response)
+
+    const result = await middleware({
+      request: new Request('https://example.com/auth/confirm'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+  })
+
+  it('keeps cache-control unchanged for HTML responses without Supabase auth cookies', async () => {
+    const middleware = createSetCookieSafetyNetMiddleware() as any
+    const response = new Response('<html></html>', {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=300',
+      },
+    })
+    response.headers.append('set-cookie', 'foo=bar; Path=/')
+
+    const next = vi.fn().mockResolvedValue(response)
+
+    const result = await middleware({
+      request: new Request('https://example.com/auth/confirm'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('public, max-age=300')
+  })
+
+  it('returns non-HTML responses unchanged even when Supabase auth cookies are set', async () => {
+    const middleware = createSetCookieSafetyNetMiddleware() as any
+    const response = new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'public, max-age=300',
+      },
+    })
+    response.headers.append('set-cookie', 'sb-auth-token=abc; Path=/; HttpOnly')
+
+    const next = vi.fn().mockResolvedValue(response)
+
+    const result = await middleware({
+      request: new Request('https://example.com/api/v1/search'),
+      next,
+    })
+
+    expect(result).toBe(response)
+    expect(result.headers.get('cache-control')).toBe('public, max-age=300')
   })
 })

@@ -2,8 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   requireAnonymous,
   requireAuthenticated,
+  requireAuthenticatedRoute,
+  requireAuthenticatedShell,
   userHasProfile,
 } from './guards'
+import { AUTHENTICATED_ROUTE_POLICY } from './route-policy'
 
 // Keep the real redirect so the thrown value has the shape guards produce.
 // We check thrown objects via toMatchObject so exact class doesn't matter.
@@ -12,6 +15,7 @@ import { getUser } from '@/features/auth/get-user'
 import { hasServerClaims } from '@/lib/has-server-claims.functions'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
+import { logErrorWithObservability } from '@/lib/error-logging'
 
 // ---------------------------------------------------------------------------
 // Module mocks
@@ -32,10 +36,15 @@ vi.mock('@/features/profiles/profiles.queries', () => ({
   fetchProfile: vi.fn(),
 }))
 
+vi.mock('@/lib/error-logging', () => ({
+  logErrorWithObservability: vi.fn(),
+}))
+
 const mockGetUser = vi.mocked(getUser)
 const mockHasServerClaims = vi.mocked(hasServerClaims)
 const mockFetchCurrentUser = vi.mocked(fetchCurrentUser)
 const mockFetchProfile = vi.mocked(fetchProfile)
+const mockLogErrorWithObservability = vi.mocked(logErrorWithObservability)
 
 const USER = { id: 'user-uuid-123', email: 'test@example.com' }
 
@@ -49,7 +58,10 @@ function makeLocation(href: string) {
 // ---------------------------------------------------------------------------
 
 describe('requireAuthenticated', () => {
-  beforeEach(() => mockGetUser.mockReset())
+  beforeEach(() => {
+    mockGetUser.mockReset()
+    mockLogErrorWithObservability.mockReset()
+  })
 
   it('returns the user when authenticated', async () => {
     mockGetUser.mockResolvedValue(USER as any)
@@ -86,6 +98,83 @@ describe('requireAuthenticated', () => {
       }),
     ).rejects.toMatchObject({
       options: { search: { next: '/settings?query=foo' } },
+    })
+  })
+
+  it('logs and redirects to login when getUser throws an unexpected error', async () => {
+    const error = new Error('supabase unavailable')
+    mockGetUser.mockRejectedValue(error)
+
+    await expect(
+      requireAuthenticated({
+        location: makeLocation('/settings?query=foo'),
+      }),
+    ).rejects.toMatchObject({
+      options: { to: '/login', search: { next: '/settings?query=foo' } },
+    })
+
+    expect(mockLogErrorWithObservability).toHaveBeenCalledWith(
+      'Unexpected error in requireAuthenticated',
+      error,
+      {
+        path: '/settings?query=foo',
+      },
+    )
+  })
+})
+
+describe('requireAuthenticatedRoute', () => {
+  beforeEach(() => mockGetUser.mockReset())
+
+  it('returns authenticated route context when authenticated', async () => {
+    mockGetUser.mockResolvedValue(USER as any)
+
+    const result = await requireAuthenticatedRoute({
+      location: makeLocation('/settings'),
+    })
+
+    expect(result).toEqual({
+      user: USER,
+      routePolicy: AUTHENTICATED_ROUTE_POLICY,
+    })
+  })
+
+  it('redirects to login when unauthenticated', async () => {
+    mockGetUser.mockResolvedValue(null)
+
+    await expect(
+      requireAuthenticatedRoute({ location: makeLocation('/settings') }),
+    ).rejects.toMatchObject({ options: { to: '/login' } })
+  })
+})
+
+describe('requireAuthenticatedShell', () => {
+  beforeEach(() => mockGetUser.mockReset())
+
+  it('throws an actionable error when userSupabaseClient is null', async () => {
+    mockGetUser.mockResolvedValue(USER as any)
+
+    await expect(
+      requireAuthenticatedShell({
+        location: makeLocation('/favorites'),
+        context: { userSupabaseClient: null },
+      }),
+    ).rejects.toThrow(
+      'userSupabaseClient is null at the authenticated capability shell',
+    )
+  })
+
+  it('returns authenticated route context when user and client are both present', async () => {
+    mockGetUser.mockResolvedValue(USER as any)
+
+    const result = await requireAuthenticatedShell({
+      location: makeLocation('/favorites'),
+      context: { userSupabaseClient: {} as any },
+    })
+
+    expect(result).toEqual({
+      user: USER,
+      routePolicy: AUTHENTICATED_ROUTE_POLICY,
     })
   })
 })

@@ -11,6 +11,7 @@ function makeClientStub() {
       signUp: vi.fn(),
       resend: vi.fn(),
       updateUser: vi.fn(),
+      signOut: vi.fn(),
     },
   }
 }
@@ -237,6 +238,38 @@ describe('makeAuthCommands', () => {
         expect(result.error.message).toBe(
           'New password should be different from the old password',
         )
+      }
+    })
+  })
+
+  describe('logout', () => {
+    it('calls signOut with local scope', async () => {
+      client.auth.signOut.mockResolvedValue(successResponse)
+
+      await commands.logout()
+
+      expect(client.auth.signOut).toHaveBeenCalledOnce()
+      expect(client.auth.signOut).toHaveBeenCalledWith({
+        scope: 'local',
+      })
+    })
+
+    it('returns Ok on success', async () => {
+      client.auth.signOut.mockResolvedValue(successResponse)
+
+      const result = await commands.logout()
+
+      expect(resultIsSuccess(result)).toBe(true)
+    })
+
+    it('returns Err with mapped message on failure', async () => {
+      client.auth.signOut.mockResolvedValue(errorResponse('Network failed'))
+
+      const result = await commands.logout()
+
+      expect(resultIsError(result)).toBe(true)
+      if (resultIsError(result)) {
+        expect(result.error.message).toBe('Network failed')
       }
     })
   })

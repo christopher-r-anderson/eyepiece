@@ -16,6 +16,7 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
+import type { RouteAccessPolicy } from '@/lib/route-policy'
 import { App } from '@/app/shell'
 import { RouteErrorBoundary } from '@/app/layout/error'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
@@ -24,7 +25,11 @@ interface MyRouterContext {
   eyepieceClient: EyepieceClient
   queryClient: QueryClient
   publicSupabaseClient: SupabaseClient
-  userSupabaseClient: SupabaseClient
+  // Nullable by design: public-capability shell sets this to null in beforeLoad.
+  // Authenticated-capability shell asserts non-null before entry.
+  // Do not access directly in loaders - use requireUserSupabaseClient(context).
+  userSupabaseClient: SupabaseClient | null
+  routePolicy: RouteAccessPolicy
   title?: () => string
 }
 

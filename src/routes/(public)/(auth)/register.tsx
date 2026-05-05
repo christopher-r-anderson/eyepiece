@@ -1,0 +1,49 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import {
+  RegistrationForm,
+  RegistrationSuccessMessage,
+} from '@/features/auth/forms/registration-form'
+import { Link } from '@/components/ui/link'
+import { FormStatusSwitcher } from '@/components/ui/forms'
+import { urlToNextParam } from '@/lib/utils'
+import { requireAnonymous } from '@/lib/guards'
+
+export const Route = createFileRoute('/(public)/(auth)/register')({
+  component: RegisterPage,
+  beforeLoad: requireAnonymous,
+})
+
+function RegisterPage() {
+  const { next } = Route.useSearch()
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  return (
+    <>
+      <FormStatusSwitcher
+        showStatus={showSuccessMessage}
+        status={<RegistrationSuccessMessage headingLevel={1} />}
+      >
+        <RegistrationForm
+          headingLevel={1}
+          surface="panel"
+          onSuccess={() => setShowSuccessMessage(true)}
+          next={next ? urlToNextParam(next) : undefined}
+        />
+        <p
+          css={{
+            margin: 'var(--space-4) 0 0',
+            lineHeight: 'var(--line-height-base)',
+          }}
+        >
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            css={{ textDecoration: 'underline', marginLeft: 'var(--space-2)' }}
+          >
+            Log in
+          </Link>
+        </p>
+      </FormStatusSwitcher>
+    </>
+  )
+}
