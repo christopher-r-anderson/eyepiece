@@ -98,6 +98,10 @@ export async function userHasProfile({
   context: { queryClient: QueryClient; publicSupabaseClient: SupabaseClient }
   location: ParsedLocation
 }) {
+  if (location.pathname === '/complete-profile') {
+    return
+  }
+
   const user = await fetchCurrentUser({ queryClient })
   if (user) {
     const profile = await fetchProfile({

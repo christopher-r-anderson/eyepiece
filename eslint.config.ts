@@ -207,12 +207,12 @@ export default [
             'Do not set routePolicy in descendant route files. Route policy must be defined at policy root boundaries.',
         },
         {
-          selector: "Property[key.value='Cache-Control'] > Literal",
+          selector: "Property[key.value='Cache-Control'][value.type='Literal']",
           message:
             'Do not use Cache-Control string literals in route files. Use route-policy helper functions instead.',
         },
         {
-          selector: "Property[key.value='cache-control'] > Literal",
+          selector: "Property[key.value='cache-control'][value.type='Literal']",
           message:
             'Do not use cache-control string literals in route files. Use route-policy helper functions instead.',
         },

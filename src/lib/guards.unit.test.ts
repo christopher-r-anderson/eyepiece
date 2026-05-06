@@ -50,7 +50,8 @@ const USER = { id: 'user-uuid-123', email: 'test@example.com' }
 
 // Minimal ParsedLocation shape used by guards
 function makeLocation(href: string) {
-  return { href } as any
+  const pathname = href.split('?')[0] ?? href
+  return { href, pathname } as any
 }
 
 // ---------------------------------------------------------------------------
@@ -261,5 +262,17 @@ describe('userHasProfile', () => {
     ).rejects.toMatchObject({
       options: { search: { next: '/favorites' } },
     })
+  })
+
+  it('does not redirect when already on /complete-profile', async () => {
+    await expect(
+      userHasProfile({
+        context,
+        location: makeLocation('/complete-profile?next=/favorites'),
+      }),
+    ).resolves.toBeUndefined()
+
+    expect(mockFetchCurrentUser).not.toHaveBeenCalled()
+    expect(mockFetchProfile).not.toHaveBeenCalled()
   })
 })
