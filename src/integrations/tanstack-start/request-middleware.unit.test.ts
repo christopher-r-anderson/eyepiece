@@ -182,6 +182,27 @@ describe('createSetCookieSafetyNetMiddleware', () => {
     expect(result.headers.get('cache-control')).toBe('private, no-store')
   })
 
+  it('overrides cache-control for redirect responses that set Supabase auth cookies', async () => {
+    const middleware = createSetCookieSafetyNetMiddleware() as any
+    const response = new Response(null, {
+      status: 302,
+      headers: {
+        location: '/settings/profile',
+        'cache-control': 'public, max-age=300',
+      },
+    })
+    response.headers.append('set-cookie', 'sb-auth-token=abc; Path=/; HttpOnly')
+
+    const next = vi.fn().mockResolvedValue(response)
+
+    const result = await middleware({
+      request: new Request('https://example.com/auth/confirm'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+  })
+
   it('keeps cache-control unchanged for HTML responses without Supabase auth cookies', async () => {
     const middleware = createSetCookieSafetyNetMiddleware() as any
     const response = new Response('<html></html>', {

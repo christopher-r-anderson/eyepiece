@@ -4,6 +4,17 @@ import { getPrivateDocumentCacheControlHeader } from '@/lib/route-policy'
 
 const SUPABASE_AUTH_COOKIE_PREFIX = 'sb-'
 
+function getSetCookieAccessor(headers: Headers): (() => Array<string>) | null {
+  const maybeGetSetCookie = (headers as Headers & { getSetCookie?: unknown })
+    .getSetCookie
+
+  if (typeof maybeGetSetCookie !== 'function') {
+    return null
+  }
+
+  return maybeGetSetCookie.bind(headers) as () => Array<string>
+}
+
 function shouldLogServerErrorsInDevelopment() {
   return process.env.NODE_ENV === 'development'
 }
@@ -30,33 +41,89 @@ function isHtmlResponse(response: Response) {
   return contentType?.startsWith('text/html') ?? false
 }
 
+function isRedirectResponse(response: Response) {
+  return response.status >= 300 && response.status < 400
+}
+
+function getSetCookieHeaders(headers: Headers) {
+  const getSetCookie = getSetCookieAccessor(headers)
+  if (getSetCookie) {
+    const setCookies = getSetCookie()
+    return setCookies
+  }
+
+  const setCookie = headers.get('set-cookie')
+  return setCookie ? [setCookie] : []
+}
+
+function isSupabaseAuthCookieSetCookieHeader(header: string) {
+  const cookieName = header.match(/^\s*([^=;\s]+)=/)?.[1] ?? ''
+  return cookieName.startsWith(SUPABASE_AUTH_COOKIE_PREFIX)
+}
+
 function hasSupabaseAuthSetCookie(response: Response) {
-  const setCookies = response.headers.getSetCookie()
+  if (
+    !getSetCookieAccessor(response.headers) &&
+    response.headers.has('set-cookie')
+  ) {
+    // Conservative fallback for runtimes without Headers#getSetCookie.
+    return true
+  }
+
+  const setCookies = getSetCookieHeaders(response.headers)
   return setCookies.some((header) =>
-    header.startsWith(SUPABASE_AUTH_COOKIE_PREFIX),
+    isSupabaseAuthCookieSetCookieHeader(header),
   )
 }
 
-/**
- * Safety net: if a Supabase auth session cookie is being set on an HTML document
- * response, force Cache-Control: private, no-store to prevent the response from
- * being cached at the CDN/proxy layer. This protects against a route that fails to
- * apply privateAnonymousBoundary but still processes auth tokens.
- */
-export function createSetCookieSafetyNetMiddleware() {
-  return createMiddleware().server(async ({ next }) => {
-    const response = await next()
-    if (!(response instanceof Response)) return response
-    if (!isHtmlResponse(response)) return response
-    if (!hasSupabaseAuthSetCookie(response)) return response
+function cloneHeadersPreservingSetCookie(headers: Headers) {
+  const newHeaders = new Headers(headers)
+  const setCookies = getSetCookieHeaders(headers)
+  if (setCookies.length === 0) {
+    return newHeaders
+  }
 
-    const newHeaders = new Headers(response.headers)
-    newHeaders.set('cache-control', getPrivateDocumentCacheControlHeader())
+  newHeaders.delete('set-cookie')
+  for (const setCookie of setCookies) {
+    newHeaders.append('set-cookie', setCookie)
+  }
+  return newHeaders
+}
+
+function forcePrivateNoStoreCacheControl(response: Response) {
+  const cacheControl = getPrivateDocumentCacheControlHeader()
+
+  try {
+    response.headers.set('cache-control', cacheControl)
+    return response
+  } catch {
+    const newHeaders = cloneHeadersPreservingSetCookie(response.headers)
+    newHeaders.set('cache-control', cacheControl)
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: newHeaders,
     })
+  }
+}
+
+/**
+ * Safety net: if a Supabase auth session cookie is being set on an HTML document
+ * or redirect response, force Cache-Control: private, no-store to prevent the
+ * response from being cached at the CDN/proxy layer. This protects against a
+ * route that fails to apply privateAnonymousBoundary but still processes auth
+ * tokens.
+ */
+export function createSetCookieSafetyNetMiddleware() {
+  return createMiddleware().server(async ({ next }) => {
+    const response = await next()
+    if (!(response instanceof Response)) return response
+    if (!isHtmlResponse(response) && !isRedirectResponse(response)) {
+      return response
+    }
+    if (!hasSupabaseAuthSetCookie(response)) return response
+
+    return forcePrivateNoStoreCacheControl(response)
   })
 }
 

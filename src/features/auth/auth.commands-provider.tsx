@@ -3,6 +3,7 @@ import { makeAuthCommands } from './auth.commands'
 import type { AuthCommands } from './auth.commands'
 import type { ReactNode } from 'react'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { useOptionalUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
 
 type AuthCommandsContextValue = {
   commands: AuthCommands
@@ -11,15 +12,29 @@ type AuthCommandsContextValue = {
 const AuthCommandsContext = createContext<AuthCommandsContextValue | null>(null)
 
 export function AuthCommandsProvider({ children }: { children: ReactNode }) {
-  // Creates its own user Supabase client directly so this provider is self-sufficient
-  // and can be mounted anywhere without requiring UserSupabaseClientProvider in the tree.
-  // Multiple provider instances are expected (for example shell-level providers and
-  // isolated client islands). This is intentionally safe because each instance only
-  // exposes command helpers and does not maintain cross-provider mutable state.
-  // Auth operations (login, logout, etc.) are always triggered by user interaction
-  // in the browser, so the isomorphic client correctly resolves to the browser client.
-  const client = useMemo(() => createUserSupabaseClient(), [])
-  const commands = useMemo(() => makeAuthCommands(client), [client])
+  const sharedUserSupabaseClient = useOptionalUserSupabaseClient()
+  const commands = useMemo<AuthCommands>(() => {
+    if (sharedUserSupabaseClient) {
+      return makeAuthCommands(sharedUserSupabaseClient)
+    }
+
+    let browserCommands: AuthCommands | null = null
+
+    function getBrowserCommands() {
+      browserCommands ??= makeAuthCommands(createUserSupabaseClient())
+      return browserCommands
+    }
+
+    return {
+      login: (credentials) => getBrowserCommands().login(credentials),
+      resetPassword: (options) => getBrowserCommands().resetPassword(options),
+      register: (options) => getBrowserCommands().register(options),
+      resendRegisterConfirmation: (options) =>
+        getBrowserCommands().resendRegisterConfirmation(options),
+      updatePassword: (options) => getBrowserCommands().updatePassword(options),
+      logout: () => getBrowserCommands().logout(),
+    }
+  }, [sharedUserSupabaseClient])
 
   return (
     <AuthCommandsContext.Provider value={{ commands }}>

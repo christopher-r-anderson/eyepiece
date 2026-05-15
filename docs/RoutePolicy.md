@@ -129,9 +129,12 @@ Auth state subscription is global and mounted once.
 
 `AuthStateSync` must be mounted exactly once in provider scope where all required hooks are valid:
 
-- user Supabase client context
 - query client context
 - TanStack Router hooks
+
+It acquires the browser user Supabase singleton lazily on the client. It does not
+depend on `UserSupabaseClientProvider`, which remains scoped to authenticated route
+subtrees for in-page user-client access.
 
 Responsibilities:
 

@@ -39,3 +39,8 @@ export function useUserSupabaseClient() {
   }
   return context.userSupabaseClient
 }
+
+export function useOptionalUserSupabaseClient() {
+  const context = useContext(UserSupabaseClientContext)
+  return context?.userSupabaseClient ?? null
+}
