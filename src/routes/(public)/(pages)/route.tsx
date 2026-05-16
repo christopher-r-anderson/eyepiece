@@ -5,7 +5,7 @@ import {
 } from '@/features/auth/auth.schema'
 import { AuthCommandsProvider } from '@/features/auth/auth.commands-provider'
 import { AuthModalController } from '@/features/auth/components/auth-modal-controller'
-import { useEnsureProfileExists } from '@/lib/use-ensure-profile-exists'
+import { useEnsureProfileExists } from '@/features/profiles/hooks/use-ensure-profile-exists'
 
 export const Route = createFileRoute('/(public)/(pages)')({
   validateSearch: authModalSearchParamsSchema,

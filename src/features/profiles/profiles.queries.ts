@@ -1,14 +1,30 @@
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import {
+  queryOptions,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
+import { makeProfilesCommands } from './profiles.commands'
 import { makeProfilesRepo, useProfilesRepo } from './profiles.repo'
 import type { QueryClient } from '@tanstack/react-query'
+import type { ProfilesCommands } from './profiles.commands'
 import type { ProfilesRepo } from './profiles.repo'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Profile } from '@/domain/profile/profile.schema'
-import { unwrapOrThrow } from '@/lib/result'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { meKey } from '@/lib/query-keys'
+import { resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 
 const profilesKeys = {
   all: ['profiles'] as const,
   profile: (id: Profile['id']) => [...profilesKeys.all, 'detail', id] as const,
+}
+
+const currentUserProfileKeys = {
+  all: [...meKey, 'profile'] as const,
+  ensure: (userId: string | null) =>
+    [...currentUserProfileKeys.all, 'ensure', userId] as const,
 }
 
 export function getProfileOptions({
@@ -26,6 +42,90 @@ export function getProfileOptions({
     },
     staleTime: 60 * 60 * 1000,
   })
+}
+
+function getAutoProfileDisplayName(userId: string): string {
+  return `Explorer ${userId.slice(0, 8)}`
+}
+
+export function getEnsureProfileByIdOptions({
+  userId,
+  repo,
+  enabled,
+  createCommands = () => makeProfilesCommands(createUserSupabaseClient()),
+}: {
+  userId: string | null
+  repo: Pick<ProfilesRepo, 'getProfile'>
+  enabled?: boolean
+  createCommands?: () => Pick<ProfilesCommands, 'upsertProfile'>
+}) {
+  return queryOptions({
+    queryKey: currentUserProfileKeys.ensure(userId),
+    queryFn: async (): Promise<Profile | null> => {
+      if (!userId) {
+        return null
+      }
+
+      const profileResult = await repo.getProfile(userId)
+      if (!resultIsSuccess(profileResult)) {
+        throw profileResult.error
+      }
+
+      if (profileResult.data) {
+        return profileResult.data
+      }
+
+      const commands = createCommands()
+      const createResult = await commands.upsertProfile({
+        id: userId,
+        displayName: getAutoProfileDisplayName(userId),
+      })
+
+      if (resultIsSuccess(createResult)) {
+        return createResult.data
+      }
+
+      if (createResult.error.code === 'invalid_input') {
+        return null
+      }
+
+      throw createResult.error
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
+    retry: false,
+    enabled,
+  })
+}
+
+export function useEnsureProfile({
+  userId,
+  enabled,
+}: {
+  userId: string | null
+  enabled?: boolean
+}) {
+  const repo = useProfilesRepo()
+  const queryClient = useQueryClient()
+  const query = useQuery(getEnsureProfileByIdOptions({ userId, repo, enabled }))
+
+  useEffect(() => {
+    if (!userId || !query.isSuccess) {
+      return
+    }
+
+    if (query.data) {
+      queryClient.setQueryData(profilesKeys.profile(userId), query.data)
+      return
+    }
+
+    queryClient.removeQueries({
+      queryKey: profilesKeys.profile(userId),
+      exact: true,
+    })
+  }, [queryClient, userId, query.isSuccess, query.data])
+
+  return query
 }
 
 export function useSuspenseProfile(profileId: Profile['id']) {
