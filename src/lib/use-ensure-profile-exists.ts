@@ -34,6 +34,8 @@ export function useEnsureProfileExists(): void {
   const { data: user } = useCurrentUserQuery()
 
   useEffect(() => {
+    let cancelled = false
+
     // Guard against infinite redirect: if already on completion page, don't check/redirect
     if (location.pathname === '/complete-profile') {
       return
@@ -44,6 +46,9 @@ export function useEnsureProfileExists(): void {
       return
     }
 
+    // TODO: Move this profile existence check to TanStack Query (enabled by auth/path)
+    // and keep this effect focused on redirect decisions from query state.
+
     // Check if profile exists; redirect if missing
     ;(async () => {
       try {
@@ -53,11 +58,23 @@ export function useEnsureProfileExists(): void {
           publicSupabaseClient,
         })
 
+        // Ignore stale async completions from previous renders/unmounts.
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cleanup can set `cancelled = true` while this async effect is suspended at `await`.
+        if (cancelled) {
+          return
+        }
+
         // If profile exists, allow through
         if (profile) {
           return
         }
       } catch (error) {
+        // Ignore stale async failures from previous renders/unmounts.
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cleanup can set `cancelled = true` while this async effect is suspended at `await`.
+        if (cancelled) {
+          return
+        }
+
         // Silently allow public content to render on profile fetch failure.
         // Profile completion is a courtesy, not a blocker. Log error for observability.
         logErrorWithObservability(
@@ -78,6 +95,10 @@ export function useEnsureProfileExists(): void {
         search: { next: urlToNextParam(location.href) },
       })
     })()
+
+    return () => {
+      cancelled = true
+    }
   }, [
     user,
     location.pathname,

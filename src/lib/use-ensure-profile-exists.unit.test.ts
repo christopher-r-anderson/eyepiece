@@ -124,4 +124,90 @@ describe('useEnsureProfileExists', () => {
       expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
+
+  it('should not redirect when in-flight profile fetch resolves after cleanup', async () => {
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/search',
+      href: 'http://localhost/search',
+    } as any)
+    vi.mocked(authQueries.useCurrentUserQuery).mockReturnValue({
+      data: { id: 'user-id' },
+    } as any)
+
+    let resolveProfile: (value: null) => void = () => {}
+    vi.mocked(profileQueries.fetchProfile).mockReturnValue(
+      new Promise((resolve) => {
+        resolveProfile = resolve
+      }) as any,
+    )
+
+    const { unmount } = renderHook(() => useEnsureProfileExists())
+
+    unmount()
+    resolveProfile(null)
+    await Promise.resolve()
+
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('should ignore stale in-flight profile fetch after rerender', async () => {
+    let currentLocation = {
+      pathname: '/search',
+      href: 'http://localhost/search',
+    }
+    let currentUser: { id: string } | null = { id: 'user-id' }
+
+    vi.mocked(useLocation).mockImplementation(() => currentLocation as any)
+    vi.mocked(authQueries.useCurrentUserQuery).mockImplementation(
+      () => ({ data: currentUser }) as any,
+    )
+
+    let resolveProfile: (value: null) => void = () => {}
+    vi.mocked(profileQueries.fetchProfile).mockReturnValue(
+      new Promise((resolve) => {
+        resolveProfile = resolve
+      }) as any,
+    )
+
+    const { rerender } = renderHook(() => useEnsureProfileExists())
+
+    // Trigger a new effect run that should invalidate the previous async fetch.
+    currentLocation = {
+      pathname: '/assets',
+      href: 'http://localhost/assets',
+    }
+    currentUser = null
+    rerender()
+
+    resolveProfile(null)
+    await Promise.resolve()
+
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('should not log error when stale in-flight profile fetch rejects after cleanup', async () => {
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/search',
+      href: 'http://localhost/search',
+    } as any)
+    vi.mocked(authQueries.useCurrentUserQuery).mockReturnValue({
+      data: { id: 'user-id' },
+    } as any)
+
+    let rejectProfile: (reason?: unknown) => void = () => {}
+    vi.mocked(profileQueries.fetchProfile).mockReturnValue(
+      new Promise((_, reject) => {
+        rejectProfile = reject
+      }) as any,
+    )
+
+    const { unmount } = renderHook(() => useEnsureProfileExists())
+
+    unmount()
+    rejectProfile(new Error('Profile fetch failed after cleanup'))
+    await Promise.resolve()
+
+    expect(errorLogging.logErrorWithObservability).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
 })
