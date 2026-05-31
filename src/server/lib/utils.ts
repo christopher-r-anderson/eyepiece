@@ -4,6 +4,19 @@ import type { z } from 'zod'
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 
+export const PRIVATE_NO_STORE_CACHE_CONTROL = 'private, no-store'
+
+export function createPrivateNoStoreHeaders(headers?: HeadersInit): Headers {
+  const responseHeaders = new Headers(headers)
+  responseHeaders.set('Cache-Control', PRIVATE_NO_STORE_CACHE_CONTROL)
+  return responseHeaders
+}
+
+export function withPrivateNoStoreCacheControl(response: Response): Response {
+  response.headers.set('Cache-Control', PRIVATE_NO_STORE_CACHE_CONTROL)
+  return response
+}
+
 // params: {parse} will cause types in server routes to look correct, but the parsing will not actually be run
 // handling in middleware like search params would require use to extract the params ourselves
 // so server route handlers need to handle path param parsing themselves

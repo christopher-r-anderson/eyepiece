@@ -1,8 +1,36 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { parseOrThrowBadRequest, parseOrThrowProviderId } from './utils'
+import {
+  createPrivateNoStoreHeaders,
+  parseOrThrowBadRequest,
+  parseOrThrowProviderId,
+  withPrivateNoStoreCacheControl,
+} from './utils'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { shouldReportError } from '@/lib/error-observability'
+
+describe('private no-store helpers', () => {
+  it('adds private no-store cache control to new headers', () => {
+    const headers = createPrivateNoStoreHeaders({ Vary: 'Accept' })
+
+    expect(headers.get('Cache-Control')).toBe('private, no-store')
+    expect(headers.get('Vary')).toBe('Accept')
+  })
+
+  it('adds private no-store cache control to an existing response', () => {
+    const response = new Response(null, {
+      headers: { Location: '/login' },
+      status: 303,
+    })
+
+    const updatedResponse = withPrivateNoStoreCacheControl(response)
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'private, no-store',
+    )
+    expect(updatedResponse.headers.get('Location')).toBe('/login')
+  })
+})
 
 describe('parseOrThrowBadRequest', () => {
   afterEach(() => {

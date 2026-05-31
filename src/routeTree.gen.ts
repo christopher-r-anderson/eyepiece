@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DevRouteRouteImport } from './routes/dev/route'
-import { Route as tokenCallbacksRouteRouteImport } from './routes/(token-callbacks)/route'
 import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as privateRouteRouteImport } from './routes/(private)/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
@@ -50,10 +49,6 @@ import { Route as publicApiV1AssetProviderIdAssetIdMetadataRouteImport } from '.
 const DevRouteRoute = DevRouteRouteImport.update({
   id: '/dev',
   path: '/dev',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const tokenCallbacksRouteRoute = tokenCallbacksRouteRouteImport.update({
-  id: '/(token-callbacks)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const publicRouteRoute = publicRouteRouteImport.update({
@@ -134,9 +129,9 @@ const DevObservabilityHandled400Route =
   } as any)
 const tokenCallbacksAuthConfirmRoute =
   tokenCallbacksAuthConfirmRouteImport.update({
-    id: '/auth/confirm',
+    id: '/(token-callbacks)/auth/confirm',
     path: '/auth/confirm',
-    getParentRoute: () => tokenCallbacksRouteRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
 const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
   id: '/buttons',
@@ -306,7 +301,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(private)': typeof privateRouteRouteWithChildren
   '/(public)': typeof publicRouteRouteWithChildren
-  '/(token-callbacks)': typeof tokenCallbacksRouteRouteWithChildren
   '/dev': typeof DevRouteRouteWithChildren
   '/(private)/(auth)': typeof privateauthRouteRouteWithChildren
   '/(private)/(pages)': typeof privatepagesRouteRouteWithChildren
@@ -408,7 +402,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(private)'
     | '/(public)'
-    | '/(token-callbacks)'
     | '/dev'
     | '/(private)/(auth)'
     | '/(private)/(pages)'
@@ -448,8 +441,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   privateRouteRoute: typeof privateRouteRouteWithChildren
   publicRouteRoute: typeof publicRouteRouteWithChildren
-  tokenCallbacksRouteRoute: typeof tokenCallbacksRouteRouteWithChildren
   DevRouteRoute: typeof DevRouteRouteWithChildren
+  tokenCallbacksAuthConfirmRoute: typeof tokenCallbacksAuthConfirmRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -459,13 +452,6 @@ declare module '@tanstack/react-router' {
       path: '/dev'
       fullPath: '/dev'
       preLoaderRoute: typeof DevRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(token-callbacks)': {
-      id: '/(token-callbacks)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof tokenCallbacksRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(public)': {
@@ -585,7 +571,7 @@ declare module '@tanstack/react-router' {
       path: '/auth/confirm'
       fullPath: '/auth/confirm'
       preLoaderRoute: typeof tokenCallbacksAuthConfirmRouteImport
-      parentRoute: typeof tokenCallbacksRouteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/(public)/(pages)/buttons': {
       id: '/(public)/(pages)/buttons'
@@ -836,17 +822,6 @@ const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
   publicRouteRouteChildren,
 )
 
-interface tokenCallbacksRouteRouteChildren {
-  tokenCallbacksAuthConfirmRoute: typeof tokenCallbacksAuthConfirmRoute
-}
-
-const tokenCallbacksRouteRouteChildren: tokenCallbacksRouteRouteChildren = {
-  tokenCallbacksAuthConfirmRoute: tokenCallbacksAuthConfirmRoute,
-}
-
-const tokenCallbacksRouteRouteWithChildren =
-  tokenCallbacksRouteRoute._addFileChildren(tokenCallbacksRouteRouteChildren)
-
 interface DevObservabilityRouteRouteChildren {
   DevObservabilityHandled400Route: typeof DevObservabilityHandled400Route
   DevObservabilityServerErrorRoute: typeof DevObservabilityServerErrorRoute
@@ -899,8 +874,8 @@ const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   privateRouteRoute: privateRouteRouteWithChildren,
   publicRouteRoute: publicRouteRouteWithChildren,
-  tokenCallbacksRouteRoute: tokenCallbacksRouteRouteWithChildren,
   DevRouteRoute: DevRouteRouteWithChildren,
+  tokenCallbacksAuthConfirmRoute: tokenCallbacksAuthConfirmRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
