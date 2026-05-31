@@ -4,14 +4,14 @@
 
 Choose a route class first. The class determines server auth behavior, cache policy, and client auth-command scope.
 
-| Class                | Typical routes                                         | Server user session       | Cache-Control                                               | Client auth commands         |
-| -------------------- | ------------------------------------------------------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
-| Public content pages | /(public)/(pages) subtree                              | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
-| Auth-form pages      | /(public)/(auth) subtree                               | Anonymous flow            | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Whole route content          |
-| Private pages        | /(private)/(pages) subtree                             | Required                  | private, no-store                                           | Whole route content          |
-| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password) | Required                  | private, no-store                                           | Whole route content          |
-| Public API           | /(public)/api subtree                                  | Not used                  | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | None                         |
-| Token callbacks      | /(token-callbacks) subtree (e.g. /auth/confirm)        | Not yet established       | private, no-store                                           | None                         |
+| Class                | Typical routes                                                     | Server user session       | Cache-Control                                               | Client auth commands         |
+| -------------------- | ------------------------------------------------------------------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| Public content pages | /(public)/(pages) subtree                                          | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
+| Auth-form pages      | /(public)/(auth) subtree                                           | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Whole route content          |
+| Private pages        | /(private)/(pages) subtree                                         | Required                  | private, no-store                                           | Whole route content          |
+| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password)             | Required                  | private, no-store                                           | Whole route content          |
+| Public API           | /(public)/api subtree                                              | Not used                  | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | None                         |
+| Token callbacks      | Server handlers under /(token-callbacks) (currently /auth/confirm) | Not yet established       | private, no-store                                           | None                         |
 
 ## Route Tree Structure
 
@@ -19,7 +19,8 @@ Choose a route class first. The class determines server auth behavior, cache pol
 (public)/              ← policy root: null userSupabaseClient, PUBLIC_ROUTE_POLICY, public Cache-Control
   (pages)/             ← content pages: <main> layout, auth modal island,
                           useEnsureProfileExists (client-side check post-hydration)
-  (auth)/              ← auth-form pages: card panel layout, AuthCommandsProvider
+   (auth)/              ← auth-form pages: card panel layout,
+                                       AuthCommandsProvider, useRedirectAuthenticatedUser
   api/                 ← public API endpoints (no React layout)
 
 (private)/             ← policy root: authenticated, private Cache-Control,
@@ -28,17 +29,19 @@ Choose a route class first. The class determines server auth behavior, cache pol
                           userHasProfile check (server-side, SSR gate)
   (auth)/              ← post-auth flow pages: card panel layout (providers inherited)
 
-(token-callbacks)/     ← token-bearing anonymous routes: private Cache-Control,
-                          null userSupabaseClient, PRIVATE_ANONYMOUS_ROUTE_POLICY
+(token-callbacks)/     ← source-only namespace for token-bearing server handlers
+   auth/confirm         ← leaf handler at /auth/confirm; parses query params and
+                                       sets private, no-store on every response/redirect path
 ```
 
-Public pages remain cache-safe because SSR document output does not branch on user identity.
+Public content and auth-form pages remain cache-safe because SSR document output does not branch on user identity.
+Authenticated users are redirected away from auth-form pages after hydration via `useRedirectAuthenticatedUser()`, keeping the documents cacheable while avoiding stale server-side cookie branching.
 
 Profile completion is encouraged client-side: authenticated users without a profile are redirected after hydration via `useEnsureProfileExists()`, preserving cache safety while maintaining proactive guidance.
 
 ## Boundary Rules
 
-Each policy root route file declares:
+Each policy boundary route file declares:
 
 - Cache-Control header policy for the entire subtree
 - Server capability (userSupabaseClient null/non-null) via beforeLoad
@@ -50,22 +53,25 @@ without changing the inherited server policy.
 Server boundary behavior is composed from shared boundary definitions in `src/lib/route-boundaries.ts`.
 Client command scope remains explicit in JSX (no implicit auto-wrap behavior).
 
+Token-callback handlers are an exception: they are server routes and must parse request input and enforce `private, no-store` in middleware or directly in their handler response path.
+
 ## Cache Policy vs Cache Profile
 
 Treat these as separate concerns:
 
-- Cache policy (public vs private) is immutable per policy root and must not be overridden by descendants.
+- Cache policy (public vs private) is immutable within a policy boundary.
 - Cache profile (TTL values) may be tuned per route when needed, but only within the inherited policy scope.
 
 Rules:
 
-- Do not set `routePolicy` in descendant route files.
+- Do not set `routePolicy` in ordinary descendant route files; use a dedicated boundary when cache scope or server capability changes.
 - Do not use raw `Cache-Control` string literals in route files.
 - Use `getPublicDocumentCacheControlHeader(profile)` for public TTL tuning.
-- Use `getPrivateDocumentCacheControlHeader()` for private no-store responses.
+- Use `getPrivateDocumentCacheControlHeader()` for boundary-level private headers.
+- Use `createPrivateNoStoreHeaders()` / `withPrivateNoStoreCacheControl()` when a server handler must enforce private no-store directly on its own responses.
 
 The default public profile is defined by `DEFAULT_PUBLIC_DOCUMENT_CACHE_PROFILE` in `src/lib/route-policy.ts`.
-Boundary helpers and middleware use these route-policy helpers so cache strings remain centralized.
+Boundary helpers and server-response helpers keep cache strings centralized.
 
 ## Server Enforcement
 
@@ -173,8 +179,9 @@ Typical examples:
 ### New auth-form page (public, anonymous)
 
 1. Place route under `/(public)/(auth)/`
-2. Add `beforeLoad: requireAnonymous` if the page should redirect logged-in users
-3. Access auth commands via the `AuthCommandsProvider` inherited from the layout
+2. Keep SSR output user-agnostic so the page remains publicly cacheable
+3. Use `useRedirectAuthenticatedUser(next)` to redirect logged-in users after hydration when needed
+4. Access auth commands via the `AuthCommandsProvider` inherited from the layout
 
 ### New private content page
 
@@ -198,8 +205,8 @@ Typical examples:
 ### New token-callback handler
 
 1. Place route under `/(token-callbacks)/`
-2. No React layout, server handlers only
-3. privateAnonymousBoundary (private Cache-Control, null user client) is inherited from the root
+2. No React layout or route, server handlers only
+3. Ensure every response and redirect explicitly carries `private, no-store`
 
 ## Naming Conventions
 
@@ -222,4 +229,4 @@ Names should describe actual behavior:
 6. Exactly one auth subscription exists at app level
 7. Server user client access is only via policy-gated context path
 8. Auth check failure handling follows redirect-aware guard rules
-9. Descendant routes do not override route policy or use raw Cache-Control literals
+9. Descendant routes do not override route policy outside dedicated boundaries or use raw Cache-Control literals
