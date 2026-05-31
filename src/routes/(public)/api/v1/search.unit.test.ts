@@ -26,6 +26,7 @@ vi.mock('@tanstack/react-start', () => ({
 }))
 
 vi.mock('@/server/lib/middleware', () => ({
+  buildPublicApiCacheMiddleware: vi.fn(() => 'public-cache-middleware-stub'),
   buildUrlSearchParamsMiddleware: vi.fn(() => 'middleware-stub'),
 }))
 
@@ -176,6 +177,13 @@ describe('GET /api/v1/search handler', () => {
       { providerId: NASA_IVL_PROVIDER_ID, filters: { mediaType: 'image' } },
       { page: 1, pageSize: 24 },
     )
+  })
+
+  it('attaches public cache middleware before query parsing middleware', () => {
+    expect((Route as any).server.middleware).toEqual([
+      'public-cache-middleware-stub',
+      'middleware-stub',
+    ])
   })
 
   it('returns a JSON response with the search results', async () => {

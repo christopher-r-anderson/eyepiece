@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { buildUrlSearchParamsMiddleware } from './middleware'
+import {
+  buildPublicApiCacheMiddleware,
+  buildUrlSearchParamsMiddleware,
+} from './middleware'
 import { shouldReportError } from '@/lib/error-observability'
 
 vi.mock('@tanstack/react-start', () => ({
@@ -48,5 +51,72 @@ describe('buildUrlSearchParamsMiddleware', () => {
     expect(body.error.issues[0].path).toBe('page')
     expect(body.error.issues[0].message).toMatch('Too small')
     expect(shouldReportError(response)).toBe(false)
+  })
+})
+
+describe('buildPublicApiCacheMiddleware', () => {
+  it('adds public cache control to returned responses', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    const response = await middleware({
+      next: vi.fn().mockResolvedValue(Response.json({ ok: true })),
+    })
+
+    expect(response.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+  })
+
+  it('adds public cache control to middleware result.response values', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    const result = await middleware({
+      next: vi.fn().mockResolvedValue({
+        response: Response.json({ ok: true }),
+      }),
+    })
+
+    expect(result.response.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+  })
+
+  it('adds public cache control to thrown responses', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    await expect(
+      middleware({
+        next: vi
+          .fn()
+          .mockRejectedValue(
+            Response.json(
+              { error: { code: 'INVALID_INPUT' } },
+              { status: 400 },
+            ),
+          ),
+      }),
+    ).rejects.toMatchObject({
+      headers: expect.objectContaining({}),
+      status: 400,
+    })
+
+    try {
+      await middleware({
+        next: vi
+          .fn()
+          .mockRejectedValue(
+            Response.json(
+              { error: { code: 'INVALID_INPUT' } },
+              { status: 400 },
+            ),
+          ),
+      })
+    } catch (error) {
+      const response = error as Response
+
+      expect(response.headers.get('Cache-Control')).toBe(
+        'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+      )
+    }
   })
 })

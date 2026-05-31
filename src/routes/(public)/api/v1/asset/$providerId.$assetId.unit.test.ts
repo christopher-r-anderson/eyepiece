@@ -17,6 +17,10 @@ vi.mock('@tanstack/react-router', () => ({
   notFound: vi.fn(),
 }))
 
+vi.mock('@/server/lib/middleware', () => ({
+  buildPublicApiCacheMiddleware: vi.fn(() => 'public-cache-middleware-stub'),
+}))
+
 const mockService = {
   getAsset: vi.fn(),
   getMetadata: vi.fn(),
@@ -129,6 +133,12 @@ describe('GET /api/v1/asset/:providerId/:assetId handler', () => {
   beforeEach(() => {
     mockService.getAsset.mockReset()
     mockService.getAsset.mockResolvedValue(mockAsset)
+  })
+
+  it('attaches public cache middleware', () => {
+    expect((AssetRoute as any).server.middleware).toEqual([
+      'public-cache-middleware-stub',
+    ])
   })
 
   it('calls getAsset with the parsed asset key', async () => {
@@ -276,6 +286,12 @@ describe('GET /api/v1/asset/:providerId/:assetId/metadata handler', () => {
   beforeEach(() => {
     mockService.getMetadata.mockReset()
     mockService.getMetadata.mockResolvedValue(mockMetadata)
+  })
+
+  it('attaches public cache middleware', () => {
+    expect((MetadataRoute as any).server.middleware).toEqual([
+      'public-cache-middleware-stub',
+    ])
   })
 
   it('returns a 501 JSON response when the provider does not support metadata', async () => {

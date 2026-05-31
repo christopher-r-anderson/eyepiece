@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
+import {
+  buildPublicApiCacheMiddleware,
+  buildUrlSearchParamsMiddleware,
+} from '@/server/lib/middleware'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
 import { rethrowHandledErrorWithContext } from '@/server/lib/handled-errors'
 import { parseOrThrowBadRequest } from '@/server/lib/utils'
@@ -9,13 +12,14 @@ import { searchRequestSchema } from '@/lib/eyepiece-api-contracts'
 
 const searchParamsMiddleware =
   buildUrlSearchParamsMiddleware(searchRequestSchema)
+const publicApiCacheMiddleware = buildPublicApiCacheMiddleware()
 
 const INVALID_SEARCH_PARAMS_MESSAGE =
   'One or more query parameters are invalid.'
 
 export const Route = createFileRoute('/(public)/api/v1/search')({
   server: {
-    middleware: [searchParamsMiddleware],
+    middleware: [publicApiCacheMiddleware, searchParamsMiddleware],
     handlers: {
       GET: async ({ context: { searchParams } }) => {
         const eyepiece = makeEyepieceProviderService()

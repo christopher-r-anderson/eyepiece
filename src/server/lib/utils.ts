@@ -1,8 +1,10 @@
 import { createApiErrorResponse, formatValidationIssues } from './api-errors'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { z } from 'zod'
+import type { PublicDocumentCacheProfile } from '@/lib/route-policy'
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
+import { getPublicDocumentCacheControlHeader } from '@/lib/route-policy'
 
 export const PRIVATE_NO_STORE_CACHE_CONTROL = 'private, no-store'
 
@@ -14,6 +16,29 @@ export function createPrivateNoStoreHeaders(headers?: HeadersInit): Headers {
 
 export function withPrivateNoStoreCacheControl(response: Response): Response {
   response.headers.set('Cache-Control', PRIVATE_NO_STORE_CACHE_CONTROL)
+  return response
+}
+
+export function createPublicCacheHeaders(
+  headers?: HeadersInit,
+  profile?: PublicDocumentCacheProfile,
+): Headers {
+  const responseHeaders = new Headers(headers)
+  responseHeaders.set(
+    'Cache-Control',
+    getPublicDocumentCacheControlHeader(profile),
+  )
+  return responseHeaders
+}
+
+export function withPublicCacheControl(
+  response: Response,
+  profile?: PublicDocumentCacheProfile,
+): Response {
+  response.headers.set(
+    'Cache-Control',
+    getPublicDocumentCacheControlHeader(profile),
+  )
   return response
 }
 

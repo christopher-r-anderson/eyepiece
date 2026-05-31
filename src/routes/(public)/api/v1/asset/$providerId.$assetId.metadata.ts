@@ -8,13 +8,17 @@ import {
   getHandledError,
   rethrowHandledErrorWithContext,
 } from '@/server/lib/handled-errors'
+import { buildPublicApiCacheMiddleware } from '@/server/lib/middleware'
 import { parseOrThrowProviderId } from '@/server/lib/utils'
 import { V1_ROUTE_PATHS } from '@/lib/api-paths'
+
+const publicApiCacheMiddleware = buildPublicApiCacheMiddleware()
 
 export const Route = createFileRoute(
   '/(public)/api/v1/asset/$providerId/$assetId/metadata',
 )({
   server: {
+    middleware: [publicApiCacheMiddleware],
     handlers: {
       GET: async ({ params: { providerId: providerIdString, assetId } }) => {
         const eyepiece = makeEyepieceProviderService()

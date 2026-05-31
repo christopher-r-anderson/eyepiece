@@ -17,6 +17,7 @@ vi.mock('@tanstack/react-router', () => ({
 }))
 
 vi.mock('@/server/lib/middleware', () => ({
+  buildPublicApiCacheMiddleware: vi.fn(() => 'public-cache-middleware-stub'),
   buildUrlSearchParamsMiddleware: vi.fn(() => 'middleware-stub'),
 }))
 
@@ -106,6 +107,13 @@ describe('GET /api/v1/albums/:providerId/:albumId handler', () => {
         message: 'Album lookup is not supported for this provider',
       },
     })
+  })
+
+  it('attaches public cache middleware before query parsing middleware', () => {
+    expect((Route as any).server.middleware).toEqual([
+      'public-cache-middleware-stub',
+      'middleware-stub',
+    ])
   })
 
   it('calls getAlbum with the parsed asset key and pagination', async () => {

@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { buildUrlSearchParamsMiddleware } from '@/server/lib/middleware'
+import {
+  buildPublicApiCacheMiddleware,
+  buildUrlSearchParamsMiddleware,
+} from '@/server/lib/middleware'
 import { makeEyepieceProviderService } from '@/server/eyepiece/service'
 import {
   createNotFoundResponse,
@@ -19,12 +22,13 @@ import { albumRequestSchema } from '@/lib/eyepiece-api-contracts'
 
 const searchParamsMiddleware =
   buildUrlSearchParamsMiddleware(albumRequestSchema)
+const publicApiCacheMiddleware = buildPublicApiCacheMiddleware()
 
 export const Route = createFileRoute(
   '/(public)/api/v1/albums/$providerId/$albumId',
 )({
   server: {
-    middleware: [searchParamsMiddleware],
+    middleware: [publicApiCacheMiddleware, searchParamsMiddleware],
     handlers: {
       GET: async ({
         params: { providerId: providerIdString, albumId: albumIdString },

@@ -21,7 +21,8 @@ Choose a route class first. The class determines server auth behavior, cache pol
                           useEnsureProfileExists (client-side check post-hydration)
    (auth)/              ← auth-form pages: card panel layout,
                                        AuthCommandsProvider, useRedirectAuthenticatedUser
-  api/                 ← public API endpoints (no React layout)
+   api/                 ← public API endpoints (no React layout);
+                                       handlers apply shared public cache middleware directly
 
 (private)/             ← policy root: authenticated, private Cache-Control,
                           UserSupabaseClientProvider + AuthCommandsProvider
@@ -57,6 +58,10 @@ without changing the inherited server policy.
 Server boundary behavior is composed from shared boundary definitions in `src/lib/route-boundaries.ts`.
 Client command scope remains explicit in JSX (no implicit auto-wrap behavior).
 
+Public API handlers are another exception: route-policy boundaries do not apply
+document `headers` to `server.handlers` responses. Public API routes must set
+their `Cache-Control` explicitly in shared server middleware.
+
 Token-callback handlers are a partial exception: they do inherit policy from the
 `/(token-callbacks)/auth` boundary, but they must still parse request input and
 enforce `private, no-store` directly in middleware or in their handler response path.
@@ -80,6 +85,7 @@ Rules:
 - Do not use raw `Cache-Control` string literals in route files.
 - Use `getPublicDocumentCacheControlHeader(profile)` for public TTL tuning.
 - Use `getPrivateDocumentCacheControlHeader()` for boundary-level private headers.
+- Use `buildPublicApiCacheMiddleware(profile)` when a public API handler must enforce public caching on its own responses.
 - Use `createPrivateNoStoreHeaders()` / `withPrivateNoStoreCacheControl()` when a server handler must enforce private no-store directly on its own responses.
 
 The default public profile is defined by `DEFAULT_PUBLIC_DOCUMENT_CACHE_PROFILE` in `src/lib/route-policy.ts`.
@@ -211,8 +217,8 @@ Typical examples:
 
 1. Place route under `/(public)/api/`
 2. No React layout, server handlers only
-3. Public caching is inherited from the `(public)` root
-4. If this endpoint needs custom public TTLs, set `headers` with `getPublicDocumentCacheControlHeader(profile)` (do not change route policy)
+3. Add `buildPublicApiCacheMiddleware()` to `server.middleware` so responses actually emit the public cache header
+4. If this endpoint needs custom public TTLs, pass a custom profile to `buildPublicApiCacheMiddleware(profile)` (do not change route policy)
 
 ### New token-callback handler
 

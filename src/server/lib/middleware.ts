@@ -1,6 +1,28 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { createApiErrorResponse, formatValidationIssues } from './api-errors'
+import { withPublicCacheControl } from './utils'
+import type { RequestServerResult } from '@tanstack/react-start'
+import type { PublicDocumentCacheProfile } from '@/lib/route-policy'
 import type { z } from 'zod'
+
+type PublicApiCacheMiddlewareResult =
+  | Response
+  | RequestServerResult<{}, undefined, undefined>
+
+function applyPublicCacheControl(
+  result: PublicApiCacheMiddlewareResult,
+  profile?: PublicDocumentCacheProfile,
+): PublicApiCacheMiddlewareResult {
+  if (result instanceof Response) {
+    return withPublicCacheControl(result, profile)
+  }
+
+  if ('response' in result && result.response instanceof Response) {
+    result.response = withPublicCacheControl(result.response, profile)
+  }
+
+  return result
+}
 
 export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
   return createMiddleware().server(async ({ next, request }) => {
@@ -28,4 +50,22 @@ export function buildUrlSearchParamsMiddleware<T extends z.ZodType>(schema: T) {
       },
     })
   })
+}
+
+export function buildPublicApiCacheMiddleware(
+  profile?: PublicDocumentCacheProfile,
+) {
+  return createMiddleware().server(
+    async ({ next }): Promise<PublicApiCacheMiddlewareResult> => {
+      try {
+        return applyPublicCacheControl(await next(), profile)
+      } catch (error) {
+        if (error instanceof Response) {
+          throw withPublicCacheControl(error, profile)
+        }
+
+        throw error
+      }
+    },
+  )
 }
