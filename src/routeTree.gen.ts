@@ -15,6 +15,7 @@ import { Route as privateRouteRouteImport } from './routes/(private)/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
 import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
+import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
 import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/route'
 import { Route as publicauthRouteRouteImport } from './routes/(public)/(auth)/route'
 import { Route as privatepagesRouteRouteImport } from './routes/(private)/(pages)/route'
@@ -74,6 +75,11 @@ const DevObservabilityRouteRoute = DevObservabilityRouteRouteImport.update({
   path: '/observability',
   getParentRoute: () => DevRouteRoute,
 } as any)
+const tokenCallbacksAuthRouteRoute = tokenCallbacksAuthRouteRouteImport.update({
+  id: '/(token-callbacks)/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const publicpagesRouteRoute = publicpagesRouteRouteImport.update({
   id: '/(pages)',
   getParentRoute: () => publicRouteRoute,
@@ -129,9 +135,9 @@ const DevObservabilityHandled400Route =
   } as any)
 const tokenCallbacksAuthConfirmRoute =
   tokenCallbacksAuthConfirmRouteImport.update({
-    id: '/(token-callbacks)/auth/confirm',
-    path: '/auth/confirm',
-    getParentRoute: () => rootRouteImport,
+    id: '/confirm',
+    path: '/confirm',
+    getParentRoute: () => tokenCallbacksAuthRouteRoute,
   } as any)
 const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
   id: '/buttons',
@@ -238,6 +244,7 @@ const publicApiV1AssetProviderIdAssetIdMetadataRoute =
 
 export interface FileRoutesByFullPath {
   '/dev': typeof DevRouteRouteWithChildren
+  '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/dev/': typeof DevIndexRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/asset/$providerId/$assetId/metadata': typeof publicApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev': typeof DevIndexRoute
   '/complete-profile': typeof privatepagesCompleteProfileRoute
   '/favorites': typeof privatepagesFavoritesRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/(private)/(pages)': typeof privatepagesRouteRouteWithChildren
   '/(public)/(auth)': typeof publicauthRouteRouteWithChildren
   '/(public)/(pages)': typeof publicpagesRouteRouteWithChildren
+  '/(token-callbacks)/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/dev/': typeof DevIndexRoute
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dev'
+    | '/auth'
     | '/dev/observability'
     | '/dev/ui'
     | '/dev/'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/api/v1/asset/$providerId/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/dev'
     | '/complete-profile'
     | '/favorites'
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | '/(private)/(pages)'
     | '/(public)/(auth)'
     | '/(public)/(pages)'
+    | '/(token-callbacks)/auth'
     | '/dev/observability'
     | '/dev/ui'
     | '/dev/'
@@ -442,7 +454,7 @@ export interface RootRouteChildren {
   privateRouteRoute: typeof privateRouteRouteWithChildren
   publicRouteRoute: typeof publicRouteRouteWithChildren
   DevRouteRoute: typeof DevRouteRouteWithChildren
-  tokenCallbacksAuthConfirmRoute: typeof tokenCallbacksAuthConfirmRoute
+  tokenCallbacksAuthRouteRoute: typeof tokenCallbacksAuthRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -488,6 +500,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dev/observability'
       preLoaderRoute: typeof DevObservabilityRouteRouteImport
       parentRoute: typeof DevRouteRoute
+    }
+    '/(token-callbacks)/auth': {
+      id: '/(token-callbacks)/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof tokenCallbacksAuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(public)/(pages)': {
       id: '/(public)/(pages)'
@@ -568,10 +587,10 @@ declare module '@tanstack/react-router' {
     }
     '/(token-callbacks)/auth/confirm': {
       id: '/(token-callbacks)/auth/confirm'
-      path: '/auth/confirm'
+      path: '/confirm'
       fullPath: '/auth/confirm'
       preLoaderRoute: typeof tokenCallbacksAuthConfirmRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof tokenCallbacksAuthRouteRoute
     }
     '/(public)/(pages)/buttons': {
       id: '/(public)/(pages)/buttons'
@@ -871,11 +890,25 @@ const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(
   DevRouteRouteChildren,
 )
 
+interface tokenCallbacksAuthRouteRouteChildren {
+  tokenCallbacksAuthConfirmRoute: typeof tokenCallbacksAuthConfirmRoute
+}
+
+const tokenCallbacksAuthRouteRouteChildren: tokenCallbacksAuthRouteRouteChildren =
+  {
+    tokenCallbacksAuthConfirmRoute: tokenCallbacksAuthConfirmRoute,
+  }
+
+const tokenCallbacksAuthRouteRouteWithChildren =
+  tokenCallbacksAuthRouteRoute._addFileChildren(
+    tokenCallbacksAuthRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   privateRouteRoute: privateRouteRouteWithChildren,
   publicRouteRoute: publicRouteRouteWithChildren,
   DevRouteRoute: DevRouteRouteWithChildren,
-  tokenCallbacksAuthConfirmRoute: tokenCallbacksAuthConfirmRoute,
+  tokenCallbacksAuthRouteRoute: tokenCallbacksAuthRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

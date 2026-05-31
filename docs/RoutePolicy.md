@@ -4,14 +4,14 @@
 
 Choose a route class first. The class determines server auth behavior, cache policy, and client auth-command scope.
 
-| Class                | Typical routes                                                     | Server user session       | Cache-Control                                               | Client auth commands         |
-| -------------------- | ------------------------------------------------------------------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
-| Public content pages | /(public)/(pages) subtree                                          | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
-| Auth-form pages      | /(public)/(auth) subtree                                           | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Whole route content          |
-| Private pages        | /(private)/(pages) subtree                                         | Required                  | private, no-store                                           | Whole route content          |
-| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password)             | Required                  | private, no-store                                           | Whole route content          |
-| Public API           | /(public)/api subtree                                              | Not used                  | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | None                         |
-| Token callbacks      | Server handlers under /(token-callbacks) (currently /auth/confirm) | Not yet established       | private, no-store                                           | None                         |
+| Class                | Typical routes                                            | Server user session       | Cache-Control                                               | Client auth commands         |
+| -------------------- | --------------------------------------------------------- | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| Public content pages | /(public)/(pages) subtree                                 | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
+| Auth-form pages      | /(public)/(auth) subtree                                  | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Whole route content          |
+| Private pages        | /(private)/(pages) subtree                                | Required                  | private, no-store                                           | Whole route content          |
+| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password)    | Required                  | private, no-store                                           | Whole route content          |
+| Public API           | /(public)/api subtree                                     | Not used                  | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | None                         |
+| Token callbacks      | /(token-callbacks)/auth subtree (currently /auth/confirm) | Not yet established       | private, no-store                                           | None                         |
 
 ## Route Tree Structure
 
@@ -29,9 +29,13 @@ Choose a route class first. The class determines server auth behavior, cache pol
                           userHasProfile check (server-side, SSR gate)
   (auth)/              ← post-auth flow pages: card panel layout (providers inherited)
 
-(token-callbacks)/     ← source-only namespace for token-bearing server handlers
-   auth/confirm         ← leaf handler at /auth/confirm; parses query params and
-                                       sets private, no-store on every response/redirect path
+(token-callbacks)/     ← source-only namespace; do not place the policy boundary here
+                          because a root-level token-callback boundary has caused
+                          client-side `/` hydration mismatch in practice
+  auth/                ← token-callback policy boundary: null userSupabaseClient,
+                          PRIVATE_ANONYMOUS_ROUTE_POLICY, private Cache-Control
+    confirm            ← leaf handler at /auth/confirm; parses query params and
+                          sets private, no-store on every response/redirect path
 ```
 
 Public content and auth-form pages remain cache-safe because SSR document output does not branch on user identity.
@@ -53,7 +57,15 @@ without changing the inherited server policy.
 Server boundary behavior is composed from shared boundary definitions in `src/lib/route-boundaries.ts`.
 Client command scope remains explicit in JSX (no implicit auto-wrap behavior).
 
-Token-callback handlers are an exception: they are server routes and must parse request input and enforce `private, no-store` in middleware or directly in their handler response path.
+Token-callback handlers are a partial exception: they do inherit policy from the
+`/(token-callbacks)/auth` boundary, but they must still parse request input and
+enforce `private, no-store` directly in middleware or in their handler response path.
+
+Do not hoist the token-callback boundary to `/(token-callbacks)` root. In this
+codebase, a root-level token-callback boundary has previously rendered/matched
+for `/` on the client and caused a homepage hydration mismatch. The exact matcher
+reason is still not fully understood, so keep the boundary at `/(token-callbacks)/auth`
+unless that issue is conclusively resolved.
 
 ## Cache Policy vs Cache Profile
 
@@ -205,8 +217,9 @@ Typical examples:
 ### New token-callback handler
 
 1. Place route under `/(token-callbacks)/`
-2. No React layout or route, server handlers only
-3. Ensure every response and redirect explicitly carries `private, no-store`
+2. Keep the policy boundary at `/(token-callbacks)/auth`, not the token-callback root
+3. Inherit `privateAnonymousBoundary` from that `auth` boundary route
+4. Ensure server handlers set `private, no-store`
 
 ## Naming Conventions
 
