@@ -79,6 +79,50 @@ const panelFormCss = {
   boxShadow: 'var(--shadow-sm)',
 }
 
+const textFieldControlCss = {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  minWidth: 0,
+  minHeight: 'var(--size-control-height)',
+  paddingInline: 'var(--space-3)',
+  gap: 'var(--space-2)',
+  borderRadius: 'var(--radius-md)',
+  border:
+    '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
+  backgroundColor: 'var(--secondary-bg)',
+  color: 'var(--secondary-text)',
+  boxShadow: 'var(--shadow-sm)',
+  transition:
+    'border-color var(--transition-fast), outline-color var(--transition-fast)',
+  '&:focus-within': {
+    outline: '1px solid var(--outline-color)',
+    outlineOffset: '1px',
+  },
+}
+
+const textFieldInputCss = {
+  width: '100%',
+  minWidth: 0,
+  minHeight: 'calc(var(--size-control-height) - 2px)',
+  paddingBlock: 'var(--space-2)',
+  border: 0,
+  outline: 'none',
+  backgroundColor: 'transparent',
+  color: 'inherit',
+  caretColor: 'currentColor',
+  '&:focus': {
+    outline: 'none',
+  },
+  '&::placeholder': {
+    color: 'var(--text-muted)',
+  },
+  '&:autofill': {
+    boxShadow: 'inset 0 0 0 100px var(--secondary-bg)',
+    WebkitTextFillColor: 'var(--secondary-text)',
+  },
+}
+
 export function Form({
   children,
   css: cssProp,
@@ -177,10 +221,10 @@ export function TextField({
       {...props}
     >
       <Label css={{ textAlign: 'left' }}>{label}</Label>
-      <div css={{ display: 'flex', minWidth: 0 }}>
+      <div css={textFieldControlCss}>
         <Input
           placeholder={placeholder}
-          css={{ width: '100%', maxWidth: '100%' }}
+          css={[textFieldInputCss, { maxWidth: '100%' }]}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (
