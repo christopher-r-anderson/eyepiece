@@ -18,6 +18,9 @@ const ERR_CODE_OTP_EXPIRED = 'otp_expired'
 
 export const Route = createFileRoute('/(public)/(auth)/auth/confirm-error')({
   component: ConfirmationErrorPage,
+  headers: () => ({
+    'Netlify-Vary': 'query=err|type',
+  }),
   validateSearch: z.object({
     err: z.string().optional(),
     type: confirmationTypeSchema.optional(),
