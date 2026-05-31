@@ -24,6 +24,7 @@ export function useEnsureProfileExists(): void {
   const {
     data: ensuredProfile,
     isSuccess: isEnsureProfileSuccess,
+    isFetching: isEnsureProfileFetching,
     isError: isEnsureProfileError,
     error: ensureProfileError,
   } = useEnsureProfile({ userId, enabled: shouldEnsureProfile })
@@ -34,7 +35,7 @@ export function useEnsureProfileExists(): void {
     }
 
     logErrorWithObservability(
-      'Profile ensure/create failed in useEnsureProfileExists',
+      'Profile ensure failed in useEnsureProfileExists',
       ensureProfileError,
       {
         userId: userId ?? undefined,
@@ -50,7 +51,12 @@ export function useEnsureProfileExists(): void {
   ])
 
   useEffect(() => {
-    if (!shouldEnsureProfile || !isEnsureProfileSuccess || ensuredProfile) {
+    if (
+      !shouldEnsureProfile ||
+      !isEnsureProfileSuccess ||
+      isEnsureProfileFetching ||
+      ensuredProfile
+    ) {
       return
     }
 
@@ -61,6 +67,7 @@ export function useEnsureProfileExists(): void {
   }, [
     shouldEnsureProfile,
     isEnsureProfileSuccess,
+    isEnsureProfileFetching,
     ensuredProfile,
     location.pathname,
     location.href,

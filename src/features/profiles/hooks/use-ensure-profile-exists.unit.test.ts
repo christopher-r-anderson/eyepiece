@@ -5,14 +5,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEnsureProfileExists } from './use-ensure-profile-exists'
 import * as authQueries from '@/features/auth/auth.queries'
 import * as errorLogging from '@/lib/error-logging'
-import { makeProfilesCommands } from '@/features/profiles/profiles.commands'
 import { useProfilesRepo } from '@/features/profiles/profiles.repo'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { Err, Ok } from '@/lib/result'
 
 vi.mock('@/features/auth/auth.queries')
 vi.mock('@/lib/error-logging')
-vi.mock('@/features/profiles/profiles.commands')
 vi.mock('@/features/profiles/profiles.repo')
 vi.mock('@tanstack/react-router')
 vi.mock('@tanstack/react-query', async () => {
@@ -23,37 +20,27 @@ vi.mock('@tanstack/react-query', async () => {
     useQueryClient: vi.fn(),
   }
 })
-vi.mock('@/integrations/supabase/user')
 vi.mock('@/lib/utils', () => ({
   urlToNextParam: vi.fn((url) => `/mocked?next=${url}`),
 }))
 
 describe('useEnsureProfileExists', () => {
   const mockNavigate = vi.fn()
-  const mockUserSupabaseClient = {}
   const mockQueryClient = {
     setQueryData: vi.fn(),
     removeQueries: vi.fn(),
   }
   const mockExistingProfile = { id: 'user-id', displayName: 'Test User' }
-  const mockCreatedProfile = { id: 'user-id', displayName: 'Explorer user-id' }
 
   const mockGetProfile = vi.fn()
-  const mockUpsertProfile = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useHydrated).mockReturnValue(true)
     vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-    vi.mocked(createUserSupabaseClient).mockReturnValue(
-      mockUserSupabaseClient as any,
-    )
     vi.mocked(useQueryClient).mockReturnValue(mockQueryClient as any)
     vi.mocked(useProfilesRepo).mockReturnValue({
       getProfile: mockGetProfile,
-    } as any)
-    vi.mocked(makeProfilesCommands).mockReturnValue({
-      upsertProfile: mockUpsertProfile,
     } as any)
     vi.mocked(errorLogging.logErrorWithObservability).mockReturnValue(undefined)
 
@@ -69,6 +56,7 @@ describe('useEnsureProfileExists', () => {
     vi.mocked(useQuery).mockReturnValue({
       data: undefined,
       isSuccess: false,
+      isFetching: false,
       isError: false,
       error: null,
     } as any)
@@ -123,6 +111,7 @@ describe('useEnsureProfileExists', () => {
     vi.mocked(useQuery).mockReturnValue({
       data: mockExistingProfile,
       isSuccess: true,
+      isFetching: false,
       isError: false,
       error: null,
     } as any)
@@ -141,6 +130,7 @@ describe('useEnsureProfileExists', () => {
     vi.mocked(useQuery).mockReturnValue({
       data: null,
       isSuccess: true,
+      isFetching: false,
       isError: false,
       error: null,
     } as any)
@@ -160,11 +150,26 @@ describe('useEnsureProfileExists', () => {
     expect(mockQueryClient.setQueryData).not.toHaveBeenCalled()
   })
 
+  it('does not redirect from cached null while the ensure query is refetching', () => {
+    vi.mocked(useQuery).mockReturnValue({
+      data: null,
+      isSuccess: true,
+      isFetching: true,
+      isError: false,
+      error: null,
+    } as any)
+
+    renderHook(() => useEnsureProfileExists())
+
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
   it('logs and no-ops when ensure query errors', async () => {
     const ensureError = new Error('Profile ensure failed')
     vi.mocked(useQuery).mockReturnValue({
       data: undefined,
       isSuccess: false,
+      isFetching: false,
       isError: true,
       error: ensureError,
     } as any)
@@ -173,7 +178,7 @@ describe('useEnsureProfileExists', () => {
 
     await waitFor(() => {
       expect(errorLogging.logErrorWithObservability).toHaveBeenCalledWith(
-        'Profile ensure/create failed in useEnsureProfileExists',
+        'Profile ensure failed in useEnsureProfileExists',
         ensureError,
         {
           userId: 'user-id',
@@ -184,7 +189,7 @@ describe('useEnsureProfileExists', () => {
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it('queryFn returns existing profile and does not attempt create', async () => {
+  it('queryFn returns existing profile', async () => {
     mockGetProfile.mockResolvedValue(Ok(mockExistingProfile))
 
     renderHook(() => useEnsureProfileExists())
@@ -193,31 +198,10 @@ describe('useEnsureProfileExists', () => {
     const result = await options.queryFn()
 
     expect(result).toEqual(mockExistingProfile)
-    expect(mockUpsertProfile).not.toHaveBeenCalled()
   })
 
-  it('queryFn creates a profile when missing and returns created data', async () => {
+  it('queryFn returns null when the profile is missing', async () => {
     mockGetProfile.mockResolvedValue(Ok(null))
-    mockUpsertProfile.mockResolvedValue(Ok(mockCreatedProfile))
-
-    renderHook(() => useEnsureProfileExists())
-
-    const options = vi.mocked(useQuery).mock.calls[0]?.[0] as any
-    const result = await options.queryFn()
-
-    expect(result).toEqual(mockCreatedProfile)
-    expect(createUserSupabaseClient).toHaveBeenCalledTimes(1)
-    expect(mockUpsertProfile).toHaveBeenCalledWith({
-      id: 'user-id',
-      displayName: 'Explorer user-id',
-    })
-  })
-
-  it('queryFn returns null on invalid_input create failure', async () => {
-    mockGetProfile.mockResolvedValue(Ok(null))
-    mockUpsertProfile.mockResolvedValue(
-      Err({ code: 'invalid_input', message: 'Invalid input' }),
-    )
 
     renderHook(() => useEnsureProfileExists())
 

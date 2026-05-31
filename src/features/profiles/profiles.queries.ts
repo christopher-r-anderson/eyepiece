@@ -5,14 +5,11 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { makeProfilesCommands } from './profiles.commands'
 import { makeProfilesRepo, useProfilesRepo } from './profiles.repo'
 import type { QueryClient } from '@tanstack/react-query'
-import type { ProfilesCommands } from './profiles.commands'
 import type { ProfilesRepo } from './profiles.repo'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Profile } from '@/domain/profile/profile.schema'
-import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { meKey } from '@/lib/query-keys'
 import { resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 
@@ -44,20 +41,14 @@ export function getProfileOptions({
   })
 }
 
-function getAutoProfileDisplayName(userId: string): string {
-  return `Explorer ${userId.slice(0, 8)}`
-}
-
 export function getEnsureProfileByIdOptions({
   userId,
   repo,
   enabled,
-  createCommands = () => makeProfilesCommands(createUserSupabaseClient()),
 }: {
   userId: string | null
   repo: Pick<ProfilesRepo, 'getProfile'>
   enabled?: boolean
-  createCommands?: () => Pick<ProfilesCommands, 'upsertProfile'>
 }) {
   return queryOptions({
     queryKey: currentUserProfileKeys.ensure(userId),
@@ -71,25 +62,7 @@ export function getEnsureProfileByIdOptions({
         throw profileResult.error
       }
 
-      if (profileResult.data) {
-        return profileResult.data
-      }
-
-      const commands = createCommands()
-      const createResult = await commands.upsertProfile({
-        id: userId,
-        displayName: getAutoProfileDisplayName(userId),
-      })
-
-      if (resultIsSuccess(createResult)) {
-        return createResult.data
-      }
-
-      if (createResult.error.code === 'invalid_input') {
-        return null
-      }
-
-      throw createResult.error
+      return profileResult.data
     },
     staleTime: 0,
     refetchOnMount: 'always',

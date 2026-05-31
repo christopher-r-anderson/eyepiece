@@ -6,6 +6,7 @@ import {
   useEnsureProfile,
 } from './profiles.queries'
 import { useProfilesRepo } from './profiles.repo'
+import { Err, Ok } from '@/lib/result'
 
 vi.mock('./profiles.repo')
 vi.mock('@tanstack/react-query', async () => {
@@ -34,6 +35,55 @@ describe('getEnsureProfileByIdOptions', () => {
     })
 
     expect(options.queryKey).toEqual(['me', 'profile', 'ensure', null])
+  })
+
+  it('returns null without querying when the user id is missing', async () => {
+    const getProfile = vi.fn()
+    const options = getEnsureProfileByIdOptions({
+      userId: null,
+      repo: { getProfile },
+    }) as any
+
+    await expect(options.queryFn()).resolves.toBeNull()
+    expect(getProfile).not.toHaveBeenCalled()
+  })
+
+  it('returns an existing profile', async () => {
+    const profile = { id: 'user-id', displayName: 'Test User' }
+    const getProfile = vi.fn().mockResolvedValue(Ok(profile))
+    const options = getEnsureProfileByIdOptions({
+      userId: 'user-id',
+      repo: { getProfile },
+    }) as any
+
+    await expect(options.queryFn()).resolves.toEqual(profile)
+    expect(getProfile).toHaveBeenCalledWith('user-id')
+  })
+
+  it('returns null when the profile is missing', async () => {
+    const getProfile = vi.fn().mockResolvedValue(Ok(null))
+    const options = getEnsureProfileByIdOptions({
+      userId: 'user-id',
+      repo: { getProfile },
+    }) as any
+
+    await expect(options.queryFn()).resolves.toBeNull()
+  })
+
+  it('throws when the profile lookup fails', async () => {
+    const getProfile = vi
+      .fn()
+      .mockResolvedValue(
+        Err({ code: 'unknown_error', message: 'Lookup failed' }),
+      )
+    const options = getEnsureProfileByIdOptions({
+      userId: 'user-id',
+      repo: { getProfile },
+    }) as any
+
+    await expect(options.queryFn()).rejects.toMatchObject({
+      message: 'Lookup failed',
+    })
   })
 })
 
