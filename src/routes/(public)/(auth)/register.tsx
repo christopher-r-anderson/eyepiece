@@ -4,19 +4,25 @@ import {
   RegistrationForm,
   RegistrationSuccessMessage,
 } from '@/features/auth/forms/registration-form'
+import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
+import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
-import { requireAnonymous } from '@/lib/guards'
 
 export const Route = createFileRoute('/(public)/(auth)/register')({
   component: RegisterPage,
-  beforeLoad: requireAnonymous,
 })
 
 function RegisterPage() {
   const { next } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const { shouldShowAuthForm } = useRedirectAuthenticatedUser(next)
+
+  if (!shouldShowAuthForm) {
+    return <AuthPageSessionCheck heading="Register" />
+  }
+
   return (
     <>
       <FormStatusSwitcher

@@ -1,16 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LoginForm } from '@/features/auth/forms/login-form'
+import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
+import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
-import { requireAnonymous } from '@/lib/guards'
 
 export const Route = createFileRoute('/(public)/(auth)/login')({
   component: LoginPage,
-  beforeLoad: requireAnonymous,
 })
 
 function LoginPage() {
   const { next } = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { shouldShowAuthForm } = useRedirectAuthenticatedUser(next)
+
+  if (!shouldShowAuthForm) {
+    return <AuthPageSessionCheck heading="Log In" />
+  }
 
   return (
     <>

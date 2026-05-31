@@ -4,7 +4,6 @@ import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { QueryClient } from '@tanstack/react-query'
 import { getUser } from '@/features/auth/get-user'
 import { urlToNextParam } from '@/lib/utils'
-import { hasServerClaims } from '@/lib/has-server-claims.functions'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
 import { AUTHENTICATED_ROUTE_POLICY } from '@/lib/route-policy'
@@ -75,20 +74,6 @@ export async function requireAuthenticatedShell({
     )
   }
   return authContext
-}
-
-export async function requireAnonymous({
-  search,
-}: {
-  search: { next?: string }
-}) {
-  const isAuthorized = await hasServerClaims()
-  if (isAuthorized) {
-    throw redirect({
-      to: search.next ? urlToNextParam(search.next) : '/',
-      statusCode: 302,
-    })
-  }
 }
 
 export async function userHasProfile({

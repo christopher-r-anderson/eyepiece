@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  requireAnonymous,
   requireAuthenticated,
   requireAuthenticatedRoute,
   requireAuthenticatedShell,
@@ -12,7 +11,6 @@ import { AUTHENTICATED_ROUTE_POLICY } from './route-policy'
 // We check thrown objects via toMatchObject so exact class doesn't matter.
 
 import { getUser } from '@/features/auth/get-user'
-import { hasServerClaims } from '@/lib/has-server-claims.functions'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
 import { logErrorWithObservability } from '@/lib/error-logging'
@@ -22,10 +20,6 @@ import { logErrorWithObservability } from '@/lib/error-logging'
 
 vi.mock('@/features/auth/get-user', () => ({
   getUser: vi.fn(),
-}))
-
-vi.mock('@/lib/has-server-claims.functions', () => ({
-  hasServerClaims: vi.fn(),
 }))
 
 vi.mock('@/features/auth/auth.queries', () => ({
@@ -41,7 +35,6 @@ vi.mock('@/lib/error-logging', () => ({
 }))
 
 const mockGetUser = vi.mocked(getUser)
-const mockHasServerClaims = vi.mocked(hasServerClaims)
 const mockFetchCurrentUser = vi.mocked(fetchCurrentUser)
 const mockFetchProfile = vi.mocked(fetchProfile)
 const mockLogErrorWithObservability = vi.mocked(logErrorWithObservability)
@@ -177,36 +170,6 @@ describe('requireAuthenticatedShell', () => {
       user: USER,
       routePolicy: AUTHENTICATED_ROUTE_POLICY,
     })
-  })
-})
-
-// ---------------------------------------------------------------------------
-// requireAnonymous
-// ---------------------------------------------------------------------------
-
-describe('requireAnonymous', () => {
-  beforeEach(() => mockHasServerClaims.mockReset())
-
-  it('does not throw when the user is not authenticated', async () => {
-    mockHasServerClaims.mockResolvedValue(false)
-
-    await expect(requireAnonymous({ search: {} })).resolves.toBeUndefined()
-  })
-
-  it('redirects to / when already authenticated and no next param is present', async () => {
-    mockHasServerClaims.mockResolvedValue(true)
-
-    await expect(requireAnonymous({ search: {} })).rejects.toMatchObject({
-      options: { to: '/' },
-    })
-  })
-
-  it('redirects to the next param path when already authenticated', async () => {
-    mockHasServerClaims.mockResolvedValue(true)
-
-    await expect(
-      requireAnonymous({ search: { next: '/albums' } }),
-    ).rejects.toMatchObject({ options: { to: '/albums' } })
   })
 })
 
