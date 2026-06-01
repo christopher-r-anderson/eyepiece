@@ -4,18 +4,19 @@ import type { z } from 'zod'
 import type { PublicDocumentCacheProfile } from '@/lib/route-policy'
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
-import { getPublicDocumentCacheControlHeader } from '@/lib/route-policy'
-
-export const PRIVATE_NO_STORE_CACHE_CONTROL = 'private, no-store'
+import {
+  getPrivateDocumentCacheControlHeader,
+  getPublicDocumentCacheControlHeader,
+} from '@/lib/route-policy'
 
 export function createPrivateNoStoreHeaders(headers?: HeadersInit): Headers {
   const responseHeaders = new Headers(headers)
-  responseHeaders.set('Cache-Control', PRIVATE_NO_STORE_CACHE_CONTROL)
+  responseHeaders.set('Cache-Control', getPrivateDocumentCacheControlHeader())
   return responseHeaders
 }
 
 export function withPrivateNoStoreCacheControl(response: Response): Response {
-  response.headers.set('Cache-Control', PRIVATE_NO_STORE_CACHE_CONTROL)
+  response.headers.set('Cache-Control', getPrivateDocumentCacheControlHeader())
   return response
 }
 
