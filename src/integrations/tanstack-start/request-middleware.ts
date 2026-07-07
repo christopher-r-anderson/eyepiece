@@ -1,6 +1,12 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { shouldReportError } from '@/lib/error-observability'
+import { logErrorWithObservability } from '@/lib/error-logging'
 import { getPrivateDocumentCacheControlHeader } from '@/lib/route-policy'
+import {
+  getSessionReadReasons,
+  runWithSessionReadTracking,
+  wasSessionRead,
+} from '@/server/lib/session-read-sentinel'
 
 const SUPABASE_AUTH_COOKIE_PREFIX = 'sb-'
 
@@ -90,21 +96,91 @@ function cloneHeadersPreservingSetCookie(headers: Headers) {
   return newHeaders
 }
 
+// CDN-directed cache headers that must not survive a downgrade to private.
+const CDN_CACHE_CONTROL_HEADERS = [
+  'netlify-cdn-cache-control',
+  'cdn-cache-control',
+]
+
 function forcePrivateNoStoreCacheControl(response: Response) {
   const cacheControl = getPrivateDocumentCacheControlHeader()
 
   try {
     response.headers.set('cache-control', cacheControl)
+    for (const header of CDN_CACHE_CONTROL_HEADERS) {
+      response.headers.delete(header)
+    }
     return response
   } catch {
     const newHeaders = cloneHeadersPreservingSetCookie(response.headers)
     newHeaders.set('cache-control', cacheControl)
+    for (const header of CDN_CACHE_CONTROL_HEADERS) {
+      newHeaders.delete(header)
+    }
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: newHeaders,
     })
   }
+}
+
+function hasCacheableCacheControl(response: Response) {
+  const cacheControl = response.headers.get('cache-control')?.toLowerCase()
+  if (!cacheControl) return false
+  return cacheControl.includes('public') || cacheControl.includes('s-maxage')
+}
+
+function hasPrivateNoStoreCacheControl(response: Response) {
+  const cacheControl = response.headers.get('cache-control')?.toLowerCase()
+  if (!cacheControl) return false
+  return cacheControl.includes('private') || cacheControl.includes('no-store')
+}
+
+/**
+ * Session-read tripwire: the bottom-up counterpart to the route boundaries.
+ * Boundaries declare intent top-down (this subtree is publicly cacheable);
+ * this middleware verifies the render proved it. Any server-side auth-session
+ * read during the request (tracked via the session-read sentinel) makes the
+ * response ineligible for shared caching, no matter what headers the route
+ * declared. A tripped wire on a publicly-cacheable response is a policy bug
+ * and is reported to observability.
+ *
+ * Ordering is load-bearing (pinned in start.unit.test.ts): this middleware
+ * must wrap all route work so loaders and handlers run inside its tracking
+ * scope, and it must run *after* the Sentry request middleware, whose
+ * per-request user-context enrichment reads auth claims for telemetry only —
+ * outside the tracked scope, it intentionally does not trip the wire.
+ *
+ * Known limitation: headers are committed when body streaming starts, so a
+ * session read inside a deferred/streamed segment cannot retro-downgrade the
+ * response. Keep server session reads out of deferred data on public routes.
+ */
+export function createSessionReadTripwireMiddleware() {
+  return createMiddleware().server(async ({ next, request }) => {
+    return runWithSessionReadTracking(async () => {
+      const response = await next()
+      if (!(response instanceof Response)) return response
+      if (!wasSessionRead()) return response
+      if (hasPrivateNoStoreCacheControl(response)) return response
+
+      if (hasCacheableCacheControl(response)) {
+        // A publicly-cacheable response depended on the user's session: this
+        // is a route-policy violation the boundaries could not see.
+        logErrorWithObservability(
+          'Session read on a publicly-cacheable response; downgrading to private, no-store',
+          new Error('Session-read tripwire violation'),
+          {
+            request: getRequestLabel(request),
+            cacheControl: response.headers.get('cache-control'),
+            sessionReadReasons: getSessionReadReasons(),
+          },
+        )
+      }
+
+      return forcePrivateNoStoreCacheControl(response)
+    })
+  })
 }
 
 /**

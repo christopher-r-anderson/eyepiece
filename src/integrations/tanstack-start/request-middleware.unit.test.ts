@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   createDevelopmentServerErrorLoggingMiddleware,
+  createSessionReadTripwireMiddleware,
   createSetCookieSafetyNetMiddleware,
 } from './request-middleware'
+import { markSessionRead } from '@/server/lib/session-read-sentinel'
 
 vi.mock('@tanstack/react-start', () => ({
   createMiddleware: () => ({
@@ -156,6 +158,145 @@ describe('createDevelopmentServerErrorLoggingMiddleware', () => {
 
     consoleError.mockRestore()
     process.env.NODE_ENV = nodeEnv
+  })
+})
+
+describe('createSessionReadTripwireMiddleware', () => {
+  it('downgrades and reports publicly-cacheable responses that read the session', async () => {
+    const middleware = createSessionReadTripwireMiddleware() as any
+    const response = new Response('<html></html>', {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=0, s-maxage=300',
+        'netlify-cdn-cache-control': 'public, s-maxage=300',
+      },
+    })
+    const next = vi.fn().mockImplementation(() => {
+      markSessionRead('createUserSupabaseServerClient')
+      return Promise.resolve(response)
+    })
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+
+    const result = await middleware({
+      request: new Request('https://example.com/assets/nasa/123'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+    expect(result.headers.get('netlify-cdn-cache-control')).toBeNull()
+    expect(consoleError).toHaveBeenCalledWith(
+      'Session read on a publicly-cacheable response; downgrading to private, no-store',
+      expect.objectContaining({
+        request: 'GET /assets/nasa/123',
+        cacheControl: 'public, max-age=0, s-maxage=300',
+        sessionReadReasons: ['createUserSupabaseServerClient'],
+      }),
+    )
+
+    consoleError.mockRestore()
+  })
+
+  it('stamps private, no-store without reporting when a session-reading response has no cache-control', async () => {
+    const middleware = createSessionReadTripwireMiddleware() as any
+    const response = new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
+    const next = vi.fn().mockImplementation(() => {
+      markSessionRead('createUserSupabaseServerClient')
+      return Promise.resolve(response)
+    })
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+
+    const result = await middleware({
+      request: new Request('https://example.com/_serverFn/toggle-favorite'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+    expect(consoleError).not.toHaveBeenCalled()
+
+    consoleError.mockRestore()
+  })
+
+  it('returns responses unchanged when no session was read', async () => {
+    const middleware = createSessionReadTripwireMiddleware() as any
+    const response = new Response('<html></html>', {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=0, s-maxage=300',
+      },
+    })
+    const next = vi.fn().mockResolvedValue(response)
+
+    const result = await middleware({
+      request: new Request('https://example.com/assets/nasa/123'),
+      next,
+    })
+
+    expect(result).toBe(response)
+    expect(result.headers.get('cache-control')).toBe(
+      'public, max-age=0, s-maxage=300',
+    )
+  })
+
+  it('leaves already-private responses untouched and unreported after a session read', async () => {
+    const middleware = createSessionReadTripwireMiddleware() as any
+    const response = new Response('<html></html>', {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'private, no-store',
+      },
+    })
+    const next = vi.fn().mockImplementation(() => {
+      markSessionRead('createUserSupabaseServerClient')
+      return Promise.resolve(response)
+    })
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+
+    const result = await middleware({
+      request: new Request('https://example.com/favorites'),
+      next,
+    })
+
+    expect(result).toBe(response)
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+    expect(consoleError).not.toHaveBeenCalled()
+
+    consoleError.mockRestore()
+  })
+
+  it('tracks session reads made in async loader work', async () => {
+    const middleware = createSessionReadTripwireMiddleware() as any
+    const next = vi.fn().mockImplementation(async () => {
+      await Promise.resolve()
+      markSessionRead('createUserSupabaseServerClient')
+      return new Response(null, {
+        status: 200,
+        headers: { 'cache-control': 'public, s-maxage=300' },
+      })
+    })
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+
+    const result = await middleware({
+      request: new Request('https://example.com/'),
+      next,
+    })
+
+    expect(result.headers.get('cache-control')).toBe('private, no-store')
+
+    consoleError.mockRestore()
   })
 })
 

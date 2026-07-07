@@ -15,16 +15,23 @@ vi.mock('@/integrations/tanstack-start/request-middleware', () => ({
   createDevelopmentServerErrorLoggingMiddleware: vi.fn(
     () => 'development-logging-middleware',
   ),
+  createSessionReadTripwireMiddleware: vi.fn(
+    () => 'session-read-tripwire-middleware',
+  ),
   createSetCookieSafetyNetMiddleware: vi.fn(
     () => 'set-cookie-safety-net-middleware',
   ),
 }))
 
 describe('startInstance', () => {
+  // The order is a policy invariant, not an implementation detail:
+  // Sentry's telemetry session read must stay outside the tripwire's tracked
+  // scope, and the tripwire must wrap all route work. See start.ts.
   it('registers request middleware in the expected order', () => {
     expect(startInstance).toEqual({
       requestMiddleware: [
         'sentry-request-middleware',
+        'session-read-tripwire-middleware',
         'development-logging-middleware',
         'set-cookie-safety-net-middleware',
       ],
