@@ -9,7 +9,7 @@ import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Result } from '@/lib/result'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { Err, Ok } from '@/lib/result'
-import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
+import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
 
 export interface ProfilesCommands {
   upsertProfile: (

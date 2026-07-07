@@ -1,7 +1,5 @@
-import { requireAuthenticatedShell } from './guards'
+import { requireAuthenticated } from './guards'
 import {
-  PRIVATE_ANONYMOUS_ROUTE_POLICY,
-  PUBLIC_ROUTE_POLICY,
   getPrivateDocumentCacheControlHeader,
   getPublicDocumentCacheControlHeader,
 } from './route-policy'
@@ -12,42 +10,26 @@ type CacheHeaderOptions = {
   }
 }
 
-export const publicBoundary: CacheHeaderOptions & {
-  beforeLoad: () => {
-    userSupabaseClient: null
-    routePolicy: typeof PUBLIC_ROUTE_POLICY
-  }
-} = {
+// Public boundary: the SSR'd document is CDN-cacheable, so it must be
+// byte-identical for every visitor. User-specific UI hydrates client-side.
+export const publicBoundary: CacheHeaderOptions = {
   headers: () => ({
     'Cache-Control': getPublicDocumentCacheControlHeader(),
-  }),
-  beforeLoad: () => ({
-    userSupabaseClient: null,
-    routePolicy: PUBLIC_ROUTE_POLICY,
   }),
 }
 
 export const authenticatedBoundary: CacheHeaderOptions & {
-  beforeLoad: typeof requireAuthenticatedShell
+  beforeLoad: typeof requireAuthenticated
 } = {
   headers: () => ({
     'Cache-Control': getPrivateDocumentCacheControlHeader(),
   }),
-  beforeLoad: requireAuthenticatedShell,
+  beforeLoad: requireAuthenticated,
 }
 
 // Token-bearing anonymous routes must not be cached: the URL contains a sensitive one-time token.
-export const privateAnonymousBoundary: CacheHeaderOptions & {
-  beforeLoad: () => {
-    userSupabaseClient: null
-    routePolicy: typeof PRIVATE_ANONYMOUS_ROUTE_POLICY
-  }
-} = {
+export const privateAnonymousBoundary: CacheHeaderOptions = {
   headers: () => ({
     'Cache-Control': getPrivateDocumentCacheControlHeader(),
-  }),
-  beforeLoad: () => ({
-    userSupabaseClient: null,
-    routePolicy: PRIVATE_ANONYMOUS_ROUTE_POLICY,
   }),
 }

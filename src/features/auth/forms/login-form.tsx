@@ -4,7 +4,7 @@ import { useId } from 'react-aria'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
-import { useAuthCommands } from '@/features/auth/auth.commands-provider'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import {
   COMPACT_FORM_ACTIONS_MIN_WIDTH,
   Form,

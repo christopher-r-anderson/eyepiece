@@ -5,7 +5,6 @@ import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
 import ThemeSwitch from '@/components/theme/theme-switch'
 import logo from '@/assets/eyepiece-logo.svg'
-import { AuthCommandsProvider } from '@/features/auth/auth.commands-provider'
 import { LoginLink } from '@/features/auth/components/login-link'
 import { UserStatus } from '@/features/auth/components/user-status'
 import {
@@ -117,9 +116,7 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
 function UserStatusClientIsland() {
   return (
     <ClientOnly fallback={<LoginLink />}>
-      <AuthCommandsProvider>
-        <UserStatus />
-      </AuthCommandsProvider>
+      <UserStatus />
     </ClientOnly>
   )
 }

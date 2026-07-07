@@ -3,7 +3,6 @@ import {
   authModalSearchParamsSchema,
   authModalStateSchema,
 } from '@/features/auth/auth.schema'
-import { AuthCommandsProvider } from '@/features/auth/auth.commands-provider'
 import { AuthModalController } from '@/features/auth/components/auth-modal-controller'
 import { useEnsureProfileExists } from '@/features/profiles/hooks/use-ensure-profile-exists'
 
@@ -31,9 +30,7 @@ function PublicPagesLayout() {
       >
         <Outlet />
       </main>
-      <AuthCommandsProvider>
-        <AuthModalController modal={search} />
-      </AuthCommandsProvider>
+      <AuthModalController modal={search} />
     </>
   )
 }

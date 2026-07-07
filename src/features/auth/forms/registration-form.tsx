@@ -4,7 +4,7 @@ import { useId } from 'react-aria'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuthCommands } from '@/features/auth/auth.commands-provider'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,

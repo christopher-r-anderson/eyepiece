@@ -18,17 +18,18 @@ import { RouteError } from '@/app/layout/route-error'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
-import { requireUserSupabaseClient } from '@/lib/route-policy'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
 export const Route = createFileRoute('/(private)/(pages)/favorites')({
   component: FavoritesPage,
   loader: async ({ context }) => {
-    const userSupabaseClient = requireUserSupabaseClient(context)
+    // Isomorphic: per-request server client on SSR, browser singleton on SPA
+    // navigations. Auth is already enforced by the (private) boundary.
     const edges = await ensureInfiniteUserFavoritesEdges({
       queryClient: context.queryClient,
-      userSupabaseClient,
+      userSupabaseClient: createUserSupabaseClient(),
     })
     const assetPreviewSnapshotIds = userFavoritesPagesToAssetIds(edges)
     await ensureAssetPreviewSnapshotsBatch({

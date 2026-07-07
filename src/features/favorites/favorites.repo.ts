@@ -10,7 +10,7 @@ import type {
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
-import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
+import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
 
 const dbUserFavoriteIndexSchema = z.object({
   asset_preview_snapshots: z.object({

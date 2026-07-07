@@ -71,44 +71,25 @@ export default [
                 'Do not use the user Supabase client in public page routes. Use public APIs/client instead.',
             },
             {
-              name: '@/integrations/supabase/providers/user-provider',
+              name: '@/integrations/supabase/user.hooks',
               message:
-                'Do not use user-supabase provider hooks in public page routes.',
+                'Do not use the user Supabase client in public page routes. Use public APIs/client instead.',
             },
             {
               name: '@/lib/guards',
-              importNames: [
-                'requireAuthenticatedShell',
-                'requireAuthenticatedRoute',
-              ],
+              importNames: ['requireAuthenticated'],
               message: 'Public routes must not import authenticated guards.',
             },
             {
               name: '@/lib/route-policy',
               importNames: [
-                'AUTHENTICATED_ROUTE_POLICY',
-                'PRIVATE_ANONYMOUS_ROUTE_POLICY',
                 'PRIVATE_DOCUMENT_CACHE_CONTROL',
                 'getPrivateDocumentCacheControlHeader',
-                'requireUserSupabaseClient',
               ],
               message:
                 'Public routes must not use private/authenticated policy helpers.',
             },
           ],
-        },
-      ],
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: "ObjectPattern > Property[key.name='userSupabaseClient']",
-          message:
-            'Do not access userSupabaseClient in public page routes; user auth data access belongs in authenticated route subtrees.',
-        },
-        {
-          selector: "MemberExpression[property.name='userSupabaseClient']",
-          message:
-            'Do not access userSupabaseClient in public page routes; user auth data access belongs in authenticated route subtrees.',
         },
       ],
     },
@@ -123,7 +104,6 @@ export default [
             {
               name: '@/lib/route-policy',
               importNames: [
-                'PUBLIC_ROUTE_POLICY',
                 'PUBLIC_DOCUMENT_CACHE_CONTROL',
                 'getPublicDocumentCacheControlHeader',
               ],
@@ -153,20 +133,18 @@ export default [
                 'Token-callback routes should be server handlers and must not depend on UI components.',
             },
             {
-              name: '@/features/auth/auth.commands-provider',
+              name: '@/features/auth/hooks/use-auth-commands',
               message:
-                'Token-callback routes must not mount client auth command providers.',
+                'Token-callback routes must not use client auth commands.',
             },
             {
-              name: '@/integrations/supabase/providers/user-provider',
+              name: '@/integrations/supabase/user.hooks',
               message:
-                'Token-callback routes must not depend on user-supabase provider hooks.',
+                'Token-callback routes must not depend on user-supabase client hooks.',
             },
             {
               name: '@/lib/route-policy',
               importNames: [
-                'PUBLIC_ROUTE_POLICY',
-                'AUTHENTICATED_ROUTE_POLICY',
                 'PUBLIC_DOCUMENT_CACHE_CONTROL',
                 'PRIVATE_DOCUMENT_CACHE_CONTROL',
                 'getPublicDocumentCacheControlHeader',
@@ -182,30 +160,9 @@ export default [
   },
   {
     files: ['src/routes/**/*.{ts,tsx}'],
-    ignores: [
-      'src/lib/route-policy.ts',
-      // The (private) shell legitimately reads userSupabaseClient to pass to UserSupabaseClientProvider.
-      // Access is guarded by requireAuthenticatedShell in authenticatedBoundary.
-      'src/routes/(private)/route.tsx',
-    ],
     rules: {
       'no-restricted-syntax': [
         'error',
-        {
-          selector: "ObjectPattern > Property[key.name='userSupabaseClient']",
-          message:
-            'Route loaders should use requireUserSupabaseClient(context) from @/lib/route-policy to enforce route policy checks.',
-        },
-        {
-          selector: "MemberExpression[property.name='userSupabaseClient']",
-          message:
-            'Route loaders should use requireUserSupabaseClient(context) from @/lib/route-policy to enforce route policy checks.',
-        },
-        {
-          selector: "Property[key.name='routePolicy']",
-          message:
-            'Do not set routePolicy in descendant route files. Route policy must be defined at policy root boundaries.',
-        },
         {
           selector: "Property[key.value='Cache-Control'][value.type='Literal']",
           message:

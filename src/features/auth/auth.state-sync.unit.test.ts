@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react'
 import { Fragment, createElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthCommandsProvider } from './auth.commands-provider'
 import { AuthStateSync } from './auth.state-sync'
+import { useAuthCommands } from './hooks/use-auth-commands'
 
 const mockSetQueryData = vi.fn()
 const mockRemoveQueries = vi.fn()
@@ -75,14 +75,19 @@ describe('AuthStateSync', () => {
     expect(mockUnsubscribe).toHaveBeenCalledTimes(1)
   })
 
-  it('registers exactly one subscription even with other auth providers in the tree', () => {
+  it('registers exactly one subscription even with auth-command consumers in the tree', () => {
+    function AuthCommandsConsumer() {
+      useAuthCommands()
+      return null
+    }
+
     render(
       createElement(
         Fragment,
         null,
         createElement(AuthStateSync),
-        createElement(AuthCommandsProvider, null, createElement('div', null)),
-        createElement(AuthCommandsProvider, null, createElement('div', null)),
+        createElement(AuthCommandsConsumer),
+        createElement(AuthCommandsConsumer),
       ),
     )
 

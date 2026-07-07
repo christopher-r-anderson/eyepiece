@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuthCommands } from '@/features/auth/auth.commands-provider'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { Heading } from '@/components/ui/heading'
 import {
   Form,

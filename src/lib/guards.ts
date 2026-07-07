@@ -6,7 +6,6 @@ import { getUser } from '@/features/auth/get-user'
 import { urlToNextParam } from '@/lib/utils'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
-import { AUTHENTICATED_ROUTE_POLICY } from '@/lib/route-policy'
 import { logErrorWithObservability } from '@/lib/error-logging'
 
 export async function requireAuthenticated({
@@ -42,38 +41,6 @@ export async function requireAuthenticated({
       search: { next: urlToNextParam(location.href) },
     })
   }
-}
-
-export async function requireAuthenticatedRoute({
-  location,
-}: {
-  location: ParsedLocation
-}) {
-  const authContext = await requireAuthenticated({ location })
-  return {
-    ...authContext,
-    routePolicy: AUTHENTICATED_ROUTE_POLICY,
-  }
-}
-
-// SupabaseClient is non-serializable and cannot be re-typed via beforeLoad returns.
-// The (private) shell reads it from context directly using a non-null assertion that is safe
-// because this guard throws before the component renders if the client is null.
-export async function requireAuthenticatedShell({
-  context,
-  location,
-}: {
-  context: { userSupabaseClient: SupabaseClient | null }
-  location: ParsedLocation
-}) {
-  const authContext = await requireAuthenticatedRoute({ location })
-  if (!context.userSupabaseClient) {
-    throw new Error(
-      'userSupabaseClient is null at the authenticated capability shell. ' +
-        'Ensure no ancestor route in the authenticated subtree nulled this value.',
-    )
-  }
-  return authContext
 }
 
 export async function userHasProfile({
