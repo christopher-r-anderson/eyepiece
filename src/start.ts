@@ -5,6 +5,7 @@ import {
 } from '@/integrations/sentry/server'
 import {
   createDevelopmentServerErrorLoggingMiddleware,
+  createErrorResponseCacheSafetyMiddleware,
   createSessionReadTripwireMiddleware,
   createSetCookieSafetyNetMiddleware,
 } from '@/integrations/tanstack-start/request-middleware'
@@ -12,6 +13,8 @@ import {
 const sessionReadTripwireMiddleware = createSessionReadTripwireMiddleware()
 const developmentServerErrorLoggingMiddleware =
   createDevelopmentServerErrorLoggingMiddleware()
+const errorResponseCacheSafetyMiddleware =
+  createErrorResponseCacheSafetyMiddleware()
 const setCookieSafetyNetMiddleware = createSetCookieSafetyNetMiddleware()
 
 export const startInstance = createStart(() => {
@@ -25,6 +28,7 @@ export const startInstance = createStart(() => {
       sentryRequestMiddleware,
       sessionReadTripwireMiddleware,
       developmentServerErrorLoggingMiddleware,
+      errorResponseCacheSafetyMiddleware,
       setCookieSafetyNetMiddleware,
     ],
     functionMiddleware: [sentryFunctionMiddleware],

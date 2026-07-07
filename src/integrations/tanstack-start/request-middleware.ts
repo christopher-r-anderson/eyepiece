@@ -77,6 +77,30 @@ function forcePrivateNoStoreCacheControl(response: Response) {
   })
 }
 
+// TanStack Start's request-middleware chain passes a mutable context object
+// through next(); the outgoing Response lives at ctx.response (thrown
+// Responses are captured there too). A bare Response is also tolerated since
+// the framework normalizes middleware return values. Middlewares must handle
+// both shapes — treating next()'s result as the Response itself silently
+// no-ops.
+function getMiddlewareResponse(result: unknown): Response | null {
+  if (result instanceof Response) return result
+  if (result && typeof result === 'object' && 'response' in result) {
+    const response = (result as { response: unknown }).response
+    if (response instanceof Response) return response
+  }
+  return null
+}
+
+function replaceMiddlewareResponse<T>(
+  result: T,
+  response: Response,
+): T | Response {
+  if (result instanceof Response) return response
+  ;(result as { response: Response }).response = response
+  return result
+}
+
 function hasCacheableCacheControl(response: Response) {
   const cacheControl = response.headers.get('cache-control')?.toLowerCase()
   if (!cacheControl) return false
@@ -111,10 +135,11 @@ function hasPrivateNoStoreCacheControl(response: Response) {
 export function createSessionReadTripwireMiddleware() {
   return createMiddleware().server(async ({ next, request }) => {
     return runWithSessionReadTracking(async () => {
-      const response = await next()
-      if (!(response instanceof Response)) return response
-      if (!wasSessionRead()) return response
-      if (hasPrivateNoStoreCacheControl(response)) return response
+      const result = await next()
+      const response = getMiddlewareResponse(result)
+      if (!response) return result
+      if (!wasSessionRead()) return result
+      if (hasPrivateNoStoreCacheControl(response)) return result
 
       if (hasCacheableCacheControl(response)) {
         // A publicly-cacheable response depended on the user's session: this
@@ -130,8 +155,33 @@ export function createSessionReadTripwireMiddleware() {
         )
       }
 
-      return forcePrivateNoStoreCacheControl(response)
+      return replaceMiddlewareResponse(
+        result,
+        forcePrivateNoStoreCacheControl(response),
+      )
     })
+  })
+}
+
+/**
+ * Error responses are never publicly cacheable. Route boundary headers apply
+ * to a subtree regardless of response status, so without this an SSR failure
+ * on a public page would be served from the CDN for the full public TTL after
+ * the underlying problem recovers. Mirrors the public API middleware rule
+ * (2xx/3xx only).
+ */
+export function createErrorResponseCacheSafetyMiddleware() {
+  return createMiddleware().server(async ({ next }) => {
+    const result = await next()
+    const response = getMiddlewareResponse(result)
+    if (!response) return result
+    if (response.status < 400) return result
+    if (!hasCacheableCacheControl(response)) return result
+
+    return replaceMiddlewareResponse(
+      result,
+      forcePrivateNoStoreCacheControl(response),
+    )
   })
 }
 
@@ -144,25 +194,30 @@ export function createSessionReadTripwireMiddleware() {
  */
 export function createSetCookieSafetyNetMiddleware() {
   return createMiddleware().server(async ({ next }) => {
-    const response = await next()
-    if (!(response instanceof Response)) return response
+    const result = await next()
+    const response = getMiddlewareResponse(result)
+    if (!response) return result
     if (!isHtmlResponse(response) && !isRedirectResponse(response)) {
-      return response
+      return result
     }
-    if (!hasSupabaseAuthSetCookie(response)) return response
+    if (!hasSupabaseAuthSetCookie(response)) return result
 
-    return forcePrivateNoStoreCacheControl(response)
+    return replaceMiddlewareResponse(
+      result,
+      forcePrivateNoStoreCacheControl(response),
+    )
   })
 }
 
 export function createDevelopmentServerErrorLoggingMiddleware() {
   return createMiddleware().server(async ({ next, request }) => {
     try {
-      const response = await next()
+      const result = await next()
+      const response = getMiddlewareResponse(result)
 
       if (
         shouldLogServerErrorsInDevelopment() &&
-        response instanceof Response &&
+        response &&
         isServerErrorResponse(response)
       ) {
         logDevelopmentServerError(request, {
@@ -171,7 +226,7 @@ export function createDevelopmentServerErrorLoggingMiddleware() {
         })
       }
 
-      return response
+      return result
     } catch (error) {
       if (shouldLogServerErrorsInDevelopment() && shouldReportError(error)) {
         logDevelopmentServerError(request, {

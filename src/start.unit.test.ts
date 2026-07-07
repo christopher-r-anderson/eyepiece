@@ -15,6 +15,9 @@ vi.mock('@/integrations/tanstack-start/request-middleware', () => ({
   createDevelopmentServerErrorLoggingMiddleware: vi.fn(
     () => 'development-logging-middleware',
   ),
+  createErrorResponseCacheSafetyMiddleware: vi.fn(
+    () => 'error-response-cache-safety-middleware',
+  ),
   createSessionReadTripwireMiddleware: vi.fn(
     () => 'session-read-tripwire-middleware',
   ),
@@ -33,6 +36,7 @@ describe('startInstance', () => {
         'sentry-request-middleware',
         'session-read-tripwire-middleware',
         'development-logging-middleware',
+        'error-response-cache-safety-middleware',
         'set-cookie-safety-net-middleware',
       ],
       functionMiddleware: ['sentry-function-middleware'],
