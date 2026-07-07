@@ -173,6 +173,11 @@ export default [
           message:
             'Do not use cache-control string literals in route files. Use route-policy helper functions instead.',
         },
+        {
+          selector: "Property[key.value=/^(?:netlify-)?cdn-cache-control$/i]",
+          message:
+            'Do not set CDN cache-control headers directly in route files. Use route-policy helper functions instead.',
+        },
       ],
     },
   },

@@ -55,7 +55,7 @@ describe('buildUrlSearchParamsMiddleware', () => {
 })
 
 describe('buildPublicApiCacheMiddleware', () => {
-  it('adds public cache control to returned responses', async () => {
+  it('adds public cache control to returned successful responses', async () => {
     const middleware = buildPublicApiCacheMiddleware() as any
 
     const response = await middleware({
@@ -64,6 +64,9 @@ describe('buildPublicApiCacheMiddleware', () => {
 
     expect(response.headers.get('Cache-Control')).toBe(
       'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+    expect(response.headers.get('Netlify-CDN-Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=300, durable',
     )
   })
 
@@ -81,25 +84,25 @@ describe('buildPublicApiCacheMiddleware', () => {
     )
   })
 
-  it('adds public cache control to thrown responses', async () => {
+  it('marks returned error responses private, no-store', async () => {
     const middleware = buildPublicApiCacheMiddleware() as any
 
-    await expect(
-      middleware({
-        next: vi
-          .fn()
-          .mockRejectedValue(
-            Response.json(
-              { error: { code: 'INVALID_INPUT' } },
-              { status: 400 },
-            ),
-          ),
-      }),
-    ).rejects.toMatchObject({
-      headers: expect.objectContaining({}),
-      status: 400,
+    const response = await middleware({
+      next: vi
+        .fn()
+        .mockResolvedValue(
+          Response.json({ error: { code: 'UPSTREAM_ERROR' } }, { status: 502 }),
+        ),
     })
 
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(response.headers.get('Netlify-CDN-Cache-Control')).toBeNull()
+  })
+
+  it('marks thrown error responses private, no-store', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    let response: Response | undefined
     try {
       await middleware({
         next: vi
@@ -112,11 +115,20 @@ describe('buildPublicApiCacheMiddleware', () => {
           ),
       })
     } catch (error) {
-      const response = error as Response
-
-      expect(response.headers.get('Cache-Control')).toBe(
-        'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
-      )
+      response = error as Response
     }
+
+    expect(response?.status).toBe(400)
+    expect(response?.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(response?.headers.get('Netlify-CDN-Cache-Control')).toBeNull()
+  })
+
+  it('rethrows non-Response errors unchanged', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+    const error = new Error('boom')
+
+    await expect(
+      middleware({ next: vi.fn().mockRejectedValue(error) }),
+    ).rejects.toBe(error)
   })
 })

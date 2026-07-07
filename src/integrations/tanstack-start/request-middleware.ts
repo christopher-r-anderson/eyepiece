@@ -1,25 +1,22 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { shouldReportError } from '@/lib/error-observability'
 import { logErrorWithObservability } from '@/lib/error-logging'
-import { getPrivateDocumentCacheControlHeader } from '@/lib/route-policy'
+import {
+  NETLIFY_CDN_CACHE_CONTROL_HEADER_NAME,
+  getPrivateDocumentCacheControlHeader,
+} from '@/lib/route-policy'
 import {
   getSessionReadReasons,
   runWithSessionReadTracking,
   wasSessionRead,
 } from '@/server/lib/session-read-sentinel'
+import {
+  getSetCookieAccessor,
+  getSetCookieHeaders,
+  setResponseHeadersSafely,
+} from '@/server/lib/response-headers'
 
 const SUPABASE_AUTH_COOKIE_PREFIX = 'sb-'
-
-function getSetCookieAccessor(headers: Headers): (() => Array<string>) | null {
-  const maybeGetSetCookie = (headers as Headers & { getSetCookie?: unknown })
-    .getSetCookie
-
-  if (typeof maybeGetSetCookie !== 'function') {
-    return null
-  }
-
-  return maybeGetSetCookie.bind(headers) as () => Array<string>
-}
 
 function shouldLogServerErrorsInDevelopment() {
   return process.env.NODE_ENV === 'development'
@@ -51,17 +48,6 @@ function isRedirectResponse(response: Response) {
   return response.status >= 300 && response.status < 400
 }
 
-function getSetCookieHeaders(headers: Headers) {
-  const getSetCookie = getSetCookieAccessor(headers)
-  if (getSetCookie) {
-    const setCookies = getSetCookie()
-    return setCookies
-  }
-
-  const setCookie = headers.get('set-cookie')
-  return setCookie ? [setCookie] : []
-}
-
 function isSupabaseAuthCookieSetCookieHeader(header: string) {
   const cookieName = header.match(/^\s*([^=;\s]+)=/)?.[1] ?? ''
   return cookieName.startsWith(SUPABASE_AUTH_COOKIE_PREFIX)
@@ -82,47 +68,13 @@ function hasSupabaseAuthSetCookie(response: Response) {
   )
 }
 
-function cloneHeadersPreservingSetCookie(headers: Headers) {
-  const newHeaders = new Headers(headers)
-  const setCookies = getSetCookieHeaders(headers)
-  if (setCookies.length === 0) {
-    return newHeaders
-  }
-
-  newHeaders.delete('set-cookie')
-  for (const setCookie of setCookies) {
-    newHeaders.append('set-cookie', setCookie)
-  }
-  return newHeaders
-}
-
-// CDN-directed cache headers that must not survive a downgrade to private.
-const CDN_CACHE_CONTROL_HEADERS = [
-  'netlify-cdn-cache-control',
-  'cdn-cache-control',
-]
-
 function forcePrivateNoStoreCacheControl(response: Response) {
-  const cacheControl = getPrivateDocumentCacheControlHeader()
-
-  try {
-    response.headers.set('cache-control', cacheControl)
-    for (const header of CDN_CACHE_CONTROL_HEADERS) {
-      response.headers.delete(header)
-    }
-    return response
-  } catch {
-    const newHeaders = cloneHeadersPreservingSetCookie(response.headers)
-    newHeaders.set('cache-control', cacheControl)
-    for (const header of CDN_CACHE_CONTROL_HEADERS) {
-      newHeaders.delete(header)
-    }
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: newHeaders,
-    })
-  }
+  return setResponseHeadersSafely(response, {
+    'cache-control': getPrivateDocumentCacheControlHeader(),
+    // CDN-directed cache headers must not survive a downgrade to private.
+    [NETLIFY_CDN_CACHE_CONTROL_HEADER_NAME]: null,
+    'CDN-Cache-Control': null,
+  })
 }
 
 function hasCacheableCacheControl(response: Response) {

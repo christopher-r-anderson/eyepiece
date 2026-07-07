@@ -1,6 +1,6 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { createApiErrorResponse, formatValidationIssues } from './api-errors'
-import { withPublicCacheControl } from './utils'
+import { withPrivateNoStoreCacheControl, withPublicCacheControl } from './utils'
 import type { RequestServerResult } from '@tanstack/react-start'
 import type { PublicDocumentCacheProfile } from '@/lib/route-policy'
 import type { z } from 'zod'
@@ -9,16 +9,28 @@ type PublicApiCacheMiddlewareResult =
   | Response
   | RequestServerResult<{}, undefined, undefined>
 
-function applyPublicCacheControl(
+// Only successful (2xx/3xx) responses are publicly cacheable. A cached error
+// keeps serving failure for its full TTL after the upstream recovers, and
+// error bodies are per-request noise, so 4xx/5xx go out private, no-store.
+function applyApiCacheControlToResponse(
+  response: Response,
+  profile?: PublicDocumentCacheProfile,
+): Response {
+  return response.status < 400
+    ? withPublicCacheControl(response, profile)
+    : withPrivateNoStoreCacheControl(response)
+}
+
+function applyApiCacheControl(
   result: PublicApiCacheMiddlewareResult,
   profile?: PublicDocumentCacheProfile,
 ): PublicApiCacheMiddlewareResult {
   if (result instanceof Response) {
-    return withPublicCacheControl(result, profile)
+    return applyApiCacheControlToResponse(result, profile)
   }
 
   if ('response' in result && result.response instanceof Response) {
-    result.response = withPublicCacheControl(result.response, profile)
+    result.response = applyApiCacheControlToResponse(result.response, profile)
   }
 
   return result
@@ -58,10 +70,10 @@ export function buildPublicApiCacheMiddleware(
   return createMiddleware().server(
     async ({ next }): Promise<PublicApiCacheMiddlewareResult> => {
       try {
-        return applyPublicCacheControl(await next(), profile)
+        return applyApiCacheControl(await next(), profile)
       } catch (error) {
         if (error instanceof Response) {
-          throw withPublicCacheControl(error, profile)
+          throw applyApiCacheControlToResponse(error, profile)
         }
 
         throw error
