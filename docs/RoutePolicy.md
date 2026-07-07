@@ -4,14 +4,14 @@
 
 Choose a route class first. The class determines server auth behavior, cache policy, and how user capability is accessed.
 
-| Class                | Typical routes                                            | Server user session       | Cache-Control                                                | Client auth commands         |
-| -------------------- | --------------------------------------------------------- | ------------------------- | ------------------------------------------------------------ | ---------------------------- |
-| Public content pages | /(public)/(pages) subtree                                 | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300  | Explicit client islands only |
-| Auth-form pages      | /(public)/(auth) subtree                                  | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300  | Form islands                 |
-| Private pages        | /(private)/(pages) subtree                                | Required                  | private, no-store                                            | Anywhere                     |
-| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password)    | Required                  | private, no-store                                            | Anywhere                     |
-| Public API           | /(public)/api subtree                                     | Not used                  | public (2xx/3xx only; errors are private, no-store)          | None                         |
-| Token callbacks      | /(token-callbacks)/auth subtree (currently /auth/confirm) | Consumed (verifyOtp)      | private, no-store                                            | None                         |
+| Class                | Typical routes                                            | Server user session       | Cache-Control                                               | Client auth commands         |
+| -------------------- | --------------------------------------------------------- | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| Public content pages | /(public)/(pages) subtree                                 | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Explicit client islands only |
+| Auth-form pages      | /(public)/(auth) subtree                                  | Not used for SSR document | public, max-age=0, s-maxage=300, stale-while-revalidate=300 | Form islands                 |
+| Private pages        | /(private)/(pages) subtree                                | Required                  | private, no-store                                           | Anywhere                     |
+| Private auth forms   | /(private)/(auth) subtree (e.g. /auth/update-password)    | Required                  | private, no-store                                           | Anywhere                     |
+| Public API           | /(public)/api subtree                                     | Not used                  | public (2xx/3xx only; errors are private, no-store)         | None                         |
+| Token callbacks      | /(token-callbacks)/auth subtree (currently /auth/confirm) | Consumed (verifyOtp)      | private, no-store                                           | None                         |
 
 Public documents and API responses also emit `Netlify-CDN-Cache-Control`
 (with `durable`); see "Cache Policy vs Cache Profile".
@@ -64,11 +64,15 @@ routes honest is enforcement, layered below.
 
 ## Enforcement Layers (defense in depth)
 
-1. **Boundaries (top-down intent).** Policy roots spread shared boundary
-   objects from `src/lib/route-boundaries.ts` that couple cache headers with
-   auth behavior (`publicBoundary`, `authenticatedBoundary`,
-   `privateAnonymousBoundary`). Default posture is private; public caching is
-   an explicit opt-in at the `(public)` root.
+1. **Boundaries (top-down intent).** Policy roots call boundary factories
+   from `src/lib/route-boundaries.ts` that return the complete route options,
+   coupling cache headers with auth behavior (`publicBoundary()`,
+   `authenticatedBoundary()`, `privateAnonymousBoundary()`). The
+   policy-reserved keys (`headers`, `beforeLoad`) are typed `never` on the
+   factory input and merged last, so overriding a subtree's policy at a
+   boundary is a type error rather than a silent spread replacement. Default
+   posture is private; public caching is an explicit opt-in at the `(public)`
+   root.
 2. **Lint (static).** Importing `@/integrations/supabase/user` or
    `@/integrations/supabase/user.hooks` inside `src/routes/(public)/**` is an
    ESLint error, as are raw cache-header string literals in route files.
@@ -92,7 +96,7 @@ Tripwire caveats:
 
 - Middleware order in `src/start.ts` is load-bearing and pinned by
   `start.unit.test.ts`: the Sentry request middleware reads auth claims for
-  telemetry on every request *before* the tripwire establishes its tracked
+  telemetry on every request _before_ the tripwire establishes its tracked
   scope, so that observability-only read intentionally does not trip the wire.
 - Headers are committed when body streaming starts: a session read inside a
   deferred/streamed segment cannot retro-downgrade the response. Keep server
@@ -290,7 +294,7 @@ Typical examples:
 
 1. Place route under `/(token-callbacks)/`
 2. Keep the policy boundary at `/(token-callbacks)/auth`, not the token-callback root
-3. Inherit `privateAnonymousBoundary` from that `auth` boundary route
+3. Inherit the `privateAnonymousBoundary()` policy from that `auth` boundary route
 4. Ensure server handlers set `private, no-store` on every response and redirect path
 
 ## Naming Conventions
