@@ -5,7 +5,7 @@ import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
-import { PublicToggleFavoriteButton } from '@/features/favorites/components/public-toggle-favorite-button'
+import { ToggleFavoriteButton } from '@/features/favorites/components/toggle-favorite-button'
 
 const favoriteToggleFallbackCss = {
   '--toggle-icon-color': 'var(--favorite-toggle-idle)',
@@ -27,7 +27,7 @@ export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
 
   return (
     <ClientOnly fallback={<FavoriteButtonFallback />}>
-      <PublicToggleFavoriteButton
+      <ToggleFavoriteButton
         assetKey={assetKey}
         onUnauthorized={showLoginModal}
         onError={showErrorToast}
