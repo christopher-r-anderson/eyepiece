@@ -80,7 +80,11 @@ routes honest is enforcement, layered below.
    violation to observability when the response had declared itself publicly
    cacheable. Boundaries declare intent; the tripwire verifies the render
    proved it.
-4. **Set-Cookie safety net (runtime).** Any HTML or redirect response that
+4. **Error-response cache safety (runtime).** Boundary headers apply to a
+   subtree regardless of response status, so 4xx/5xx documents are downgraded
+   to `private, no-store` — an SSR failure on a public page must not be served
+   from the CDN for the full public TTL after the problem recovers.
+5. **Set-Cookie safety net (runtime).** Any HTML or redirect response that
    sets a Supabase auth cookie is forced to `private, no-store` regardless of
    route configuration.
 
