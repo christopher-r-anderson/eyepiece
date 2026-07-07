@@ -30,11 +30,9 @@ Choose a route class first. The class determines server auth behavior, cache pol
                           userHasProfile check (server-side, SSR gate)
   (auth)/              ← post-auth flow pages: card panel layout (providers inherited)
 
-(token-callbacks)/     ← source-only namespace; do not place the policy boundary here
-                          because a root-level token-callback boundary has caused
-                          client-side `/` hydration mismatch in practice
-  auth/                ← token-callback policy boundary: null userSupabaseClient,
-                          PRIVATE_ANONYMOUS_ROUTE_POLICY, private Cache-Control
+(token-callbacks)/     ← source-only namespace; the policy boundary lives one level
+                          down (see "Token-callback boundary placement" below)
+  auth/                ← token-callback policy boundary: private Cache-Control
     confirm            ← leaf handler at /auth/confirm; parses query params and
                           sets private, no-store on every response/redirect path
 ```
@@ -66,11 +64,20 @@ Token-callback handlers are a partial exception: they do inherit policy from the
 `/(token-callbacks)/auth` boundary, but they must still parse request input and
 enforce `private, no-store` directly in middleware or in their handler response path.
 
-Do not hoist the token-callback boundary to `/(token-callbacks)` root. In this
-codebase, a root-level token-callback boundary has previously rendered/matched
-for `/` on the client and caused a homepage hydration mismatch. The exact matcher
-reason is still not fully understood, so keep the boundary at `/(token-callbacks)/auth`
-unless that issue is conclusively resolved.
+### Token-callback boundary placement
+
+The boundary lives at `/(token-callbacks)/auth` (a client-visible layout route),
+not at the `/(token-callbacks)` group root. Root cause, reproduced empirically
+on @tanstack/react-router 1.166: when a pathless layout route's only descendant
+is a server-only route file (`server.handlers` with no component, like
+`auth/confirm.ts`), the client router matches the pathless layout for unrelated
+paths — loading `/` yields client matches `['__root__', '/(token-callbacks)']`
+with no leaf, while the server correctly renders `/(public)/(pages)/` — and
+React reports a hydration mismatch. Giving the group a client-visible layout
+route (`auth/route.tsx`) restores correct matching. If a future token-callback
+route needs a different policy, add another client-visible layout boundary
+beside `auth/`, and never leave a route group whose only children are
+server-only route files.
 
 ## Cache Policy vs Cache Profile
 
