@@ -71,6 +71,18 @@ export function getEnsureProfileByIdOptions({
   })
 }
 
+// Write-through after a successful profile upsert. Keeping the ensure cache
+// in sync matters for cache safety UX: useEnsureProfileExists redirects on a
+// null ensure result, so a stale null here could bounce a user who just
+// completed their profile back to /complete-profile.
+export function setProfileQueryData(
+  queryClient: QueryClient,
+  profile: Profile,
+) {
+  queryClient.setQueryData(profilesKeys.profile(profile.id), profile)
+  queryClient.setQueryData(currentUserProfileKeys.ensure(profile.id), profile)
+}
+
 export function useEnsureProfile({
   userId,
   enabled,

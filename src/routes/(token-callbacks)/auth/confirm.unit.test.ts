@@ -14,6 +14,8 @@ vi.mock('@tanstack/react-router', () => ({
 
     return Object.assign(response, { options })
   },
+  isRedirect: (error: unknown) =>
+    error instanceof Response && 'options' in error,
 }))
 
 vi.mock('@/integrations/supabase/user/server.server', () => ({

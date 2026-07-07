@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, isRedirect, redirect } from '@tanstack/react-router'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { confirmationSearchParamsSchema } from '@/features/auth/auth.schema'
 import { urlToNextParam } from '@/lib/utils'
@@ -125,6 +125,13 @@ export const Route = createFileRoute('/(token-callbacks)/auth/confirm')({
             }
           }
         } catch (error) {
+          // Redirects are Response instances in the current router, so the
+          // second branch covers them today; check isRedirect explicitly so a
+          // future router change cannot swallow successful confirmations into
+          // the 500 fallback below.
+          if (isRedirect(error) && !(error instanceof Response)) {
+            throw error
+          }
           if (error instanceof Response) {
             throw withPrivateNoStoreCacheControl(error)
           }

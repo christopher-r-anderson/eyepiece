@@ -29,6 +29,7 @@ function ForgotPasswordPage() {
       >
         <ForgotPasswordForm
           headingLevel={1}
+          next={next}
           surface="panel"
           onSuccess={() => setShowSuccessMessage(true)}
         />
