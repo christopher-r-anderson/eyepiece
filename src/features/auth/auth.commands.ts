@@ -27,6 +27,8 @@ export interface AuthCommands {
   }) => Promise<Result<void>>
 
   updatePassword: (options: { password: string }) => Promise<Result<void>>
+
+  logout: () => Promise<Result<void>>
 }
 
 export function makeAuthCommands(client: SupabaseClient) {
@@ -101,6 +103,14 @@ export function makeAuthCommands(client: SupabaseClient) {
       const { error } = await client.auth.updateUser({
         password,
       })
+      return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
+    },
+
+    logout: async (): Promise<Result<void>> => {
+      const { error } = await client.auth.signOut({
+        scope: 'local',
+      })
+
       return error ? Err(mapSupabaseAuthError(error)) : Ok(undefined)
     },
   }

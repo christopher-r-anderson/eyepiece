@@ -1,8 +1,116 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { parseOrThrowBadRequest, parseOrThrowProviderId } from './utils'
+import {
+  createPrivateNoStoreHeaders,
+  createPublicCacheHeaders,
+  parseOrThrowBadRequest,
+  parseOrThrowProviderId,
+  withPrivateNoStoreCacheControl,
+  withPublicCacheControl,
+} from './utils'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { shouldReportError } from '@/lib/error-observability'
+
+describe('private no-store helpers', () => {
+  it('adds private no-store cache control to new headers', () => {
+    const headers = createPrivateNoStoreHeaders({ Vary: 'Accept' })
+
+    expect(headers.get('Cache-Control')).toBe('private, no-store')
+    expect(headers.get('Vary')).toBe('Accept')
+  })
+
+  it('adds private no-store cache control to an existing response', () => {
+    const response = new Response(null, {
+      headers: { Location: '/login' },
+      status: 303,
+    })
+
+    const updatedResponse = withPrivateNoStoreCacheControl(response)
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'private, no-store',
+    )
+    expect(updatedResponse.headers.get('Location')).toBe('/login')
+  })
+
+  it('strips CDN cache headers when downgrading to private', () => {
+    const response = new Response(null, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300',
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=300, durable',
+      },
+    })
+
+    const updatedResponse = withPrivateNoStoreCacheControl(response)
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'private, no-store',
+    )
+    expect(updatedResponse.headers.get('Netlify-CDN-Cache-Control')).toBeNull()
+  })
+
+  it('downgrades responses with immutable headers by rebuilding them', () => {
+    const response = new Response(null, {
+      headers: { Location: '/login' },
+      status: 303,
+    })
+    response.headers.set = () => {
+      throw new TypeError('immutable')
+    }
+
+    const updatedResponse = withPrivateNoStoreCacheControl(response)
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'private, no-store',
+    )
+    expect(updatedResponse.headers.get('Location')).toBe('/login')
+    expect(updatedResponse.status).toBe(303)
+  })
+})
+
+describe('public cache helpers', () => {
+  it('adds both public cache headers to new headers', () => {
+    const headers = createPublicCacheHeaders({ Vary: 'Accept' })
+
+    expect(headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+    expect(headers.get('Netlify-CDN-Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=300, durable',
+    )
+    expect(headers.get('Vary')).toBe('Accept')
+  })
+
+  it('adds both public cache headers to an existing response', () => {
+    const response = new Response(null, { status: 200 })
+
+    const updatedResponse = withPublicCacheControl(response)
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+    expect(updatedResponse.headers.get('Netlify-CDN-Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=300, durable',
+    )
+  })
+
+  it('respects a custom public cache profile', () => {
+    const response = new Response(null, { status: 200 })
+
+    const updatedResponse = withPublicCacheControl(response, {
+      maxAge: 0,
+      sMaxAge: 60,
+      staleWhileRevalidate: 120,
+    })
+
+    expect(updatedResponse.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=60, stale-while-revalidate=120',
+    )
+    expect(updatedResponse.headers.get('Netlify-CDN-Cache-Control')).toBe(
+      'public, s-maxage=60, stale-while-revalidate=120, durable',
+    )
+  })
+})
 
 describe('parseOrThrowBadRequest', () => {
   afterEach(() => {

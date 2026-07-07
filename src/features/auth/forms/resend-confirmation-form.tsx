@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuth } from '@/features/auth/auth.provider'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import {
   Form,
   InputGroup,
@@ -33,7 +33,7 @@ export function ResendConfirmationForm({
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
-  const { commands } = useAuth()
+  const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
     resendConfirmationSchema,

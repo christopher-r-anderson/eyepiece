@@ -9,82 +9,61 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
 import { Route as DevRouteRouteImport } from './routes/dev/route'
-import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
-import { Route as authRouteRouteImport } from './routes/(auth)/route'
+import { Route as publicRouteRouteImport } from './routes/(public)/route'
+import { Route as privateRouteRouteImport } from './routes/(private)/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
-import { Route as pagesIndexRouteImport } from './routes/(pages)/index'
-import { Route as pagesButtonsRouteImport } from './routes/(pages)/buttons'
-import { Route as authRegisterRouteImport } from './routes/(auth)/register'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
-import { Route as pagesuserRouteRouteImport } from './routes/(pages)/(user)/route'
+import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
+import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/route'
+import { Route as publicauthRouteRouteImport } from './routes/(public)/(auth)/route'
+import { Route as privatepagesRouteRouteImport } from './routes/(private)/(pages)/route'
+import { Route as privateauthRouteRouteImport } from './routes/(private)/(auth)/route'
 import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
 import { Route as DevObservabilityIndexRouteImport } from './routes/dev/observability/index'
+import { Route as publicpagesIndexRouteImport } from './routes/(public)/(pages)/index'
 import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
 import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
 import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
-import { Route as ApiV1SearchRouteImport } from './routes/api/v1/search'
-import { Route as pagesProfileProfileIdRouteImport } from './routes/(pages)/profile.$profileId'
-import { Route as pagesuserFavoritesRouteImport } from './routes/(pages)/(user)/favorites'
-import { Route as pagessearchSearchRouteImport } from './routes/(pages)/(search)/search'
-import { Route as authAuthUpdatePasswordRouteImport } from './routes/(auth)/auth/update-password'
-import { Route as authAuthForgotPasswordRouteImport } from './routes/(auth)/auth/forgot-password'
-import { Route as authAuthConfirmErrorRouteImport } from './routes/(auth)/auth/confirm-error'
-import { Route as authAuthConfirmRouteImport } from './routes/(auth)/auth/confirm'
-import { Route as pagesuserSettingsIndexRouteImport } from './routes/(pages)/(user)/settings/index'
-import { Route as pagesAssetsProviderIdAssetIdRouteImport } from './routes/(pages)/assets/$providerId.$assetId'
-import { Route as pagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(pages)/albums/$providerId.$albumId'
-import { Route as pagesuserSettingsProfileRouteImport } from './routes/(pages)/(user)/settings/profile'
-import { Route as ApiV1AssetProviderIdAssetIdRouteImport } from './routes/api/v1/asset/$providerId.$assetId'
-import { Route as ApiV1AlbumsProviderIdAlbumIdRouteImport } from './routes/api/v1/albums/$providerId.$albumId'
-import { Route as ApiV1AssetProviderIdAssetIdMetadataRouteImport } from './routes/api/v1/asset/$providerId.$assetId.metadata'
+import { Route as tokenCallbacksAuthConfirmRouteImport } from './routes/(token-callbacks)/auth/confirm'
+import { Route as publicpagesButtonsRouteImport } from './routes/(public)/(pages)/buttons'
+import { Route as publicauthRegisterRouteImport } from './routes/(public)/(auth)/register'
+import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/login'
+import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(pages)/favorites'
+import { Route as privatepagesCompleteProfileRouteImport } from './routes/(private)/(pages)/complete-profile'
+import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
+import { Route as publicApiV1SearchRouteImport } from './routes/(public)/api/v1/search'
+import { Route as publicpagesProfileProfileIdRouteImport } from './routes/(public)/(pages)/profile.$profileId'
+import { Route as publicpagessearchSearchRouteImport } from './routes/(public)/(pages)/(search)/search'
+import { Route as publicauthAuthForgotPasswordRouteImport } from './routes/(public)/(auth)/auth/forgot-password'
+import { Route as publicauthAuthConfirmErrorRouteImport } from './routes/(public)/(auth)/auth/confirm-error'
+import { Route as privatepagesSettingsProfileRouteImport } from './routes/(private)/(pages)/settings/profile'
+import { Route as privateauthAuthUpdatePasswordRouteImport } from './routes/(private)/(auth)/auth/update-password'
+import { Route as publicpagesAssetsProviderIdAssetIdRouteImport } from './routes/(public)/(pages)/assets/$providerId.$assetId'
+import { Route as publicpagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/(pages)/albums/$providerId.$albumId'
+import { Route as publicApiV1AssetProviderIdAssetIdRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId'
+import { Route as publicApiV1AlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/api/v1/albums/$providerId.$albumId'
+import { Route as publicApiV1AssetProviderIdAssetIdMetadataRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId.metadata'
 
-const CompleteProfileRoute = CompleteProfileRouteImport.update({
-  id: '/complete-profile',
-  path: '/complete-profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DevRouteRoute = DevRouteRouteImport.update({
   id: '/dev',
   path: '/dev',
   getParentRoute: () => rootRouteImport,
 } as any)
-const pagesRouteRoute = pagesRouteRouteImport.update({
-  id: '/(pages)',
+const publicRouteRoute = publicRouteRouteImport.update({
+  id: '/(public)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authRouteRoute = authRouteRouteImport.update({
-  id: '/(auth)',
+const privateRouteRoute = privateRouteRouteImport.update({
+  id: '/(private)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevIndexRoute = DevIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DevRouteRoute,
-} as any)
-const pagesIndexRoute = pagesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => pagesRouteRoute,
-} as any)
-const pagesButtonsRoute = pagesButtonsRouteImport.update({
-  id: '/buttons',
-  path: '/buttons',
-  getParentRoute: () => pagesRouteRoute,
-} as any)
-const authRegisterRoute = authRegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authLoginRoute = authLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => authRouteRoute,
 } as any)
 const DevUiRouteRoute = DevUiRouteRouteImport.update({
   id: '/ui',
@@ -96,9 +75,26 @@ const DevObservabilityRouteRoute = DevObservabilityRouteRouteImport.update({
   path: '/observability',
   getParentRoute: () => DevRouteRoute,
 } as any)
-const pagesuserRouteRoute = pagesuserRouteRouteImport.update({
-  id: '/(user)',
-  getParentRoute: () => pagesRouteRoute,
+const tokenCallbacksAuthRouteRoute = tokenCallbacksAuthRouteRouteImport.update({
+  id: '/(token-callbacks)/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicpagesRouteRoute = publicpagesRouteRouteImport.update({
+  id: '/(pages)',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicauthRouteRoute = publicauthRouteRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const privatepagesRouteRoute = privatepagesRouteRouteImport.update({
+  id: '/(pages)',
+  getParentRoute: () => privateRouteRoute,
+} as any)
+const privateauthRouteRoute = privateauthRouteRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => privateRouteRoute,
 } as any)
 const DevUiIndexRoute = DevUiIndexRouteImport.update({
   id: '/',
@@ -109,6 +105,11 @@ const DevObservabilityIndexRoute = DevObservabilityIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DevObservabilityRouteRoute,
+} as any)
+const publicpagesIndexRoute = publicpagesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => publicpagesRouteRoute,
 } as any)
 const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
   id: '/feedback',
@@ -132,303 +133,332 @@ const DevObservabilityHandled400Route =
     path: '/handled-400',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
-const ApiV1SearchRoute = ApiV1SearchRouteImport.update({
-  id: '/api/v1/search',
-  path: '/api/v1/search',
-  getParentRoute: () => rootRouteImport,
+const tokenCallbacksAuthConfirmRoute =
+  tokenCallbacksAuthConfirmRouteImport.update({
+    id: '/confirm',
+    path: '/confirm',
+    getParentRoute: () => tokenCallbacksAuthRouteRoute,
+  } as any)
+const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => publicpagesRouteRoute,
 } as any)
-const pagesProfileProfileIdRoute = pagesProfileProfileIdRouteImport.update({
-  id: '/profile/$profileId',
-  path: '/profile/$profileId',
-  getParentRoute: () => pagesRouteRoute,
+const publicauthRegisterRoute = publicauthRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => publicauthRouteRoute,
 } as any)
-const pagesuserFavoritesRoute = pagesuserFavoritesRouteImport.update({
+const publicauthLoginRoute = publicauthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => publicauthRouteRoute,
+} as any)
+const privatepagesFavoritesRoute = privatepagesFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
-  getParentRoute: () => pagesuserRouteRoute,
+  getParentRoute: () => privatepagesRouteRoute,
 } as any)
-const pagessearchSearchRoute = pagessearchSearchRouteImport.update({
+const privatepagesCompleteProfileRoute =
+  privatepagesCompleteProfileRouteImport.update({
+    id: '/complete-profile',
+    path: '/complete-profile',
+    getParentRoute: () => privatepagesRouteRoute,
+  } as any)
+const privatepagesSettingsIndexRoute =
+  privatepagesSettingsIndexRouteImport.update({
+    id: '/settings/',
+    path: '/settings/',
+    getParentRoute: () => privatepagesRouteRoute,
+  } as any)
+const publicApiV1SearchRoute = publicApiV1SearchRouteImport.update({
+  id: '/api/v1/search',
+  path: '/api/v1/search',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicpagesProfileProfileIdRoute =
+  publicpagesProfileProfileIdRouteImport.update({
+    id: '/profile/$profileId',
+    path: '/profile/$profileId',
+    getParentRoute: () => publicpagesRouteRoute,
+  } as any)
+const publicpagessearchSearchRoute = publicpagessearchSearchRouteImport.update({
   id: '/(search)/search',
   path: '/search',
-  getParentRoute: () => pagesRouteRoute,
+  getParentRoute: () => publicpagesRouteRoute,
 } as any)
-const authAuthUpdatePasswordRoute = authAuthUpdatePasswordRouteImport.update({
-  id: '/auth/update-password',
-  path: '/auth/update-password',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authAuthForgotPasswordRoute = authAuthForgotPasswordRouteImport.update({
-  id: '/auth/forgot-password',
-  path: '/auth/forgot-password',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authAuthConfirmErrorRoute = authAuthConfirmErrorRouteImport.update({
-  id: '/auth/confirm-error',
-  path: '/auth/confirm-error',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authAuthConfirmRoute = authAuthConfirmRouteImport.update({
-  id: '/auth/confirm',
-  path: '/auth/confirm',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const pagesuserSettingsIndexRoute = pagesuserSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => pagesuserRouteRoute,
-} as any)
-const pagesAssetsProviderIdAssetIdRoute =
-  pagesAssetsProviderIdAssetIdRouteImport.update({
-    id: '/assets/$providerId/$assetId',
-    path: '/assets/$providerId/$assetId',
-    getParentRoute: () => pagesRouteRoute,
+const publicauthAuthForgotPasswordRoute =
+  publicauthAuthForgotPasswordRouteImport.update({
+    id: '/auth/forgot-password',
+    path: '/auth/forgot-password',
+    getParentRoute: () => publicauthRouteRoute,
   } as any)
-const pagesAlbumsProviderIdAlbumIdRoute =
-  pagesAlbumsProviderIdAlbumIdRouteImport.update({
-    id: '/albums/$providerId/$albumId',
-    path: '/albums/$providerId/$albumId',
-    getParentRoute: () => pagesRouteRoute,
+const publicauthAuthConfirmErrorRoute =
+  publicauthAuthConfirmErrorRouteImport.update({
+    id: '/auth/confirm-error',
+    path: '/auth/confirm-error',
+    getParentRoute: () => publicauthRouteRoute,
   } as any)
-const pagesuserSettingsProfileRoute =
-  pagesuserSettingsProfileRouteImport.update({
+const privatepagesSettingsProfileRoute =
+  privatepagesSettingsProfileRouteImport.update({
     id: '/settings/profile',
     path: '/settings/profile',
-    getParentRoute: () => pagesuserRouteRoute,
+    getParentRoute: () => privatepagesRouteRoute,
   } as any)
-const ApiV1AssetProviderIdAssetIdRoute =
-  ApiV1AssetProviderIdAssetIdRouteImport.update({
+const privateauthAuthUpdatePasswordRoute =
+  privateauthAuthUpdatePasswordRouteImport.update({
+    id: '/auth/update-password',
+    path: '/auth/update-password',
+    getParentRoute: () => privateauthRouteRoute,
+  } as any)
+const publicpagesAssetsProviderIdAssetIdRoute =
+  publicpagesAssetsProviderIdAssetIdRouteImport.update({
+    id: '/assets/$providerId/$assetId',
+    path: '/assets/$providerId/$assetId',
+    getParentRoute: () => publicpagesRouteRoute,
+  } as any)
+const publicpagesAlbumsProviderIdAlbumIdRoute =
+  publicpagesAlbumsProviderIdAlbumIdRouteImport.update({
+    id: '/albums/$providerId/$albumId',
+    path: '/albums/$providerId/$albumId',
+    getParentRoute: () => publicpagesRouteRoute,
+  } as any)
+const publicApiV1AssetProviderIdAssetIdRoute =
+  publicApiV1AssetProviderIdAssetIdRouteImport.update({
     id: '/api/v1/asset/$providerId/$assetId',
     path: '/api/v1/asset/$providerId/$assetId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => publicRouteRoute,
   } as any)
-const ApiV1AlbumsProviderIdAlbumIdRoute =
-  ApiV1AlbumsProviderIdAlbumIdRouteImport.update({
+const publicApiV1AlbumsProviderIdAlbumIdRoute =
+  publicApiV1AlbumsProviderIdAlbumIdRouteImport.update({
     id: '/api/v1/albums/$providerId/$albumId',
     path: '/api/v1/albums/$providerId/$albumId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => publicRouteRoute,
   } as any)
-const ApiV1AssetProviderIdAssetIdMetadataRoute =
-  ApiV1AssetProviderIdAssetIdMetadataRouteImport.update({
+const publicApiV1AssetProviderIdAssetIdMetadataRoute =
+  publicApiV1AssetProviderIdAssetIdMetadataRouteImport.update({
     id: '/metadata',
     path: '/metadata',
-    getParentRoute: () => ApiV1AssetProviderIdAssetIdRoute,
+    getParentRoute: () => publicApiV1AssetProviderIdAssetIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/dev': typeof DevRouteRouteWithChildren
-  '/complete-profile': typeof CompleteProfileRoute
+  '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
-  '/login': typeof authLoginRoute
-  '/register': typeof authRegisterRoute
-  '/buttons': typeof pagesButtonsRoute
-  '/': typeof pagesIndexRoute
   '/dev/': typeof DevIndexRoute
-  '/auth/confirm': typeof authAuthConfirmRoute
-  '/auth/confirm-error': typeof authAuthConfirmErrorRoute
-  '/auth/forgot-password': typeof authAuthForgotPasswordRoute
-  '/auth/update-password': typeof authAuthUpdatePasswordRoute
-  '/search': typeof pagessearchSearchRoute
-  '/favorites': typeof pagesuserFavoritesRoute
-  '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/v1/search': typeof ApiV1SearchRoute
+  '/complete-profile': typeof privatepagesCompleteProfileRoute
+  '/favorites': typeof privatepagesFavoritesRoute
+  '/login': typeof publicauthLoginRoute
+  '/register': typeof publicauthRegisterRoute
+  '/buttons': typeof publicpagesButtonsRoute
+  '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/': typeof publicpagesIndexRoute
   '/dev/observability/': typeof DevObservabilityIndexRoute
   '/dev/ui/': typeof DevUiIndexRoute
-  '/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
-  '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/settings/': typeof pagesuserSettingsIndexRoute
-  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
-  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
-  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
+  '/auth/update-password': typeof privateauthAuthUpdatePasswordRoute
+  '/settings/profile': typeof privatepagesSettingsProfileRoute
+  '/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
+  '/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
+  '/search': typeof publicpagessearchSearchRoute
+  '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
+  '/api/v1/search': typeof publicApiV1SearchRoute
+  '/settings/': typeof privatepagesSettingsIndexRoute
+  '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
+  '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
+  '/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
+  '/api/v1/asset/$providerId/$assetId': typeof publicApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/api/v1/asset/$providerId/$assetId/metadata': typeof publicApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesByTo {
-  '/complete-profile': typeof CompleteProfileRoute
-  '/login': typeof authLoginRoute
-  '/register': typeof authRegisterRoute
-  '/buttons': typeof pagesButtonsRoute
-  '/': typeof pagesIndexRoute
+  '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev': typeof DevIndexRoute
-  '/auth/confirm': typeof authAuthConfirmRoute
-  '/auth/confirm-error': typeof authAuthConfirmErrorRoute
-  '/auth/forgot-password': typeof authAuthForgotPasswordRoute
-  '/auth/update-password': typeof authAuthUpdatePasswordRoute
-  '/search': typeof pagessearchSearchRoute
-  '/favorites': typeof pagesuserFavoritesRoute
-  '/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/v1/search': typeof ApiV1SearchRoute
+  '/complete-profile': typeof privatepagesCompleteProfileRoute
+  '/favorites': typeof privatepagesFavoritesRoute
+  '/login': typeof publicauthLoginRoute
+  '/register': typeof publicauthRegisterRoute
+  '/buttons': typeof publicpagesButtonsRoute
+  '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/': typeof publicpagesIndexRoute
   '/dev/observability': typeof DevObservabilityIndexRoute
   '/dev/ui': typeof DevUiIndexRoute
-  '/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
-  '/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/settings': typeof pagesuserSettingsIndexRoute
-  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
-  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
-  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
+  '/auth/update-password': typeof privateauthAuthUpdatePasswordRoute
+  '/settings/profile': typeof privatepagesSettingsProfileRoute
+  '/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
+  '/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
+  '/search': typeof publicpagessearchSearchRoute
+  '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
+  '/api/v1/search': typeof publicApiV1SearchRoute
+  '/settings': typeof privatepagesSettingsIndexRoute
+  '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
+  '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
+  '/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
+  '/api/v1/asset/$providerId/$assetId': typeof publicApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/api/v1/asset/$providerId/$assetId/metadata': typeof publicApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/(auth)': typeof authRouteRouteWithChildren
-  '/(pages)': typeof pagesRouteRouteWithChildren
+  '/(private)': typeof privateRouteRouteWithChildren
+  '/(public)': typeof publicRouteRouteWithChildren
   '/dev': typeof DevRouteRouteWithChildren
-  '/complete-profile': typeof CompleteProfileRoute
-  '/(pages)/(user)': typeof pagesuserRouteRouteWithChildren
+  '/(private)/(auth)': typeof privateauthRouteRouteWithChildren
+  '/(private)/(pages)': typeof privatepagesRouteRouteWithChildren
+  '/(public)/(auth)': typeof publicauthRouteRouteWithChildren
+  '/(public)/(pages)': typeof publicpagesRouteRouteWithChildren
+  '/(token-callbacks)/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
   '/dev/ui': typeof DevUiRouteRouteWithChildren
-  '/(auth)/login': typeof authLoginRoute
-  '/(auth)/register': typeof authRegisterRoute
-  '/(pages)/buttons': typeof pagesButtonsRoute
-  '/(pages)/': typeof pagesIndexRoute
   '/dev/': typeof DevIndexRoute
-  '/(auth)/auth/confirm': typeof authAuthConfirmRoute
-  '/(auth)/auth/confirm-error': typeof authAuthConfirmErrorRoute
-  '/(auth)/auth/forgot-password': typeof authAuthForgotPasswordRoute
-  '/(auth)/auth/update-password': typeof authAuthUpdatePasswordRoute
-  '/(pages)/(search)/search': typeof pagessearchSearchRoute
-  '/(pages)/(user)/favorites': typeof pagesuserFavoritesRoute
-  '/(pages)/profile/$profileId': typeof pagesProfileProfileIdRoute
-  '/api/v1/search': typeof ApiV1SearchRoute
+  '/(private)/(pages)/complete-profile': typeof privatepagesCompleteProfileRoute
+  '/(private)/(pages)/favorites': typeof privatepagesFavoritesRoute
+  '/(public)/(auth)/login': typeof publicauthLoginRoute
+  '/(public)/(auth)/register': typeof publicauthRegisterRoute
+  '/(public)/(pages)/buttons': typeof publicpagesButtonsRoute
+  '/(token-callbacks)/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
+  '/(public)/(pages)/': typeof publicpagesIndexRoute
   '/dev/observability/': typeof DevObservabilityIndexRoute
   '/dev/ui/': typeof DevUiIndexRoute
-  '/(pages)/(user)/settings/profile': typeof pagesuserSettingsProfileRoute
-  '/(pages)/albums/$providerId/$albumId': typeof pagesAlbumsProviderIdAlbumIdRoute
-  '/(pages)/assets/$providerId/$assetId': typeof pagesAssetsProviderIdAssetIdRoute
-  '/(pages)/(user)/settings/': typeof pagesuserSettingsIndexRoute
-  '/api/v1/albums/$providerId/$albumId': typeof ApiV1AlbumsProviderIdAlbumIdRoute
-  '/api/v1/asset/$providerId/$assetId': typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
-  '/api/v1/asset/$providerId/$assetId/metadata': typeof ApiV1AssetProviderIdAssetIdMetadataRoute
+  '/(private)/(auth)/auth/update-password': typeof privateauthAuthUpdatePasswordRoute
+  '/(private)/(pages)/settings/profile': typeof privatepagesSettingsProfileRoute
+  '/(public)/(auth)/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
+  '/(public)/(auth)/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
+  '/(public)/(pages)/(search)/search': typeof publicpagessearchSearchRoute
+  '/(public)/(pages)/profile/$profileId': typeof publicpagesProfileProfileIdRoute
+  '/(public)/api/v1/search': typeof publicApiV1SearchRoute
+  '/(private)/(pages)/settings/': typeof privatepagesSettingsIndexRoute
+  '/(public)/(pages)/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
+  '/(public)/(pages)/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
+  '/(public)/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
+  '/(public)/api/v1/asset/$providerId/$assetId': typeof publicApiV1AssetProviderIdAssetIdRouteWithChildren
+  '/(public)/api/v1/asset/$providerId/$assetId/metadata': typeof publicApiV1AssetProviderIdAssetIdMetadataRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dev'
-    | '/complete-profile'
+    | '/auth'
     | '/dev/observability'
     | '/dev/ui'
+    | '/dev/'
+    | '/complete-profile'
+    | '/favorites'
     | '/login'
     | '/register'
     | '/buttons'
-    | '/'
-    | '/dev/'
     | '/auth/confirm'
-    | '/auth/confirm-error'
-    | '/auth/forgot-password'
-    | '/auth/update-password'
-    | '/search'
-    | '/favorites'
-    | '/profile/$profileId'
-    | '/api/v1/search'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/'
     | '/dev/observability/'
     | '/dev/ui/'
+    | '/auth/update-password'
     | '/settings/profile'
+    | '/auth/confirm-error'
+    | '/auth/forgot-password'
+    | '/search'
+    | '/profile/$profileId'
+    | '/api/v1/search'
+    | '/settings/'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
-    | '/settings/'
     | '/api/v1/albums/$providerId/$albumId'
     | '/api/v1/asset/$providerId/$assetId'
     | '/api/v1/asset/$providerId/$assetId/metadata'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
+    | '/dev'
     | '/complete-profile'
+    | '/favorites'
     | '/login'
     | '/register'
     | '/buttons'
-    | '/'
-    | '/dev'
     | '/auth/confirm'
-    | '/auth/confirm-error'
-    | '/auth/forgot-password'
-    | '/auth/update-password'
-    | '/search'
-    | '/favorites'
-    | '/profile/$profileId'
-    | '/api/v1/search'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/'
     | '/dev/observability'
     | '/dev/ui'
+    | '/auth/update-password'
     | '/settings/profile'
+    | '/auth/confirm-error'
+    | '/auth/forgot-password'
+    | '/search'
+    | '/profile/$profileId'
+    | '/api/v1/search'
+    | '/settings'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
-    | '/settings'
     | '/api/v1/albums/$providerId/$albumId'
     | '/api/v1/asset/$providerId/$assetId'
     | '/api/v1/asset/$providerId/$assetId/metadata'
   id:
     | '__root__'
-    | '/(auth)'
-    | '/(pages)'
+    | '/(private)'
+    | '/(public)'
     | '/dev'
-    | '/complete-profile'
-    | '/(pages)/(user)'
+    | '/(private)/(auth)'
+    | '/(private)/(pages)'
+    | '/(public)/(auth)'
+    | '/(public)/(pages)'
+    | '/(token-callbacks)/auth'
     | '/dev/observability'
     | '/dev/ui'
-    | '/(auth)/login'
-    | '/(auth)/register'
-    | '/(pages)/buttons'
-    | '/(pages)/'
     | '/dev/'
-    | '/(auth)/auth/confirm'
-    | '/(auth)/auth/confirm-error'
-    | '/(auth)/auth/forgot-password'
-    | '/(auth)/auth/update-password'
-    | '/(pages)/(search)/search'
-    | '/(pages)/(user)/favorites'
-    | '/(pages)/profile/$profileId'
-    | '/api/v1/search'
+    | '/(private)/(pages)/complete-profile'
+    | '/(private)/(pages)/favorites'
+    | '/(public)/(auth)/login'
+    | '/(public)/(auth)/register'
+    | '/(public)/(pages)/buttons'
+    | '/(token-callbacks)/auth/confirm'
     | '/dev/observability/handled-400'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
+    | '/(public)/(pages)/'
     | '/dev/observability/'
     | '/dev/ui/'
-    | '/(pages)/(user)/settings/profile'
-    | '/(pages)/albums/$providerId/$albumId'
-    | '/(pages)/assets/$providerId/$assetId'
-    | '/(pages)/(user)/settings/'
-    | '/api/v1/albums/$providerId/$albumId'
-    | '/api/v1/asset/$providerId/$assetId'
-    | '/api/v1/asset/$providerId/$assetId/metadata'
+    | '/(private)/(auth)/auth/update-password'
+    | '/(private)/(pages)/settings/profile'
+    | '/(public)/(auth)/auth/confirm-error'
+    | '/(public)/(auth)/auth/forgot-password'
+    | '/(public)/(pages)/(search)/search'
+    | '/(public)/(pages)/profile/$profileId'
+    | '/(public)/api/v1/search'
+    | '/(private)/(pages)/settings/'
+    | '/(public)/(pages)/albums/$providerId/$albumId'
+    | '/(public)/(pages)/assets/$providerId/$assetId'
+    | '/(public)/api/v1/albums/$providerId/$albumId'
+    | '/(public)/api/v1/asset/$providerId/$assetId'
+    | '/(public)/api/v1/asset/$providerId/$assetId/metadata'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  authRouteRoute: typeof authRouteRouteWithChildren
-  pagesRouteRoute: typeof pagesRouteRouteWithChildren
+  privateRouteRoute: typeof privateRouteRouteWithChildren
+  publicRouteRoute: typeof publicRouteRouteWithChildren
   DevRouteRoute: typeof DevRouteRouteWithChildren
-  CompleteProfileRoute: typeof CompleteProfileRoute
-  ApiV1SearchRoute: typeof ApiV1SearchRoute
-  ApiV1AlbumsProviderIdAlbumIdRoute: typeof ApiV1AlbumsProviderIdAlbumIdRoute
-  ApiV1AssetProviderIdAssetIdRoute: typeof ApiV1AssetProviderIdAssetIdRouteWithChildren
+  tokenCallbacksAuthRouteRoute: typeof tokenCallbacksAuthRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/complete-profile': {
-      id: '/complete-profile'
-      path: '/complete-profile'
-      fullPath: '/complete-profile'
-      preLoaderRoute: typeof CompleteProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dev': {
       id: '/dev'
       path: '/dev'
@@ -436,18 +466,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(pages)': {
-      id: '/(pages)'
+    '/(public)': {
+      id: '/(public)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof pagesRouteRouteImport
+      preLoaderRoute: typeof publicRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)': {
-      id: '/(auth)'
+    '/(private)': {
+      id: '/(private)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof authRouteRouteImport
+      preLoaderRoute: typeof privateRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dev/': {
@@ -456,34 +486,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dev/'
       preLoaderRoute: typeof DevIndexRouteImport
       parentRoute: typeof DevRouteRoute
-    }
-    '/(pages)/': {
-      id: '/(pages)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof pagesIndexRouteImport
-      parentRoute: typeof pagesRouteRoute
-    }
-    '/(pages)/buttons': {
-      id: '/(pages)/buttons'
-      path: '/buttons'
-      fullPath: '/buttons'
-      preLoaderRoute: typeof pagesButtonsRouteImport
-      parentRoute: typeof pagesRouteRoute
-    }
-    '/(auth)/register': {
-      id: '/(auth)/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof authRegisterRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof authRouteRoute
     }
     '/dev/ui': {
       id: '/dev/ui'
@@ -499,12 +501,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityRouteRouteImport
       parentRoute: typeof DevRouteRoute
     }
-    '/(pages)/(user)': {
-      id: '/(pages)/(user)'
+    '/(token-callbacks)/auth': {
+      id: '/(token-callbacks)/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof tokenCallbacksAuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/(pages)': {
+      id: '/(public)/(pages)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof pagesuserRouteRouteImport
-      parentRoute: typeof pagesRouteRoute
+      preLoaderRoute: typeof publicpagesRouteRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/(auth)': {
+      id: '/(public)/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof publicauthRouteRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(private)/(pages)': {
+      id: '/(private)/(pages)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof privatepagesRouteRouteImport
+      parentRoute: typeof privateRouteRoute
+    }
+    '/(private)/(auth)': {
+      id: '/(private)/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof privateauthRouteRouteImport
+      parentRoute: typeof privateRouteRoute
     }
     '/dev/ui/': {
       id: '/dev/ui/'
@@ -519,6 +549,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dev/observability/'
       preLoaderRoute: typeof DevObservabilityIndexRouteImport
       parentRoute: typeof DevObservabilityRouteRoute
+    }
+    '/(public)/(pages)/': {
+      id: '/(public)/(pages)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof publicpagesIndexRouteImport
+      parentRoute: typeof publicpagesRouteRoute
     }
     '/dev/ui/feedback': {
       id: '/dev/ui/feedback'
@@ -548,174 +585,260 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityHandled400RouteImport
       parentRoute: typeof DevObservabilityRouteRoute
     }
-    '/api/v1/search': {
-      id: '/api/v1/search'
-      path: '/api/v1/search'
-      fullPath: '/api/v1/search'
-      preLoaderRoute: typeof ApiV1SearchRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(token-callbacks)/auth/confirm': {
+      id: '/(token-callbacks)/auth/confirm'
+      path: '/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof tokenCallbacksAuthConfirmRouteImport
+      parentRoute: typeof tokenCallbacksAuthRouteRoute
     }
-    '/(pages)/profile/$profileId': {
-      id: '/(pages)/profile/$profileId'
-      path: '/profile/$profileId'
-      fullPath: '/profile/$profileId'
-      preLoaderRoute: typeof pagesProfileProfileIdRouteImport
-      parentRoute: typeof pagesRouteRoute
+    '/(public)/(pages)/buttons': {
+      id: '/(public)/(pages)/buttons'
+      path: '/buttons'
+      fullPath: '/buttons'
+      preLoaderRoute: typeof publicpagesButtonsRouteImport
+      parentRoute: typeof publicpagesRouteRoute
     }
-    '/(pages)/(user)/favorites': {
-      id: '/(pages)/(user)/favorites'
+    '/(public)/(auth)/register': {
+      id: '/(public)/(auth)/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof publicauthRegisterRouteImport
+      parentRoute: typeof publicauthRouteRoute
+    }
+    '/(public)/(auth)/login': {
+      id: '/(public)/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof publicauthLoginRouteImport
+      parentRoute: typeof publicauthRouteRoute
+    }
+    '/(private)/(pages)/favorites': {
+      id: '/(private)/(pages)/favorites'
       path: '/favorites'
       fullPath: '/favorites'
-      preLoaderRoute: typeof pagesuserFavoritesRouteImport
-      parentRoute: typeof pagesuserRouteRoute
+      preLoaderRoute: typeof privatepagesFavoritesRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/(pages)/(search)/search': {
-      id: '/(pages)/(search)/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof pagessearchSearchRouteImport
-      parentRoute: typeof pagesRouteRoute
+    '/(private)/(pages)/complete-profile': {
+      id: '/(private)/(pages)/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/complete-profile'
+      preLoaderRoute: typeof privatepagesCompleteProfileRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/(auth)/auth/update-password': {
-      id: '/(auth)/auth/update-password'
-      path: '/auth/update-password'
-      fullPath: '/auth/update-password'
-      preLoaderRoute: typeof authAuthUpdatePasswordRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/auth/forgot-password': {
-      id: '/(auth)/auth/forgot-password'
-      path: '/auth/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof authAuthForgotPasswordRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/auth/confirm-error': {
-      id: '/(auth)/auth/confirm-error'
-      path: '/auth/confirm-error'
-      fullPath: '/auth/confirm-error'
-      preLoaderRoute: typeof authAuthConfirmErrorRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/auth/confirm': {
-      id: '/(auth)/auth/confirm'
-      path: '/auth/confirm'
-      fullPath: '/auth/confirm'
-      preLoaderRoute: typeof authAuthConfirmRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(pages)/(user)/settings/': {
-      id: '/(pages)/(user)/settings/'
+    '/(private)/(pages)/settings/': {
+      id: '/(private)/(pages)/settings/'
       path: '/settings'
       fullPath: '/settings/'
-      preLoaderRoute: typeof pagesuserSettingsIndexRouteImport
-      parentRoute: typeof pagesuserRouteRoute
+      preLoaderRoute: typeof privatepagesSettingsIndexRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/(pages)/assets/$providerId/$assetId': {
-      id: '/(pages)/assets/$providerId/$assetId'
-      path: '/assets/$providerId/$assetId'
-      fullPath: '/assets/$providerId/$assetId'
-      preLoaderRoute: typeof pagesAssetsProviderIdAssetIdRouteImport
-      parentRoute: typeof pagesRouteRoute
+    '/(public)/api/v1/search': {
+      id: '/(public)/api/v1/search'
+      path: '/api/v1/search'
+      fullPath: '/api/v1/search'
+      preLoaderRoute: typeof publicApiV1SearchRouteImport
+      parentRoute: typeof publicRouteRoute
     }
-    '/(pages)/albums/$providerId/$albumId': {
-      id: '/(pages)/albums/$providerId/$albumId'
-      path: '/albums/$providerId/$albumId'
-      fullPath: '/albums/$providerId/$albumId'
-      preLoaderRoute: typeof pagesAlbumsProviderIdAlbumIdRouteImport
-      parentRoute: typeof pagesRouteRoute
+    '/(public)/(pages)/profile/$profileId': {
+      id: '/(public)/(pages)/profile/$profileId'
+      path: '/profile/$profileId'
+      fullPath: '/profile/$profileId'
+      preLoaderRoute: typeof publicpagesProfileProfileIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
     }
-    '/(pages)/(user)/settings/profile': {
-      id: '/(pages)/(user)/settings/profile'
+    '/(public)/(pages)/(search)/search': {
+      id: '/(public)/(pages)/(search)/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof publicpagessearchSearchRouteImport
+      parentRoute: typeof publicpagesRouteRoute
+    }
+    '/(public)/(auth)/auth/forgot-password': {
+      id: '/(public)/(auth)/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof publicauthAuthForgotPasswordRouteImport
+      parentRoute: typeof publicauthRouteRoute
+    }
+    '/(public)/(auth)/auth/confirm-error': {
+      id: '/(public)/(auth)/auth/confirm-error'
+      path: '/auth/confirm-error'
+      fullPath: '/auth/confirm-error'
+      preLoaderRoute: typeof publicauthAuthConfirmErrorRouteImport
+      parentRoute: typeof publicauthRouteRoute
+    }
+    '/(private)/(pages)/settings/profile': {
+      id: '/(private)/(pages)/settings/profile'
       path: '/settings/profile'
       fullPath: '/settings/profile'
-      preLoaderRoute: typeof pagesuserSettingsProfileRouteImport
-      parentRoute: typeof pagesuserRouteRoute
+      preLoaderRoute: typeof privatepagesSettingsProfileRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/api/v1/asset/$providerId/$assetId': {
-      id: '/api/v1/asset/$providerId/$assetId'
+    '/(private)/(auth)/auth/update-password': {
+      id: '/(private)/(auth)/auth/update-password'
+      path: '/auth/update-password'
+      fullPath: '/auth/update-password'
+      preLoaderRoute: typeof privateauthAuthUpdatePasswordRouteImport
+      parentRoute: typeof privateauthRouteRoute
+    }
+    '/(public)/(pages)/assets/$providerId/$assetId': {
+      id: '/(public)/(pages)/assets/$providerId/$assetId'
+      path: '/assets/$providerId/$assetId'
+      fullPath: '/assets/$providerId/$assetId'
+      preLoaderRoute: typeof publicpagesAssetsProviderIdAssetIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
+    }
+    '/(public)/(pages)/albums/$providerId/$albumId': {
+      id: '/(public)/(pages)/albums/$providerId/$albumId'
+      path: '/albums/$providerId/$albumId'
+      fullPath: '/albums/$providerId/$albumId'
+      preLoaderRoute: typeof publicpagesAlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
+    }
+    '/(public)/api/v1/asset/$providerId/$assetId': {
+      id: '/(public)/api/v1/asset/$providerId/$assetId'
       path: '/api/v1/asset/$providerId/$assetId'
       fullPath: '/api/v1/asset/$providerId/$assetId'
-      preLoaderRoute: typeof ApiV1AssetProviderIdAssetIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof publicApiV1AssetProviderIdAssetIdRouteImport
+      parentRoute: typeof publicRouteRoute
     }
-    '/api/v1/albums/$providerId/$albumId': {
-      id: '/api/v1/albums/$providerId/$albumId'
+    '/(public)/api/v1/albums/$providerId/$albumId': {
+      id: '/(public)/api/v1/albums/$providerId/$albumId'
       path: '/api/v1/albums/$providerId/$albumId'
       fullPath: '/api/v1/albums/$providerId/$albumId'
-      preLoaderRoute: typeof ApiV1AlbumsProviderIdAlbumIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof publicApiV1AlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof publicRouteRoute
     }
-    '/api/v1/asset/$providerId/$assetId/metadata': {
-      id: '/api/v1/asset/$providerId/$assetId/metadata'
+    '/(public)/api/v1/asset/$providerId/$assetId/metadata': {
+      id: '/(public)/api/v1/asset/$providerId/$assetId/metadata'
       path: '/metadata'
       fullPath: '/api/v1/asset/$providerId/$assetId/metadata'
-      preLoaderRoute: typeof ApiV1AssetProviderIdAssetIdMetadataRouteImport
-      parentRoute: typeof ApiV1AssetProviderIdAssetIdRoute
+      preLoaderRoute: typeof publicApiV1AssetProviderIdAssetIdMetadataRouteImport
+      parentRoute: typeof publicApiV1AssetProviderIdAssetIdRoute
     }
   }
 }
 
-interface authRouteRouteChildren {
-  authLoginRoute: typeof authLoginRoute
-  authRegisterRoute: typeof authRegisterRoute
-  authAuthConfirmRoute: typeof authAuthConfirmRoute
-  authAuthConfirmErrorRoute: typeof authAuthConfirmErrorRoute
-  authAuthForgotPasswordRoute: typeof authAuthForgotPasswordRoute
-  authAuthUpdatePasswordRoute: typeof authAuthUpdatePasswordRoute
+interface privateauthRouteRouteChildren {
+  privateauthAuthUpdatePasswordRoute: typeof privateauthAuthUpdatePasswordRoute
 }
 
-const authRouteRouteChildren: authRouteRouteChildren = {
-  authLoginRoute: authLoginRoute,
-  authRegisterRoute: authRegisterRoute,
-  authAuthConfirmRoute: authAuthConfirmRoute,
-  authAuthConfirmErrorRoute: authAuthConfirmErrorRoute,
-  authAuthForgotPasswordRoute: authAuthForgotPasswordRoute,
-  authAuthUpdatePasswordRoute: authAuthUpdatePasswordRoute,
+const privateauthRouteRouteChildren: privateauthRouteRouteChildren = {
+  privateauthAuthUpdatePasswordRoute: privateauthAuthUpdatePasswordRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
+const privateauthRouteRouteWithChildren =
+  privateauthRouteRoute._addFileChildren(privateauthRouteRouteChildren)
+
+interface privatepagesRouteRouteChildren {
+  privatepagesCompleteProfileRoute: typeof privatepagesCompleteProfileRoute
+  privatepagesFavoritesRoute: typeof privatepagesFavoritesRoute
+  privatepagesSettingsProfileRoute: typeof privatepagesSettingsProfileRoute
+  privatepagesSettingsIndexRoute: typeof privatepagesSettingsIndexRoute
+}
+
+const privatepagesRouteRouteChildren: privatepagesRouteRouteChildren = {
+  privatepagesCompleteProfileRoute: privatepagesCompleteProfileRoute,
+  privatepagesFavoritesRoute: privatepagesFavoritesRoute,
+  privatepagesSettingsProfileRoute: privatepagesSettingsProfileRoute,
+  privatepagesSettingsIndexRoute: privatepagesSettingsIndexRoute,
+}
+
+const privatepagesRouteRouteWithChildren =
+  privatepagesRouteRoute._addFileChildren(privatepagesRouteRouteChildren)
+
+interface privateRouteRouteChildren {
+  privateauthRouteRoute: typeof privateauthRouteRouteWithChildren
+  privatepagesRouteRoute: typeof privatepagesRouteRouteWithChildren
+}
+
+const privateRouteRouteChildren: privateRouteRouteChildren = {
+  privateauthRouteRoute: privateauthRouteRouteWithChildren,
+  privatepagesRouteRoute: privatepagesRouteRouteWithChildren,
+}
+
+const privateRouteRouteWithChildren = privateRouteRoute._addFileChildren(
+  privateRouteRouteChildren,
 )
 
-interface pagesuserRouteRouteChildren {
-  pagesuserFavoritesRoute: typeof pagesuserFavoritesRoute
-  pagesuserSettingsProfileRoute: typeof pagesuserSettingsProfileRoute
-  pagesuserSettingsIndexRoute: typeof pagesuserSettingsIndexRoute
+interface publicauthRouteRouteChildren {
+  publicauthLoginRoute: typeof publicauthLoginRoute
+  publicauthRegisterRoute: typeof publicauthRegisterRoute
+  publicauthAuthConfirmErrorRoute: typeof publicauthAuthConfirmErrorRoute
+  publicauthAuthForgotPasswordRoute: typeof publicauthAuthForgotPasswordRoute
 }
 
-const pagesuserRouteRouteChildren: pagesuserRouteRouteChildren = {
-  pagesuserFavoritesRoute: pagesuserFavoritesRoute,
-  pagesuserSettingsProfileRoute: pagesuserSettingsProfileRoute,
-  pagesuserSettingsIndexRoute: pagesuserSettingsIndexRoute,
+const publicauthRouteRouteChildren: publicauthRouteRouteChildren = {
+  publicauthLoginRoute: publicauthLoginRoute,
+  publicauthRegisterRoute: publicauthRegisterRoute,
+  publicauthAuthConfirmErrorRoute: publicauthAuthConfirmErrorRoute,
+  publicauthAuthForgotPasswordRoute: publicauthAuthForgotPasswordRoute,
 }
 
-const pagesuserRouteRouteWithChildren = pagesuserRouteRoute._addFileChildren(
-  pagesuserRouteRouteChildren,
+const publicauthRouteRouteWithChildren = publicauthRouteRoute._addFileChildren(
+  publicauthRouteRouteChildren,
 )
 
-interface pagesRouteRouteChildren {
-  pagesuserRouteRoute: typeof pagesuserRouteRouteWithChildren
-  pagesButtonsRoute: typeof pagesButtonsRoute
-  pagesIndexRoute: typeof pagesIndexRoute
-  pagessearchSearchRoute: typeof pagessearchSearchRoute
-  pagesProfileProfileIdRoute: typeof pagesProfileProfileIdRoute
-  pagesAlbumsProviderIdAlbumIdRoute: typeof pagesAlbumsProviderIdAlbumIdRoute
-  pagesAssetsProviderIdAssetIdRoute: typeof pagesAssetsProviderIdAssetIdRoute
+interface publicpagesRouteRouteChildren {
+  publicpagesButtonsRoute: typeof publicpagesButtonsRoute
+  publicpagesIndexRoute: typeof publicpagesIndexRoute
+  publicpagessearchSearchRoute: typeof publicpagessearchSearchRoute
+  publicpagesProfileProfileIdRoute: typeof publicpagesProfileProfileIdRoute
+  publicpagesAlbumsProviderIdAlbumIdRoute: typeof publicpagesAlbumsProviderIdAlbumIdRoute
+  publicpagesAssetsProviderIdAssetIdRoute: typeof publicpagesAssetsProviderIdAssetIdRoute
 }
 
-const pagesRouteRouteChildren: pagesRouteRouteChildren = {
-  pagesuserRouteRoute: pagesuserRouteRouteWithChildren,
-  pagesButtonsRoute: pagesButtonsRoute,
-  pagesIndexRoute: pagesIndexRoute,
-  pagessearchSearchRoute: pagessearchSearchRoute,
-  pagesProfileProfileIdRoute: pagesProfileProfileIdRoute,
-  pagesAlbumsProviderIdAlbumIdRoute: pagesAlbumsProviderIdAlbumIdRoute,
-  pagesAssetsProviderIdAssetIdRoute: pagesAssetsProviderIdAssetIdRoute,
+const publicpagesRouteRouteChildren: publicpagesRouteRouteChildren = {
+  publicpagesButtonsRoute: publicpagesButtonsRoute,
+  publicpagesIndexRoute: publicpagesIndexRoute,
+  publicpagessearchSearchRoute: publicpagessearchSearchRoute,
+  publicpagesProfileProfileIdRoute: publicpagesProfileProfileIdRoute,
+  publicpagesAlbumsProviderIdAlbumIdRoute:
+    publicpagesAlbumsProviderIdAlbumIdRoute,
+  publicpagesAssetsProviderIdAssetIdRoute:
+    publicpagesAssetsProviderIdAssetIdRoute,
 }
 
-const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
-  pagesRouteRouteChildren,
+const publicpagesRouteRouteWithChildren =
+  publicpagesRouteRoute._addFileChildren(publicpagesRouteRouteChildren)
+
+interface publicApiV1AssetProviderIdAssetIdRouteChildren {
+  publicApiV1AssetProviderIdAssetIdMetadataRoute: typeof publicApiV1AssetProviderIdAssetIdMetadataRoute
+}
+
+const publicApiV1AssetProviderIdAssetIdRouteChildren: publicApiV1AssetProviderIdAssetIdRouteChildren =
+  {
+    publicApiV1AssetProviderIdAssetIdMetadataRoute:
+      publicApiV1AssetProviderIdAssetIdMetadataRoute,
+  }
+
+const publicApiV1AssetProviderIdAssetIdRouteWithChildren =
+  publicApiV1AssetProviderIdAssetIdRoute._addFileChildren(
+    publicApiV1AssetProviderIdAssetIdRouteChildren,
+  )
+
+interface publicRouteRouteChildren {
+  publicauthRouteRoute: typeof publicauthRouteRouteWithChildren
+  publicpagesRouteRoute: typeof publicpagesRouteRouteWithChildren
+  publicApiV1SearchRoute: typeof publicApiV1SearchRoute
+  publicApiV1AlbumsProviderIdAlbumIdRoute: typeof publicApiV1AlbumsProviderIdAlbumIdRoute
+  publicApiV1AssetProviderIdAssetIdRoute: typeof publicApiV1AssetProviderIdAssetIdRouteWithChildren
+}
+
+const publicRouteRouteChildren: publicRouteRouteChildren = {
+  publicauthRouteRoute: publicauthRouteRouteWithChildren,
+  publicpagesRouteRoute: publicpagesRouteRouteWithChildren,
+  publicApiV1SearchRoute: publicApiV1SearchRoute,
+  publicApiV1AlbumsProviderIdAlbumIdRoute:
+    publicApiV1AlbumsProviderIdAlbumIdRoute,
+  publicApiV1AssetProviderIdAssetIdRoute:
+    publicApiV1AssetProviderIdAssetIdRouteWithChildren,
+}
+
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
+  publicRouteRouteChildren,
 )
 
 interface DevObservabilityRouteRouteChildren {
@@ -767,30 +890,25 @@ const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(
   DevRouteRouteChildren,
 )
 
-interface ApiV1AssetProviderIdAssetIdRouteChildren {
-  ApiV1AssetProviderIdAssetIdMetadataRoute: typeof ApiV1AssetProviderIdAssetIdMetadataRoute
+interface tokenCallbacksAuthRouteRouteChildren {
+  tokenCallbacksAuthConfirmRoute: typeof tokenCallbacksAuthConfirmRoute
 }
 
-const ApiV1AssetProviderIdAssetIdRouteChildren: ApiV1AssetProviderIdAssetIdRouteChildren =
+const tokenCallbacksAuthRouteRouteChildren: tokenCallbacksAuthRouteRouteChildren =
   {
-    ApiV1AssetProviderIdAssetIdMetadataRoute:
-      ApiV1AssetProviderIdAssetIdMetadataRoute,
+    tokenCallbacksAuthConfirmRoute: tokenCallbacksAuthConfirmRoute,
   }
 
-const ApiV1AssetProviderIdAssetIdRouteWithChildren =
-  ApiV1AssetProviderIdAssetIdRoute._addFileChildren(
-    ApiV1AssetProviderIdAssetIdRouteChildren,
+const tokenCallbacksAuthRouteRouteWithChildren =
+  tokenCallbacksAuthRouteRoute._addFileChildren(
+    tokenCallbacksAuthRouteRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {
-  authRouteRoute: authRouteRouteWithChildren,
-  pagesRouteRoute: pagesRouteRouteWithChildren,
+  privateRouteRoute: privateRouteRouteWithChildren,
+  publicRouteRoute: publicRouteRouteWithChildren,
   DevRouteRoute: DevRouteRouteWithChildren,
-  CompleteProfileRoute: CompleteProfileRoute,
-  ApiV1SearchRoute: ApiV1SearchRoute,
-  ApiV1AlbumsProviderIdAlbumIdRoute: ApiV1AlbumsProviderIdAlbumIdRoute,
-  ApiV1AssetProviderIdAssetIdRoute:
-    ApiV1AssetProviderIdAssetIdRouteWithChildren,
+  tokenCallbacksAuthRouteRoute: tokenCallbacksAuthRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

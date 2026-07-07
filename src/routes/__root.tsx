@@ -20,11 +20,13 @@ import { App } from '@/app/shell'
 import { RouteErrorBoundary } from '@/app/layout/error'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
+// The user-scoped Supabase client is deliberately absent: it is accessed via
+// the isomorphic createUserSupabaseClient() factory, never router context, so
+// public-subtree SSR cannot receive user capability by tree position.
 interface MyRouterContext {
   eyepieceClient: EyepieceClient
   queryClient: QueryClient
   publicSupabaseClient: SupabaseClient
-  userSupabaseClient: SupabaseClient
   title?: () => string
 }
 

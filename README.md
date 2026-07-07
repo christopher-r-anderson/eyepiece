@@ -94,6 +94,18 @@ E2E tests may generate a `deno.lock` file the first time because the `netlify` c
 
 If you would like to set up a new production site using this codebase or just wish to understand the setup, you can refer to the [New production site setup](docs/NewProductionSite.md) guide.
 
+## Authentication and Caching
+
+Eyepiece uses a three-root route tree that enforces authentication requirements and cache policy at the boundary level:
+
+- **Public routes** (`/(public)/`) are unauthenticated. Server-side rendering never branches on user identity, so responses are CDN-cacheable by default. User-specific UI is rendered as client-only islands after hydration.
+- **Private routes** (`/(private)/`) require an authenticated session and always respond with `private, no-store`.
+- **Token-callback routes** (`/(token-callbacks)/`) handle sensitive one-time tokens (email confirmation, password reset, OAuth returns). No session is established on load, so responses are `private, no-store` and never cached.
+
+Cache policy and authentication enforcement are applied at each root and inherited by all descendants. Route files in each subtree cannot override policy, set raw `Cache-Control` headers, or access the user Supabase client outside the authenticated scope.
+
+For the full policy reference, including route classes, guard behavior, cache profiles, and client auth commands, see [docs/RoutePolicy.md](docs/RoutePolicy.md).
+
 ## Providers
 
 Eyepiece supports multiple image asset providers.

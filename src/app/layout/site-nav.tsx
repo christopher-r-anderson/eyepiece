@@ -1,9 +1,11 @@
 import { useRef } from 'react'
+import { ClientOnly } from '@tanstack/react-router'
 import { useLandmark } from 'react-aria'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
 import ThemeSwitch from '@/components/theme/theme-switch'
 import logo from '@/assets/eyepiece-logo.svg'
+import { LoginLink } from '@/features/auth/components/login-link'
 import { UserStatus } from '@/features/auth/components/user-status'
 import {
   COMPACT_LAYOUT_MIN_WIDTH,
@@ -104,9 +106,17 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
         >
           <ThemeSwitch />
           <Link to="/favorites">Favorites</Link>
-          <UserStatus />
+          <UserStatusClientIsland />
         </div>
       </div>
     </nav>
+  )
+}
+
+function UserStatusClientIsland() {
+  return (
+    <ClientOnly fallback={<LoginLink />}>
+      <UserStatus />
+    </ClientOnly>
   )
 }

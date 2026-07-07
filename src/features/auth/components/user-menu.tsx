@@ -1,14 +1,18 @@
 import { UserCircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { useRouter } from '@tanstack/react-router'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
+import { logErrorWithObservability } from '@/lib/error-logging'
+import { resultIsError } from '@/lib/result'
 
 export function UserMenu() {
+  const { commands } = useAuthCommands()
   const router = useRouter()
-  const supabaseClient = useUserSupabaseClient()
+  const queueToastMessage = useQueueToastMessage()
   const { data: user } = useCurrentUserQuery()
   return (
     <MenuTrigger>
@@ -61,10 +65,20 @@ export function UserMenu() {
           </MenuItem>
           <MenuItem
             onAction={async () => {
-              await supabaseClient.auth.signOut({
-                scope: 'local',
-              })
-              router.invalidate()
+              const result = await commands.logout()
+
+              if (resultIsError(result)) {
+                queueToastMessage({
+                  title: 'Log out failed',
+                  description: 'Please try again.',
+                })
+                logErrorWithObservability('Logout failed', result.error)
+                return
+              }
+
+              // AuthStateSync also invalidates on the SIGNED_OUT event; this
+              // direct call keeps the UI correct even if that event is missed.
+              await router.invalidate()
             }}
           >
             Log Out

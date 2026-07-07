@@ -1,15 +1,17 @@
 import { useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   errorFromPostgrestError,
   profileInputToUpsertProfile,
   profileRowToProfileDisplay,
 } from './profiles.utils'
+import { setProfileQueryData } from './profiles.queries'
 import type { ProfileErrorCode } from './profiles.utils'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { Result } from '@/lib/result'
 import type { Profile } from '@/domain/profile/profile.schema'
-import { Err, Ok } from '@/lib/result'
-import { useUserSupabaseClient } from '@/integrations/supabase/providers/user-provider'
+import { Err, Ok, resultIsSuccess } from '@/lib/result'
+import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
 
 export interface ProfilesCommands {
   upsertProfile: (
@@ -39,5 +41,17 @@ export function makeProfilesCommands(client: SupabaseClient): ProfilesCommands {
 
 export function useProfilesCommands(): ProfilesCommands {
   const client = useUserSupabaseClient()
-  return useMemo(() => makeProfilesCommands(client), [client])
+  const queryClient = useQueryClient()
+  return useMemo(() => {
+    const commands = makeProfilesCommands(client)
+    return {
+      upsertProfile: async (profile) => {
+        const result = await commands.upsertProfile(profile)
+        if (resultIsSuccess(result)) {
+          setProfileQueryData(queryClient, result.data)
+        }
+        return result
+      },
+    }
+  }, [client, queryClient])
 }

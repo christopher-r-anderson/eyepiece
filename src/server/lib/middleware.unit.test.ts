@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { buildUrlSearchParamsMiddleware } from './middleware'
+import {
+  buildPublicApiCacheMiddleware,
+  buildUrlSearchParamsMiddleware,
+} from './middleware'
 import { shouldReportError } from '@/lib/error-observability'
 
 vi.mock('@tanstack/react-start', () => ({
@@ -48,5 +51,84 @@ describe('buildUrlSearchParamsMiddleware', () => {
     expect(body.error.issues[0].path).toBe('page')
     expect(body.error.issues[0].message).toMatch('Too small')
     expect(shouldReportError(response)).toBe(false)
+  })
+})
+
+describe('buildPublicApiCacheMiddleware', () => {
+  it('adds public cache control to returned successful responses', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    const response = await middleware({
+      next: vi.fn().mockResolvedValue(Response.json({ ok: true })),
+    })
+
+    expect(response.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+    expect(response.headers.get('Netlify-CDN-Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=300, durable',
+    )
+  })
+
+  it('adds public cache control to middleware result.response values', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    const result = await middleware({
+      next: vi.fn().mockResolvedValue({
+        response: Response.json({ ok: true }),
+      }),
+    })
+
+    expect(result.response.headers.get('Cache-Control')).toBe(
+      'public, max-age=0, s-maxage=300, stale-while-revalidate=300',
+    )
+  })
+
+  it('marks returned error responses private, no-store', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    const response = await middleware({
+      next: vi
+        .fn()
+        .mockResolvedValue(
+          Response.json({ error: { code: 'UPSTREAM_ERROR' } }, { status: 502 }),
+        ),
+    })
+
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(response.headers.get('Netlify-CDN-Cache-Control')).toBeNull()
+  })
+
+  it('marks thrown error responses private, no-store', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+
+    let response: Response | undefined
+    try {
+      await middleware({
+        next: vi
+          .fn()
+          .mockRejectedValue(
+            Response.json(
+              { error: { code: 'INVALID_INPUT' } },
+              { status: 400 },
+            ),
+          ),
+      })
+    } catch (error) {
+      response = error as Response
+    }
+
+    expect(response?.status).toBe(400)
+    expect(response?.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(response?.headers.get('Netlify-CDN-Cache-Control')).toBeNull()
+  })
+
+  it('rethrows non-Response errors unchanged', async () => {
+    const middleware = buildPublicApiCacheMiddleware() as any
+    const error = new Error('boom')
+
+    await expect(
+      middleware({ next: vi.fn().mockRejectedValue(error) }),
+    ).rejects.toBe(error)
   })
 })

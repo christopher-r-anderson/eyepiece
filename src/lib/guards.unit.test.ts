@@ -1,27 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  requireAnonymous,
-  requireAuthenticated,
-  userHasProfile,
-} from './guards'
+import { requireAuthenticated, userHasProfile } from './guards'
 
 // Keep the real redirect so the thrown value has the shape guards produce.
 // We check thrown objects via toMatchObject so exact class doesn't matter.
 
 import { getUser } from '@/features/auth/get-user'
-import { hasServerClaims } from '@/lib/has-server-claims.functions'
 import { fetchCurrentUser } from '@/features/auth/auth.queries'
 import { fetchProfile } from '@/features/profiles/profiles.queries'
+import { logErrorWithObservability } from '@/lib/error-logging'
 
 // ---------------------------------------------------------------------------
 // Module mocks
 
 vi.mock('@/features/auth/get-user', () => ({
   getUser: vi.fn(),
-}))
-
-vi.mock('@/lib/has-server-claims.functions', () => ({
-  hasServerClaims: vi.fn(),
 }))
 
 vi.mock('@/features/auth/auth.queries', () => ({
@@ -32,16 +24,21 @@ vi.mock('@/features/profiles/profiles.queries', () => ({
   fetchProfile: vi.fn(),
 }))
 
+vi.mock('@/lib/error-logging', () => ({
+  logErrorWithObservability: vi.fn(),
+}))
+
 const mockGetUser = vi.mocked(getUser)
-const mockHasServerClaims = vi.mocked(hasServerClaims)
 const mockFetchCurrentUser = vi.mocked(fetchCurrentUser)
 const mockFetchProfile = vi.mocked(fetchProfile)
+const mockLogErrorWithObservability = vi.mocked(logErrorWithObservability)
 
 const USER = { id: 'user-uuid-123', email: 'test@example.com' }
 
 // Minimal ParsedLocation shape used by guards
 function makeLocation(href: string) {
-  return { href } as any
+  const pathname = href.split('?')[0] ?? href
+  return { href, pathname } as any
 }
 
 // ---------------------------------------------------------------------------
@@ -49,7 +46,10 @@ function makeLocation(href: string) {
 // ---------------------------------------------------------------------------
 
 describe('requireAuthenticated', () => {
-  beforeEach(() => mockGetUser.mockReset())
+  beforeEach(() => {
+    mockGetUser.mockReset()
+    mockLogErrorWithObservability.mockReset()
+  })
 
   it('returns the user when authenticated', async () => {
     mockGetUser.mockResolvedValue(USER as any)
@@ -88,35 +88,26 @@ describe('requireAuthenticated', () => {
       options: { search: { next: '/settings?query=foo' } },
     })
   })
-})
 
-// ---------------------------------------------------------------------------
-// requireAnonymous
-// ---------------------------------------------------------------------------
-
-describe('requireAnonymous', () => {
-  beforeEach(() => mockHasServerClaims.mockReset())
-
-  it('does not throw when the user is not authenticated', async () => {
-    mockHasServerClaims.mockResolvedValue(false)
-
-    await expect(requireAnonymous({ search: {} })).resolves.toBeUndefined()
-  })
-
-  it('redirects to / when already authenticated and no next param is present', async () => {
-    mockHasServerClaims.mockResolvedValue(true)
-
-    await expect(requireAnonymous({ search: {} })).rejects.toMatchObject({
-      options: { to: '/' },
-    })
-  })
-
-  it('redirects to the next param path when already authenticated', async () => {
-    mockHasServerClaims.mockResolvedValue(true)
+  it('logs and redirects to login when getUser throws an unexpected error', async () => {
+    const error = new Error('supabase unavailable')
+    mockGetUser.mockRejectedValue(error)
 
     await expect(
-      requireAnonymous({ search: { next: '/albums' } }),
-    ).rejects.toMatchObject({ options: { to: '/albums' } })
+      requireAuthenticated({
+        location: makeLocation('/settings?query=foo'),
+      }),
+    ).rejects.toMatchObject({
+      options: { to: '/login', search: { next: '/settings?query=foo' } },
+    })
+
+    expect(mockLogErrorWithObservability).toHaveBeenCalledWith(
+      'Unexpected error in requireAuthenticated',
+      error,
+      {
+        path: '/settings?query=foo',
+      },
+    )
   })
 })
 
@@ -172,5 +163,17 @@ describe('userHasProfile', () => {
     ).rejects.toMatchObject({
       options: { search: { next: '/favorites' } },
     })
+  })
+
+  it('does not redirect when already on /complete-profile', async () => {
+    await expect(
+      userHasProfile({
+        context,
+        location: makeLocation('/complete-profile?next=/favorites'),
+      }),
+    ).resolves.toBeUndefined()
+
+    expect(mockFetchCurrentUser).not.toHaveBeenCalled()
+    expect(mockFetchProfile).not.toHaveBeenCalled()
   })
 })

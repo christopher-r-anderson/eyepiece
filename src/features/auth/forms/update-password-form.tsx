@@ -4,7 +4,7 @@ import { useId } from 'react-aria'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
-import { useAuth } from '@/features/auth/auth.provider'
+import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,
@@ -32,7 +32,7 @@ export function UpdatePasswordForm({
 }) {
   const id = useId()
   const userQuery = useCurrentUserQuery()
-  const { commands } = useAuth()
+  const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
     updatePasswordSchema,
