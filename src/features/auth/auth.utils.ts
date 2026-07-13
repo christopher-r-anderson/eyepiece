@@ -10,6 +10,16 @@ export function stripAuthSearchParams<T extends Record<string, unknown>>(
   }
   return newParams as Omit<T, (typeof STRIP_PARAMS)[number]>
 }
+
+export function pickAuthSearchParams(params: Record<string, unknown>) {
+  const picked: Record<string, unknown> = {}
+  for (const key of STRIP_PARAMS) {
+    if (params[key] !== undefined) {
+      picked[key] = params[key]
+    }
+  }
+  return picked
+}
 export function isPlainLeftClick({
   button,
   metaKey,

@@ -12,6 +12,22 @@ export const providerIdSchema = z.enum(PROVIDERS, {
 
 export type ProviderId = z.infer<typeof providerIdSchema>
 
+export type ProviderDisplay = {
+  shortLabel: string
+  displayName: string
+}
+
+export const PROVIDER_DISPLAY = {
+  [NASA_IVL_PROVIDER_ID]: {
+    shortLabel: 'NASA',
+    displayName: 'NASA Image and Video Library',
+  },
+  [SI_OA_PROVIDER_ID]: {
+    shortLabel: 'Smithsonian',
+    displayName: 'Smithsonian National Air and Space Museum',
+  },
+} as const satisfies Record<ProviderId, ProviderDisplay>
+
 export type ProviderCapabilities = {
   albums?: true
   metadata?: true

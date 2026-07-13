@@ -67,7 +67,7 @@ const config = defineConfig(({ mode }) => {
           test: {
             name: 'unit',
             environment: 'jsdom',
-            include: ['**/*unit.test.ts'],
+            include: ['**/*unit.test.{ts,tsx}'],
           },
         },
         {

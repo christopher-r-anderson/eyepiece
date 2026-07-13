@@ -14,3 +14,21 @@ export const nasaIvlSearchFiltersSchema = z.object({
 })
 
 export type NasaIvlSearchFilters = z.infer<typeof nasaIvlSearchFiltersSchema>
+
+// URL-boundary variant: invalid values drop per key instead of failing the
+// whole parse.
+export const nasaIvlSearchFiltersLenientSchema = z.object({
+  mediaType: nasaIvlMediaTypeSchema.optional().catch(undefined),
+  yearStart: z.coerce
+    .number()
+    .min(YEAR_MIN)
+    .max(YEAR_MAX)
+    .optional()
+    .catch(undefined),
+  yearEnd: z.coerce
+    .number()
+    .min(YEAR_MIN)
+    .max(YEAR_MAX)
+    .optional()
+    .catch(undefined),
+})
