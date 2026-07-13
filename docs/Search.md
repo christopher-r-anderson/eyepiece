@@ -76,6 +76,23 @@ Constraints the implementation depends on:
 - no `beforeLoad` redirect: a `publicBoundary()` route must never CDN-cache
   a redirect response; every spelling serves the content directly
 
+## The All View
+
+`AllProvidersResults` renders one section per provider with the top results
+and a "See all from {provider}" link into the scoped tab. Rules it depends
+on:
+
+- sections read the same infinite query as the scoped tab through a top-N
+  `select`, so "See all" and returning to All render from cache; any drift
+  in the query key reintroduces a double fetch (guarded by the key-parity
+  test and the e2e request-count assertion)
+- the loader fires the all-scope prefetches without awaiting: queries
+  stream as they settle, so TTFB and healthy sections never wait on the
+  slowest provider. Don't switch to `ensureInfiniteQueryData` - a rejection
+  there takes down the whole page instead of one section
+- sections fail alone: sibling Suspense and error boundaries per section,
+  inline alert instead of the route error page
+
 ## Cache Policy
 
 /search inherits public cache headers from the `(public)` boundary (see

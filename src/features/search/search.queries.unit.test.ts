@@ -1,11 +1,17 @@
 import { describe, expect, it, vi } from 'vitest'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, hashKey } from '@tanstack/react-query'
 import {
   getInfiniteSearchImagesOptions,
+  makeTopNSearchSelector,
   prefetchInfiniteSearch,
 } from './search.queries'
+import { toSearchPageState } from './search-page-params'
 import type { SearchRepo } from './search.repo'
-import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import type { SearchFilters } from '@/domain/search/search.schema'
+import {
+  NASA_IVL_PROVIDER_ID,
+  PROVIDERS,
+} from '@/domain/provider/provider.schema'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const query = 'apollo'
@@ -90,5 +96,64 @@ describe('prefetchInfiniteSearch', () => {
 
     expect(cached?.pages).toHaveLength(1)
     expect(cached?.pages[0]?.pagination.total).toBe(0)
+  })
+})
+
+describe('makeTopNSearchSelector', () => {
+  const asset = (externalId: string) => ({ key: { externalId } }) as any
+
+  it('slices flattened pages to n and surfaces the total', () => {
+    const select = makeTopNSearchSelector(2)
+
+    expect(
+      select({
+        pages: [
+          {
+            items: [asset('a'), asset('b')],
+            pagination: { next: 2, total: 40 },
+          },
+          {
+            items: [asset('c')],
+            pagination: { next: null, total: 40 },
+          },
+        ],
+        pageParams: [1, 2],
+      }),
+    ).toEqual({ items: [asset('a'), asset('b')], total: 40 })
+  })
+
+  it('returns fewer items when the first page is short', () => {
+    const select = makeTopNSearchSelector(6)
+
+    expect(
+      select({
+        pages: [{ items: [asset('a')], pagination: { next: null, total: 1 } }],
+        pageParams: [1],
+      }),
+    ).toEqual({ items: [asset('a')], total: 1 })
+  })
+})
+
+describe('section and scoped-tab query key parity', () => {
+  // any drift here reintroduces a double fetch on "See all"
+  const repo: SearchRepo = { searchImages: vi.fn() as any }
+
+  it.each(PROVIDERS)('matches for %s default filters', (providerId) => {
+    const sectionFilters: SearchFilters = { providerId, filters: {} }
+    const { scope } = toSearchPageState({ q: 'moon', providerId })
+    if (scope.scope !== 'provider') throw new Error('expected provider scope')
+
+    const sectionKey = getInfiniteSearchImagesOptions({
+      repo,
+      query: 'moon',
+      filters: sectionFilters,
+    }).queryKey
+    const scopedTabKey = getInfiniteSearchImagesOptions({
+      repo,
+      query: 'moon',
+      filters: scope.filters,
+    }).queryKey
+
+    expect(hashKey(sectionKey)).toBe(hashKey(scopedTabKey))
   })
 })
