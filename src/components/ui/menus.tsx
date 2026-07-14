@@ -54,7 +54,7 @@ const menuItemStyles = css.raw({
     outline: 'none',
   },
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
   },
 })
 

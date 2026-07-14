@@ -37,14 +37,12 @@ const button = cva({
     alignItems: 'center',
     justifyContent: 'center',
     whiteSpace: 'nowrap',
-    transitionProperty: 'background-color, color, transform',
-    transitionDuration: 'fast',
-    transitionTimingFunction: 'default',
+    transitionFast: 'background-color, color, transform',
     _focused: {
       outline: 'none',
     },
     _focusVisible: {
-      outline: '1px solid token(colors.outline)',
+      outline: 'focusRing',
     },
     _pressed: {
       transform: 'translateY(1px)',

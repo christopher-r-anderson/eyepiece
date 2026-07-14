@@ -17,16 +17,14 @@ const switchRecipe = cva({
     color: 'secondary.text',
     cursor: 'pointer',
     lineHeight: 1,
-    transitionProperty: 'background-color, color, border-color',
-    transitionDuration: 'fast',
-    transitionTimingFunction: 'default',
+    transitionFast: 'background-color, color, border-color',
     _selected: {
       backgroundColor: 'primary.bg',
       color: 'primary.text',
       borderColor: 'transparent',
     },
     _focusVisible: {
-      outline: '1px solid token(colors.outline)',
+      outline: 'focusRing',
     },
     _disabled: {
       opacity: 0.6,

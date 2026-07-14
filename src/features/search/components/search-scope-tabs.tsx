@@ -21,7 +21,6 @@ const tabLinkCss = css.raw(tabStyles, {
     zIndex: 1,
   },
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
     outlineOffset: 0,
   },
 })

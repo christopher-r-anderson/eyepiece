@@ -82,7 +82,7 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         borderRadius: 'calc(token(radii.lg) - token(spacing.2))',
         overflow: 'hidden',
         _focusVisible: {
-          outline: '1px solid token(colors.outline)',
+          outline: 'focusRing',
           outlineOffset: '-2px',
         },
       })}

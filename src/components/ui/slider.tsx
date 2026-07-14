@@ -37,7 +37,7 @@ const sliderThumbStyles = css.raw({
   cursor: 'pointer',
   outline: 'none',
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
   },
 })
 

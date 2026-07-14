@@ -17,9 +17,7 @@ const toggleButton = cva({
     color: 'text.muted',
     cursor: 'pointer',
     lineHeight: 1,
-    transitionProperty: 'background-color, color, border-color',
-    transitionDuration: 'fast',
-    transitionTimingFunction: 'default',
+    transitionFast: 'background-color, color, border-color',
     _hovered: {
       backgroundColor: 'tertiary.bg',
       color: 'tertiary.text',
@@ -30,7 +28,7 @@ const toggleButton = cva({
       borderColor: 'border',
     },
     _focusVisible: {
-      outline: '1px solid token(colors.outline)',
+      outline: 'focusRing',
     },
     _disabled: {
       opacity: 0.6,
@@ -55,9 +53,7 @@ const toggleButton = cva({
         border: 'none',
         backgroundColor: 'transparent',
         color: 'var(--toggle-icon-color, token(colors.text.muted))',
-        transitionProperty: 'color, filter, transform, outline-color',
-        transitionDuration: 'fast',
-        transitionTimingFunction: 'default',
+        transitionFast: 'color, filter, transform, outline-color',
         _hovered: {
           backgroundColor: 'transparent',
           borderColor: 'transparent',
@@ -73,7 +69,7 @@ const toggleButton = cva({
             'drop-shadow(0 0 0.6rem var(--toggle-icon-selected-glow, transparent))',
         },
         _focusVisible: {
-          outline: '1px solid token(colors.outline)',
+          outline: 'focusRing',
           outlineOffset: '3px',
         },
         _disabled: {

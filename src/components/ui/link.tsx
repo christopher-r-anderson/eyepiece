@@ -7,12 +7,10 @@ import type { SystemStyleObject } from 'styled-system/types'
 const linkStyles = css.raw({
   color: 'link',
   textDecoration: 'none',
-  transitionProperty: 'color',
-  transitionDuration: 'fast',
-  transitionTimingFunction: 'default',
+  transitionFast: 'color',
   _hovered: { textDecoration: 'underline' },
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
     outlineOffset: '2px',
   },
 })

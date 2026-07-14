@@ -31,15 +31,13 @@ const listBoxItemStyles = css.raw({
   borderRadius: 'md',
   cursor: 'pointer',
   outline: 'none',
-  transitionProperty: 'background-color, color',
-  transitionDuration: 'fast',
-  transitionTimingFunction: 'default',
+  transitionFast: 'background-color, color',
   '&[data-hovered], &[data-focused], &[data-selected]': {
     backgroundColor: 'tertiary.bg',
     color: 'tertiary.text',
   },
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
   },
 })
 

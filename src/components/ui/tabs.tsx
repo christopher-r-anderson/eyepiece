@@ -40,9 +40,7 @@ export const tabStyles = css.raw({
   alignItems: 'center',
   cursor: 'pointer',
   outline: 'none',
-  transitionProperty: 'background-color, color',
-  transitionDuration: 'fast',
-  transitionTimingFunction: 'default',
+  transitionFast: 'background-color, color',
   _selected: {
     fontWeight: 'bold',
     backgroundColor: 'tertiary.bg',
@@ -50,7 +48,7 @@ export const tabStyles = css.raw({
     zIndex: 1,
   },
   _focusVisible: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
   },
 })
 
