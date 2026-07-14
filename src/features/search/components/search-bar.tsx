@@ -91,7 +91,7 @@ export function SearchBar({
           borderRadius: 'md',
           border: 'default',
           boxShadow: 'sm',
-          _searchBarInline: {
+          '@/xl': {
             gridTemplateColumns: 'minmax(0, 1fr) auto',
             gap: '4',
             alignItems: 'center',

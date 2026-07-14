@@ -15,7 +15,7 @@ export function AssetDetail({ asset }: { asset: Asset }) {
         margin: '0 auto',
         paddingInline: '4',
         containerType: 'inline-size',
-        _detailSplit: {
+        '@/4xl': {
           flexDirection: 'row',
         },
       })}
@@ -37,7 +37,7 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           minHeight: '300px',
           position: 'static',
           alignSelf: 'stretch',
-          _detailSplit: {
+          '@/4xl': {
             width: 'auto',
             position: 'sticky',
             top: '6',

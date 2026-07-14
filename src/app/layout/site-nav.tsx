@@ -38,14 +38,14 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
           alignItems: 'center',
           paddingBlock: '3',
           paddingInline: '4',
-          _compactLayout: {
+          '@/2xl': {
             gridTemplateColumns: '1fr auto',
             gridTemplateAreas: '"logo links"',
             gap: '4',
             alignItems: 'center',
             justifyItems: 'stretch',
           },
-          _headerInline: {
+          '@/3xl': {
             gridTemplateColumns: 'auto minmax(0, 1fr)',
             gridTemplateAreas: '"logo links"',
             paddingBlock: '4',
@@ -95,11 +95,11 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
             lineHeight: 'tight',
             minWidth: 0,
             width: '100%',
-            _compactLayout: {
+            '@/2xl': {
               justifyContent: 'flex-end',
               width: 'auto',
             },
-            _headerInline: {
+            '@/3xl': {
               flexWrap: 'nowrap',
               columnGap: '4',
             },

@@ -66,7 +66,7 @@ export function LoginForm({
             gap: '3',
             alignItems: 'center',
             marginBlockStart: '4',
-            _compactLayout: {
+            '@/2xl': {
               gridTemplateColumns: 'minmax(0, 1fr) auto',
             },
           })}

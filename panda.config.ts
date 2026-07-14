@@ -110,14 +110,22 @@ export default defineConfig({
       exiting: '&[data-exiting]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
-      // container query breakpoints
-      compactLayout: '@container (min-width: 40rem)',
-      headerInline: '@container (min-width: 48rem)',
-      detailSplit: '@container (min-width: 56rem)',
-      searchBarInline: '@container (min-width: 34rem)',
     },
   },
   theme: {
+    // standard container query ladder, used as '@/xl' etc. against the
+    // nearest containerType ancestor
+    containerSizes: {
+      xs: '20rem',
+      sm: '24rem',
+      md: '28rem',
+      lg: '32rem',
+      xl: '36rem',
+      '2xl': '42rem',
+      '3xl': '48rem',
+      '4xl': '56rem',
+      '5xl': '64rem',
+    },
     tokens: {
       fonts: {
         sans: {
