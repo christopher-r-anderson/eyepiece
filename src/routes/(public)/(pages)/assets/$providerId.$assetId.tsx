@@ -4,6 +4,7 @@ import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
+import { Heading } from '@/components/ui/heading'
 import { ghostButtonCss } from '@/components/ui/button'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
@@ -20,17 +21,16 @@ import {
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
-    <h1
-      className={css({
-        margin: 0,
+    <Heading
+      headingLevel={1}
+      css={css.raw({
+        marginBlockEnd: 0,
         minWidth: 0,
-        fontSize: '2xl',
-        lineHeight: 'tight',
         overflowWrap: 'anywhere',
       })}
     >
       {name}
-    </h1>
+    </Heading>
   )
 }
 

@@ -1,14 +1,10 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
-import {
-  Dialog,
-  Heading,
-  ModalOverlay,
-  Modal as RacModal,
-} from 'react-aria-components'
+import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { useId } from 'react-aria'
 import { useEffect } from 'react'
 import { css } from 'styled-system/css'
 import { Button } from './button'
+import { Heading } from './heading'
 import type { ReactNode } from 'react'
 
 const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
@@ -101,9 +97,9 @@ export function ModalDialog({
             })}
           >
             <Heading
+              headingLevel={3}
               id={titleId}
-              slot="title"
-              className={css({
+              css={css.raw({
                 flex: '1 1 auto',
                 marginBlockEnd: 0,
                 minWidth: 0,

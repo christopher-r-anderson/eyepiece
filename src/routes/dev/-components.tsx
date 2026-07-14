@@ -92,7 +92,9 @@ export function DevPageIntro({
       </div>
 
       <div className={css(devTextStackCss)}>
-        <PageHeading css={css.raw({ margin: 0 })}>{title}</PageHeading>
+        <PageHeading css={css.raw({ marginTop: 0, marginBlockEnd: 0 })}>
+          {title}
+        </PageHeading>
         <p
           className={css(
             descriptionTone === 'muted'

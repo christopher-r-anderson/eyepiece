@@ -6,6 +6,7 @@ import { css } from 'styled-system/css'
 import { AssetResultsGrid } from './asset-results-grid'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
+import { Heading } from '@/components/ui/heading'
 import { CapturedAlertError } from '@/app/layout/route-error'
 import { Link } from '@/components/ui/link'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
@@ -53,9 +54,13 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           marginBottom: '4',
         })}
       >
-        <h2 id={headingId} className={css({ margin: 0, fontSize: 'xl' })}>
+        <Heading
+          headingLevel={2}
+          id={headingId}
+          css={css.raw({ marginBlockEnd: 0 })}
+        >
           {display.displayName}
-        </h2>
+        </Heading>
         <Link
           to="/search"
           search={{ q: query, providerId }}

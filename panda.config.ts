@@ -26,19 +26,11 @@ export default defineConfig({
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
     },
+    // margin reset only: the type scale lives in the Heading component;
+    // raw headings (the app error boundary) get browser defaults
     'h1, h2, h3, h4, h5, h6': {
       margin: 0,
-      color: 'inherit',
-      fontFamily: 'inherit',
-      fontWeight: 700,
-      lineHeight: 'tight',
     },
-    h1: { fontSize: '2xl' },
-    h2: { fontSize: 'xl' },
-    h3: { fontSize: 'lg' },
-    h4: { fontSize: 'base' },
-    h5: { fontSize: 'sm' },
-    h6: { fontSize: 'xs' },
     'button, input, textarea, select': {
       font: 'inherit',
       color: 'inherit',
