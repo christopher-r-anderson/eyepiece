@@ -1,7 +1,7 @@
 import { Popover as RacPopover } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const popoverStyles = css.raw({
   border: 'default',
@@ -11,10 +11,7 @@ const popoverStyles = css.raw({
   overflow: 'hidden',
 })
 
-export type PopoverProps = ComponentProps<typeof RacPopover> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type PopoverProps = ComponentProps<typeof RacPopover> & StyleProps
 
 export function Popover({ css: cssProp, className, ...props }: PopoverProps) {
   return (

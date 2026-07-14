@@ -7,7 +7,7 @@ import {
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const tabsStyles = css.raw({
   display: 'grid',
@@ -59,30 +59,15 @@ export const tabPanelStyles = css.raw({
   padding: '4',
 })
 
-export type TabsProps = ComponentProps<typeof RacTabs> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type TabsProps = ComponentProps<typeof RacTabs> & StyleProps
 
-export type TabListProps = ComponentProps<typeof RacTabList> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type TabListProps = ComponentProps<typeof RacTabList> & StyleProps
 
-export type TabProps = ComponentProps<typeof RacTab> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type TabProps = ComponentProps<typeof RacTab> & StyleProps
 
-export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & StyleProps
 
-export type TabPanelProps = ComponentProps<typeof RacTabPanel> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type TabPanelProps = ComponentProps<typeof RacTabPanel> & StyleProps
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (

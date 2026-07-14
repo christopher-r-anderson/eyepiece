@@ -8,7 +8,7 @@ import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const listBoxStyles = css.raw({
   display: 'grid',
@@ -50,10 +50,7 @@ const renderedItemContentStyles = css.raw({
   textDecoration: 'none',
 })
 
-export type ListBoxProps<T extends object> = RacListBoxProps<T> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
 
 export function ListBox<T extends object>({
   css: cssProp,
@@ -68,10 +65,7 @@ export function ListBox<T extends object>({
   )
 }
 
-export type ListBoxItemProps = RacListBoxItemProps & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type ListBoxItemProps = RacListBoxItemProps & StyleProps
 
 export function ListBoxItem({
   css: cssProp,

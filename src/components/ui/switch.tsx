@@ -1,7 +1,7 @@
 import { Switch as RacSwitch } from 'react-aria-components'
 import { css, cva, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const switchRecipe = cva({
   base: {
@@ -58,10 +58,8 @@ const switchRecipe = cva({
 type SwitchVariant = 'default' | 'subtle'
 
 export type SwitchProps = ComponentProps<typeof RacSwitch> & {
-  css?: SystemStyleObject
-  className?: string
   variant?: SwitchVariant
-}
+} & StyleProps
 
 export function Switch({
   css: cssProp,

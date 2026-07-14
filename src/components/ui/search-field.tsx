@@ -1,7 +1,7 @@
 import { SearchField as RacSearchField } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const searchFieldStyles = css.raw({
   display: 'inline-flex',
@@ -17,10 +17,8 @@ const searchFieldStyles = css.raw({
   boxShadow: 'sm',
 })
 
-export type SearchFieldProps = ComponentProps<typeof RacSearchField> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type SearchFieldProps = ComponentProps<typeof RacSearchField> &
+  StyleProps
 
 export function SearchField({
   css: cssProp,

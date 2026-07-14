@@ -9,14 +9,14 @@ import {
 import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
-import { css, cx } from 'styled-system/css'
+import { css, cva, cx } from 'styled-system/css'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
@@ -35,9 +35,8 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
   surface?: 'plain' | 'panel'
-  css?: SystemStyleObject
-  className?: string
-} & RacFormProps
+} & StyleProps &
+  RacFormProps
 
 export const formActionsCss = css.raw({
   display: 'flex',
@@ -62,20 +61,25 @@ export const formStatusPanelCss = css.raw({
   gap: '3',
 })
 
-const formStyles = css.raw({
-  width: '100%',
-  padding: '4',
-  margin: '0 auto',
-  containerType: 'inline-size',
-})
-
-const panelFormStyles = css.raw({
-  ...formStyles,
-  padding: '5',
-  border: 'default',
-  borderRadius: 'lg',
-  backgroundColor: 'secondary.bg',
-  boxShadow: 'sm',
+const form = cva({
+  base: {
+    width: '100%',
+    padding: '4',
+    margin: '0 auto',
+    containerType: 'inline-size',
+  },
+  variants: {
+    surface: {
+      plain: {},
+      panel: {
+        padding: '5',
+        border: 'default',
+        borderRadius: 'lg',
+        backgroundColor: 'secondary.bg',
+        boxShadow: 'sm',
+      },
+    },
+  },
 })
 
 const textFieldControlStyles = css.raw({
@@ -133,10 +137,7 @@ export function Form({
   return (
     <RacForm
       {...props}
-      className={cx(
-        css(surface === 'panel' ? panelFormStyles : formStyles, cssProp),
-        className,
-      )}
+      className={cx(css(form.raw({ surface }), cssProp), className)}
     >
       {children}
       {formError && <FormError error={formError} />}
