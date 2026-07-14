@@ -11,7 +11,7 @@ import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
 
-const favoriteToggleCss = css.raw({
+export const favoriteToggleCss = css.raw({
   '--toggle-icon-color': 'token(colors.favoriteToggle.idle)',
   '--toggle-icon-hover-color': 'token(colors.favoriteToggle.hover)',
   '--toggle-icon-hover-glow': 'token(colors.favoriteToggle.glow)',

@@ -10,7 +10,7 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
       aria-label="Search"
       css={css.raw(
         {
-          background: 'transparent',
+          backgroundColor: 'transparent',
           borderColor: 'transparent',
           color: 'secondary.text',
           fontSize: '1em',

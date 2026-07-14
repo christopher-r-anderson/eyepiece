@@ -7,7 +7,7 @@ export function CollectionsPage() {
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',
-        padding: '2rem',
+        padding: '6',
       })}
     >
       <h1 className={css({ color: 'text.accent' })}>Collections</h1>

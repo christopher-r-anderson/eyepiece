@@ -57,7 +57,7 @@ export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
     >
       <SliderTrack
         css={css.raw({
-          marginTop: '0.5rem',
+          marginTop: '2',
         })}
       >
         {({ state }) => (

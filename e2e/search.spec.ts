@@ -263,8 +263,15 @@ test('provider scope server-renders the media type select and hydrates cleanly',
   const serverHtml = (await response?.text()) ?? ''
   expect(serverHtml).toContain('<select')
 
+  // a click that lands before hydration is a no-op; retry until the
+  // listbox actually opens
   const mediaTypeSelect = page.getByRole('button', { name: 'All Media Type' })
-  await mediaTypeSelect.click()
+  await expect(async () => {
+    await mediaTypeSelect.click()
+    await expect(page.getByRole('option', { name: 'Video' })).toBeVisible({
+      timeout: 1000,
+    })
+  }).toPass()
   await page.getByRole('option', { name: 'Video' }).click()
   await expect(
     page.getByRole('button', { name: 'Video Media Type' }),

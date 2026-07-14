@@ -209,10 +209,7 @@ export default defineConfig({
           },
         },
         link: {
-          value: {
-            base: 'oklch(0.532 0.162 288)',
-            _dark: 'oklch(0.7162 0.1597 290.3962)',
-          },
+          value: '{colors.text.accent}',
         },
         border: {
           value: {

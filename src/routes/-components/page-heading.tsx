@@ -10,9 +10,8 @@ const pageHeadingStyles = css.raw({
   fontSize: 'clamp(token(fontSizes.2xl), 4vw, 2.5rem)',
   fontWeight: 'bold',
   lineHeight: 'tight',
-  marginTop: '4',
-  marginInline: 0,
-  marginBottom: '6',
+  // shorthand so caller margin overrides win the css() merge
+  margin: 'token(spacing.4) 0 token(spacing.6)',
   padding: 0,
   alignSelf: 'flex-start',
 })

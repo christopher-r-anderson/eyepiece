@@ -56,10 +56,6 @@ const itemStyles = css.raw({
   lineHeight: 'tight',
 })
 
-const listItemStyles = css.raw({
-  ...itemStyles,
-})
-
 // react aria includes an `href` key in domProps even when it is `undefined`
 // which keeps typescript from being able to narrow the type appropriately on its own
 function hasRenderableHref(
@@ -119,7 +115,7 @@ export function Select<T extends object>({
                   return (
                     <a
                       {...domProps}
-                      className={cx(css(listItemStyles), domProps.className)}
+                      className={cx(css(itemStyles), domProps.className)}
                     >
                       {renderItem
                         ? renderItem(item, itemProps)
@@ -131,7 +127,7 @@ export function Select<T extends object>({
                 return (
                   <div
                     {...domProps}
-                    className={cx(css(listItemStyles), domProps.className)}
+                    className={cx(css(itemStyles), domProps.className)}
                   >
                     {renderItem
                       ? renderItem(item, itemProps)

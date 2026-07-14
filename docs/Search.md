@@ -110,6 +110,6 @@ no "remember my tab".
    `toCanonicalUrlParams`, never object literals; query strings are built
    with `stringifySearchParams`, never hand-assembled
 5. Provider display strings come from `PROVIDER_DISPLAY`
-6. No react-aria collection components in SSR'd page chrome
+6. Scope tabs stay links, not ARIA tabs (scope changes are navigations)
 7. Behavior within a provider scope (filters, infinite results) and API
    validation unchanged
