@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AnyProviderSearchBar, SelectedProviderSearchBar } from './search-bar'
+import { SearchBar } from './search-bar'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -16,7 +16,17 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   })
 })
 
-describe('search bar validation', () => {
+function typeQuery(value: string) {
+  fireEvent.change(screen.getByRole('searchbox', { name: 'Search keywords' }), {
+    target: { value },
+  })
+}
+
+function submit() {
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+}
+
+describe('search bar', () => {
   beforeEach(() => {
     mockNavigate.mockReset()
   })
@@ -25,65 +35,87 @@ describe('search bar validation', () => {
     cleanup()
   })
 
-  it('keeps homepage provider buttons focusable and shows a validation alert on attempted search', () => {
-    render(createElement(AnyProviderSearchBar))
+  it('shows a validation alert on empty submit and keeps the submit button enabled', () => {
+    render(
+      createElement(SearchBar, { initialQuery: '', scope: { scope: 'all' } }),
+    )
 
-    const nasaButton = screen.getByRole('button', {
-      name: 'NASA Image and Video Library',
-    })
+    const submitButton = screen.getByRole('button', { name: 'Search' })
+    expect(submitButton.hasAttribute('disabled')).toBe(false)
 
-    expect(nasaButton.hasAttribute('disabled')).toBe(false)
-
-    fireEvent.click(nasaButton)
+    submit()
 
     expect(screen.getByRole('alert').textContent).toContain(
-      'Enter search keywords before choosing a library.',
+      'Enter search keywords before searching.',
     )
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it('navigates from the homepage provider buttons once a query is entered', () => {
-    render(createElement(AnyProviderSearchBar))
-
-    fireEvent.change(
-      screen.getByRole('searchbox', { name: 'Search keywords' }),
-      {
-        target: { value: 'apollo' },
-      },
+  it('navigates with only the query in the all scope', () => {
+    render(
+      createElement(SearchBar, { initialQuery: '', scope: { scope: 'all' } }),
     )
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'NASA Image and Video Library',
+    typeQuery('apollo')
+    submit()
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/search',
+      search: { q: 'apollo' },
+    })
+  })
+
+  it('navigates with flat provider filters in the NASA scope', () => {
+    render(
+      createElement(SearchBar, {
+        initialQuery: 'apollo',
+        scope: {
+          scope: 'provider',
+          filters: {
+            providerId: NASA_IVL_PROVIDER_ID,
+            filters: { mediaType: 'image', yearStart: 1990 },
+          },
+        },
       }),
     )
+
+    submit()
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/search',
       search: {
         q: 'apollo',
         providerId: NASA_IVL_PROVIDER_ID,
-        filters: {},
+        mediaType: 'image',
+        yearStart: 1990,
       },
     })
   })
 
-  it('shows a validation alert on empty selected-provider submit and keeps the submit button enabled', () => {
-    render(
-      createElement(SelectedProviderSearchBar, {
+  it('renders the filters panel only for the NASA scope', () => {
+    const { unmount } = render(
+      createElement(SearchBar, {
         initialQuery: '',
-        initialFilters: { providerId: SI_OA_PROVIDER_ID, filters: {} },
+        scope: {
+          scope: 'provider',
+          filters: { providerId: NASA_IVL_PROVIDER_ID, filters: {} },
+        },
       }),
     )
 
-    const submitButton = screen.getByRole('button', { name: 'Search' })
-    expect(submitButton.hasAttribute('disabled')).toBe(false)
+    expect(screen.getByText('Media Type')).toBeTruthy()
+    unmount()
 
-    fireEvent.click(submitButton)
-
-    expect(screen.getByRole('alert').textContent).toContain(
-      'Enter search keywords before searching.',
+    render(
+      createElement(SearchBar, {
+        initialQuery: '',
+        scope: {
+          scope: 'provider',
+          filters: { providerId: SI_OA_PROVIDER_ID, filters: {} },
+        },
+      }),
     )
-    expect(mockNavigate).not.toHaveBeenCalled()
+
+    expect(screen.queryByText('Media Type')).toBeNull()
   })
 })

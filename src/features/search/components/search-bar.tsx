@@ -1,66 +1,41 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useId } from 'react-aria'
-import { COMPACT_LAYOUT_MIN_WIDTH } from '../../../lib/breakpoints'
+import { toSearchPageParams } from '../search-page-params'
 import { SearchInput } from './search-bar/search-input'
-import { ProviderButton } from './search-bar/provider-button'
 import { SubmitButton } from './search-bar/submit-button'
 import { NasaIvlFilters } from './providers/nasa-ivl-filters'
 import type { FormProps } from '@/components/ui/forms'
-import type { ProviderId } from '@/domain/provider/provider.schema'
-import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
-import { Form, Label } from '@/components/ui/forms'
-import {
-  NASA_IVL_PROVIDER_ID,
-  SI_OA_PROVIDER_ID,
-  providerIdSchema,
-} from '@/domain/provider/provider.schema'
-import { Select } from '@/components/ui/select'
-import { getIdProp, getLabelProp } from '@/components/ui/select.utils'
-import { VisuallyHidden } from '@/components/ui/a11y'
+import type { SearchScope } from '../search-page-params'
+import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
+import { Form } from '@/components/ui/forms'
+import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
-const SELECTED_PROVIDER_INLINE_MIN_WIDTH = '34rem'
+const SEARCH_BAR_INLINE_MIN_WIDTH = '34rem'
 const searchValidationMessageCss = {
   color: 'var(--danger-text)',
   fontSize: 'var(--text-sm)',
 }
 
-const ANY_PROVIDER_HELP_TEXT =
-  'Use either of the search buttons to pick your library.'
-const ANY_PROVIDER_VALIDATION_MESSAGE =
-  'Enter search keywords before choosing a library.'
-const SELECTED_PROVIDER_VALIDATION_MESSAGE =
-  'Enter search keywords before searching.'
+const SEARCH_VALIDATION_MESSAGE = 'Enter search keywords before searching.'
 
-function searchParams(
-  query: SearchQuery,
-  filters: SearchFilters,
-): SearchFilters & { q: SearchQuery } {
-  return {
-    ...filters,
-    q: query,
-  }
+interface SearchBarProps extends FormProps {
+  initialQuery: string
+  scope: SearchScope
 }
 
-interface AnyProviderSearchBarProps extends FormProps {
-  initialQuery?: string
-}
-
-export function AnyProviderSearchBar({
-  initialQuery = '',
-  ...props
-}: AnyProviderSearchBarProps) {
-  const helperTextId = useId()
+export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
   const validationMessageId = useId()
   const [query, setQuery] = useState(initialQuery)
+  const isNasaScope =
+    scope.scope === 'provider' &&
+    scope.filters.providerId === NASA_IVL_PROVIDER_ID
+  const [nasaFilters, setNasaFilters] = useState<NasaIvlSearchFilters>(
+    isNasaScope ? scope.filters.filters : {},
+  )
   const [showValidationMessage, setShowValidationMessage] = useState(false)
-  const nasaButtonRef = useRef<HTMLButtonElement | null>(null)
-  const sioaButtonRef = useRef<HTMLButtonElement | null>(null)
   const navigate = useNavigate()
   const isValid = query.trim().length > 0
-  const describedBy = showValidationMessage
-    ? `${helperTextId} ${validationMessageId}`
-    : helperTextId
 
   function updateQuery(nextQuery: string) {
     setQuery(nextQuery)
@@ -70,133 +45,14 @@ export function AnyProviderSearchBar({
     }
   }
 
-  function showValidation() {
-    setShowValidationMessage(true)
-  }
-
-  function handleProviderKeyDown(
-    event: React.KeyboardEvent<HTMLButtonElement>,
-    provider: ProviderId,
-  ) {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      event.preventDefault()
-
-      if (provider === NASA_IVL_PROVIDER_ID) {
-        sioaButtonRef.current?.focus()
-      } else {
-        nasaButtonRef.current?.focus()
+  function submitScope(): SearchScope {
+    if (isNasaScope) {
+      return {
+        scope: 'provider',
+        filters: { providerId: NASA_IVL_PROVIDER_ID, filters: nasaFilters },
       }
     }
-  }
-  function runSearch(providerId: ProviderId) {
-    if (!isValid) {
-      showValidation()
-      return
-    }
-
-    setShowValidationMessage(false)
-    navigate({
-      to: '/search',
-      search: searchParams(query, { providerId, filters: {} }),
-    })
-  }
-  return (
-    <Form
-      aria-describedby={describedBy}
-      css={{ width: '100%' }}
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (!isValid) {
-          showValidation()
-          return
-        }
-
-        setShowValidationMessage(false)
-        nasaButtonRef.current?.focus()
-      }}
-      {...props}
-    >
-      <SearchInput
-        aria-label="Search keywords"
-        aria-describedby={describedBy}
-        aria-invalid={showValidationMessage || undefined}
-        value={query}
-        onChange={updateQuery}
-      />
-      <div
-        role="group"
-        aria-label="Choose a library to search"
-        aria-describedby={describedBy}
-        css={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr)',
-          gap: 'var(--space-2)',
-          width: '100%',
-          marginTop: 'var(--space-2)',
-          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          },
-        }}
-      >
-        <ProviderButton
-          ref={nasaButtonRef}
-          organization="NASA"
-          library="Image and Video Library"
-          onPress={() => runSearch(NASA_IVL_PROVIDER_ID)}
-          onKeyDown={(e) => handleProviderKeyDown(e, NASA_IVL_PROVIDER_ID)}
-        />
-        <ProviderButton
-          ref={sioaButtonRef}
-          organization="Smithsonian Institution"
-          library="National Air and Space Museum"
-          onPress={() => runSearch(SI_OA_PROVIDER_ID)}
-          onKeyDown={(e) => handleProviderKeyDown(e, SI_OA_PROVIDER_ID)}
-        />
-      </div>
-      <p id={helperTextId}>{ANY_PROVIDER_HELP_TEXT}</p>
-      {showValidationMessage && (
-        <p
-          id={validationMessageId}
-          role="alert"
-          css={searchValidationMessageCss}
-        >
-          {ANY_PROVIDER_VALIDATION_MESSAGE}
-        </p>
-      )}
-    </Form>
-  )
-}
-
-interface SelectedProviderSearchBarProps extends FormProps {
-  initialQuery: string
-  initialFilters: SearchFilters
-}
-
-const PROVIDERS: Array<{ id: ProviderId; label: string }> = [
-  { id: NASA_IVL_PROVIDER_ID, label: 'NASA' },
-  { id: SI_OA_PROVIDER_ID, label: 'SI' },
-]
-
-export function SelectedProviderSearchBar({
-  initialQuery,
-  initialFilters,
-  ...props
-}: SelectedProviderSearchBarProps) {
-  const validationMessageId = useId()
-  const [query, setQuery] = useState(initialQuery)
-  const [filters, setFilters] = useState(initialFilters)
-  const [showValidationMessage, setShowValidationMessage] = useState(false)
-  const providerLabelId = useId()
-  const navigate = useNavigate()
-  const isValid = query.trim().length > 0
-  const providerId = filters.providerId
-
-  function updateQuery(nextQuery: string) {
-    setQuery(nextQuery)
-
-    if (nextQuery.trim().length > 0) {
-      setShowValidationMessage(false)
-    }
+    return scope
   }
 
   return (
@@ -211,9 +67,9 @@ export function SelectedProviderSearchBar({
         }
 
         setShowValidationMessage(false)
-        navigate({
+        void navigate({
           to: '/search',
-          search: searchParams(query, filters),
+          search: toSearchPageParams(query, submitScope()),
         })
       }}
       {...props}
@@ -230,32 +86,15 @@ export function SelectedProviderSearchBar({
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
-          [`@container (min-width: ${SELECTED_PROVIDER_INLINE_MIN_WIDTH})`]: {
-            gridTemplateColumns: 'minmax(0, 7rem) minmax(0, 1fr) auto',
+          [`@container (min-width: ${SEARCH_BAR_INLINE_MIN_WIDTH})`]: {
+            gridTemplateColumns: 'minmax(0, 1fr) auto',
             gap: 'var(--space-4)',
             alignItems: 'center',
           },
         }}
       >
-        <VisuallyHidden>
-          <Label id={providerLabelId}>Image Library</Label>
-        </VisuallyHidden>
-        <Select
-          aria-labelledby={providerLabelId}
-          items={PROVIDERS}
-          css={{ width: '100%' }}
-          value={providerId}
-          getItemId={getIdProp}
-          getItemText={getLabelProp}
-          onChange={(value) => {
-            const { data } = providerIdSchema.safeParse(value)
-            if (data) {
-              setFilters({ providerId: data, filters: {} })
-            }
-          }}
-        />
         <SearchInput
-          aria-label="Keywords"
+          aria-label="Search keywords"
           aria-describedby={
             showValidationMessage ? validationMessageId : undefined
           }
@@ -271,20 +110,12 @@ export function SelectedProviderSearchBar({
           role="alert"
           css={searchValidationMessageCss}
         >
-          {SELECTED_PROVIDER_VALIDATION_MESSAGE}
+          {SEARCH_VALIDATION_MESSAGE}
         </p>
       )}
-      {providerId === NASA_IVL_PROVIDER_ID && (
+      {isNasaScope && (
         <FiltersPanel>
-          <NasaIvlFilters
-            filters={filters.filters}
-            onChange={(newFilters) => {
-              setFilters({
-                providerId: NASA_IVL_PROVIDER_ID,
-                filters: newFilters,
-              })
-            }}
-          />
+          <NasaIvlFilters filters={nasaFilters} onChange={setNasaFilters} />
         </FiltersPanel>
       )}
     </Form>

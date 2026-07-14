@@ -1,9 +1,9 @@
-import { defaultStringifySearch } from '@tanstack/react-router'
 import {
   sioaAssetCollectionResponseSchema,
   sioaAssetItemResponseSchema,
 } from './types'
 import type { SioaSearchParams } from './types'
+import { stringifySearchParams } from '@/lib/search-params'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { ProviderClientError } from '@/integrations/provider-client-error'
 
@@ -37,7 +37,7 @@ async function readMessage(response: Response) {
 }
 
 export async function search(params: SioaSearchParams, apiKey: string) {
-  const url = `${API_ROOT}/search${defaultStringifySearch({ ...params, [API_KEY_PARAM_NAME]: apiKey })}`
+  const url = `${API_ROOT}/search${stringifySearchParams({ ...params, [API_KEY_PARAM_NAME]: apiKey })}`
   const response = await fetch(url)
   if (!response.ok) {
     const message = await readMessage(response)

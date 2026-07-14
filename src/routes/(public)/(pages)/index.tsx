@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AnyProviderSearchBar } from '@/features/search/components/search-bar'
+import { SearchBar } from '@/features/search/components/search-bar'
 
 export const Route = createFileRoute('/(public)/(pages)/')({
   component: HomePage,
@@ -23,7 +23,11 @@ function HomePage() {
       >
         Search Public Space Image Libraries
       </h1>
-      <AnyProviderSearchBar css={{ width: '100%' }} />
+      <SearchBar
+        css={{ width: '100%' }}
+        initialQuery=""
+        scope={{ scope: 'all' }}
+      />
     </section>
   )
 }

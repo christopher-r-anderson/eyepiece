@@ -6,30 +6,50 @@ import {
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { SearchResults } from './-components/search-results'
+import { SearchPrompt } from './-components/search-prompt'
+import { AllResultsPlaceholder } from './-components/all-results-placeholder'
+import type {
+  SearchPageState,
+  SearchScope,
+} from '@/features/search/search-page-params'
 import { getTitleText } from '@/lib/utils'
 import { CapturedPrettyError, RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
-import { SelectedProviderSearchBar } from '@/features/search/components/search-bar'
-import { searchFiltersSchema } from '@/domain/search/search.schema'
-import { searchQueryParamSchema } from '@/lib/eyepiece-api-contracts'
+import { SearchBar } from '@/features/search/components/search-bar'
+import { SearchScopeTabs } from '@/features/search/components/search-scope-tabs'
+import {
+  searchPageParamsSchema,
+  toSearchPageState,
+} from '@/features/search/search-page-params'
+import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
+import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 
-function searchTitle(query: string) {
-  return `Search for "${query}"`
+function searchTitle({ q, scope }: SearchPageState) {
+  if (q.trim().length === 0) {
+    return 'Search'
+  }
+  const title = `Search for "${q}"`
+  return scope.scope === 'provider'
+    ? `${title} – ${PROVIDER_DISPLAY[scope.filters.providerId].shortLabel}`
+    : title
 }
 
 export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
   component: SearchPage,
-  validateSearch: searchQueryParamSchema.and(searchFiltersSchema),
-  loaderDeps: ({ search }) => {
-    return search
-  },
+  validateSearch: searchPageParamsSchema,
+  // re-parse drops parent-route params (auth modal) from deps so modal
+  // toggles don't re-fire the loader
+  loaderDeps: ({ search }) => searchPageParamsSchema.parse(search),
   loader: async ({ context, deps }) => {
-    const filters = searchFiltersSchema.parse(deps)
+    const { q, scope } = toSearchPageState(deps)
+    if (q.trim().length === 0 || scope.scope !== 'provider') {
+      return
+    }
     await prefetchInfiniteSearch({
-      query: searchQueryParamSchema.parse(deps).q,
-      filters,
+      query: q,
+      filters: scope.filters,
       eyepieceClient: context.eyepieceClient,
       queryClient: context.queryClient,
     })
@@ -37,7 +57,7 @@ export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
   head: ({ match }) => ({
     meta: [
       {
-        title: getTitleText(searchTitle(match.search.q)),
+        title: getTitleText(searchTitle(toSearchPageState(match.search))),
       },
     ],
   }),
@@ -45,9 +65,12 @@ export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
 })
 
 export function getSearchErrorProviderId(search: unknown) {
-  const result = searchFiltersSchema.safeParse(search)
-
-  return result.success ? result.data.providerId : undefined
+  const params = searchPageParamsSchema.safeParse(search)
+  if (!params.success) {
+    return undefined
+  }
+  const { scope } = toSearchPageState(params.data)
+  return scope.scope === 'provider' ? scope.filters.providerId : undefined
 }
 
 function SearchRouteError({ error }: { error: unknown }) {
@@ -71,15 +94,48 @@ function SearchRouteError({ error }: { error: unknown }) {
   )
 }
 
+function ScopedSearchResults({
+  q,
+  scope,
+}: {
+  q: string
+  scope: Extract<SearchScope, { scope: 'provider' }>
+}) {
+  return (
+    <CatchBoundary
+      getResetKey={() => hashKey(['search-page-results', q, scope])}
+      errorComponent={({ error }) => (
+        <CapturedPrettyError
+          error={error}
+          headingLevel={1}
+          captureContext={{
+            boundaryKind: 'catch',
+            feature: 'search',
+            providerId: scope.filters.providerId,
+            operation: 'load_search_results',
+          }}
+        />
+      )}
+    >
+      <Suspense fallback={<AssetGridSkeleton />}>
+        <SearchResults query={q} filters={scope.filters} />
+      </Suspense>
+    </CatchBoundary>
+  )
+}
+
 function SearchPage() {
   const search = Route.useSearch()
-  const filters = searchFiltersSchema.parse(search)
-  const { q } = searchQueryParamSchema.parse(search)
-  const formResetKey = hashKey(['search-form', q, filters])
+  const params = searchPageParamsSchema.parse(search)
+  const state = toSearchPageState(params)
+  const { q, scope } = state
+  useCanonicalSearchReplace()
+  const hasQuery = q.trim().length > 0
+  const formResetKey = hashKey(['search-form', q, scope])
 
   return (
     <>
-      <PageHeading>{searchTitle(q)}</PageHeading>
+      <PageHeading>{searchTitle(state)}</PageHeading>
       <div
         css={{
           width: '100%',
@@ -88,31 +144,17 @@ function SearchPage() {
           paddingInline: 'var(--space-4)',
         }}
       >
-        <SelectedProviderSearchBar
-          key={formResetKey}
-          initialQuery={q}
-          initialFilters={filters}
-        />
+        <SearchBar key={formResetKey} initialQuery={q} scope={scope} />
       </div>
-      <CatchBoundary
-        getResetKey={() => hashKey(['search-page-results', q, filters])}
-        errorComponent={({ error }) => (
-          <CapturedPrettyError
-            error={error}
-            headingLevel={1}
-            captureContext={{
-              boundaryKind: 'catch',
-              feature: 'search',
-              providerId: filters.providerId,
-              operation: 'load_search_results',
-            }}
-          />
+      <SearchScopeTabs q={q} scope={scope}>
+        {!hasQuery ? (
+          <SearchPrompt />
+        ) : scope.scope !== 'provider' ? (
+          <AllResultsPlaceholder />
+        ) : (
+          <ScopedSearchResults q={q} scope={scope} />
         )}
-      >
-        <Suspense fallback={<AssetGridSkeleton />}>
-          <SearchResults query={q} filters={filters} />
-        </Suspense>
-      </CatchBoundary>
+      </SearchScopeTabs>
     </>
   )
 }
