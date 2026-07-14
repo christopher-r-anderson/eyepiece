@@ -66,9 +66,6 @@ export function LoginForm({
             gap: '3',
             alignItems: 'center',
             marginBlockStart: '4',
-            '@/2xl': {
-              gridTemplateColumns: 'minmax(0, 1fr) auto',
-            },
           })}
         >
           <div className={css({ minWidth: 0 })}>{forgotPasswordLink}</div>
