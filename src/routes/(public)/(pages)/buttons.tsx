@@ -63,6 +63,14 @@ function RouteComponent() {
           Primary Button
         </Button>
       </p>
+      <p>
+        <Button variant="ghost">Ghost Button</Button>
+      </p>
+      <p>
+        <Button variant="bare" icon={MagnifyingGlassIcon}>
+          Bare Button
+        </Button>
+      </p>
     </div>
   )
 }

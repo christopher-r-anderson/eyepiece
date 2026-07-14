@@ -40,16 +40,8 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
         })}
       />
       <Button
-        css={css.raw(
-          {
-            backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            minHeight: 'auto',
-            fontSize: '1em',
-            padding: 0,
-          },
-          props.value ? { color: 'text' } : { color: 'text.muted' },
-        )}
+        variant="bare"
+        css={css.raw(props.value ? { color: 'text' } : { color: 'text.muted' })}
       >
         <XIcon />
       </Button>

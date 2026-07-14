@@ -1,6 +1,5 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import {
-  Button,
   Dialog,
   Heading,
   ModalOverlay,
@@ -9,6 +8,7 @@ import {
 import { useId } from 'react-aria'
 import { useEffect } from 'react'
 import { css } from 'styled-system/css'
+import { Button } from './button'
 import type { ReactNode } from 'react'
 
 const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
@@ -115,33 +115,25 @@ export function ModalDialog({
             <Button
               aria-label={`Close ${title} dialog`}
               onPress={() => onOpenChange(false)}
-              className={css({
-                display: 'inline-flex',
-                alignItems: 'center',
+              variant="bare"
+              css={css.raw({
                 width: 'touchTargetMin',
                 height: 'touchTargetMin',
-                cursor: 'pointer',
-                justifyContent: 'center',
-                padding: 0,
-                border: 'none',
-                borderRadius: 'md',
-                backgroundColor: 'transparent',
                 color: 'text',
                 opacity: 0.8,
                 flexShrink: 0,
                 transitionProperty: 'background-color, color, opacity',
-                transitionDuration: 'fast',
-                transitionTimingFunction: 'default',
                 _hovered: {
                   backgroundColor: 'tertiary.bg',
-                  color: 'text',
                   opacity: 1,
                 },
                 '&[data-focus-visible], &[data-pressed]': {
                   opacity: 1,
                 },
+                _pressed: {
+                  transform: 'none',
+                },
                 _focusVisible: {
-                  outline: '1px solid token(colors.outline)',
                   outlineOffset: '2px',
                 },
               })}

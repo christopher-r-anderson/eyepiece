@@ -19,20 +19,11 @@ export function UserMenu() {
     <MenuTrigger>
       <Button
         aria-label="User Menu"
+        variant="ghost"
         css={css.raw({
           minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
           minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
           padding: '2',
-          border: '1px solid transparent',
-          backgroundColor: 'transparent',
-          color: 'primary.textMuted',
-          _hovered: {
-            color: 'text',
-            border:
-              '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-            backgroundColor:
-              'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
-          },
         })}
       >
         <UserCircleIcon size={24} />
