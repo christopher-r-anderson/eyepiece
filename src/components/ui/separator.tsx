@@ -5,7 +5,7 @@ import type { SystemStyleObject } from 'styled-system/types'
 
 const separatorStyles = css.raw({
   border: 0,
-  borderTop: '1px solid token(colors.separator)',
+  borderTop: 'separator',
   marginBlock: '1',
   marginInline: '2',
 })

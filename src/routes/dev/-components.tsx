@@ -23,7 +23,7 @@ export const devSurfaceCss = css.raw({
   display: 'grid',
   gap: '4',
   padding: '5',
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderRadius: 'lg',
   backgroundColor: 'secondary.bg',
 })
@@ -53,8 +53,8 @@ const devMetaLabelCss = css.raw({
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
   padding: '0.35rem 0.65rem',
-  border: '1px solid token(colors.border)',
-  borderRadius: '999px',
+  border: 'default',
+  borderRadius: 'full',
   backgroundColor: 'secondary.bg',
 })
 

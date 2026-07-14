@@ -31,7 +31,7 @@ export const tabStyles = css.raw({
   minHeight: 'controlHeight',
   paddingBlock: '2',
   paddingInline: '4',
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderBottomWidth: 0,
   borderTopRadius: 'md',
   backgroundColor: 'secondary.bg',
@@ -56,7 +56,7 @@ export const tabStyles = css.raw({
 
 export const tabPanelStyles = css.raw({
   backgroundColor: 'tertiary.bg',
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
   padding: '4',
 })

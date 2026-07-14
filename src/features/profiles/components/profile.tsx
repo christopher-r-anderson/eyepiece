@@ -10,7 +10,7 @@ export function Profile({ profile }: { profile: Profile }) {
         display: 'grid',
         gap: '3',
         padding: '5',
-        border: '1px solid token(colors.border)',
+        border: 'default',
         borderRadius: 'lg',
         backgroundColor: 'secondary.bg',
         boxShadow: 'sm',

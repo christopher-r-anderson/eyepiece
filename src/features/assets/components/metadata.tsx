@@ -25,11 +25,11 @@ export function MetadataTable({ data }: { data: Metadata }) {
     <div>
       <table
         className={css({
-          border: '1px solid token(colors.border)',
+          border: 'default',
           width: '100%',
           borderCollapse: 'collapse',
           '& thead': {
-            borderBottom: '1px solid token(colors.border)',
+            borderBottom: 'default',
             backgroundColor: 'secondary.bg',
             color: 'secondary.text',
           },
@@ -37,7 +37,7 @@ export function MetadataTable({ data }: { data: Metadata }) {
             padding: '2',
           },
           '& th:first-of-type': {
-            borderRight: '1px solid token(colors.border)',
+            borderRight: 'default',
           },
           '& tr': {
             backgroundColor: 'secondary.bg',

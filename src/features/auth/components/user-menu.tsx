@@ -21,8 +21,8 @@ export function UserMenu() {
         aria-label="User Menu"
         variant="ghost"
         css={css.raw({
-          minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
-          minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+          minWidth: 'controlHeightSm',
+          minHeight: 'controlHeightSm',
           padding: '2',
         })}
       >

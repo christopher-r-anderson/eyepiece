@@ -89,7 +89,7 @@ export function SearchBar({
           alignItems: 'stretch',
           padding: '2',
           borderRadius: 'md',
-          border: '1px solid token(colors.border)',
+          border: 'default',
           boxShadow: 'sm',
           _searchBarInline: {
             gridTemplateColumns: 'minmax(0, 1fr) auto',
@@ -133,7 +133,7 @@ const filtersPanelCss = css.raw({
   background: 'secondary.bg',
   color: 'secondary.text',
   borderRadius: 'md',
-  border: '1px solid token(colors.border)',
+  border: 'default',
   boxShadow: 'sm',
   overflowX: 'auto',
 })

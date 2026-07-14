@@ -65,7 +65,7 @@ const assetHeaderBackCss = css.raw(ghostButtonCss, {
   display: 'inline-flex',
   alignItems: 'center',
   gap: '2',
-  minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+  minHeight: 'controlHeightSm',
   paddingBlock: '2',
   paddingInline: '3',
   borderRadius: 'md',
@@ -91,8 +91,8 @@ const assetHeaderActionsCss = css.raw({
 })
 
 const headerActionButtonCss = css.raw({
-  minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
-  minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+  minWidth: 'controlHeightSm',
+  minHeight: 'controlHeightSm',
 })
 
 export const Route = createFileRoute(

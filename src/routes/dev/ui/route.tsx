@@ -43,7 +43,7 @@ function DevUiLayout() {
               css={css.raw({
                 paddingBlock: '2',
                 paddingInline: '3',
-                border: '1px solid token(colors.border)',
+                border: 'default',
                 borderRadius: 'md',
                 textDecoration: 'none',
                 '&.is-active': {

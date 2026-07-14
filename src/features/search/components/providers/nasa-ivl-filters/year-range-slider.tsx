@@ -50,7 +50,7 @@ export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
         {
           backgroundColor: 'tertiary.bg',
           color: 'secondary.text',
-          border: '1px solid token(colors.border)',
+          border: 'default',
         },
         styles,
       )}

@@ -72,7 +72,7 @@ const formStyles = css.raw({
 const panelFormStyles = css.raw({
   ...formStyles,
   padding: '5',
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderRadius: 'lg',
   backgroundColor: 'secondary.bg',
   boxShadow: 'sm',
