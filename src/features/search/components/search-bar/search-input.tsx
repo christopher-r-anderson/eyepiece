@@ -22,6 +22,8 @@ export function SearchInput(props: SearchFieldProps) {
           width: '100%',
           '&:focus': {
             outline: 'none',
+          },
+          '&[data-focused]': {
             boxShadow: '0 1px 0 0 var(--border-color)',
           },
           '&::-webkit-search-cancel-button': { display: 'none' },

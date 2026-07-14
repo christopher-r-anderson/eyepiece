@@ -38,7 +38,7 @@ export function MenuItem(props: MenuItemProps) {
         padding: 'var(--space-2) var(--space-4)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
-        '&:hover': {
+        '&[data-hovered]': {
           backgroundColor: 'var(--tertiary-bg)',
           color: 'var(--tertiary-text)',
         },

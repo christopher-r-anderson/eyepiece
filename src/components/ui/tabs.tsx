@@ -40,7 +40,7 @@ const tabCss = {
   outline: 'none',
   transition:
     'background-color var(--transition-fast), color var(--transition-fast)',
-  '&[data-current="true"],&[data-selected="true"]': {
+  '&[data-selected]': {
     fontWeight: 'bold',
     backgroundColor: 'var(--tertiary-bg)',
     position: 'relative' as const,
