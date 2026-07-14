@@ -1,17 +1,30 @@
+/** @jsxImportSource react */
 import { Separator as RacSeparator } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const separatorCss = {
+const separatorStyles = css.raw({
   border: 0,
-  borderTop: '1px solid var(--separator-color)',
-  margin: 'var(--space-1) var(--space-2)',
-}
+  borderTop: '1px solid token(colors.separator)',
+  marginBlock: '1',
+  marginInline: '2',
+})
 
 export type SeparatorProps = ComponentProps<typeof RacSeparator> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-export function Separator({ css: cssProp, ...props }: SeparatorProps) {
-  return <RacSeparator css={[separatorCss, cssProp]} {...props} />
+export function Separator({
+  styles: cssProp,
+  className,
+  ...props
+}: SeparatorProps) {
+  return (
+    <RacSeparator
+      className={cx(css(separatorStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }

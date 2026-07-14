@@ -1,19 +1,31 @@
+/** @jsxImportSource react */
 import { Popover as RacPopover } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const popoverCss = {
-  border: '1px solid var(--border-color)',
-  borderRadius: 'var(--radius-lg)',
-  backgroundColor: 'var(--background)',
-  boxShadow: 'var(--shadow-md)',
+const popoverStyles = css.raw({
+  border: '1px solid token(colors.border)',
+  borderRadius: 'lg',
+  backgroundColor: 'background',
+  boxShadow: 'md',
   overflow: 'hidden',
-}
+})
 
 export type PopoverProps = ComponentProps<typeof RacPopover> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-export function Popover({ css: cssProp, ...props }: PopoverProps) {
-  return <RacPopover css={[popoverCss, cssProp]} {...props} />
+export function Popover({
+  styles: cssProp,
+  className,
+  ...props
+}: PopoverProps) {
+  return (
+    <RacPopover
+      className={cx(css(popoverStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }

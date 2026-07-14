@@ -1,71 +1,81 @@
+/** @jsxImportSource react */
 import {
   Menu as RacMenu,
   MenuItem as RacMenuItem,
   Popover as RacPopover,
 } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type {
-  MenuItemProps,
-  MenuProps,
+  MenuItemProps as RacMenuItemProps,
+  MenuProps as RacMenuProps,
   PopoverProps as RacPopoverProps,
 } from 'react-aria-components'
 
-export function Menu<T extends object>(props: MenuProps<T>) {
+export type MenuProps<T extends object> = RacMenuProps<T> & {
+  className?: string
+}
+
+export type MenuItemProps = RacMenuItemProps & {
+  className?: string
+}
+
+export type PopoverProps = RacPopoverProps & {
+  className?: string
+}
+
+const menuStyles = css.raw({
+  backgroundColor: 'secondary.bg',
+  display: 'flex',
+  flexDirection: 'column',
+  minWidth: '12rem',
+  borderRadius: 'inherit',
+  overflow: 'hidden',
+  // focus ring still shows *on the first menu item* when opening the menu via the keyboard
+  '&:focus': {
+    outline: 'none',
+  },
+})
+
+const menuItemStyles = css.raw({
+  color: 'secondary.text',
+  paddingBlock: '2',
+  paddingInline: '4',
+  borderRadius: 'sm',
+  cursor: 'pointer',
+  _hovered: {
+    backgroundColor: 'tertiary.bg',
+    color: 'tertiary.text',
+  },
+  outline: 'none',
+  _focused: {
+    outline: 'none',
+  },
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
+  },
+})
+
+const menuPopoverStyles = css.raw({
+  border: '1px solid token(colors.border)',
+  borderRadius: 'lg',
+  backgroundColor: 'secondary.bg',
+  boxShadow: 'md',
+  overflow: 'hidden',
+})
+
+export function Menu<T extends object>({ className, ...props }: MenuProps<T>) {
+  return <RacMenu {...props} className={cx(css(menuStyles), className)} />
+}
+
+export function MenuItem({ className, ...props }: MenuItemProps) {
   return (
-    <RacMenu
-      {...props}
-      css={{
-        backgroundColor: 'var(--secondary-bg)',
-        display: 'flex',
-        flexDirection: 'column',
-        minWidth: '12rem',
-        borderRadius: 'inherit',
-        overflow: 'hidden',
-        // focus ring still shows *on the first menu item* when opening the menu via the keyboard
-        '&:focus': {
-          outline: 'none',
-        },
-      }}
-    />
+    <RacMenuItem {...props} className={cx(css(menuItemStyles), className)} />
   )
 }
 
-export function MenuItem(props: MenuItemProps) {
+export function Popover({ className, ...props }: PopoverProps) {
   return (
-    <RacMenuItem
-      {...props}
-      css={{
-        color: 'var(--secondary-text)',
-        padding: 'var(--space-2) var(--space-4)',
-        borderRadius: 'var(--radius-sm)',
-        cursor: 'pointer',
-        '&[data-hovered]': {
-          backgroundColor: 'var(--tertiary-bg)',
-          color: 'var(--tertiary-text)',
-        },
-        outline: 'none',
-        '&[data-focused]': {
-          outline: 'none',
-        },
-        '&[data-focus-visible]': {
-          outline: '1px solid var(--outline-color)',
-        },
-      }}
-    />
-  )
-}
-
-export function Popover(props: RacPopoverProps) {
-  return (
-    <RacPopover
-      {...props}
-      css={{
-        border: '1px solid var(--border-color)',
-        borderRadius: 'var(--radius-lg)',
-        backgroundColor: 'var(--secondary-bg)',
-        boxShadow: 'var(--shadow-md)',
-        overflow: 'hidden',
-      }}
-    />
+    <RacPopover {...props} className={cx(css(menuPopoverStyles), className)} />
   )
 }
 

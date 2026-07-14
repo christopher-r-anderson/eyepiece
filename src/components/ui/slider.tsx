@@ -1,77 +1,117 @@
+/** @jsxImportSource react */
 import {
   Slider as RacSlider,
   SliderOutput as RacSliderOutput,
   SliderThumb as RacSliderThumb,
   SliderTrack as RacSliderTrack,
 } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const sliderCss = {
+const sliderStyles = css.raw({
   display: 'grid',
-  gap: 'var(--space-3)',
+  gap: '3',
   width: '100%',
-  padding: 'var(--space-1) var(--space-5) var(--space-3)',
-  borderRadius: 'var(--radius-lg)',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-}
+  paddingTop: '1',
+  paddingInline: '5',
+  paddingBottom: '3',
+  borderRadius: 'lg',
+  backgroundColor: 'secondary.bg',
+  color: 'secondary.text',
+})
 
-const sliderTrackCss = {
+const sliderTrackStyles = css.raw({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-  minHeight: 'var(--size-control-height)',
-}
+  minHeight: 'controlHeight',
+})
 
-const sliderThumbCss = {
+const sliderThumbStyles = css.raw({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  minWidth: 'var(--size-control-height)',
-  minHeight: 'var(--size-control-height)',
+  minWidth: 'controlHeight',
+  minHeight: 'controlHeight',
   color: 'inherit',
   cursor: 'pointer',
   outline: 'none',
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
   },
-}
+})
 
-const sliderOutputCss = {
-  fontSize: 'var(--text-sm)',
+const sliderOutputStyles = css.raw({
+  fontSize: 'sm',
   color: 'inherit',
-  padding: 'var(--space-3)',
-}
+  padding: '3',
+})
 
 export type SliderProps = ComponentProps<typeof RacSlider> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-export function Slider({ css: cssProp, ...props }: SliderProps) {
-  return <RacSlider css={[sliderCss, cssProp]} {...props} />
+export function Slider({ styles: cssProp, className, ...props }: SliderProps) {
+  return (
+    <RacSlider
+      className={cx(css(sliderStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }
 
-export function SliderTrack({ css: cssProp, ...props }: SliderTrackProps) {
-  return <RacSliderTrack css={[sliderTrackCss, cssProp]} {...props} />
+export function SliderTrack({
+  styles: cssProp,
+  className,
+  ...props
+}: SliderTrackProps) {
+  return (
+    <RacSliderTrack
+      className={cx(css(sliderTrackStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }
 
-export function SliderThumb({ css: cssProp, ...props }: SliderThumbProps) {
-  return <RacSliderThumb css={[sliderThumbCss, cssProp]} {...props} />
+export function SliderThumb({
+  styles: cssProp,
+  className,
+  ...props
+}: SliderThumbProps) {
+  return (
+    <RacSliderThumb
+      className={cx(css(sliderThumbStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }
 
-export function SliderOutput({ css: cssProp, ...props }: SliderOutputProps) {
-  return <RacSliderOutput css={[sliderOutputCss, cssProp]} {...props} />
+export function SliderOutput({
+  styles: cssProp,
+  className,
+  ...props
+}: SliderOutputProps) {
+  return (
+    <RacSliderOutput
+      className={cx(css(sliderOutputStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }

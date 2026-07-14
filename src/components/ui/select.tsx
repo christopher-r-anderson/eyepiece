@@ -1,13 +1,15 @@
+/** @jsxImportSource react */
 import { useHydrated } from '@tanstack/react-router'
 import { Select as RacSelect, SelectValue } from 'react-aria-components'
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr'
+import { css, cx } from 'styled-system/css'
 import { Button } from './button'
 import type { ButtonProps } from './button'
 import type {
   ListBoxItemRenderProps,
   SelectProps as RacSelectProps,
 } from 'react-aria-components'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
 
@@ -17,7 +19,8 @@ type SelectProps<T extends object> = {
   getItemText: (item: T) => string
   renderItem?: (item: T, itemProps?: ListBoxItemRenderProps) => React.ReactNode
   buttonVariant?: ButtonProps['variant']
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 } & Pick<
   RacSelectProps<T>,
   'defaultValue' | 'value' | 'placeholder' | 'onChange' | 'style'
@@ -47,40 +50,40 @@ export function Select<T extends object>(
   )
 }
 
-const selectCss = {
+const selectStyles = css.raw({
   display: 'inline-flex',
   alignItems: 'center',
-}
+})
 
-const buttonCss = {
+const buttonStyles = css.raw({
   width: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   border:
-    '1px solid color-mix(in oklab, var(--border-color) 80%, var(--text) 20%)',
+    '1px solid color-mix(in oklab, token(colors.border) 80%, token(colors.text) 20%)',
   backgroundColor:
-    'color-mix(in oklab, var(--secondary-bg) 78%, var(--background) 22%)',
-  '&[data-hovered]': {
+    'color-mix(in oklab, token(colors.secondary.bg) 78%, token(colors.background) 22%)',
+  _hovered: {
     backgroundColor:
-      'color-mix(in oklab, var(--secondary-bg) 70%, var(--background) 30%)',
+      'color-mix(in oklab, token(colors.secondary.bg) 70%, token(colors.background) 30%)',
   },
-  '&[data-pressed]': {
+  _pressed: {
     transform: 'none',
   },
-}
+})
 
-const itemCss = {
+const itemStyles = css.raw({
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--space-2)',
+  gap: '2',
   cursor: 'pointer',
-  lineHeight: 'var(--line-height-tight)',
-}
+  lineHeight: 'tight',
+})
 
-const listItemCss = {
-  ...itemCss,
-}
+const listItemStyles = css.raw({
+  ...itemStyles,
+})
 
 // react aria includes an `href` key in domProps even when it is `undefined`
 // which keeps typescript from being able to narrow the type appropriately on its own
@@ -96,10 +99,10 @@ function Caret() {
   return (
     <span
       aria-hidden="true"
-      css={{
+      className={css({
         display: 'inline-flex',
         alignItems: 'center',
-      }}
+      })}
     >
       <CaretDownIcon />
     </span>
@@ -114,6 +117,8 @@ function ServerPlaceholder<T extends object>({
   placeholder,
   defaultValue,
   value,
+  styles,
+  className,
 }: SelectProps<T>) {
   let text = placeholder
   const selectedValue = value ?? defaultValue
@@ -124,9 +129,9 @@ function ServerPlaceholder<T extends object>({
     }
   }
   return (
-    <div css={selectCss}>
-      <Button variant={buttonVariant} css={buttonCss}>
-        <span css={itemCss}>{text}</span>
+    <div className={cx(css(selectStyles, styles), className)}>
+      <Button variant={buttonVariant} styles={buttonStyles}>
+        <span className={css(itemStyles)}>{text}</span>
         <Caret />
       </Button>
     </div>
@@ -139,18 +144,20 @@ function ClientSelect<T extends object>({
   getItemText,
   renderItem,
   buttonVariant,
+  styles: cssProp,
+  className,
   ...props
 }: SelectProps<T>) {
   return (
-    <RacSelect css={selectCss} {...props}>
-      <Button variant={buttonVariant} css={buttonCss}>
-        <SelectValue css={itemCss}>
+    <RacSelect className={cx(css(selectStyles, cssProp), className)} {...props}>
+      <Button variant={buttonVariant} styles={buttonStyles}>
+        <SelectValue className={css(itemStyles)}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
         <Caret />
       </Button>
       <Popover placement="bottom start" offset={4}>
-        <ListBox items={items} css={{ width: '100%' }}>
+        <ListBox items={items} styles={css.raw({ width: '100%' })}>
           {(item) => (
             <ListBoxItem
               id={getItemId(item)}
@@ -158,7 +165,10 @@ function ClientSelect<T extends object>({
               render={(domProps, itemProps) => {
                 if (hasRenderableHref(domProps)) {
                   return (
-                    <a {...domProps} css={listItemCss}>
+                    <a
+                      {...domProps}
+                      className={cx(css(listItemStyles), domProps.className)}
+                    >
                       {renderItem
                         ? renderItem(item, itemProps)
                         : getItemText(item)}
@@ -167,7 +177,10 @@ function ClientSelect<T extends object>({
                 }
 
                 return (
-                  <div {...domProps} css={listItemCss}>
+                  <div
+                    {...domProps}
+                    className={cx(css(listItemStyles), domProps.className)}
+                  >
                     {renderItem
                       ? renderItem(item, itemProps)
                       : getItemText(item)}

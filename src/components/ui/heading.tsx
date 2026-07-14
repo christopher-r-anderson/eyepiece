@@ -1,54 +1,68 @@
-import type { Interpolation, Theme } from '@emotion/react'
+/** @jsxImportSource react */
+import { css, cx } from 'styled-system/css'
 import type { ComponentPropsWithoutRef } from 'react'
+import type { SystemStyleObject } from 'styled-system/types'
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
 export type HeadingProps = {
   headingLevel: HeadingLevel
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 } & ComponentPropsWithoutRef<HeadingTag>
 
 type HeadingTag = `h${HeadingLevel}`
 
-const baseHeadingCss = {
+const baseHeadingStyles = css.raw({
   margin: 0,
   color: 'inherit',
   fontFamily: 'inherit',
   fontWeight: 700,
-  lineHeight: 'var(--line-height-tight)',
+  lineHeight: 'tight',
+})
+
+const headingLevelStyles: Record<HeadingLevel, SystemStyleObject> = {
+  1: css.raw({
+    fontSize: '2xl',
+    marginBlockEnd: '5',
+  }),
+  2: css.raw({
+    fontSize: 'xl',
+    marginBlockEnd: '4',
+  }),
+  3: css.raw({
+    fontSize: 'lg',
+    marginBlockEnd: '3',
+  }),
+  4: css.raw({
+    fontSize: 'base',
+    marginBlockEnd: '3',
+  }),
+  5: css.raw({
+    fontSize: 'sm',
+    marginBlockEnd: '2',
+  }),
+  6: css.raw({
+    fontSize: 'xs',
+    marginBlockEnd: '2',
+  }),
 }
 
-const headingLevelCss: Record<HeadingLevel, Interpolation<Theme>> = {
-  1: {
-    fontSize: 'var(--text-2xl)',
-    marginBlockEnd: 'var(--space-5)',
-  },
-  2: {
-    fontSize: 'var(--text-xl)',
-    marginBlockEnd: 'var(--space-4)',
-  },
-  3: {
-    fontSize: 'var(--text-lg)',
-    marginBlockEnd: 'var(--space-3)',
-  },
-  4: {
-    fontSize: 'var(--text-base)',
-    marginBlockEnd: 'var(--space-3)',
-  },
-  5: {
-    fontSize: 'var(--text-sm)',
-    marginBlockEnd: 'var(--space-2)',
-  },
-  6: {
-    fontSize: 'var(--text-xs)',
-    marginBlockEnd: 'var(--space-2)',
-  },
-}
-
-export function Heading({ headingLevel, css, ...props }: HeadingProps) {
+export function Heading({
+  headingLevel,
+  styles: cssProp,
+  className,
+  ...props
+}: HeadingProps) {
   const Hn: HeadingTag = `h${headingLevel}`
 
   return (
-    <Hn {...props} css={[baseHeadingCss, headingLevelCss[headingLevel], css]} />
+    <Hn
+      {...props}
+      className={cx(
+        css(baseHeadingStyles, headingLevelStyles[headingLevel], cssProp),
+        className,
+      )}
+    />
   )
 }
