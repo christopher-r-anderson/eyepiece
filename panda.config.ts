@@ -22,6 +22,8 @@ export default defineConfig({
       exiting: '&[data-exiting]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
+      // mirrors COMPACT_LAYOUT_MIN_WIDTH in src/lib/breakpoints.ts
+      compactLayout: '@container (min-width: 40rem)',
     },
   },
   theme: {

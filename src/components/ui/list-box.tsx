@@ -1,78 +1,91 @@
+/** @jsxImportSource react */
 import { cloneElement, isValidElement } from 'react'
 import {
   ListBox as RacListBox,
   ListBoxItem as RacListBoxItem,
 } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const listBoxCss = {
+const listBoxStyles = css.raw({
   display: 'grid',
-  gap: 'var(--space-1)',
+  gap: '1',
   minWidth: '16ch',
-  padding: 'var(--space-2)',
-  borderRadius: 'var(--radius-lg)',
+  padding: '2',
+  borderRadius: 'lg',
   border:
-    '1px solid color-mix(in oklab, var(--border-color) 85%, var(--text) 15%)',
+    '1px solid color-mix(in oklab, token(colors.border) 85%, token(colors.text) 15%)',
   backgroundColor:
-    'color-mix(in oklab, var(--secondary-bg) 92%, var(--background) 8%)',
-  color: 'var(--secondary-text)',
-  boxShadow: 'var(--shadow-sm)',
+    'color-mix(in oklab, token(colors.secondary.bg) 92%, token(colors.background) 8%)',
+  color: 'secondary.text',
+  boxShadow: 'sm',
   outline: 'none',
-}
+})
 
-const listBoxItemCss = {
-  padding: 'var(--space-2) var(--space-3)',
-  borderRadius: 'var(--radius-md)',
+const listBoxItemStyles = css.raw({
+  paddingBlock: '2',
+  paddingInline: '3',
+  borderRadius: 'md',
   cursor: 'pointer',
   outline: 'none',
-  transition:
-    'background-color var(--transition-fast), color var(--transition-fast)',
+  transitionProperty: 'background-color, color',
+  transitionDuration: 'fast',
+  transitionTimingFunction: 'default',
   '&[data-hovered], &[data-focused], &[data-selected]': {
-    backgroundColor: 'var(--tertiary-bg)',
-    color: 'var(--tertiary-text)',
+    backgroundColor: 'tertiary.bg',
+    color: 'tertiary.text',
   },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
   },
-}
+})
 
-const renderedItemContentCss = {
+const renderedItemContentStyles = css.raw({
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--space-2)',
+  gap: '2',
   width: '100%',
   color: 'inherit',
   textDecoration: 'none',
-}
+})
 
 export type ListBoxProps<T extends object> = RacListBoxProps<T> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export function ListBox<T extends object>({
-  css: cssProp,
+  styles: cssProp,
+  className,
   ...props
 }: ListBoxProps<T>) {
-  return <RacListBox {...props} css={[listBoxCss, cssProp]} />
+  return (
+    <RacListBox
+      {...props}
+      className={cx(css(listBoxStyles, cssProp), className)}
+    />
+  )
 }
 
 export type ListBoxItemProps = RacListBoxItemProps & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export function ListBoxItem({
-  css: cssProp,
+  styles: cssProp,
+  className,
   render,
   ...props
 }: ListBoxItemProps) {
   return (
     <RacListBoxItem
       {...props}
-      css={[listBoxItemCss, cssProp]}
+      className={cx(css(listBoxItemStyles, cssProp), className)}
       render={
         render
           ? (domProps, renderProps) => {
@@ -83,11 +96,14 @@ export function ListBoxItem({
               }
 
               const renderedElement = rendered as React.ReactElement<{
-                css?: Interpolation<Theme>
+                className?: string
               }>
 
               return cloneElement(renderedElement, {
-                css: [renderedItemContentCss, renderedElement.props.css],
+                className: cx(
+                  css(renderedItemContentStyles),
+                  renderedElement.props.className,
+                ),
               })
             }
           : undefined

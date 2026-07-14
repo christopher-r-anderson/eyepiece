@@ -1,25 +1,37 @@
+/** @jsxImportSource react */
 import { SearchField as RacSearchField } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const searchFieldCss = {
+const searchFieldStyles = css.raw({
   display: 'inline-flex',
   alignItems: 'center',
   width: '100%',
-  minHeight: 'var(--size-control-height)',
-  paddingInline: 'var(--space-3)',
-  gap: 'var(--space-2)',
+  minHeight: 'controlHeight',
+  paddingInline: '3',
+  gap: '2',
   borderRadius: '999px',
-  border: '1px solid var(--border-color)',
-  backgroundColor: 'var(--tertiary-bg)',
-  color: 'var(--text)',
-  boxShadow: 'var(--shadow-sm)',
-}
+  border: '1px solid token(colors.border)',
+  backgroundColor: 'tertiary.bg',
+  color: 'text',
+  boxShadow: 'sm',
+})
 
 export type SearchFieldProps = ComponentProps<typeof RacSearchField> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-export function SearchField({ css: cssProp, ...props }: SearchFieldProps) {
-  return <RacSearchField css={[searchFieldCss, cssProp]} {...props} />
+export function SearchField({
+  styles: cssProp,
+  className,
+  ...props
+}: SearchFieldProps) {
+  return (
+    <RacSearchField
+      className={cx(css(searchFieldStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }

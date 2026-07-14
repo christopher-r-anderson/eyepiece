@@ -1,25 +1,35 @@
+/** @jsxImportSource react */
 import { createLink } from '@tanstack/react-router'
 import { Link as ReactAriaLink } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { LinkProps } from 'react-aria-components'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const linkStyles = {
-  color: 'var(--link-color)',
+const linkStyles = css.raw({
+  color: 'link',
   textDecoration: 'none',
-  transition: 'color var(--transition-fast)',
-  '&[data-hovered]': { textDecoration: 'underline' },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  transitionProperty: 'color',
+  transitionDuration: 'fast',
+  transitionTimingFunction: 'default',
+  _hovered: { textDecoration: 'underline' },
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
     outlineOffset: '2px',
   },
-}
+})
 
 type AppLinkProps = LinkProps & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-function AppLink({ css: cssProp, ...props }: AppLinkProps) {
-  return <ReactAriaLink css={[linkStyles, cssProp]} {...props} />
+function AppLink({ styles: cssProp, className, ...props }: AppLinkProps) {
+  return (
+    <ReactAriaLink
+      className={cx(css(linkStyles, cssProp), className)}
+      {...props}
+    />
+  )
 }
 
 export const Link = createLink(AppLink)

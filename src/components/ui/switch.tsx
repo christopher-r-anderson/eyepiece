@@ -1,68 +1,80 @@
+/** @jsxImportSource react */
 import { Switch as RacSwitch } from 'react-aria-components'
+import { css, cva, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const switchCss = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minWidth: 'calc(var(--size-control-height) + var(--space-4))',
-  minHeight: 'var(--size-control-height)',
-  padding: 'var(--space-2)',
-  border: '1px solid var(--border-color)',
-  borderRadius: '999px',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  cursor: 'pointer',
-  lineHeight: 1,
-  transition:
-    'background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',
-  '&[data-selected]': {
-    backgroundColor: 'var(--primary-bg)',
-    color: 'var(--primary-text)',
-    borderColor: 'transparent',
+const switchRecipe = cva({
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 'calc(token(sizes.controlHeight) + token(spacing.4))',
+    minHeight: 'controlHeight',
+    padding: '2',
+    border: '1px solid token(colors.border)',
+    borderRadius: '999px',
+    backgroundColor: 'secondary.bg',
+    color: 'secondary.text',
+    cursor: 'pointer',
+    lineHeight: 1,
+    transitionProperty: 'background-color, color, border-color',
+    transitionDuration: 'fast',
+    transitionTimingFunction: 'default',
+    _selected: {
+      backgroundColor: 'primary.bg',
+      color: 'primary.text',
+      borderColor: 'transparent',
+    },
+    _focusVisible: {
+      outline: '1px solid token(colors.outline)',
+    },
+    _disabled: {
+      opacity: 0.6,
+      cursor: 'default',
+    },
   },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  variants: {
+    variant: {
+      default: {},
+      subtle: {
+        minWidth: '2.5rem',
+        minHeight: '1.5rem',
+        paddingBlock: '1',
+        paddingInline: '2',
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        color: 'text.muted',
+        _hovered: {
+          backgroundColor: 'transparent',
+          color: 'text',
+        },
+        _selected: {
+          backgroundColor: 'transparent',
+          color: 'text.accent',
+        },
+      },
+    },
   },
-  '&[data-disabled]': {
-    opacity: 0.6,
-    cursor: 'default',
-  },
-}
-
-const subtleSwitchCss = {
-  minWidth: '2.5rem',
-  minHeight: '1.5rem',
-  padding: 'var(--space-1) var(--space-2)',
-  borderColor: 'transparent',
-  backgroundColor: 'transparent',
-  color: 'var(--text-muted)',
-  '&[data-hovered]': {
-    backgroundColor: 'transparent',
-    color: 'var(--text)',
-  },
-  '&[data-selected]': {
-    backgroundColor: 'transparent',
-    color: 'var(--text-accent)',
-  },
-}
+})
 
 type SwitchVariant = 'default' | 'subtle'
 
 export type SwitchProps = ComponentProps<typeof RacSwitch> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
   variant?: SwitchVariant
 }
 
 export function Switch({
-  css: cssProp,
+  styles: cssProp,
+  className,
   variant = 'default',
   ...props
 }: SwitchProps) {
   return (
     <RacSwitch
-      css={[switchCss, variant === 'subtle' ? subtleSwitchCss : null, cssProp]}
+      className={cx(css(switchRecipe.raw({ variant }), cssProp), className)}
       {...props}
     />
   )

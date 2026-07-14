@@ -1,57 +1,65 @@
+/** @jsxImportSource react */
 import { Button as ReactAriaButton } from 'react-aria-components'
+import { css, cva, cx } from 'styled-system/css'
 import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const buttonCss = {
-  border: 'none',
-  minHeight: 'var(--size-control-height)',
-  padding: 'var(--space-2) var(--space-4)',
-  borderRadius: 'var(--radius-md)',
-  fontSize: 'var(--text-base)',
-  fontWeight: 600,
-  lineHeight: 'var(--line-height-tight)',
-  gap: 'var(--space-2)',
-  cursor: 'pointer',
-  outline: 'none',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  whiteSpace: 'nowrap',
-  transition:
-    'background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast)',
-  '&[data-focused]': {
+const button = cva({
+  base: {
+    border: 'none',
+    minHeight: 'controlHeight',
+    paddingBlock: '2',
+    paddingInline: '4',
+    borderRadius: 'md',
+    fontSize: 'base',
+    fontWeight: 600,
+    lineHeight: 'tight',
+    gap: '2',
+    cursor: 'pointer',
     outline: 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    whiteSpace: 'nowrap',
+    transitionProperty: 'background-color, color, transform',
+    transitionDuration: 'fast',
+    transitionTimingFunction: 'default',
+    _focused: {
+      outline: 'none',
+    },
+    _focusVisible: {
+      outline: '1px solid token(colors.outline)',
+    },
+    _pressed: {
+      transform: 'translateY(1px)',
+    },
+    _disabled: {
+      cursor: 'default',
+      opacity: 0.7,
+    },
   },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  variants: {
+    variant: {
+      primary: {
+        backgroundColor: 'primary.bg',
+        color: 'primary.text',
+        _disabled: { color: 'primary.textMuted' },
+      },
+      secondary: {
+        border:
+          '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+        backgroundColor: 'secondary.bg',
+        color: 'secondary.text',
+        _hovered: {
+          backgroundColor:
+            'color-mix(in oklab, token(colors.secondary.bg) 72%, token(colors.tertiary.bg) 28%)',
+        },
+        _disabled: { color: 'primary.textMuted' },
+      },
+    },
   },
-  '&[data-pressed]': {
-    transform: 'translateY(1px)',
-  },
-  '&[data-disabled]': {
-    cursor: 'default',
-    opacity: 0.7,
-  },
-}
-
-const primaryCss = {
-  backgroundColor: 'var(--primary-bg)',
-  color: 'var(--primary-text)',
-  '&[data-disabled]': { color: 'var(--primary-text-muted)' },
-}
-
-const secondaryCss = {
-  border:
-    '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  '&[data-hovered]': {
-    backgroundColor:
-      'color-mix(in oklab, var(--secondary-bg) 72%, var(--tertiary-bg) 28%)',
-  },
-  '&[data-disabled]': { color: 'var(--primary-text-muted)' },
-}
+})
 
 type ButtonVariant = 'primary' | 'secondary'
 
@@ -59,23 +67,21 @@ export type ButtonProps = RacButtonProps & {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
   variant?: ButtonVariant
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export function Button({
   children,
   variant = 'secondary',
   icon: Icon,
-  css: cssProp,
+  styles: cssProp,
+  className,
   ...props
 }: ButtonProps) {
   return (
     <ReactAriaButton
-      css={[
-        buttonCss,
-        variant === 'primary' ? primaryCss : secondaryCss,
-        cssProp,
-      ]}
+      className={cx(css(button.raw({ variant }), cssProp), className)}
       {...props}
     >
       {(state) => (

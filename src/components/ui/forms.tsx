@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import {
   FieldError,
   Input,
@@ -9,14 +10,14 @@ import {
 import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
-import { COMPACT_LAYOUT_MIN_WIDTH } from '../../lib/breakpoints'
+import { css, cx } from 'styled-system/css'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
@@ -35,11 +36,14 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
   surface?: 'plain' | 'panel'
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 } & RacFormProps
 
 export const COMPACT_FORM_ACTIONS_MIN_WIDTH = '40rem'
 
+// these exported style objects are still consumed through Emotion css props
+// in feature files; they keep raw var() values until the features port (#95)
 export const formActionsCss = {
   display: 'flex',
   flexWrap: 'wrap' as const,
@@ -63,49 +67,50 @@ export const formStatusPanelCss = {
   gap: 'var(--space-3)',
 }
 
-const formCss = {
+const formStyles = css.raw({
   width: '100%',
-  padding: 'var(--space-4)',
+  padding: '4',
   margin: '0 auto',
-  containerType: 'inline-size' as const,
-}
+  containerType: 'inline-size',
+})
 
-const panelFormCss = {
-  ...formCss,
-  padding: 'var(--space-5)',
-  border: '1px solid var(--border-color)',
-  borderRadius: 'var(--radius-lg)',
-  backgroundColor: 'var(--secondary-bg)',
-  boxShadow: 'var(--shadow-sm)',
-}
+const panelFormStyles = css.raw({
+  ...formStyles,
+  padding: '5',
+  border: '1px solid token(colors.border)',
+  borderRadius: 'lg',
+  backgroundColor: 'secondary.bg',
+  boxShadow: 'sm',
+})
 
-const textFieldControlCss = {
+const textFieldControlStyles = css.raw({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
   minWidth: 0,
-  minHeight: 'var(--size-control-height)',
-  paddingInline: 'var(--space-3)',
-  gap: 'var(--space-2)',
-  borderRadius: 'var(--radius-md)',
+  minHeight: 'controlHeight',
+  paddingInline: '3',
+  gap: '2',
+  borderRadius: 'md',
   border:
-    '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  boxShadow: 'var(--shadow-sm)',
-  transition:
-    'border-color var(--transition-fast), outline-color var(--transition-fast)',
-  '&:focus-within': {
-    outline: '1px solid var(--outline-color)',
+    '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+  backgroundColor: 'secondary.bg',
+  color: 'secondary.text',
+  boxShadow: 'sm',
+  transitionProperty: 'border-color, outline-color',
+  transitionDuration: 'fast',
+  transitionTimingFunction: 'default',
+  _focusWithin: {
+    outline: '1px solid token(colors.outline)',
     outlineOffset: '1px',
   },
-}
+})
 
-const textFieldInputCss = {
+const textFieldInputStyles = css.raw({
   width: '100%',
   minWidth: 0,
-  minHeight: 'calc(var(--size-control-height) - 2px)',
-  paddingBlock: 'var(--space-2)',
+  minHeight: 'calc(token(sizes.controlHeight) - 2px)',
+  paddingBlock: '2',
   border: 0,
   outline: 'none',
   backgroundColor: 'transparent',
@@ -114,18 +119,19 @@ const textFieldInputCss = {
   '&:focus': {
     outline: 'none',
   },
-  '&::placeholder': {
-    color: 'var(--text-muted)',
+  _placeholder: {
+    color: 'text.muted',
   },
-  '&:autofill': {
-    boxShadow: 'inset 0 0 0 100px var(--secondary-bg)',
-    WebkitTextFillColor: 'var(--secondary-text)',
+  _autofill: {
+    boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
+    WebkitTextFillColor: 'token(colors.secondary.text)',
   },
-}
+})
 
 export function Form({
   children,
-  css: cssProp,
+  styles: cssProp,
+  className,
   formError,
   controls,
   surface = 'plain',
@@ -134,7 +140,10 @@ export function Form({
   return (
     <RacForm
       {...props}
-      css={[surface === 'panel' ? panelFormCss : formCss, cssProp]}
+      className={cx(
+        css(surface === 'panel' ? panelFormStyles : formStyles, cssProp),
+        className,
+      )}
     >
       {children}
       {formError && <FormError error={formError} />}
@@ -169,20 +178,26 @@ export function FormStatusSwitcher({
   )
 }
 
-export function InputGroup(props: ComponentPropsWithoutRef<'div'>) {
+export function InputGroup({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<'div'>) {
   return (
     <div
       {...props}
-      css={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr)',
-        rowGap: 'var(--space-4)',
-        [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
-          gridTemplateColumns: 'auto minmax(10ch, 30ch)',
-          columnGap: 'var(--space-3)',
-          rowGap: 'var(--space-5)',
-        },
-      }}
+      className={cx(
+        css({
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          rowGap: '4',
+          _compactLayout: {
+            gridTemplateColumns: 'auto minmax(10ch, 30ch)',
+            columnGap: '3',
+            rowGap: '5',
+          },
+        }),
+        className,
+      )}
     />
   )
 }
@@ -212,19 +227,19 @@ export function TextField({
     <RacTextField
       id={inputId}
       type={actualType}
-      css={{
+      className={css({
         gridColumn: '1 / -1',
         display: 'grid',
         gridTemplateColumns: 'subgrid',
         minWidth: 0,
-      }}
+      })}
       {...props}
     >
-      <Label css={{ textAlign: 'left' }}>{label}</Label>
-      <div css={textFieldControlCss}>
+      <Label className={css({ textAlign: 'left' })}>{label}</Label>
+      <div className={css(textFieldControlStyles)}>
         <Input
           placeholder={placeholder}
-          css={[textFieldInputCss, { maxWidth: '100%' }]}
+          className={css(textFieldInputStyles, { maxWidth: '100%' })}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (
@@ -232,14 +247,14 @@ export function TextField({
             aria-label="Toggle password visibility"
             aria-controls={inputId}
             variant="icon"
-            css={{
+            styles={css.raw({
               display: 'flex',
               alignItems: 'center',
-              '--toggle-icon-color': 'var(--text-muted)',
-              '--toggle-icon-hover-color': 'var(--text)',
-              '--toggle-icon-selected-color': 'var(--text-accent)',
+              '--toggle-icon-color': 'token(colors.text.muted)',
+              '--toggle-icon-hover-color': 'token(colors.text)',
+              '--toggle-icon-selected-color': 'token(colors.text.accent)',
               '--toggle-icon-selected-glow': 'transparent',
-            }}
+            })}
             isSelected={showPassword}
             onPress={() => setShowPassword((prev) => !prev)}
           >
@@ -250,22 +265,22 @@ export function TextField({
       {description && (
         <Text
           slot="description"
-          css={{
-            fontSize: 'var(--text-xs)',
-            marginTop: 'var(--space-2)',
+          className={css({
+            fontSize: 'xs',
+            marginTop: '2',
             gridColumn: '1 / -1',
-          }}
+          })}
         >
           {description}
         </Text>
       )}
       <FieldError
-        css={{
-          color: 'var(--danger-text)',
-          fontSize: 'var(--text-sm)',
+        className={css({
+          color: 'danger.text',
+          fontSize: 'sm',
           gridColumn: '1 / -1',
-          paddingBlockStart: 'var(--space-2)',
-        }}
+          paddingBlockStart: '2',
+        })}
       />
     </RacTextField>
   )

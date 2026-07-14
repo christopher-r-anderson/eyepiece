@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import {
   Button,
@@ -8,6 +9,7 @@ import {
 } from 'react-aria-components'
 import { useId } from 'react-aria'
 import { useEffect } from 'react'
+import { css } from 'styled-system/css'
 import type { ReactNode } from 'react'
 
 const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
@@ -63,48 +65,50 @@ export function ModalDialog({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable={isDismissable}
-      css={{
+      className={css({
         position: 'fixed',
         inset: 0,
-        zIndex: 'var(--z-overlay)',
+        zIndex: 'overlay',
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-      }}
+      })}
     >
-      <RacModal css={{ maxHeight: '100vh', padding: 'var(--space-6)' }}>
+      <RacModal className={css({ maxHeight: '100vh', padding: '6' })}>
         <Dialog
           aria-labelledby={titleId}
-          css={{
-            backgroundColor: 'var(--background)',
+          className={css({
+            backgroundColor: 'background',
             display: 'flex',
             flexDirection: 'column',
             maxHeight: '90vh',
             maxWidth: '90vw',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-overlay)',
+            border: '1px solid token(colors.border)',
+            borderRadius: 'lg',
+            boxShadow: 'overlay',
             overflow: 'hidden',
-          }}
+          })}
         >
           <div
-            css={{
+            className={css({
               display: 'flex',
               justifyContent: 'space-between',
-              gap: 'var(--space-3)',
+              gap: '3',
               alignItems: 'center',
-              padding: 'var(--space-4) var(--space-5) var(--space-3)',
-            }}
+              paddingTop: '4',
+              paddingInline: '5',
+              paddingBottom: '3',
+            })}
           >
             <Heading
               id={titleId}
               slot="title"
-              css={{
+              className={css({
                 flex: '1 1 auto',
                 marginBlockEnd: 0,
                 minWidth: 0,
-              }}
+              })}
             >
               {title}
             </Heading>
@@ -112,45 +116,48 @@ export function ModalDialog({
             <Button
               aria-label={`Close ${title} dialog`}
               onPress={() => onOpenChange(false)}
-              css={{
+              className={css({
                 display: 'inline-flex',
                 alignItems: 'center',
-                width: 'var(--size-touch-target-min)',
-                height: 'var(--size-touch-target-min)',
+                width: 'touchTargetMin',
+                height: 'touchTargetMin',
                 cursor: 'pointer',
                 justifyContent: 'center',
                 padding: 0,
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'md',
                 backgroundColor: 'transparent',
-                color: 'var(--text)',
+                color: 'text',
                 opacity: 0.8,
                 flexShrink: 0,
-                transition:
-                  'background-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast)',
-                '&[data-hovered]': {
-                  backgroundColor: 'var(--tertiary-bg)',
-                  color: 'var(--text)',
+                transitionProperty: 'background-color, color, opacity',
+                transitionDuration: 'fast',
+                transitionTimingFunction: 'default',
+                _hovered: {
+                  backgroundColor: 'tertiary.bg',
+                  color: 'text',
                   opacity: 1,
                 },
                 '&[data-focus-visible], &[data-pressed]': {
                   opacity: 1,
                 },
-                '&[data-focus-visible]': {
-                  outline: '1px solid var(--outline-color)',
+                _focusVisible: {
+                  outline: '1px solid token(colors.outline)',
                   outlineOffset: '2px',
                 },
-              }}
+              })}
             >
               <XIcon size={18} weight="bold" />
             </Button>
           </div>
           <div
-            css={{
+            className={css({
               minHeight: 0,
               overflowY: 'auto',
-              padding: '0 var(--space-5) var(--space-5)',
-            }}
+              paddingTop: 0,
+              paddingInline: '5',
+              paddingBottom: '5',
+            })}
           >
             {children}
           </div>

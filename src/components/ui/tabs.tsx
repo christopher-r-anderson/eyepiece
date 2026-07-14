@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import {
   Tab as RacTab,
   TabList as RacTabList,
@@ -5,107 +6,134 @@ import {
   TabPanels as RacTabPanels,
   Tabs as RacTabs,
 } from 'react-aria-components'
+import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 
-const tabsCss = {
+const tabsStyles = css.raw({
   display: 'grid',
   gap: 0,
   width: '100%',
-}
+})
 
-const tabListCss = {
-  display: 'flex' as const,
-  flexWrap: 'wrap' as const,
-  gap: 'var(--space-2)',
-  alignItems: 'end' as const,
+const tabListStyles = css.raw({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '2',
+  alignItems: 'end',
   marginBottom: '-1px',
-}
+})
 
-const tabPanelsCss = {
+const tabPanelsStyles = css.raw({
   display: 'grid',
-}
+})
 
-const tabCss = {
-  minHeight: 'var(--size-control-height)',
-  padding: 'var(--space-2) var(--space-4)',
-  border: '1px solid var(--border-color)',
+const tabStyles = css.raw({
+  minHeight: 'controlHeight',
+  paddingBlock: '2',
+  paddingInline: '4',
+  border: '1px solid token(colors.border)',
   borderBottomWidth: 0,
-  borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
+  borderRadius: 'token(radii.md) token(radii.md) 0 0',
+  backgroundColor: 'secondary.bg',
+  color: 'secondary.text',
   display: 'inline-flex',
   alignItems: 'center',
   cursor: 'pointer',
   outline: 'none',
-  transition:
-    'background-color var(--transition-fast), color var(--transition-fast)',
-  '&[data-selected]': {
+  transitionProperty: 'background-color, color',
+  transitionDuration: 'fast',
+  transitionTimingFunction: 'default',
+  _selected: {
     fontWeight: 'bold',
-    backgroundColor: 'var(--tertiary-bg)',
-    position: 'relative' as const,
+    backgroundColor: 'tertiary.bg',
+    position: 'relative',
     zIndex: 1,
   },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
   },
-}
+})
 
-const tabPanelCss = {
-  backgroundColor: 'var(--tertiary-bg)',
-  border: '1px solid var(--border-color)',
-  borderRadius: '0 var(--radius-lg) var(--radius-lg) var(--radius-lg)',
-  padding: 'var(--space-4)',
-}
+const tabPanelStyles = css.raw({
+  backgroundColor: 'tertiary.bg',
+  border: '1px solid token(colors.border)',
+  borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
+  padding: '4',
+})
 
 export type TabsProps = ComponentProps<typeof RacTabs> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type TabListProps = ComponentProps<typeof RacTabList> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type TabProps = ComponentProps<typeof RacTab> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
 export type TabPanelProps = ComponentProps<typeof RacTabPanel> & {
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
+  className?: string
 }
 
-export function Tabs({ css: cssProp, ...props }: TabsProps) {
-  return <RacTabs css={cssProp ? [tabsCss, cssProp] : tabsCss} {...props} />
-}
-
-export function TabList({ css: cssProp, ...props }: TabListProps) {
+export function Tabs({ styles: cssProp, className, ...props }: TabsProps) {
   return (
-    <RacTabList css={cssProp ? [tabListCss, cssProp] : tabListCss} {...props} />
+    <RacTabs className={cx(css(tabsStyles, cssProp), className)} {...props} />
   )
 }
 
-export function Tab({ css: cssProp, ...props }: TabProps) {
-  return <RacTab css={cssProp ? [tabCss, cssProp] : tabCss} {...props} />
-}
-
-export function TabPanels({ css: cssProp, ...props }: TabPanelsProps) {
+export function TabList({
+  styles: cssProp,
+  className,
+  ...props
+}: TabListProps) {
   return (
-    <RacTabPanels
-      css={cssProp ? [tabPanelsCss, cssProp] : tabPanelsCss}
+    <RacTabList
+      className={cx(css(tabListStyles, cssProp), className)}
       {...props}
     />
   )
 }
 
-export function TabPanel({ css: cssProp, ...props }: TabPanelProps) {
+export function Tab({ styles: cssProp, className, ...props }: TabProps) {
+  return (
+    <RacTab className={cx(css(tabStyles, cssProp), className)} {...props} />
+  )
+}
+
+export function TabPanels({
+  styles: cssProp,
+  className,
+  ...props
+}: TabPanelsProps) {
+  return (
+    <RacTabPanels
+      className={cx(css(tabPanelsStyles, cssProp), className)}
+      {...props}
+    />
+  )
+}
+
+export function TabPanel({
+  styles: cssProp,
+  className,
+  ...props
+}: TabPanelProps) {
   return (
     <RacTabPanel
       {...props}
-      css={cssProp ? [tabPanelCss, cssProp] : tabPanelCss}
+      className={cx(css(tabPanelStyles, cssProp), className)}
     />
   )
 }

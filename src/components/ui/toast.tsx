@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import {
   UNSTABLE_Toast as RacToast,
   UNSTABLE_ToastContent as RacToastContent,
@@ -5,6 +6,7 @@ import {
   Text,
 } from 'react-aria-components'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import { Button } from './button'
 import { toastQueue } from './toast.hooks'
 import type { ToastProps } from 'react-aria-components'
@@ -14,60 +16,61 @@ export interface ToastContent {
   description?: string
 }
 
-const regionCss = {
-  position: 'fixed' as const,
-  bottom: 'var(--space-7)',
-  right: 'var(--space-7)',
-  display: 'flex' as const,
-  flexDirection: 'column' as const,
-  gap: 'var(--space-2)',
-  maxWidth: 'min(var(--size-reading-max), calc(100vw - (2 * var(--space-7))))',
-}
+const regionStyles = css.raw({
+  position: 'fixed',
+  bottom: '7',
+  right: '7',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2',
+  maxWidth:
+    'min(token(sizes.readingMax), calc(100vw - (2 * token(spacing.7))))',
+})
 
-const toastCss = {
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  outline: '1px solid var(--outline-color)',
-  padding: 'var(--space-4)',
-  display: 'flex' as const,
-  alignItems: 'flex-start' as const,
-  gap: 'var(--space-2)',
-}
+const toastStyles = css.raw({
+  backgroundColor: 'secondary.bg',
+  color: 'secondary.text',
+  outline: '1px solid token(colors.outline)',
+  padding: '4',
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '2',
+})
 
-const contentCss = {
-  display: 'flex' as const,
-  flexDirection: 'column' as const,
-  gap: 'var(--space-2)',
-}
+const contentStyles = css.raw({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2',
+})
 
-const titleCss = {
+const titleStyles = css.raw({
   fontWeight: 700,
-  lineHeight: 'var(--line-height-tight)',
-}
+  lineHeight: 'tight',
+})
 
-const closeButtonCss = {
+const closeButtonStyles = css.raw({
   marginInlineStart: 'auto',
   padding: 0,
-}
+})
 
 export function ToastRegion() {
   return (
-    <RacToastRegion queue={toastQueue} css={regionCss}>
+    <RacToastRegion queue={toastQueue} className={css(regionStyles)}>
       {({ toast }) => (
         <Toast
           toast={toast}
           style={{ viewTransitionName: toast.key }}
-          css={toastCss}
+          className={css(toastStyles)}
         >
-          <RacToastContent css={contentCss}>
-            <Text slot="title" css={titleCss}>
+          <RacToastContent className={css(contentStyles)}>
+            <Text slot="title" className={css(titleStyles)}>
               {toast.content.title}
             </Text>
             {toast.content.description && (
               <Text slot="description">{toast.content.description}</Text>
             )}
           </RacToastContent>
-          <Button slot="close" aria-label="Close" css={closeButtonCss}>
+          <Button slot="close" aria-label="Close" styles={closeButtonStyles}>
             <XIcon size={16} />
           </Button>
         </Toast>
