@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { pageMainCss } from '@/routes/-components/page-main'
 import { authModalSearchParamsSchema } from '@/features/auth/auth.schema'
 import { userHasProfile } from '@/lib/guards'
 
@@ -11,20 +12,7 @@ export const Route = createFileRoute('/(private)/(pages)')({
 
 function PrivatePagesLayout() {
   return (
-    <main
-      className={css({
-        width: '100%',
-        maxWidth: 'contentMax',
-        flexGrow: 1,
-        margin: '0 auto',
-        paddingTop: '0',
-        paddingInline: '4',
-        paddingBottom: '7',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-      })}
-    >
+    <main className={css(pageMainCss)}>
       <Outlet />
     </main>
   )

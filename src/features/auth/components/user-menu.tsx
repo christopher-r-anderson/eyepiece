@@ -3,8 +3,9 @@ import { useRouter } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
-import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
+import { Menu, MenuItem, MenuTrigger } from '@/components/ui/menus'
 import { Button } from '@/components/ui/button'
+import { Popover } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { logErrorWithObservability } from '@/lib/error-logging'
@@ -28,7 +29,11 @@ export function UserMenu() {
       >
         <UserCircleIcon size={24} />
       </Button>
-      <Popover placement="bottom end" containerPadding={20}>
+      <Popover
+        placement="bottom end"
+        containerPadding={20}
+        css={css.raw({ backgroundColor: 'secondary.bg' })}
+      >
         <Menu>
           <MenuItem
             href={{

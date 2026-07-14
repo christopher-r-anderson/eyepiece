@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
 import { LoginForm } from '@/features/auth/forms/login-form'
 import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
+import {
+  AuthAltAction,
+  authAltActionLinkCss,
+} from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
 
@@ -32,22 +35,12 @@ function LoginPage() {
           </Link>
         }
       />
-      <p
-        className={css({
-          marginTop: '4',
-          marginInline: '0',
-          marginBottom: '0',
-          lineHeight: 'base',
-        })}
-      >
+      <AuthAltAction>
         Don't have an account yet?{' '}
-        <Link
-          to="/register"
-          css={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
-        >
+        <Link to="/register" css={authAltActionLinkCss}>
           Register
         </Link>
-      </p>
+      </AuthAltAction>
     </>
   )
 }

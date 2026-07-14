@@ -1,11 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { css } from 'styled-system/css'
 import {
   RegistrationForm,
   RegistrationSuccessMessage,
 } from '@/features/auth/forms/registration-form'
 import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
+import {
+  AuthAltAction,
+  authAltActionLinkCss,
+} from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
 import { FormStatusSwitcher } from '@/components/ui/forms'
@@ -36,22 +39,12 @@ function RegisterPage() {
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}
         />
-        <p
-          className={css({
-            marginTop: '4',
-            marginInline: '0',
-            marginBottom: '0',
-            lineHeight: 'base',
-          })}
-        >
+        <AuthAltAction>
           Already have an account?{' '}
-          <Link
-            to="/login"
-            css={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
-          >
+          <Link to="/login" css={authAltActionLinkCss}>
             Log in
           </Link>
-        </p>
+        </AuthAltAction>
       </FormStatusSwitcher>
     </>
   )
