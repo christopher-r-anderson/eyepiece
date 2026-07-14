@@ -8,27 +8,24 @@ import {
 } from '@/domain/provider/provider.schema'
 import { stringifySearchParams } from '@/lib/search-params'
 
-vi.mock('@tanstack/react-router', async (importOriginal) => {
-  const actual = await importOriginal()
-  return Object.assign({}, actual as object, {
-    // plain anchor stand-in; e2e covers real link serialization
-    Link: ({
-      to,
-      search,
+vi.mock('@/components/ui/link', () => ({
+  // plain anchor stand-in; e2e covers real link serialization
+  Link: ({
+    to,
+    search,
+    children,
+    ...rest
+  }: Record<string, unknown> & {
+    to: string
+    search: Record<string, string>
+    children: React.ReactNode
+  }) =>
+    createElement(
+      'a',
+      { ...rest, href: `${to}${stringifySearchParams(search)}` },
       children,
-      ...rest
-    }: Record<string, unknown> & {
-      to: string
-      search: Record<string, string>
-      children: React.ReactNode
-    }) =>
-      createElement(
-        'a',
-        { ...rest, href: `${to}${stringifySearchParams(search)}` },
-        children,
-      ),
-  })
-})
+    ),
+}))
 
 function scopeNav() {
   return within(screen.getByRole('navigation', { name: 'Search scope' }))

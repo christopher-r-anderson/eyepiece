@@ -119,15 +119,10 @@ test('junk search params canonicalize away by replacement', async ({
 test('param-order variants canonicalize to one sorted spelling', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
+  // no q, so nothing is prefetched during SSR and the test stays hermetic
+  await page.goto('/search?fp=1&auth=login')
 
-  await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
-
-  await page.waitForURL(
-    (url) => url.search === `?providerId=${NASA_PROVIDER_ID}&q=moon`,
-  )
+  await page.waitForURL((url) => url.search === '?auth=login&fp=1')
 })
 
 test('home submits to the all scope with the query preserved', async ({

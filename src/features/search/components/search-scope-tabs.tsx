@@ -1,6 +1,6 @@
-import { Link } from '@tanstack/react-router'
 import { toCanonicalUrlParams, toSearchPageParams } from '../search-page-params'
 import type { SearchPageParams, SearchScope } from '../search-page-params'
+import { Link } from '@/components/ui/link'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 
 // Links styled as tabs (visuals match src/components/ui/tabs.tsx), on
@@ -30,14 +30,18 @@ const tabLinkCss = {
   textDecoration: 'none',
   transition:
     'background-color var(--transition-fast), color var(--transition-fast)',
+  '&[data-hovered]': {
+    textDecoration: 'none',
+  },
   '&[aria-current="page"]': {
     fontWeight: 'bold',
     backgroundColor: 'var(--tertiary-bg)',
     position: 'relative' as const,
     zIndex: 1,
   },
-  '&:focus-visible': {
+  '&[data-focus-visible]': {
     outline: '1px solid var(--outline-color)',
+    outlineOffset: 0,
   },
 }
 
