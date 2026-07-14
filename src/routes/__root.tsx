@@ -9,6 +9,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { useEffect } from 'react'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
+import pandaCss from '../panda.css?url'
 import tokensCss from '../tokens.css?url'
 import themeCss from '../theme.css?url'
 import appCss from '../styles.css?url'
@@ -37,6 +38,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     ],
     links: [
+      // panda.css declares the cascade layer order, so it must come first
+      { rel: 'stylesheet', href: pandaCss },
       { rel: 'stylesheet', href: tokensCss },
       { rel: 'stylesheet', href: themeCss },
       { rel: 'stylesheet', href: appCss },
