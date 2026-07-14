@@ -38,6 +38,7 @@ export function ToastRegion() {
             gap: '2',
             backgroundColor: 'secondary.bg',
             color: 'secondary.text',
+            // decorative surface outline, deliberately not the focusRing border token
             outline: '1px solid token(colors.outline)',
             padding: '4',
           })}

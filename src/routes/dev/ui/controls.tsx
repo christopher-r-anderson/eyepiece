@@ -41,7 +41,12 @@ function DevUiControlsPage() {
             <div className={wrap({ gap: '3', align: 'center' })}>
               <Button>Secondary</Button>
               <Button variant="primary">Primary</Button>
+              <Button variant="ghost">Ghost</Button>
+              <Button variant="bare" icon={MagnifyingGlassIcon}>
+                Bare
+              </Button>
               <Button icon={MagnifyingGlassIcon}>Search</Button>
+              <Button isDisabled>Disabled</Button>
             </div>
           </DevPanel>
 

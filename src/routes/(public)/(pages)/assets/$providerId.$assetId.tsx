@@ -52,11 +52,6 @@ const assetHeaderBackCss = css.raw(ghostButtonCss, {
   },
 })
 
-const headerActionButtonCss = css.raw({
-  minWidth: 'controlHeightSm',
-  minHeight: 'controlHeightSm',
-})
-
 export const Route = createFileRoute(
   '/(public)/(pages)/assets/$providerId/$assetId',
 )({
@@ -177,7 +172,13 @@ function AssetPage() {
         >
           <FavoriteButton assetKey={assetKey} />
           {canViewMetadata ? (
-            <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+            <MetadataButton
+              assetKey={assetKey}
+              css={css.raw({
+                minWidth: 'controlHeightSm',
+                minHeight: 'controlHeightSm',
+              })}
+            />
           ) : null}
         </div>
       </div>

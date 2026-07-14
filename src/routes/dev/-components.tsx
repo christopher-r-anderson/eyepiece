@@ -20,7 +20,7 @@ export const devCardGridCss = css.raw({
   gap: '4',
 })
 
-export const devSurfaceCss = css.raw({
+const devSurfaceCss = css.raw({
   display: 'grid',
   gap: '4',
   padding: '5',
@@ -92,12 +92,8 @@ export function DevPageIntro({
         </PageHeading>
         <p
           className={css(
-            descriptionTone === 'muted'
-              ? {
-                  color: 'text.muted',
-                  maxWidth: 'readingMax',
-                }
-              : { maxWidth: 'readingMax' },
+            { maxWidth: 'readingMax' },
+            descriptionTone === 'muted' && { color: 'text.muted' },
           )}
         >
           {description}

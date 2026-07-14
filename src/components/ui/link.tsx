@@ -4,23 +4,27 @@ import { css, cx } from 'styled-system/css'
 import type { LinkProps } from 'react-aria-components'
 import type { StyleProps } from './style-props'
 
-const linkStyles = css.raw({
-  color: 'link',
-  textDecoration: 'none',
-  transitionFast: 'color',
-  _hovered: { textDecoration: 'underline' },
-  _focusVisible: {
-    outline: 'focusRing',
-    outlineOffset: '2px',
-  },
-})
-
 type AppLinkProps = LinkProps & StyleProps
 
 function AppLink({ css: cssProp, className, ...props }: AppLinkProps) {
   return (
     <ReactAriaLink
-      className={cx(css(linkStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            color: 'link',
+            textDecoration: 'none',
+            transitionFast: 'color',
+            _hovered: { textDecoration: 'underline' },
+            _focusVisible: {
+              outline: 'focusRing',
+              outlineOffset: '2px',
+            },
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )
