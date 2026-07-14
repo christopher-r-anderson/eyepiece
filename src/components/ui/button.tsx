@@ -4,6 +4,21 @@ import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
 import type { SystemStyleObject } from 'styled-system/types'
 
+// exported for non-Button elements that need the same treatment
+// (e.g. links styled as header actions)
+export const ghostButtonCss = css.raw({
+  border: '1px solid transparent',
+  backgroundColor: 'transparent',
+  color: 'primary.textMuted',
+  _hovered: {
+    color: 'text',
+    border:
+      '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+    backgroundColor:
+      'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
+  },
+})
+
 const button = cva({
   base: {
     border: 'none',
@@ -57,11 +72,20 @@ const button = cva({
         },
         _disabled: { color: 'primary.textMuted' },
       },
+      ghost: {
+        ...ghostButtonCss,
+      },
+      bare: {
+        backgroundColor: 'transparent',
+        minHeight: 'auto',
+        padding: 0,
+        fontSize: '1em',
+      },
     },
   },
 })
 
-type ButtonVariant = 'primary' | 'secondary'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'bare'
 
 export type ButtonProps = RacButtonProps & {
   ref?: Ref<HTMLButtonElement>

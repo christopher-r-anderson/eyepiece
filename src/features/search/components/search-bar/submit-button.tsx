@@ -8,16 +8,11 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
     <Button
       type="submit"
       aria-label="Search"
+      variant="bare"
       css={css.raw(
         {
-          backgroundColor: 'transparent',
-          borderColor: 'transparent',
           color: 'secondary.text',
-          fontSize: '1em',
-          minHeight: 'auto',
-          padding: 0,
           _hovered: {
-            backgroundColor: 'transparent',
             color: 'text.accent',
           },
           _disabled: {
@@ -28,7 +23,7 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
       )}
       {...props}
     >
-      <MagnifyingGlassIcon />
+      <MagnifyingGlassIcon aria-hidden="true" />
     </Button>
   )
 }

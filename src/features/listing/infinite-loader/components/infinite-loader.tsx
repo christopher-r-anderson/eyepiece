@@ -1,7 +1,7 @@
 import { startTransition, useEffect } from 'react'
 import { css } from 'styled-system/css'
-import { LoadMoreButton } from './load-more-button'
 import type { ComponentPropsWithoutRef } from 'react'
+import { Button } from '@/components/ui/button'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
 import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
 import { VisuallyHidden } from '@/components/ui/a11y'
@@ -51,10 +51,9 @@ export function InfiniteLoader({
 
       {showLoadMore && (
         <div className={css({ marginTop: '4', textAlign: 'center' })}>
-          <LoadMoreButton
-            type="button"
-            disabled={isFetchingNextPage}
-            onClick={async () => {
+          <Button
+            isDisabled={isFetchingNextPage}
+            onPress={async () => {
               await fetchNextPage()
               startTransition(() => {
                 resetAuto()
@@ -62,7 +61,7 @@ export function InfiniteLoader({
             }}
           >
             {isFetchingNextPage ? 'Loading…' : 'Load more'}
-          </LoadMoreButton>
+          </Button>
         </div>
       )}
     </div>

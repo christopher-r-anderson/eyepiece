@@ -4,6 +4,7 @@ import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
+import { ghostButtonCss } from '@/components/ui/button'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
@@ -58,7 +59,7 @@ const assetHeaderCss = css.raw({
   },
 })
 
-const assetHeaderBackCss = css.raw({
+const assetHeaderBackCss = css.raw(ghostButtonCss, {
   gridArea: 'back',
   justifySelf: 'start',
   display: 'inline-flex',
@@ -68,18 +69,10 @@ const assetHeaderBackCss = css.raw({
   paddingBlock: '2',
   paddingInline: '3',
   borderRadius: 'md',
-  border: '1px solid transparent',
-  backgroundColor: 'transparent',
-  color: 'primary.textMuted',
   fontWeight: 600,
   lineHeight: 'tight',
   _hovered: {
-    color: 'text',
     textDecoration: 'none',
-    border:
-      '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-    backgroundColor:
-      'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
   },
 })
 
