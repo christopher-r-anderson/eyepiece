@@ -50,7 +50,7 @@ export const formActionsCss = css.raw({
 
 export const formActionButtonCss = css.raw({
   width: '100%',
-  _compactLayout: {
+  '@/2xl': {
     width: 'auto',
   },
 })
@@ -183,7 +183,7 @@ export function InputGroup({
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr)',
           rowGap: '4',
-          _compactLayout: {
+          '@/2xl': {
             gridTemplateColumns: 'auto minmax(10ch, 30ch)',
             columnGap: '3',
             rowGap: '5',

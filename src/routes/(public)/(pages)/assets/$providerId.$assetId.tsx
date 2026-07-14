@@ -51,7 +51,7 @@ const assetHeaderCss = css.raw({
   paddingInline: '4',
   paddingBottom: 0,
   containerType: 'inline-size',
-  _compactLayout: {
+  '@/2xl': {
     gridTemplateColumns: 'auto minmax(0, 1fr) auto',
     gridTemplateAreas: '"back title actions"',
     columnGap: '4',
