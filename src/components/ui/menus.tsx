@@ -6,10 +6,22 @@ import {
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type {
-  MenuItemProps,
-  MenuProps,
+  MenuItemProps as RacMenuItemProps,
+  MenuProps as RacMenuProps,
   PopoverProps as RacPopoverProps,
 } from 'react-aria-components'
+
+export type MenuProps<T extends object> = RacMenuProps<T> & {
+  className?: string
+}
+
+export type MenuItemProps = RacMenuItemProps & {
+  className?: string
+}
+
+export type PopoverProps = RacPopoverProps & {
+  className?: string
+}
 
 const menuStyles = css.raw({
   backgroundColor: 'secondary.bg',
@@ -52,29 +64,18 @@ const menuPopoverStyles = css.raw({
 })
 
 export function Menu<T extends object>({ className, ...props }: MenuProps<T>) {
-  return (
-    <RacMenu
-      {...props}
-      className={cx(css(menuStyles), className as string | undefined)}
-    />
-  )
+  return <RacMenu {...props} className={cx(css(menuStyles), className)} />
 }
 
 export function MenuItem({ className, ...props }: MenuItemProps) {
   return (
-    <RacMenuItem
-      {...props}
-      className={cx(css(menuItemStyles), className as string | undefined)}
-    />
+    <RacMenuItem {...props} className={cx(css(menuItemStyles), className)} />
   )
 }
 
-export function Popover({ className, ...props }: RacPopoverProps) {
+export function Popover({ className, ...props }: PopoverProps) {
   return (
-    <RacPopover
-      {...props}
-      className={cx(css(menuPopoverStyles), className as string | undefined)}
-    />
+    <RacPopover {...props} className={cx(css(menuPopoverStyles), className)} />
   )
 }
 

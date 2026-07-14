@@ -117,6 +117,8 @@ function ServerPlaceholder<T extends object>({
   placeholder,
   defaultValue,
   value,
+  styles,
+  className,
 }: SelectProps<T>) {
   let text = placeholder
   const selectedValue = value ?? defaultValue
@@ -127,7 +129,7 @@ function ServerPlaceholder<T extends object>({
     }
   }
   return (
-    <div className={css(selectStyles)}>
+    <div className={cx(css(selectStyles, styles), className)}>
       <Button variant={buttonVariant} styles={buttonStyles}>
         <span className={css(itemStyles)}>{text}</span>
         <Caret />

@@ -206,6 +206,7 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
+  className?: string
 } & RacTextFieldProps
 
 export function TextField({
@@ -213,6 +214,7 @@ export function TextField({
   label,
   placeholder,
   type,
+  className,
   ...props
 }: TextFieldProps) {
   const inputId = useId()
@@ -227,12 +229,15 @@ export function TextField({
     <RacTextField
       id={inputId}
       type={actualType}
-      className={css({
-        gridColumn: '1 / -1',
-        display: 'grid',
-        gridTemplateColumns: 'subgrid',
-        minWidth: 0,
-      })}
+      className={cx(
+        css({
+          gridColumn: '1 / -1',
+          display: 'grid',
+          gridTemplateColumns: 'subgrid',
+          minWidth: 0,
+        }),
+        className,
+      )}
       {...props}
     >
       <Label className={css({ textAlign: 'left' })}>{label}</Label>
