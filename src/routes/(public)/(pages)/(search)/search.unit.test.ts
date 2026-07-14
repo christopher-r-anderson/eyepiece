@@ -63,10 +63,26 @@ describe('search page route', () => {
     expect(mockPrefetchInfiniteSearch).not.toHaveBeenCalled()
   })
 
-  it('skips prefetching for the all-providers scope', async () => {
-    await route.loader({ context: loaderContext(), deps: { q: 'moon' } })
+  it('prefetches both providers without awaiting for the all scope', async () => {
+    // the loader must settle even though the prefetches never resolve
+    mockPrefetchInfiniteSearch.mockReturnValue(new Promise(() => {}))
+    const context = loaderContext()
 
-    expect(mockPrefetchInfiniteSearch).not.toHaveBeenCalled()
+    await route.loader({ context, deps: { q: 'moon' } })
+
+    expect(mockPrefetchInfiniteSearch).toHaveBeenCalledTimes(2)
+    expect(mockPrefetchInfiniteSearch).toHaveBeenCalledWith({
+      query: 'moon',
+      filters: { providerId: NASA_IVL_PROVIDER_ID, filters: {} },
+      eyepieceClient: context.eyepieceClient,
+      queryClient: context.queryClient,
+    })
+    expect(mockPrefetchInfiniteSearch).toHaveBeenCalledWith({
+      query: 'moon',
+      filters: { providerId: SI_OA_PROVIDER_ID, filters: {} },
+      eyepieceClient: context.eyepieceClient,
+      queryClient: context.queryClient,
+    })
   })
 
   it('prefetches infinite search with nested domain filters for a provider scope', async () => {

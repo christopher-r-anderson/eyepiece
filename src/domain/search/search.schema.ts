@@ -5,6 +5,7 @@ import {
 } from '../provider/provider.schema'
 import { nasaIvlSearchFiltersSchema } from './providers/nasa-ivl-filters'
 import { sioaSearchFiltersSchema } from './providers/si-oa-filters'
+import type { ProviderId } from '../provider/provider.schema'
 
 export const searchQuerySchema = z.string()
 
@@ -22,3 +23,10 @@ export const searchFiltersSchema = z.discriminatedUnion('providerId', [
 ])
 
 export type SearchFilters = z.infer<typeof searchFiltersSchema>
+
+export function defaultSearchFilters(providerId: ProviderId): SearchFilters {
+  // identical branches; the split narrows the union arm
+  return providerId === NASA_IVL_PROVIDER_ID
+    ? { providerId, filters: {} }
+    : { providerId, filters: {} }
+}

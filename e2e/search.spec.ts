@@ -47,11 +47,14 @@ function trackSearchApiRequests(page: Page) {
   return requests
 }
 
-test('all scope renders publicly cacheable with tabs and no console errors', async ({
+test('all scope renders publicly cacheable with sections and no console errors', async ({
   page,
 }) => {
   const consoleErrors = collectConsoleErrors(page)
-  const searchRequests = trackSearchApiRequests(page)
+  // stub client refetches so the test does not depend on provider health
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
 
   const response = await page.goto('/search?q=moon')
 
@@ -70,8 +73,15 @@ test('all scope renders publicly cacheable with tabs and no console errors', asy
   await expect(
     scopeNav.getByRole('link', { name: 'All libraries' }),
   ).toHaveAttribute('aria-current', 'page')
+  await expect(
+    page.getByRole('region', { name: 'NASA Image and Video Library' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('region', {
+      name: 'Smithsonian National Air and Space Museum',
+    }),
+  ).toBeVisible()
 
-  expect(searchRequests).toEqual([])
   expect(consoleErrors).toEqual([])
 })
 
@@ -154,26 +164,42 @@ test('home submits to the all scope with the query preserved', async ({
   ).toHaveAttribute('aria-current', 'page')
 })
 
-test('switching to a provider scope loads results and back returns to all', async ({
+test('all-view sections load once and "See all" reuses the cache', async ({
   page,
 }) => {
+  const searchRequests = trackSearchApiRequests(page)
   await page.route('**/api/v1/search*', (route) =>
     route.fulfill({ json: stubSearchResponse }),
   )
-  await page.goto('/search?q=moon')
+  // start from the prompt state so all fetching goes through the stub
+  await page.goto('/search')
 
-  await page
-    .getByRole('navigation', { name: 'Search scope' })
-    .getByRole('link', { name: 'NASA' })
-    .click()
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await expect(async () => {
+    await searchbox.fill('moon')
+    await page.waitForTimeout(150)
+    await expect(searchbox).toHaveValue('moon')
+  }).toPass()
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
 
+  await page.waitForURL((url) => url.searchParams.get('q') === 'moon')
+  const nasaSection = page.getByRole('region', {
+    name: 'NASA Image and Video Library',
+  })
+  await expect(nasaSection.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  const requestsAfterSections = searchRequests.length
+  expect(requestsAfterSections).toBeGreaterThan(0)
+
+  await nasaSection.getByRole('link', { name: 'See all from NASA' }).click()
   await page.waitForURL((url) => {
     return (
       url.searchParams.get('q') === 'moon' &&
       url.searchParams.get('providerId') === NASA_PROVIDER_ID
     )
   })
-  await expect(page.getByText('Apollo 11 Capsule')).toBeVisible()
+  await expect(page.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  // the scoped tab shares the section's query cache: no new fetch
+  expect(searchRequests.length).toBe(requestsAfterSections)
 
   await page.goBack()
   await page.waitForURL((url) => {
@@ -187,4 +213,34 @@ test('switching to a provider scope loads results and back returns to all', asyn
       .getByRole('navigation', { name: 'Search scope' })
       .getByRole('link', { name: 'All libraries' }),
   ).toHaveAttribute('aria-current', 'page')
+})
+
+test('a failing provider only takes down its own section', async ({ page }) => {
+  await page.route('**/api/v1/search*', (route) => {
+    const url = new URL(route.request().url())
+    if (url.searchParams.get('providerId') === 'si_oa') {
+      return route.fulfill({ status: 502, json: { error: 'upstream down' } })
+    }
+    return route.fulfill({ json: stubSearchResponse })
+  })
+  await page.goto('/search')
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await expect(async () => {
+    await searchbox.fill('moon')
+    await page.waitForTimeout(150)
+    await expect(searchbox).toHaveValue('moon')
+  }).toPass()
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  const nasaSection = page.getByRole('region', {
+    name: 'NASA Image and Video Library',
+  })
+  await expect(nasaSection.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  const siSection = page.getByRole('region', {
+    name: 'Smithsonian National Air and Space Museum',
+  })
+  await expect(siSection.getByRole('alert')).toContainText(
+    "Couldn't load results from Smithsonian National Air and Space Museum.",
+  )
 })

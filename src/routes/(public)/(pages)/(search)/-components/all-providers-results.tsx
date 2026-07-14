@@ -1,0 +1,99 @@
+import { Suspense } from 'react'
+import { CatchBoundary } from '@tanstack/react-router'
+import { hashKey } from '@tanstack/react-query'
+import { useId } from 'react-aria'
+import { AssetResultsGrid } from './asset-results-grid'
+import type { ProviderId } from '@/domain/provider/provider.schema'
+import type { SearchQuery } from '@/domain/search/search.schema'
+import { CapturedAlertError } from '@/app/layout/route-error'
+import { Link } from '@/components/ui/link'
+import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
+import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
+import { defaultSearchFilters } from '@/domain/search/search.schema'
+import {
+  ALL_SCOPE_SECTION_SIZE,
+  useSuspenseSearchSection,
+} from '@/features/search/search.queries'
+
+// Sections own sibling Suspense/error boundaries so one provider failing
+// or stalling never affects the others.
+export function AllProvidersResults({ query }: { query: SearchQuery }) {
+  return (
+    <div css={{ display: 'grid', gap: 'var(--space-7)' }}>
+      {PROVIDERS.map((providerId) => (
+        <ProviderSection
+          key={providerId}
+          query={query}
+          providerId={providerId}
+        />
+      ))}
+    </div>
+  )
+}
+
+interface ProviderSectionProps {
+  query: SearchQuery
+  providerId: ProviderId
+}
+
+function ProviderSection({ query, providerId }: ProviderSectionProps) {
+  const headingId = useId()
+  const display = PROVIDER_DISPLAY[providerId]
+
+  return (
+    <section aria-labelledby={headingId}>
+      <div
+        css={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          gap: 'var(--space-4)',
+          marginBottom: 'var(--space-4)',
+        }}
+      >
+        <h2 id={headingId} css={{ margin: 0, fontSize: 'var(--text-xl)' }}>
+          {display.displayName}
+        </h2>
+        <Link
+          to="/search"
+          search={{ q: query, providerId }}
+        >{`See all from ${display.shortLabel}`}</Link>
+      </div>
+      <CatchBoundary
+        getResetKey={() => hashKey(['search-section', providerId, query])}
+        errorComponent={({ error }) => (
+          <CapturedAlertError
+            error={error}
+            message={`Couldn't load results from ${display.displayName}.`}
+            captureContext={{
+              boundaryKind: 'catch',
+              feature: 'search',
+              providerId,
+              operation: 'load_search_section',
+            }}
+          />
+        )}
+      >
+        <Suspense
+          fallback={<AssetGridSkeleton count={ALL_SCOPE_SECTION_SIZE} />}
+        >
+          <ProviderSectionResults query={query} providerId={providerId} />
+        </Suspense>
+      </CatchBoundary>
+    </section>
+  )
+}
+
+function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
+  const { data } = useSuspenseSearchSection(
+    query,
+    defaultSearchFilters(providerId),
+  )
+
+  if (data.items.length === 0) {
+    return <p>No results from {PROVIDER_DISPLAY[providerId].displayName}.</p>
+  }
+
+  return <AssetResultsGrid items={data.items} />
+}

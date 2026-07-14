@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   infiniteQueryOptions,
   useSuspenseInfiniteQuery,
@@ -61,6 +62,33 @@ export function useSuspenseInfiniteSearch(
       filters,
       select: flattenAssetsSelector,
     }),
+  )
+}
+
+export const ALL_SCOPE_SECTION_SIZE = 6
+
+// A select over the same query the scoped tab uses; the key must stay
+// identical so "See all" renders from cache (see the key-parity test).
+// Reads the first page only, so n must stay <= DEFAULT_PAGE_SIZE.
+export function makeTopNSearchSelector(n: number) {
+  return (data: SearchImagesInfinite) => {
+    const firstPage = data.pages[0]
+    return {
+      items: firstPage.items.slice(0, n),
+      total: firstPage.pagination.total,
+    }
+  }
+}
+
+export function useSuspenseSearchSection(
+  query: SearchQuery,
+  filters: SearchFilters,
+  n: number = ALL_SCOPE_SECTION_SIZE,
+) {
+  const repo = useSearchRepo()
+  const select = useMemo(() => makeTopNSearchSelector(n), [n])
+  return useSuspenseInfiniteQuery(
+    getInfiniteSearchImagesOptions({ repo, query, filters, select }),
   )
 }
 

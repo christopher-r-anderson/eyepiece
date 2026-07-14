@@ -74,11 +74,13 @@ export function ItemGridSkeleton({
   children,
   gap = 12,
   minTileWidth = 200,
+  count = DEFAULT_PAGE_SIZE,
   ...props
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   children: () => ReactNode
   gap?: number
   minTileWidth?: number
+  count?: number
 }) {
   return (
     <div
@@ -90,7 +92,7 @@ export function ItemGridSkeleton({
       }}
       {...props}
     >
-      {Array.from({ length: DEFAULT_PAGE_SIZE }).map((_, index) => (
+      {Array.from({ length: count }).map((_, index) => (
         <Fragment key={index}>{children()}</Fragment>
       ))}
     </div>

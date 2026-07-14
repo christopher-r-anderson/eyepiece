@@ -7,7 +7,7 @@ import {
 import { hashKey } from '@tanstack/react-query'
 import { SearchResults } from './-components/search-results'
 import { SearchPrompt } from './-components/search-prompt'
-import { AllResultsPlaceholder } from './-components/all-results-placeholder'
+import { AllProvidersResults } from './-components/all-providers-results'
 import type {
   SearchPageState,
   SearchScope,
@@ -24,7 +24,8 @@ import {
   toSearchPageState,
 } from '@/features/search/search-page-params'
 import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
-import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
+import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
+import { defaultSearchFilters } from '@/domain/search/search.schema'
 
 function searchTitle({ q, scope }: SearchPageState) {
   if (q.trim().length === 0) {
@@ -44,7 +45,21 @@ export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
   loaderDeps: ({ search }) => searchPageParamsSchema.parse(search),
   loader: async ({ context, deps }) => {
     const { q, scope } = toSearchPageState(deps)
-    if (q.trim().length === 0 || scope.scope !== 'provider') {
+    if (q.trim().length === 0) {
+      return
+    }
+    if (scope.scope !== 'provider') {
+      // deliberately not awaited: queries stream as they settle, so TTFB
+      // and healthy sections never wait on the slowest provider; a failed
+      // prefetch refetches client-side into its own section boundary
+      for (const providerId of PROVIDERS) {
+        void prefetchInfiniteSearch({
+          query: q,
+          filters: defaultSearchFilters(providerId),
+          eyepieceClient: context.eyepieceClient,
+          queryClient: context.queryClient,
+        })
+      }
       return
     }
     await prefetchInfiniteSearch({
@@ -150,7 +165,7 @@ function SearchPage() {
         {!hasQuery ? (
           <SearchPrompt />
         ) : scope.scope !== 'provider' ? (
-          <AllResultsPlaceholder />
+          <AllProvidersResults query={q} />
         ) : (
           <ScopedSearchResults q={q} scope={scope} />
         )}
