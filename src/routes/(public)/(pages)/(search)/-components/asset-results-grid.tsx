@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { FavoriteButton } from '../../-components/favorite-button'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { AssetTile } from '@/features/assets/components/asset-tile'
@@ -12,7 +13,7 @@ export function AssetResultsGrid({ items }: { items: Array<Asset> }) {
 
   return (
     <HybridGrid
-      css={{ width: '100%' }}
+      className={css({ width: '100%' })}
       items={items}
       getItemKey={(item) => toAssetKeyString(item.key)}
       getItemTextValue={(item) => item.title}

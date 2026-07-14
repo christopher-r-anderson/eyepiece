@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute, notFound } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 
 export const Route = createFileRoute('/dev')({
   beforeLoad: () => {
@@ -12,17 +13,17 @@ export const Route = createFileRoute('/dev')({
 function DevLayout() {
   return (
     <div
-      css={{
+      className={css({
         width: '100%',
         flex: 1,
-        maxWidth: 'var(--size-content-max)',
+        maxWidth: 'contentMax',
         margin: '0 auto',
-        paddingInline: 'var(--space-content-inline)',
-        paddingBlock: 'var(--space-content-block)',
+        paddingInline: 'contentInline',
+        paddingBlock: 'contentBlock',
         display: 'grid',
         alignContent: 'start',
-        gap: 'var(--space-section-gap)',
-      }}
+        gap: 'sectionGap',
+      })}
     >
       <Outlet />
     </div>

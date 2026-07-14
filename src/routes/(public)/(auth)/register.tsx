@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { css } from 'styled-system/css'
 import {
   RegistrationForm,
   RegistrationSuccessMessage,
@@ -36,15 +37,17 @@ function RegisterPage() {
           next={next ? urlToNextParam(next) : undefined}
         />
         <p
-          css={{
-            margin: 'var(--space-4) 0 0',
-            lineHeight: 'var(--line-height-base)',
-          }}
+          className={css({
+            marginTop: '4',
+            marginInline: '0',
+            marginBottom: '0',
+            lineHeight: 'base',
+          })}
         >
           Already have an account?{' '}
           <Link
             to="/login"
-            css={{ textDecoration: 'underline', marginLeft: 'var(--space-2)' }}
+            styles={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
           >
             Log in
           </Link>

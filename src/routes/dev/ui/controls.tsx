@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { css } from 'styled-system/css'
 import {
   DevPanel,
   DevTitleBlock,
@@ -26,23 +27,23 @@ function DevUiControlsPage() {
   const [years, setYears] = useState<[number, number]>([1995, 2024])
 
   return (
-    <div css={devPageSectionCss}>
-      <section css={{ display: 'grid', gap: 'var(--space-4)' }}>
+    <div className={css(devPageSectionCss)}>
+      <section className={css({ display: 'grid', gap: '4' })}>
         <DevTitleBlock
           title="Controls"
           description="Buttons, tabs, and form fields."
         />
 
-        <div css={devCardGridCss}>
-          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+        <div className={css(devCardGridCss)}>
+          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Buttons" headingLevel={3} />
             <div
-              css={{
+              className={css({
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: 'var(--space-3)',
+                gap: '3',
                 alignItems: 'center',
-              }}
+              })}
             >
               <Button>Secondary</Button>
               <Button variant="primary">Primary</Button>
@@ -50,7 +51,7 @@ function DevUiControlsPage() {
             </div>
           </DevPanel>
 
-          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Tabs" headingLevel={3} />
             <Tabs defaultSelectedKey="overview">
               <TabList aria-label="UI workbench tabs">
@@ -66,15 +67,15 @@ function DevUiControlsPage() {
             </Tabs>
           </DevPanel>
 
-          <DevPanel as="article" css={{ padding: 'var(--space-4)' }}>
+          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Switches and Toggles" headingLevel={3} />
             <div
-              css={{
+              className={css({
                 display: 'flex',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: 'var(--space-3)',
-              }}
+                gap: '3',
+              })}
             >
               <Switch
                 aria-label="Example switch"
@@ -95,14 +96,14 @@ function DevUiControlsPage() {
         </div>
       </section>
 
-      <DevPanel css={{ padding: 'var(--space-4)' }}>
+      <DevPanel styles={css.raw({ padding: '4' })}>
         <DevTitleBlock
           title="Search and Range Inputs"
           description="Search fields and sliders."
           headingLevel={3}
         />
 
-        <div css={{ display: 'grid', gap: 'var(--space-4)' }}>
+        <div className={css({ display: 'grid', gap: '4' })}>
           <SearchInput
             aria-label="Search examples"
             value={searchValue}
@@ -123,7 +124,7 @@ function DevUiControlsPage() {
         </div>
       </DevPanel>
 
-      <DevPanel css={{ padding: 'var(--space-4)' }}>
+      <DevPanel styles={css.raw({ padding: '4' })}>
         <DevTitleBlock
           title="Form Fields"
           description="Current shared text field patterns."

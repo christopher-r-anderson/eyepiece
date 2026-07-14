@@ -1,24 +1,24 @@
+import { css } from 'styled-system/css'
 import type { Asset } from '@/domain/asset/asset.schema'
-import { DETAIL_SPLIT_MIN_WIDTH } from '@/lib/breakpoints'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 export function AssetDetail({ asset }: { asset: Asset }) {
   return (
     <div
-      css={{
+      className={css({
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--space-6)',
+        gap: '6',
         alignSelf: 'stretch',
         width: '100%',
-        maxWidth: 'var(--size-content-max)',
+        maxWidth: 'contentMax',
         margin: '0 auto',
-        paddingInline: 'var(--space-4)',
+        paddingInline: '4',
         containerType: 'inline-size',
-        [`@container (min-width: ${DETAIL_SPLIT_MIN_WIDTH})`]: {
+        _detailSplit: {
           flexDirection: 'row',
         },
-      }}
+      })}
     >
       {/*
           title as alt: it isn't ideal since it is in the h1 and not primarily describe-what-is-in-the-image
@@ -28,7 +28,7 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           Revisit if there is feedback.
         */}
       <img
-        css={{
+        className={css({
           width: '100%',
           maxWidth: '100%',
           maxHeight: '65vh',
@@ -37,13 +37,15 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           minHeight: '300px',
           position: 'static',
           alignSelf: 'stretch',
-          viewTransitionName: `asset-${toAssetKeyString(asset.key)}`,
-          [`@container (min-width: ${DETAIL_SPLIT_MIN_WIDTH})`]: {
+          _detailSplit: {
             width: 'auto',
             position: 'sticky',
-            top: 'var(--space-6)',
+            top: '6',
             alignSelf: 'flex-start',
           },
+        })}
+        style={{
+          viewTransitionName: `asset-${toAssetKeyString(asset.key)}`,
         }}
         src={asset.image.href}
         alt={asset.title}
@@ -52,12 +54,12 @@ export function AssetDetail({ asset }: { asset: Asset }) {
       />
       <figcaption>
         <div
-          css={{
+          className={css({
             maxWidth: 'calc(clamp(45ch, 90%, 75ch) + 1rem)',
             margin: 0,
-            lineHeight: 'var(--line-height-base)',
+            lineHeight: 'base',
             whiteSpace: 'pre-line',
-          }}
+          })}
         >
           {asset.description}
         </div>

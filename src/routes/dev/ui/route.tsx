@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { DevBackLink, DevPageIntro, devPageSectionCss } from '../-components'
 import { Link } from '@/components/ui/link'
 
@@ -14,8 +15,8 @@ const navLinks = [
 
 function DevUiLayout() {
   return (
-    <section css={devPageSectionCss}>
-      <header css={{ display: 'grid', gap: 'var(--space-3)' }}>
+    <section className={css(devPageSectionCss)}>
+      <header className={css({ display: 'grid', gap: '3' })}>
         <DevPageIntro
           title="UI Workbench"
           description="Shared components and interaction patterns."
@@ -24,12 +25,12 @@ function DevUiLayout() {
         />
         <nav
           aria-label="UI workbench sections"
-          css={{
+          className={css({
             display: 'flex',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: 'var(--space-cluster-gap)',
-          }}
+            gap: 'clusterGap',
+          })}
         >
           {navLinks.map((link) => (
             <Link
@@ -39,16 +40,17 @@ function DevUiLayout() {
               activeProps={{
                 className: 'is-active',
               }}
-              css={{
-                padding: 'var(--space-2) var(--space-3)',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-md)',
+              styles={css.raw({
+                paddingBlock: '2',
+                paddingInline: '3',
+                border: '1px solid token(colors.border)',
+                borderRadius: 'md',
                 textDecoration: 'none',
                 '&.is-active': {
-                  backgroundColor: 'var(--secondary-bg)',
-                  color: 'var(--secondary-text)',
+                  backgroundColor: 'secondary.bg',
+                  color: 'secondary.text',
                 },
-              }}
+              })}
             >
               {link.label}
             </Link>

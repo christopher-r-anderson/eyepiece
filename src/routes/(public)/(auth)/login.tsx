@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { LoginForm } from '@/features/auth/forms/login-form'
 import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
@@ -32,15 +33,17 @@ function LoginPage() {
         }
       />
       <p
-        css={{
-          margin: 'var(--space-4) 0 0',
-          lineHeight: 'var(--line-height-base)',
-        }}
+        className={css({
+          marginTop: '4',
+          marginInline: '0',
+          marginBottom: '0',
+          lineHeight: 'base',
+        })}
       >
         Don't have an account yet?{' '}
         <Link
           to="/register"
-          css={{ textDecoration: 'underline', marginLeft: 'var(--space-2)' }}
+          styles={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
         >
           Register
         </Link>

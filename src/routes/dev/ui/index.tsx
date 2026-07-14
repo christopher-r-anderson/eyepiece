@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import {
   DevLinkCard,
   DevTitleBlock,
@@ -26,10 +27,10 @@ const sections = [
 
 function DevUiOverviewPage() {
   return (
-    <section css={devPageSectionCss}>
+    <section className={css(devPageSectionCss)}>
       <DevTitleBlock title="Start Here" description="Shared UI sections." />
 
-      <div css={devCardGridCss}>
+      <div className={css(devCardGridCss)}>
         {sections.map((section) => (
           <DevLinkCard
             key={section.to}

@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { DevBackLink, DevPageIntro, devPageSectionCss } from '../-components'
 
 export const Route = createFileRoute('/dev/observability')({
@@ -7,7 +8,7 @@ export const Route = createFileRoute('/dev/observability')({
 
 function DevObservabilityLayout() {
   return (
-    <section css={devPageSectionCss}>
+    <section className={css(devPageSectionCss)}>
       <DevPageIntro
         title="Observability Workbench"
         description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."

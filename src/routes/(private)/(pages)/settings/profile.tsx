@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { css } from 'styled-system/css'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
@@ -41,7 +42,7 @@ function ProfilePage() {
         headingLevel={1}
       />
       {showSuccessMessage && (
-        <p css={{ marginTop: 'var(--space-4)' }}>Profile Updated.</p>
+        <p className={css({ marginTop: '4' })}>Profile Updated.</p>
       )}
     </>
   )

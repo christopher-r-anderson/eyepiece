@@ -1,5 +1,6 @@
 import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { css } from 'styled-system/css'
 import { z } from 'zod'
 import {
   DevLinkCard,
@@ -44,13 +45,13 @@ function DevObservabilityPage() {
   const [shouldThrowRenderError, setShouldThrowRenderError] = useState(false)
 
   return (
-    <div css={{ display: 'grid', gap: 'var(--space-section-gap)' }}>
-      <DevPanel css={{ maxWidth: 'var(--size-reading-max)' }}>
+    <div className={css({ display: 'grid', gap: 'sectionGap' })}>
+      <DevPanel styles={css.raw({ maxWidth: 'readingMax' })}>
         <DevTitleBlock
           title="Verification Checklist"
           description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."
         />
-        <ol css={{ margin: 0, paddingInlineStart: '1.25rem' }}>
+        <ol className={css({ margin: 0, paddingInlineStart: '1.25rem' })}>
           <li>
             Client render error should be captured with boundary metadata.
           </li>
@@ -66,10 +67,9 @@ function DevObservabilityPage() {
       </DevPanel>
 
       <div
-        css={{
-          ...devCardGridCss,
+        className={css(devCardGridCss, {
           gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))',
-        }}
+        })}
       >
         <DevPanel as="article">
           <DevTitleBlock
@@ -80,7 +80,7 @@ function DevObservabilityPage() {
           <CatchBoundary
             getResetKey={() => `${renderAttempt}:${shouldThrowRenderError}`}
             errorComponent={({ error, reset }) => (
-              <div css={{ display: 'grid', gap: 'var(--space-3)' }}>
+              <div className={css({ display: 'grid', gap: '3' })}>
                 <CapturedPrettyError
                   error={error}
                   headingLevel={3}

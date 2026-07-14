@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import {
   DevLinkCard,
   DevPageIntro,
@@ -27,13 +28,13 @@ const sections = [
 
 function DevOverviewPage() {
   return (
-    <section css={devPageSectionCss}>
+    <section className={css(devPageSectionCss)}>
       <DevPageIntro
         title="Dev Workbenches"
         description="Development mode only manual preview and test areas."
       />
 
-      <div css={devCardGridCss}>
+      <div className={css(devCardGridCss)}>
         {sections.map((section) => (
           <DevLinkCard
             key={section.to}

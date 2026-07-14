@@ -29,7 +29,7 @@ export default defineConfig({
       exiting: '&[data-exiting]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
-      // container query breakpoints; rem values mirror src/lib/breakpoints.ts
+      // container query breakpoints
       compactLayout: '@container (min-width: 40rem)',
       headerInline: '@container (min-width: 48rem)',
       detailSplit: '@container (min-width: 56rem)',

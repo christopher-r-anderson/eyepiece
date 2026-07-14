@@ -1,7 +1,8 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import { MetadataModal } from './modal'
-import type { Interpolation, Theme } from '@emotion/react'
+import type { SystemStyleObject } from 'styled-system/types'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { Button } from '@/components/ui/button'
 import { usePrefetchMetadata } from '@/features/assets/assets.queries'
@@ -10,10 +11,10 @@ const METADATA_HASH = 'metadata'
 
 export function MetadataButton({
   assetKey,
-  css: cssProp,
+  styles,
 }: {
   assetKey: AssetKey
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
 }) {
   const navigate = useNavigate()
 
@@ -36,19 +37,19 @@ export function MetadataButton({
         onFocus={prefetch}
         onPressStart={prefetch}
         variant="secondary"
-        css={[
+        styles={css.raw(
           {
-            minWidth: 'calc(var(--size-control-height) - var(--space-1))',
-            minHeight: 'calc(var(--size-control-height) - var(--space-1))',
-            padding: 'var(--space-2)',
+            minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+            minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+            padding: '2',
             margin: 0,
-            color: 'var(--text-muted)',
-            '&[data-hovered]': {
-              color: 'var(--text)',
+            color: 'text.muted',
+            _hovered: {
+              color: 'text',
             },
           },
-          cssProp,
-        ]}
+          styles,
+        )}
       >
         <InfoIcon size={20} color="currentColor" />
       </Button>
