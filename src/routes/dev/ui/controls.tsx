@@ -2,6 +2,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
+import { grid, wrap } from 'styled-system/patterns'
 import {
   DevPanel,
   DevTitleBlock,
@@ -28,7 +29,7 @@ function DevUiControlsPage() {
 
   return (
     <div className={css(devPageSectionCss)}>
-      <section className={css({ display: 'grid', gap: '4' })}>
+      <section className={grid({ gap: '4' })}>
         <DevTitleBlock
           title="Controls"
           description="Buttons, tabs, and form fields."
@@ -37,14 +38,7 @@ function DevUiControlsPage() {
         <div className={css(devCardGridCss)}>
           <DevPanel as="article" css={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Buttons" headingLevel={3} />
-            <div
-              className={css({
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '3',
-                alignItems: 'center',
-              })}
-            >
+            <div className={wrap({ gap: '3', align: 'center' })}>
               <Button>Secondary</Button>
               <Button variant="primary">Primary</Button>
               <Button icon={MagnifyingGlassIcon}>Search</Button>
@@ -69,14 +63,7 @@ function DevUiControlsPage() {
 
           <DevPanel as="article" css={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Switches and Toggles" headingLevel={3} />
-            <div
-              className={css({
-                display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '3',
-              })}
-            >
+            <div className={wrap({ align: 'center', gap: '3' })}>
               <Switch
                 aria-label="Example switch"
                 isSelected={switchSelected}
@@ -103,7 +90,7 @@ function DevUiControlsPage() {
           headingLevel={3}
         />
 
-        <div className={css({ display: 'grid', gap: '4' })}>
+        <div className={grid({ gap: '4' })}>
           <SearchInput
             aria-label="Search examples"
             value={searchValue}

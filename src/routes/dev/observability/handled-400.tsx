@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { DevBackLink } from '../-components'
 import { createDevObservabilityValidationResponse } from './-helpers'
 import { RouteError } from '@/app/layout/route-error'
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/dev/observability/handled-400')({
   },
   component: () => null,
   errorComponent: ({ error }) => (
-    <div className={css({ display: 'grid', gap: '4' })}>
+    <div className={grid({ gap: '4' })}>
       <RouteError
         error={error}
         heading={

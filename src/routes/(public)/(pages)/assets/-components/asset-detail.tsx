@@ -1,13 +1,12 @@
 import { css } from 'styled-system/css'
+import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 export function AssetDetail({ asset }: { asset: Asset }) {
   return (
     <div
-      className={css({
-        display: 'flex',
-        flexDirection: 'column',
+      className={stack({
         gap: '6',
         alignSelf: 'stretch',
         width: '100%',

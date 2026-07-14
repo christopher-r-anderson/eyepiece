@@ -3,6 +3,7 @@ import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
+import { grid, wrap } from 'styled-system/patterns'
 import { AssetResultsGrid } from './asset-results-grid'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
@@ -21,7 +22,7 @@ import {
 // or stalling never affects the others.
 export function AllProvidersResults({ query }: { query: SearchQuery }) {
   return (
-    <div className={css({ display: 'grid', gap: '7' })}>
+    <div className={grid({ gap: '7' })}>
       {PROVIDERS.map((providerId) => (
         <ProviderSection
           key={providerId}
@@ -45,11 +46,9 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
   return (
     <section aria-labelledby={headingId}>
       <div
-        className={css({
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+        className={wrap({
+          justify: 'space-between',
+          align: 'baseline',
           gap: '4',
           marginBottom: '4',
         })}
