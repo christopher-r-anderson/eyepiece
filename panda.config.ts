@@ -106,8 +106,6 @@ export default defineConfig({
       pressed: '&[data-pressed]',
       focused: '&[data-focused]',
       selected: '&[data-selected]',
-      entering: '&[data-entering]',
-      exiting: '&[data-exiting]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
     },

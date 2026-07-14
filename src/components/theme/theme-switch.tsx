@@ -31,7 +31,9 @@ const ThemeSwitch = (props: SwitchProps) => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '2',
-          transition: 'opacity 0.3s ease',
+          transitionProperty: 'opacity',
+          transitionDuration: 'base',
+          transitionTimingFunction: 'default',
         })}
         style={{ opacity: isThemeSet ? 1 : 0.3 }}
         aria-hidden={!isThemeSet}

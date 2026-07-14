@@ -3,13 +3,6 @@ import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
 import type { StyleProps } from './style-props'
 
-const separatorStyles = css.raw({
-  border: 0,
-  borderTop: 'separator',
-  marginBlock: '1',
-  marginInline: '2',
-})
-
 export type SeparatorProps = ComponentProps<typeof RacSeparator> & StyleProps
 
 export function Separator({
@@ -19,7 +12,18 @@ export function Separator({
 }: SeparatorProps) {
   return (
     <RacSeparator
-      className={cx(css(separatorStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            border: 0,
+            borderTop: 'separator',
+            marginBlock: '1',
+            marginInline: '2',
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )
