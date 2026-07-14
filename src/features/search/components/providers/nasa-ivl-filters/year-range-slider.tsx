@@ -42,15 +42,18 @@ const Thumb = ({
   </SliderThumb>
 )
 
-export function YearRangeSlider(props: SliderProps) {
+export function YearRangeSlider({ styles, ...props }: SliderProps) {
   return (
     <Slider
       {...props}
-      styles={css.raw({
-        backgroundColor: 'tertiary.bg',
-        color: 'secondary.text',
-        border: '1px solid token(colors.border)',
-      })}
+      styles={css.raw(
+        {
+          backgroundColor: 'tertiary.bg',
+          color: 'secondary.text',
+          border: '1px solid token(colors.border)',
+        },
+        styles,
+      )}
     >
       <SliderTrack
         styles={css.raw({

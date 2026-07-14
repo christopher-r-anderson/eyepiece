@@ -24,7 +24,12 @@ interface SearchBarProps extends FormProps {
   scope: SearchScope
 }
 
-export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
+export function SearchBar({
+  initialQuery,
+  scope,
+  styles,
+  ...props
+}: SearchBarProps) {
   const validationMessageId = useId()
   const [query, setQuery] = useState(initialQuery)
   const isNasaScope =
@@ -58,7 +63,7 @@ export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
   return (
     <Form
       aria-describedby={showValidationMessage ? validationMessageId : undefined}
-      styles={css.raw({ width: '100%' })}
+      styles={css.raw({ width: '100%' }, styles)}
       onSubmit={(event) => {
         event.preventDefault()
         if (!isValid) {

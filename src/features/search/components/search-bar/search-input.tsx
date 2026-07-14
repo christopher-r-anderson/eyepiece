@@ -5,13 +5,16 @@ import { FieldError, Input } from '@/components/ui/forms'
 import { SearchField } from '@/components/ui/search-field'
 import { Button } from '@/components/ui/button'
 
-export function SearchInput(props: SearchFieldProps) {
+export function SearchInput({ styles, ...props }: SearchFieldProps) {
   return (
     <SearchField
       {...props}
-      styles={css.raw({
-        flexGrow: 1,
-      })}
+      styles={css.raw(
+        {
+          flexGrow: 1,
+        },
+        styles,
+      )}
     >
       <Input
         placeholder="e.g. Crab Nebula"
