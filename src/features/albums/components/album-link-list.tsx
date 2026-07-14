@@ -10,7 +10,7 @@ const albumListCss = css.raw({
 })
 
 const albumLinkCss = css.raw({
-  color: 'gray',
+  color: 'text.muted',
   textDecoration: 'underline',
 })
 

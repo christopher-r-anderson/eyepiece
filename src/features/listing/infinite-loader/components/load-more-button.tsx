@@ -7,10 +7,10 @@ export function LoadMoreButton(props: ComponentPropsWithoutRef<'button'>) {
       {...props}
       className={cx(
         css({
-          paddingBlock: '0.75rem',
-          paddingInline: '1.5rem',
+          paddingBlock: '3',
+          paddingInline: '5',
           fontSize: '1rem',
-          borderRadius: '8px',
+          borderRadius: 'md',
           border: 'none',
           cursor: !props.disabled ? 'pointer' : 'not-allowed',
         }),

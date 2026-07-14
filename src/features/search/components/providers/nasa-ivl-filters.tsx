@@ -71,7 +71,7 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
       className={css({
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
+        gap: '4',
         color: 'secondary.text',
       })}
     >

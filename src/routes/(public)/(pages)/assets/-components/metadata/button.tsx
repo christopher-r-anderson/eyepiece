@@ -51,7 +51,7 @@ export function MetadataButton({
           styles,
         )}
       >
-        <InfoIcon size={20} color="currentColor" />
+        <InfoIcon size={20} />
       </Button>
 
       <MetadataModal

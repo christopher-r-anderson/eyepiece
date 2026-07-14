@@ -42,7 +42,7 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
       <Button
         css={css.raw(
           {
-            background: 'transparent',
+            backgroundColor: 'transparent',
             borderColor: 'transparent',
             minHeight: 'auto',
             fontSize: '1em',

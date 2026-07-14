@@ -33,7 +33,7 @@ export const tabStyles = css.raw({
   paddingInline: '4',
   border: '1px solid token(colors.border)',
   borderBottomWidth: 0,
-  borderRadius: 'token(radii.md) token(radii.md) 0 0',
+  borderTopRadius: 'md',
   backgroundColor: 'secondary.bg',
   color: 'secondary.text',
   display: 'inline-flex',

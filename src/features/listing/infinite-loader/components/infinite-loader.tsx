@@ -50,7 +50,7 @@ export function InfiniteLoader({
       <div ref={sentinelRef} />
 
       {showLoadMore && (
-        <div className={css({ marginTop: '1rem', textAlign: 'center' })}>
+        <div className={css({ marginTop: '4', textAlign: 'center' })}>
           <LoadMoreButton
             type="button"
             disabled={isFetchingNextPage}

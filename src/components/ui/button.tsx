@@ -8,8 +8,9 @@ const button = cva({
   base: {
     border: 'none',
     minHeight: 'controlHeight',
-    paddingBlock: '2',
-    paddingInline: '4',
+    // shorthand on purpose: caller padding overrides (shorthand or longhand)
+    // must win the css() merge; a longhand base beats caller shorthands
+    padding: 'token(spacing.2) token(spacing.4)',
     borderRadius: 'md',
     fontSize: 'base',
     fontWeight: 600,
