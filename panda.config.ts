@@ -7,6 +7,13 @@ export default defineConfig({
   preflight: false,
   include: ['./src/**/*.{ts,tsx}'],
   outdir: 'styled-system',
+  utilities: {
+    extend: {
+      // CSS properties missing from Panda's generated property set
+      viewTransitionClass: { className: 'view-transition-class' },
+      WebkitBoxOrient: { className: 'webkit-box-orient' },
+    },
+  },
   conditions: {
     extend: {
       // react-aria-components state attributes. pressed and selected
@@ -22,8 +29,11 @@ export default defineConfig({
       exiting: '&[data-exiting]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
-      // mirrors COMPACT_LAYOUT_MIN_WIDTH in src/lib/breakpoints.ts
+      // container query breakpoints; rem values mirror src/lib/breakpoints.ts
       compactLayout: '@container (min-width: 40rem)',
+      headerInline: '@container (min-width: 48rem)',
+      detailSplit: '@container (min-width: 56rem)',
+      searchBarInline: '@container (min-width: 34rem)',
     },
   },
   theme: {

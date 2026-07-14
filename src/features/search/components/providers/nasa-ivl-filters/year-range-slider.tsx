@@ -1,4 +1,5 @@
 import { CircleIcon } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import type { SliderProps } from '@/components/ui/slider'
 import {
   Slider,
@@ -19,22 +20,22 @@ const Thumb = ({
   <SliderThumb
     name={name}
     index={index}
-    css={{
+    styles={css.raw({
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       cursor: 'pointer',
-      color: 'var(--text-accent)',
-    }}
+      color: 'text.accent',
+    })}
   >
     <CircleIcon weight="fill" />
     <SliderOutput
-      css={{
+      styles={css.raw({
         fontSize: '0.9rem',
         position: 'absolute',
         top: '1rem',
-        color: 'var(--text)',
-      }}
+        color: 'text',
+      })}
     >
       {children}
     </SliderOutput>
@@ -45,24 +46,24 @@ export function YearRangeSlider(props: SliderProps) {
   return (
     <Slider
       {...props}
-      css={{
-        backgroundColor: 'var(--tertiary-bg)',
-        color: 'var(--secondary-text)',
-        border: '1px solid var(--border-color)',
-      }}
+      styles={css.raw({
+        backgroundColor: 'tertiary.bg',
+        color: 'secondary.text',
+        border: '1px solid token(colors.border)',
+      })}
     >
       <SliderTrack
-        css={{
+        styles={css.raw({
           marginTop: '0.5rem',
-        }}
+        })}
       >
         {({ state }) => (
           <div
-            css={{
+            className={css({
               display: 'flex',
               width: '100%',
-              borderTop: '1px solid var(--text-muted)',
-            }}
+              borderTop: '1px solid token(colors.text.muted)',
+            })}
           >
             <Thumb name="yearStart" index={0}>
               {state.getThumbValue(0)}

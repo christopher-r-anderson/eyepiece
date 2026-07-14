@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
+import { css } from 'styled-system/css'
 import type { AuthModalState } from '@/features/auth/auth.schema'
 import { stripAuthSearchParams } from '@/features/auth/auth.utils'
 import { LoginForm } from '@/features/auth/forms/login-form'
@@ -21,6 +22,11 @@ import {
 } from '@/components/ui/stable-visibility-stack'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
+
+const fullPageLinkCss = css.raw({
+  color: 'link',
+  textDecoration: 'underline',
+})
 
 function showForgotPasswordSearch<T extends Record<string, unknown>>(prev: T) {
   return {
@@ -56,7 +62,7 @@ export function AuthModalController({
       <Tabs
         selectedKey={authMode ?? 'login'}
         aria-label="Authentication options"
-        css={{ maxWidth: 500 }}
+        styles={css.raw({ maxWidth: 500 })}
       >
         <TabList>
           <Tab id="login" onClick={() => showAuthModal('login')}>
@@ -110,10 +116,7 @@ function LoginSection({
         <Link
           to="/login"
           search={{ next }}
-          css={{
-            color: 'var(--link-color)',
-            textDecoration: 'underline',
-          }}
+          styles={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full log in page
@@ -140,10 +143,7 @@ function ForgotPasswordSection({ next }: { next: string }) {
         <Link
           to="/auth/forgot-password"
           search={{ next }}
-          css={{
-            color: 'var(--link-color)',
-            textDecoration: 'underline',
-          }}
+          styles={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full forgot password page
@@ -169,10 +169,7 @@ function RegistrationSection({ next }: { next: string }) {
         <Link
           to="/register"
           search={{ next }}
-          css={{
-            color: 'var(--link-color)',
-            textDecoration: 'underline',
-          }}
+          styles={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full register page

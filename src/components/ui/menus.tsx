@@ -10,16 +10,20 @@ import type {
   MenuProps as RacMenuProps,
   PopoverProps as RacPopoverProps,
 } from 'react-aria-components'
+import type { SystemStyleObject } from 'styled-system/types'
 
 export type MenuProps<T extends object> = RacMenuProps<T> & {
+  styles?: SystemStyleObject
   className?: string
 }
 
 export type MenuItemProps = RacMenuItemProps & {
+  styles?: SystemStyleObject
   className?: string
 }
 
 export type PopoverProps = RacPopoverProps & {
+  styles?: SystemStyleObject
   className?: string
 }
 
@@ -63,19 +67,31 @@ const menuPopoverStyles = css.raw({
   overflow: 'hidden',
 })
 
-export function Menu<T extends object>({ className, ...props }: MenuProps<T>) {
-  return <RacMenu {...props} className={cx(css(menuStyles), className)} />
-}
-
-export function MenuItem({ className, ...props }: MenuItemProps) {
+export function Menu<T extends object>({
+  styles,
+  className,
+  ...props
+}: MenuProps<T>) {
   return (
-    <RacMenuItem {...props} className={cx(css(menuItemStyles), className)} />
+    <RacMenu {...props} className={cx(css(menuStyles, styles), className)} />
   )
 }
 
-export function Popover({ className, ...props }: PopoverProps) {
+export function MenuItem({ styles, className, ...props }: MenuItemProps) {
   return (
-    <RacPopover {...props} className={cx(css(menuPopoverStyles), className)} />
+    <RacMenuItem
+      {...props}
+      className={cx(css(menuItemStyles, styles), className)}
+    />
+  )
+}
+
+export function Popover({ styles, className, ...props }: PopoverProps) {
+  return (
+    <RacPopover
+      {...props}
+      className={cx(css(menuPopoverStyles, styles), className)}
+    />
   )
 }
 

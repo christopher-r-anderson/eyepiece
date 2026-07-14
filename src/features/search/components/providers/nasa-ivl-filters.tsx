@@ -5,6 +5,7 @@ import {
   VideoIcon,
   WaveformIcon,
 } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import { YearRangeSlider } from './nasa-ivl-filters/year-range-slider'
 import type { NasaIvlMediaType } from '@/domain/search/providers/nasa-ivl-filters'
 import { YEAR_MAX, YEAR_MIN } from '@/domain/search/providers/nasa-ivl-filters'
@@ -67,12 +68,12 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
 
   return (
     <div
-      css={{
+      className={css({
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
-        color: 'var(--secondary-text)',
-      }}
+        color: 'secondary.text',
+      })}
     >
       <Label id={mediaTypeLabelId}>Media Type</Label>
       <Select

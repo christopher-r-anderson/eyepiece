@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
@@ -59,12 +60,12 @@ export function ForgotPasswordForm({
       formError={state.error}
       surface={surface}
       controls={
-        <div css={formActionsCss}>
+        <div className={css(formActionsCss)}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             Reset Password
           </Button>
@@ -96,7 +97,7 @@ export function ForgotPasswordSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <div css={formStatusPanelCss}>
+    <div className={css(formStatusPanelCss)}>
       <Heading headingLevel={headingLevel}>Password reset sent!</Heading>
       <p>Please check your email to reset your password.</p>
     </div>

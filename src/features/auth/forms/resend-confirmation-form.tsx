@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
@@ -56,12 +57,12 @@ export function ResendConfirmationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div css={formActionsCss}>
+        <div className={css(formActionsCss)}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             Send
           </Button>
@@ -93,7 +94,7 @@ export function ResendConfirmationSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <div css={formStatusPanelCss}>
+    <div className={css(formStatusPanelCss)}>
       <Heading headingLevel={headingLevel}>Confirmation Email Sent!</Heading>
       <p>Please check your email to confirm your account.</p>
     </div>

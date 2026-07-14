@@ -1,5 +1,6 @@
 import { UserCircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { useRouter } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { Menu, MenuItem, MenuTrigger, Popover } from '@/components/ui/menus'
@@ -18,21 +19,21 @@ export function UserMenu() {
     <MenuTrigger>
       <Button
         aria-label="User Menu"
-        css={{
-          minWidth: 'calc(var(--size-control-height) - var(--space-1))',
-          minHeight: 'calc(var(--size-control-height) - var(--space-1))',
-          padding: 'var(--space-2)',
+        styles={css.raw({
+          minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+          minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+          padding: '2',
           border: '1px solid transparent',
           backgroundColor: 'transparent',
-          color: 'var(--primary-text-muted)',
-          '&[data-hovered]': {
-            color: 'var(--text)',
+          color: 'primary.textMuted',
+          _hovered: {
+            color: 'text',
             border:
-              '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
+              '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
             backgroundColor:
-              'color-mix(in oklab, var(--tertiary-bg) 72%, var(--background) 28%)',
+              'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
           },
-        }}
+        })}
       >
         <UserCircleIcon size={24} />
       </Button>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { toSearchPageParams } from '../search-page-params'
 import { SearchInput } from './search-bar/search-input'
 import { SubmitButton } from './search-bar/submit-button'
@@ -11,11 +12,10 @@ import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-fi
 import { Form } from '@/components/ui/forms'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
-const SEARCH_BAR_INLINE_MIN_WIDTH = '34rem'
-const searchValidationMessageCss = {
-  color: 'var(--danger-text)',
-  fontSize: 'var(--text-sm)',
-}
+const searchValidationMessageCss = css.raw({
+  color: 'danger.text',
+  fontSize: 'sm',
+})
 
 const SEARCH_VALIDATION_MESSAGE = 'Enter search keywords before searching.'
 
@@ -58,7 +58,7 @@ export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
   return (
     <Form
       aria-describedby={showValidationMessage ? validationMessageId : undefined}
-      css={{ width: '100%' }}
+      styles={css.raw({ width: '100%' })}
       onSubmit={(event) => {
         event.preventDefault()
         if (!isValid) {
@@ -75,23 +75,23 @@ export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
       {...props}
     >
       <div
-        css={{
-          background: 'var(--secondary-bg)',
-          color: 'var(--secondary-text)',
+        className={css({
+          background: 'secondary.bg',
+          color: 'secondary.text',
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr)',
-          gap: 'var(--space-2)',
+          gap: '2',
           alignItems: 'stretch',
-          padding: 'var(--space-2)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-color)',
-          boxShadow: 'var(--shadow-sm)',
-          [`@container (min-width: ${SEARCH_BAR_INLINE_MIN_WIDTH})`]: {
+          padding: '2',
+          borderRadius: 'md',
+          border: '1px solid token(colors.border)',
+          boxShadow: 'sm',
+          _searchBarInline: {
             gridTemplateColumns: 'minmax(0, 1fr) auto',
-            gap: 'var(--space-4)',
+            gap: '4',
             alignItems: 'center',
           },
-        }}
+        })}
       >
         <SearchInput
           aria-label="Search keywords"
@@ -108,7 +108,7 @@ export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
         <p
           id={validationMessageId}
           role="alert"
-          css={searchValidationMessageCss}
+          className={css(searchValidationMessageCss)}
         >
           {SEARCH_VALIDATION_MESSAGE}
         </p>
@@ -122,17 +122,17 @@ export function SearchBar({ initialQuery, scope, ...props }: SearchBarProps) {
   )
 }
 
-const filtersPanelCss = {
-  marginTop: 'var(--space-2)',
-  padding: 'var(--space-4)',
-  background: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
-  borderRadius: 'var(--radius-md)',
-  border: '1px solid var(--border-color)',
-  boxShadow: 'var(--shadow-sm)',
-  overflowX: 'auto' as const,
-}
+const filtersPanelCss = css.raw({
+  marginTop: '2',
+  padding: '4',
+  background: 'secondary.bg',
+  color: 'secondary.text',
+  borderRadius: 'md',
+  border: '1px solid token(colors.border)',
+  boxShadow: 'sm',
+  overflowX: 'auto',
+})
 
 function FiltersPanel({ children }: { children: React.ReactNode }) {
-  return <div css={filtersPanelCss}>{children}</div>
+  return <div className={css(filtersPanelCss)}>{children}</div>
 }

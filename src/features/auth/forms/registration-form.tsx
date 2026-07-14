@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
@@ -64,12 +65,12 @@ export function RegistrationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div css={formActionsCss}>
+        <div className={css(formActionsCss)}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             Register
           </Button>
@@ -110,7 +111,7 @@ export function RegistrationSuccessMessage({
   headingLevel: HeadingLevel
 }) {
   return (
-    <div css={formStatusPanelCss}>
+    <div className={css(formStatusPanelCss)}>
       <Heading headingLevel={headingLevel}>Registration successful!</Heading>
       <p>Please check your email to verify your account.</p>
     </div>

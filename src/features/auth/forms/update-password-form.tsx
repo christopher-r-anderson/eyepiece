@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
@@ -56,12 +57,12 @@ export function UpdatePasswordForm({
       surface={surface}
       aria-busy={isPending || undefined}
       controls={
-        <div css={formActionsCss}>
+        <div className={css(formActionsCss)}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             Update
           </Button>
@@ -78,7 +79,7 @@ export function UpdatePasswordForm({
           name="username"
           value={userQuery.data?.email ?? ''}
           autoComplete="username"
-          css={{ display: 'none' }}
+          className={css({ display: 'none' })}
           readOnly
         />
         <SetPasswordField defaultValue={state.formData?.password} />
