@@ -5,13 +5,17 @@ import { Heading } from '@/components/ui/heading'
 type PageHeadingProps = Omit<HeadingProps, 'headingLevel'> &
   Partial<Pick<HeadingProps, 'headingLevel'>>
 
+// margins use Heading's canonical keys (marginTop/marginInline/
+// marginBlockEnd); other keys or shorthands lose the merge to the
+// level defaults by stylesheet order
 const pageHeadingStyles = css.raw({
   color: 'text.accent',
   fontSize: 'clamp(token(fontSizes.2xl), 4vw, 2.5rem)',
   fontWeight: 'bold',
   lineHeight: 'tight',
-  // shorthand so caller margin overrides win the css() merge
-  margin: 'token(spacing.4) 0 token(spacing.6)',
+  marginTop: '4',
+  marginInline: 0,
+  marginBlockEnd: '6',
   padding: 0,
   alignSelf: 'flex-start',
 })

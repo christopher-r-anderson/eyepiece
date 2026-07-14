@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { Heading } from '@/components/ui/heading'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/(public)/(pages)/buttons')({
@@ -17,7 +18,9 @@ function RouteComponent() {
         gap: '4',
       })}
     >
-      <h1>Buttons</h1>
+      <Heading headingLevel={1} css={css.raw({ marginBlockEnd: 0 })}>
+        Buttons
+      </Heading>
       <p>This page is for testing button styles.</p>
       <p>
         <Button>Secondary Button</Button>

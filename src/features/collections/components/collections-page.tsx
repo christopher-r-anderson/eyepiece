@@ -1,4 +1,5 @@
 import { css } from 'styled-system/css'
+import { Heading } from '@/components/ui/heading'
 
 export function CollectionsPage() {
   return (
@@ -10,7 +11,12 @@ export function CollectionsPage() {
         padding: '6',
       })}
     >
-      <h1 className={css({ color: 'text.accent' })}>Collections</h1>
+      <Heading
+        headingLevel={1}
+        css={css.raw({ color: 'text.accent', marginBlockEnd: 0 })}
+      >
+        Collections
+      </Heading>
     </div>
   )
 }

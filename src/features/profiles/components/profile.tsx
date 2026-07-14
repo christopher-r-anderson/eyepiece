@@ -1,5 +1,6 @@
 import { css } from 'styled-system/css'
 import type { Profile } from '@/domain/profile/profile.schema'
+import { Heading } from '@/components/ui/heading'
 
 export function Profile({ profile }: { profile: Profile }) {
   return (
@@ -16,7 +17,9 @@ export function Profile({ profile }: { profile: Profile }) {
         boxShadow: 'sm',
       })}
     >
-      <h2>{profile.displayName}</h2>
+      <Heading headingLevel={2} css={css.raw({ marginBlockEnd: 0 })}>
+        {profile.displayName}
+      </Heading>
       <p>Location: Milky Way</p>
     </section>
   )

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
+import { Heading } from '@/components/ui/heading'
 import { urlToNextParam } from '@/lib/utils'
 import { redirectSearchParamsSchema } from '@/lib/route.schema'
 import { useCountdown } from '@/lib/hooks/use-countdown'
@@ -67,7 +68,9 @@ function SuccessRedirectMessage({
   const isHome = next === '/'
   return (
     <section className={css(formStatusPanelCss)}>
-      <h1>Profile created!</h1>
+      <Heading headingLevel={1} css={css.raw({ marginBlockEnd: 0 })}>
+        Profile created!
+      </Heading>
       <p>
         Redirecting <Link to={next}>{isHome ? 'home' : 'back'}</Link> in{' '}
         {seconds}
@@ -80,7 +83,9 @@ function SuccessRedirectMessage({
 function SuccessStandardMessage() {
   return (
     <section className={css(formStatusPanelCss)}>
-      <h1>Profile created!</h1>
+      <Heading headingLevel={1} css={css.raw({ marginBlockEnd: 0 })}>
+        Profile created!
+      </Heading>
       <p>
         Visit our <Link to="/">homepage</Link>
       </p>

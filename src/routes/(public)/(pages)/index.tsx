@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { Heading } from '@/components/ui/heading'
 import { SearchBar } from '@/features/search/components/search-bar'
 
 export const Route = createFileRoute('/(public)/(pages)/')({
@@ -15,17 +16,17 @@ function HomePage() {
         margin: '0 auto',
       })}
     >
-      <h1
-        className={css({
+      <Heading
+        headingLevel={1}
+        css={css.raw({
           fontSize: 'clamp(token(fontSizes.2xl), 5vw, 3rem)',
-          lineHeight: 'tight',
           marginTop: '4',
           marginInline: 0,
-          marginBottom: '6',
+          marginBlockEnd: '6',
         })}
       >
         Search Public Space Image Libraries
-      </h1>
+      </Heading>
       <SearchBar
         css={css.raw({ width: '100%' })}
         initialQuery=""
