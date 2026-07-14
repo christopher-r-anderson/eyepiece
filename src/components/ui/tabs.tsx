@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import {
   Tab as RacTab,
   TabList as RacTabList,
@@ -16,7 +15,7 @@ const tabsStyles = css.raw({
   width: '100%',
 })
 
-const tabListStyles = css.raw({
+export const tabListStyles = css.raw({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '2',
@@ -28,7 +27,7 @@ const tabPanelsStyles = css.raw({
   display: 'grid',
 })
 
-const tabStyles = css.raw({
+export const tabStyles = css.raw({
   minHeight: 'controlHeight',
   paddingBlock: '2',
   paddingInline: '4',
@@ -55,7 +54,7 @@ const tabStyles = css.raw({
   },
 })
 
-const tabPanelStyles = css.raw({
+export const tabPanelStyles = css.raw({
   backgroundColor: 'tertiary.bg',
   border: '1px solid token(colors.border)',
   borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
@@ -63,41 +62,37 @@ const tabPanelStyles = css.raw({
 })
 
 export type TabsProps = ComponentProps<typeof RacTabs> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type TabListProps = ComponentProps<typeof RacTabList> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type TabProps = ComponentProps<typeof RacTab> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type TabPanelProps = ComponentProps<typeof RacTabPanel> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
-export function Tabs({ styles: cssProp, className, ...props }: TabsProps) {
+export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
     <RacTabs className={cx(css(tabsStyles, cssProp), className)} {...props} />
   )
 }
 
-export function TabList({
-  styles: cssProp,
-  className,
-  ...props
-}: TabListProps) {
+export function TabList({ css: cssProp, className, ...props }: TabListProps) {
   return (
     <RacTabList
       className={cx(css(tabListStyles, cssProp), className)}
@@ -106,14 +101,14 @@ export function TabList({
   )
 }
 
-export function Tab({ styles: cssProp, className, ...props }: TabProps) {
+export function Tab({ css: cssProp, className, ...props }: TabProps) {
   return (
     <RacTab className={cx(css(tabStyles, cssProp), className)} {...props} />
   )
 }
 
 export function TabPanels({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: TabPanelsProps) {
@@ -125,11 +120,7 @@ export function TabPanels({
   )
 }
 
-export function TabPanel({
-  styles: cssProp,
-  className,
-  ...props
-}: TabPanelProps) {
+export function TabPanel({ css: cssProp, className, ...props }: TabPanelProps) {
   return (
     <RacTabPanel
       {...props}

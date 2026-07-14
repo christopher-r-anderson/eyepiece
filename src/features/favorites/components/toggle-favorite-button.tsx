@@ -67,7 +67,7 @@ export function ToggleFavoriteButton({
   return (
     <ToggleButton
       aria-label="Star"
-      styles={favoriteToggleCss}
+      css={favoriteToggleCss}
       variant="icon"
       isSelected={isSelected}
       isDisabled={isDisabled}

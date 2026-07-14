@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { Popover as RacPopover } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
@@ -13,15 +12,11 @@ const popoverStyles = css.raw({
 })
 
 export type PopoverProps = ComponentProps<typeof RacPopover> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
-export function Popover({
-  styles: cssProp,
-  className,
-  ...props
-}: PopoverProps) {
+export function Popover({ css: cssProp, className, ...props }: PopoverProps) {
   return (
     <RacPopover
       className={cx(css(popoverStyles, cssProp), className)}

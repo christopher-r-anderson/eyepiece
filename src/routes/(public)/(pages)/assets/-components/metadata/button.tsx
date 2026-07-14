@@ -11,10 +11,10 @@ const METADATA_HASH = 'metadata'
 
 export function MetadataButton({
   assetKey,
-  styles,
+  css: styles,
 }: {
   assetKey: AssetKey
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
 }) {
   const navigate = useNavigate()
 
@@ -37,7 +37,7 @@ export function MetadataButton({
         onFocus={prefetch}
         onPressStart={prefetch}
         variant="secondary"
-        styles={css.raw(
+        css={css.raw(
           {
             minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
             minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',

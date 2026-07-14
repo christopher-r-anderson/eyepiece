@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { cloneElement, isValidElement } from 'react'
 import {
   ListBox as RacListBox,
@@ -54,12 +53,12 @@ const renderedItemContentStyles = css.raw({
 })
 
 export type ListBoxProps<T extends object> = RacListBoxProps<T> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export function ListBox<T extends object>({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: ListBoxProps<T>) {
@@ -72,12 +71,12 @@ export function ListBox<T extends object>({
 }
 
 export type ListBoxItemProps = RacListBoxItemProps & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export function ListBoxItem({
-  styles: cssProp,
+  css: cssProp,
   className,
   render,
   ...props

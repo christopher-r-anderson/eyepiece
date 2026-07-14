@@ -20,7 +20,7 @@ const Thumb = ({
   <SliderThumb
     name={name}
     index={index}
-    styles={css.raw({
+    css={css.raw({
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -30,7 +30,7 @@ const Thumb = ({
   >
     <CircleIcon weight="fill" />
     <SliderOutput
-      styles={css.raw({
+      css={css.raw({
         fontSize: '0.9rem',
         position: 'absolute',
         top: '1rem',
@@ -42,11 +42,11 @@ const Thumb = ({
   </SliderThumb>
 )
 
-export function YearRangeSlider({ styles, ...props }: SliderProps) {
+export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
   return (
     <Slider
       {...props}
-      styles={css.raw(
+      css={css.raw(
         {
           backgroundColor: 'tertiary.bg',
           color: 'secondary.text',
@@ -56,7 +56,7 @@ export function YearRangeSlider({ styles, ...props }: SliderProps) {
       )}
     >
       <SliderTrack
-        styles={css.raw({
+        css={css.raw({
           marginTop: '0.5rem',
         })}
       >

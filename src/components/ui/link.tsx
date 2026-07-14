@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { createLink } from '@tanstack/react-router'
 import { Link as ReactAriaLink } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
@@ -19,11 +18,11 @@ const linkStyles = css.raw({
 })
 
 type AppLinkProps = LinkProps & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
-function AppLink({ styles: cssProp, className, ...props }: AppLinkProps) {
+function AppLink({ css: cssProp, className, ...props }: AppLinkProps) {
   return (
     <ReactAriaLink
       className={cx(css(linkStyles, cssProp), className)}

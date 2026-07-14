@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import {
   UNSTABLE_Toast as RacToast,
   UNSTABLE_ToastContent as RacToastContent,
@@ -70,7 +69,7 @@ export function ToastRegion() {
               <Text slot="description">{toast.content.description}</Text>
             )}
           </RacToastContent>
-          <Button slot="close" aria-label="Close" styles={closeButtonStyles}>
+          <Button slot="close" aria-label="Close" css={closeButtonStyles}>
             <XIcon size={16} />
           </Button>
         </Toast>

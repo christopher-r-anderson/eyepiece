@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { ToggleButton as RacToggleButton } from 'react-aria-components'
 import { css, cva, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
@@ -89,13 +88,13 @@ const toggleButton = cva({
 
 export type ToggleButtonProps = ComponentProps<typeof RacToggleButton> & {
   variant?: 'default' | 'subtle' | 'icon'
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export function ToggleButton({
   variant = 'default',
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: ToggleButtonProps) {

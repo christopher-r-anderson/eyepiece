@@ -27,7 +27,7 @@ function HomePage() {
         Search Public Space Image Libraries
       </h1>
       <SearchBar
-        styles={css.raw({ width: '100%' })}
+        css={css.raw({ width: '100%' })}
         initialQuery=""
         scope={{ scope: 'all' }}
       />

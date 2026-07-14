@@ -65,7 +65,7 @@ export function ForgotPasswordForm({
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             Reset Password
           </Button>

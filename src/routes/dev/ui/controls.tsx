@@ -35,7 +35,7 @@ function DevUiControlsPage() {
         />
 
         <div className={css(devCardGridCss)}>
-          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
+          <DevPanel as="article" css={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Buttons" headingLevel={3} />
             <div
               className={css({
@@ -51,7 +51,7 @@ function DevUiControlsPage() {
             </div>
           </DevPanel>
 
-          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
+          <DevPanel as="article" css={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Tabs" headingLevel={3} />
             <Tabs defaultSelectedKey="overview">
               <TabList aria-label="UI workbench tabs">
@@ -67,7 +67,7 @@ function DevUiControlsPage() {
             </Tabs>
           </DevPanel>
 
-          <DevPanel as="article" styles={css.raw({ padding: '4' })}>
+          <DevPanel as="article" css={css.raw({ padding: '4' })}>
             <DevTitleBlock title="Switches and Toggles" headingLevel={3} />
             <div
               className={css({
@@ -96,7 +96,7 @@ function DevUiControlsPage() {
         </div>
       </section>
 
-      <DevPanel styles={css.raw({ padding: '4' })}>
+      <DevPanel css={css.raw({ padding: '4' })}>
         <DevTitleBlock
           title="Search and Range Inputs"
           description="Search fields and sliders."
@@ -124,7 +124,7 @@ function DevUiControlsPage() {
         </div>
       </DevPanel>
 
-      <DevPanel styles={css.raw({ padding: '4' })}>
+      <DevPanel css={css.raw({ padding: '4' })}>
         <DevTitleBlock
           title="Form Fields"
           description="Current shared text field patterns."

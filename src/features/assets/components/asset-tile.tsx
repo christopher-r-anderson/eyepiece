@@ -74,7 +74,7 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
       onClick={() => setDetailClicked(true)}
-      styles={css.raw({
+      css={css.raw({
         width: '100%',
         height: '100%',
         display: 'block',

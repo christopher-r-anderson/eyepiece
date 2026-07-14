@@ -40,7 +40,7 @@ function DevUiLayout() {
               activeProps={{
                 className: 'is-active',
               }}
-              styles={css.raw({
+              css={css.raw({
                 paddingBlock: '2',
                 paddingInline: '3',
                 border: '1px solid token(colors.border)',

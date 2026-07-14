@@ -172,7 +172,7 @@ function AssetPage() {
           <Link
             to={returnUrl}
             aria-label="Back to search results"
-            styles={assetHeaderBackCss}
+            css={assetHeaderBackCss}
           >
             <ArrowLeftIcon aria-hidden="true" size={18} />
             <span>Back</span>
@@ -184,10 +184,7 @@ function AssetPage() {
         <div className={css(assetHeaderActionsCss)}>
           <FavoriteButton assetKey={assetKey} />
           {canViewMetadata ? (
-            <MetadataButton
-              assetKey={assetKey}
-              styles={headerActionButtonCss}
-            />
+            <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
           ) : null}
         </div>
       </div>

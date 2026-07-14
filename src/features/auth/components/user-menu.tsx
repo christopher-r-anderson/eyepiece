@@ -19,7 +19,7 @@ export function UserMenu() {
     <MenuTrigger>
       <Button
         aria-label="User Menu"
-        styles={css.raw({
+        css={css.raw({
           minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
           minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
           padding: '2',

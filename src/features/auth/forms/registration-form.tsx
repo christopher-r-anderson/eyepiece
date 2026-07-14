@@ -70,7 +70,7 @@ export function RegistrationForm({
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             Register
           </Button>

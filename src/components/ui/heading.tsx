@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { css, cx } from 'styled-system/css'
 import type { ComponentPropsWithoutRef } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
@@ -7,7 +6,7 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
 export type HeadingProps = {
   headingLevel: HeadingLevel
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 } & ComponentPropsWithoutRef<HeadingTag>
 
@@ -50,7 +49,7 @@ const headingLevelStyles: Record<HeadingLevel, SystemStyleObject> = {
 
 export function Heading({
   headingLevel,
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: HeadingProps) {

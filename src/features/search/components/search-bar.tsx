@@ -27,7 +27,7 @@ interface SearchBarProps extends FormProps {
 export function SearchBar({
   initialQuery,
   scope,
-  styles,
+  css: styles,
   ...props
 }: SearchBarProps) {
   const validationMessageId = useId()
@@ -63,7 +63,7 @@ export function SearchBar({
   return (
     <Form
       aria-describedby={showValidationMessage ? validationMessageId : undefined}
-      styles={css.raw({ width: '100%' }, styles)}
+      css={css.raw({ width: '100%' }, styles)}
       onSubmit={(event) => {
         event.preventDefault()
         if (!isValid) {

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/dev/observability/handled-400')({
       <RouteError
         error={error}
         heading={
-          <Heading headingLevel={2} styles={css.raw({ marginBlockEnd: 0 })}>
+          <Heading headingLevel={2} css={css.raw({ marginBlockEnd: 0 })}>
             Handled 400 Scenario
           </Heading>
         }

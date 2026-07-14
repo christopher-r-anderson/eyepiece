@@ -21,10 +21,7 @@ pre-search choice:
   cross-provider interleaving.
 
 The scope tabs are links styled as tabs, not ARIA tabs: switching scope is a
-navigation (crawlable hrefs, middle-click, back button). react-aria
-collection components also cannot be SSR'd here - they hydrate from a
-`<template>` element that Emotion's SSR style tags corrupt, causing
-hydration mismatches.
+navigation (crawlable hrefs, middle-click, back button).
 
 ## URL Parsing
 

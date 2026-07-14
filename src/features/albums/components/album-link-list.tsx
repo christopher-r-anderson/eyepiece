@@ -22,7 +22,7 @@ export function AlbumLinkList({ albums }: { albums: Array<AlbumKey> }) {
           <Link
             to="/albums/$providerId/$albumId"
             params={{ providerId: album.providerId, albumId: album.externalId }}
-            styles={albumLinkCss}
+            css={albumLinkCss}
           >
             {album.externalId}
           </Link>
