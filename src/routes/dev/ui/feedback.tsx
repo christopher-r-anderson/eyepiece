@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
+import { grid, wrap } from 'styled-system/patterns'
 import { DevPanel, DevTitleBlock, devPageSectionCss } from '../-components'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { Button } from '@/components/ui/button'
@@ -22,14 +23,7 @@ function DevUiFeedbackPage() {
           description="Use this page to trigger overlays and transient UI."
         />
 
-        <div
-          className={css({
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '3',
-          })}
-        >
+        <div className={wrap({ align: 'center', gap: '3' })}>
           <Button onPress={() => setIsModalOpen(true)}>Open modal</Button>
           <Button
             variant="primary"
@@ -52,7 +46,7 @@ function DevUiFeedbackPage() {
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
       >
-        <div className={css({ display: 'grid', gap: '3' })}>
+        <div className={grid({ gap: '3' })}>
           <p>
             Preview modal spacing, close controls, and responsive constraints.
           </p>

@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { Heading } from '@/components/ui/heading'
 import { Button } from '@/components/ui/button'
 
@@ -11,10 +12,9 @@ export const Route = createFileRoute('/(public)/(pages)/buttons')({
 function RouteComponent() {
   return (
     <div
-      className={css({
+      className={grid({
         width: '100%',
         maxWidth: '40rem',
-        display: 'grid',
         gap: '4',
       })}
     >

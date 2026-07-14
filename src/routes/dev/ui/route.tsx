@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { grid, wrap } from 'styled-system/patterns'
 import { DevBackLink, DevPageIntro, devPageSectionCss } from '../-components'
 import { Link } from '@/components/ui/link'
 
@@ -16,7 +17,7 @@ const navLinks = [
 function DevUiLayout() {
   return (
     <section className={css(devPageSectionCss)}>
-      <header className={css({ display: 'grid', gap: '3' })}>
+      <header className={grid({ gap: '3' })}>
         <DevPageIntro
           title="UI Workbench"
           description="Shared components and interaction patterns."
@@ -25,12 +26,7 @@ function DevUiLayout() {
         />
         <nav
           aria-label="UI workbench sections"
-          className={css({
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: 'clusterGap',
-          })}
+          className={wrap({ align: 'center', gap: 'clusterGap' })}
         >
           {navLinks.map((link) => (
             <Link

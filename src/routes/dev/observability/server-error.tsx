@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { DevBackLink } from '../-components'
 import { throwDevObservabilityServerError } from './-helpers'
 import { PrettyException } from '@/components/ui/error'
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/dev/observability/server-error')({
   },
   component: () => null,
   errorComponent: ({ error }) => (
-    <div className={css({ display: 'grid', gap: '4' })}>
+    <div className={grid({ gap: '4' })}>
       <Heading headingLevel={2} css={css.raw({ marginBlockEnd: 0 })}>
         Server Error Scenario
       </Heading>

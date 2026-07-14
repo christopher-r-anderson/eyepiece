@@ -1,5 +1,6 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -36,28 +37,6 @@ const devTextStackCss = css.raw({
   },
 })
 
-const devMetaRowCss = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  flexWrap: 'wrap',
-  rowGap: '2',
-  columnGap: '4',
-})
-
-const devMetaLabelCss = css.raw({
-  margin: 0,
-  color: 'text.muted',
-  fontSize: 'xs',
-  fontWeight: 600,
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-  padding: '0.35rem 0.65rem',
-  border: 'default',
-  borderRadius: 'full',
-  backgroundColor: 'secondary.bg',
-})
-
 type DevPageIntroProps = {
   title: string
   description: ReactNode
@@ -72,18 +51,34 @@ export function DevPageIntro({
   descriptionTone = 'default',
 }: DevPageIntroProps) {
   return (
-    <header className={css({ display: 'grid', gap: '4' })}>
+    <header className={grid({ gap: '4' })}>
       <div
-        className={css(
-          devMetaRowCss,
-          backLink ? undefined : { justifyContent: 'flex-end' },
-        )}
+        className={css({
+          // css() rather than wrap(): conditional values in pattern args
+          // make the extractor fall back to the pattern's defaults
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: backLink ? 'space-between' : 'flex-end',
+          rowGap: '2',
+          columnGap: '4',
+        })}
       >
         {backLink ? (
           <div className={css({ minWidth: 0 })}>{backLink}</div>
         ) : null}
         <p
-          className={css(devMetaLabelCss, {
+          className={css({
+            margin: 0,
+            color: 'text.muted',
+            fontSize: 'xs',
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            padding: '0.35rem 0.65rem',
+            border: 'default',
+            borderRadius: 'full',
+            backgroundColor: 'secondary.bg',
             textAlign: 'right',
           })}
         >

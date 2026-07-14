@@ -1,6 +1,7 @@
 import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { z } from 'zod'
 import {
   DevLinkCard,
@@ -45,7 +46,7 @@ function DevObservabilityPage() {
   const [shouldThrowRenderError, setShouldThrowRenderError] = useState(false)
 
   return (
-    <div className={css({ display: 'grid', gap: 'sectionGap' })}>
+    <div className={grid({ gap: 'sectionGap' })}>
       <DevPanel css={css.raw({ maxWidth: 'readingMax' })}>
         <DevTitleBlock
           title="Verification Checklist"
@@ -80,7 +81,7 @@ function DevObservabilityPage() {
           <CatchBoundary
             getResetKey={() => `${renderAttempt}:${shouldThrowRenderError}`}
             errorComponent={({ error, reset }) => (
-              <div className={css({ display: 'grid', gap: '3' })}>
+              <div className={grid({ gap: '3' })}>
                 <CapturedPrettyError
                   error={error}
                   headingLevel={3}

@@ -1,6 +1,7 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
@@ -34,31 +35,6 @@ function AssetHeading({ name = 'Asset' }: { name?: string }) {
   )
 }
 
-const assetHeaderCss = css.raw({
-  display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr) auto',
-  gridTemplateAreas: '"back actions" "title title"',
-  alignItems: 'center',
-  rowGap: '3',
-  columnGap: '3',
-  alignSelf: 'stretch',
-  width: '100%',
-  maxWidth: 'contentMax',
-  marginTop: 0,
-  marginInline: 'auto',
-  marginBottom: '5',
-  paddingTop: '2',
-  paddingInline: '4',
-  paddingBottom: 0,
-  containerType: 'inline-size',
-  '@/2xl': {
-    gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-    gridTemplateAreas: '"back title actions"',
-    columnGap: '4',
-    rowGap: '2',
-  },
-})
-
 const assetHeaderBackCss = css.raw(ghostButtonCss, {
   gridArea: 'back',
   justifySelf: 'start',
@@ -74,20 +50,6 @@ const assetHeaderBackCss = css.raw(ghostButtonCss, {
   _hovered: {
     textDecoration: 'none',
   },
-})
-
-const assetHeaderTitleCss = css.raw({
-  gridArea: 'title',
-  minWidth: 0,
-  textAlign: 'center',
-})
-
-const assetHeaderActionsCss = css.raw({
-  gridArea: 'actions',
-  justifySelf: 'end',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '2',
 })
 
 const headerActionButtonCss = css.raw({
@@ -160,7 +122,31 @@ function AssetPage() {
   })
   return (
     <>
-      <div className={css(assetHeaderCss)}>
+      <div
+        className={grid({
+          gridTemplateColumns: 'minmax(0, 1fr) auto',
+          gridTemplateAreas: '"back actions" "title title"',
+          alignItems: 'center',
+          rowGap: '3',
+          columnGap: '3',
+          alignSelf: 'stretch',
+          width: '100%',
+          maxWidth: 'contentMax',
+          marginTop: 0,
+          marginInline: 'auto',
+          marginBottom: '5',
+          paddingTop: '2',
+          paddingInline: '4',
+          paddingBottom: 0,
+          containerType: 'inline-size',
+          '@/2xl': {
+            gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+            gridTemplateAreas: '"back title actions"',
+            columnGap: '4',
+            rowGap: '2',
+          },
+        })}
+      >
         {returnUrl && (
           <Link
             to={returnUrl}
@@ -171,10 +157,24 @@ function AssetPage() {
             <span>Back</span>
           </Link>
         )}
-        <div className={css(assetHeaderTitleCss)}>
+        <div
+          className={css({
+            gridArea: 'title',
+            minWidth: 0,
+            textAlign: 'center',
+          })}
+        >
           <AssetHeading name={data.title} />
         </div>
-        <div className={css(assetHeaderActionsCss)}>
+        <div
+          className={css({
+            gridArea: 'actions',
+            justifySelf: 'end',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '2',
+          })}
+        >
           <FavoriteButton assetKey={assetKey} />
           {canViewMetadata ? (
             <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
