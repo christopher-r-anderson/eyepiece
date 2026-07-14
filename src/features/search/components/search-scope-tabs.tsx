@@ -1,4 +1,5 @@
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { toCanonicalUrlParams, toSearchPageParams } from '../search-page-params'
 import type { SearchPageParams, SearchScope } from '../search-page-params'
 import { Link } from '@/components/ui/link'
@@ -50,7 +51,7 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
   ] satisfies Array<{ key: string; label: string; scope: SearchScope }>
 
   return (
-    <div className={css({ display: 'grid', gap: 0, width: '100%' })}>
+    <div className={grid({ gap: 0, width: '100%' })}>
       <nav aria-label="Search scope" className={css(tabListStyles)}>
         {scopeTabs.map((tab) => {
           const isCurrent = tab.key === selectedKey

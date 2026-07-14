@@ -1,14 +1,14 @@
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { Heading } from '@/components/ui/heading'
 
 export function Profile({ profile }: { profile: Profile }) {
   return (
     <section
-      className={css({
+      className={grid({
         width: '100%',
         maxWidth: '40rem',
-        display: 'grid',
         gap: '3',
         padding: '5',
         border: 'default',

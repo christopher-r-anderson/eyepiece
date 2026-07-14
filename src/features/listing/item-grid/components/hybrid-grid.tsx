@@ -62,15 +62,6 @@ export function HybridGrid<T extends object>({
   )
 }
 
-const skeletonCss = css.raw({
-  display: 'grid',
-  listStyleType: 'none',
-  padding: 0,
-  justifyContent: 'center',
-  margin: 0,
-  width: '100%',
-})
-
 export function ItemGridSkeleton({
   children,
   gap = 12,
@@ -91,7 +82,17 @@ export function ItemGridSkeleton({
         gridTemplateColumns: `repeat(auto-fit, minmax(${minTileWidth}px, 1fr))`,
       }}
       {...props}
-      className={cx(css(skeletonCss), props.className)}
+      className={cx(
+        css({
+          display: 'grid',
+          listStyleType: 'none',
+          padding: 0,
+          justifyContent: 'center',
+          margin: 0,
+          width: '100%',
+        }),
+        props.className,
+      )}
     >
       {Array.from({ length: count }).map((_, index) => (
         <Fragment key={index}>{children()}</Fragment>

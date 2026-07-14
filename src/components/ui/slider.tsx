@@ -8,45 +8,6 @@ import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
 import type { StyleProps } from './style-props'
 
-const sliderStyles = css.raw({
-  display: 'grid',
-  gap: '3',
-  width: '100%',
-  paddingTop: '1',
-  paddingInline: '5',
-  paddingBottom: '3',
-  borderRadius: 'lg',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
-})
-
-const sliderTrackStyles = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-  minHeight: 'controlHeight',
-})
-
-const sliderThumbStyles = css.raw({
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minWidth: 'controlHeight',
-  minHeight: 'controlHeight',
-  color: 'inherit',
-  cursor: 'pointer',
-  outline: 'none',
-  _focusVisible: {
-    outline: 'focusRing',
-  },
-})
-
-const sliderOutputStyles = css.raw({
-  fontSize: 'sm',
-  color: 'inherit',
-  padding: '3',
-})
-
 export type SliderProps = ComponentProps<typeof RacSlider> & StyleProps
 
 export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> &
@@ -61,7 +22,23 @@ export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> &
 export function Slider({ css: cssProp, className, ...props }: SliderProps) {
   return (
     <RacSlider
-      className={cx(css(sliderStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            display: 'grid',
+            gap: '3',
+            width: '100%',
+            paddingTop: '1',
+            paddingInline: '5',
+            paddingBottom: '3',
+            borderRadius: 'lg',
+            backgroundColor: 'secondary.bg',
+            color: 'secondary.text',
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )
@@ -74,7 +51,18 @@ export function SliderTrack({
 }: SliderTrackProps) {
   return (
     <RacSliderTrack
-      className={cx(css(sliderTrackStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            minHeight: 'controlHeight',
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )
@@ -87,7 +75,25 @@ export function SliderThumb({
 }: SliderThumbProps) {
   return (
     <RacSliderThumb
-      className={cx(css(sliderThumbStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 'controlHeight',
+            minHeight: 'controlHeight',
+            color: 'inherit',
+            cursor: 'pointer',
+            outline: 'none',
+            _focusVisible: {
+              outline: 'focusRing',
+            },
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )
@@ -100,7 +106,17 @@ export function SliderOutput({
 }: SliderOutputProps) {
   return (
     <RacSliderOutput
-      className={cx(css(sliderOutputStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            fontSize: 'sm',
+            color: 'inherit',
+            padding: '3',
+          },
+          cssProp,
+        ),
+        className,
+      )}
       {...props}
     />
   )

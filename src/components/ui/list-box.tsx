@@ -4,51 +4,12 @@ import {
   ListBoxItem as RacListBoxItem,
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
+import { hstack } from 'styled-system/patterns'
 import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
 import type { StyleProps } from './style-props'
-
-const listBoxStyles = css.raw({
-  display: 'grid',
-  gap: '1',
-  minWidth: '16ch',
-  padding: '2',
-  borderRadius: 'lg',
-  border:
-    '1px solid color-mix(in oklab, token(colors.border) 85%, token(colors.text) 15%)',
-  backgroundColor:
-    'color-mix(in oklab, token(colors.secondary.bg) 92%, token(colors.background) 8%)',
-  color: 'secondary.text',
-  boxShadow: 'sm',
-  outline: 'none',
-})
-
-const listBoxItemStyles = css.raw({
-  paddingBlock: '2',
-  paddingInline: '3',
-  borderRadius: 'md',
-  cursor: 'pointer',
-  outline: 'none',
-  transitionFast: 'background-color, color',
-  '&[data-hovered], &[data-focused], &[data-selected]': {
-    backgroundColor: 'tertiary.bg',
-    color: 'tertiary.text',
-  },
-  _focusVisible: {
-    outline: 'focusRing',
-  },
-})
-
-const renderedItemContentStyles = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '2',
-  width: '100%',
-  color: 'inherit',
-  textDecoration: 'none',
-})
 
 export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
 
@@ -60,7 +21,26 @@ export function ListBox<T extends object>({
   return (
     <RacListBox
       {...props}
-      className={cx(css(listBoxStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            display: 'grid',
+            gap: '1',
+            minWidth: '16ch',
+            padding: '2',
+            borderRadius: 'lg',
+            border:
+              '1px solid color-mix(in oklab, token(colors.border) 85%, token(colors.text) 15%)',
+            backgroundColor:
+              'color-mix(in oklab, token(colors.secondary.bg) 92%, token(colors.background) 8%)',
+            color: 'secondary.text',
+            boxShadow: 'sm',
+            outline: 'none',
+          },
+          cssProp,
+        ),
+        className,
+      )}
     />
   )
 }
@@ -76,7 +56,27 @@ export function ListBoxItem({
   return (
     <RacListBoxItem
       {...props}
-      className={cx(css(listBoxItemStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            paddingBlock: '2',
+            paddingInline: '3',
+            borderRadius: 'md',
+            cursor: 'pointer',
+            outline: 'none',
+            transitionFast: 'background-color, color',
+            '&[data-hovered], &[data-focused], &[data-selected]': {
+              backgroundColor: 'tertiary.bg',
+              color: 'tertiary.text',
+            },
+            _focusVisible: {
+              outline: 'focusRing',
+            },
+          },
+          cssProp,
+        ),
+        className,
+      )}
       render={
         render
           ? (domProps, renderProps) => {
@@ -92,7 +92,12 @@ export function ListBoxItem({
 
               return cloneElement(renderedElement, {
                 className: cx(
-                  css(renderedItemContentStyles),
+                  hstack({
+                    gap: '2',
+                    width: '100%',
+                    color: 'inherit',
+                    textDecoration: 'none',
+                  }),
                   renderedElement.props.className,
                 ),
               })

@@ -9,22 +9,12 @@ import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
 import type { StyleProps } from './style-props'
 
-const tabsStyles = css.raw({
-  display: 'grid',
-  gap: 0,
-  width: '100%',
-})
-
 export const tabListStyles = css.raw({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '2',
   alignItems: 'end',
   marginBottom: '-1px',
-})
-
-const tabPanelsStyles = css.raw({
-  display: 'grid',
 })
 
 export const tabStyles = css.raw({
@@ -71,7 +61,20 @@ export type TabPanelProps = ComponentProps<typeof RacTabPanel> & StyleProps
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
-    <RacTabs className={cx(css(tabsStyles, cssProp), className)} {...props} />
+    <RacTabs
+      className={cx(
+        css(
+          {
+            display: 'grid',
+            gap: 0,
+            width: '100%',
+          },
+          cssProp,
+        ),
+        className,
+      )}
+      {...props}
+    />
   )
 }
 
@@ -97,7 +100,7 @@ export function TabPanels({
 }: TabPanelsProps) {
   return (
     <RacTabPanels
-      className={cx(css(tabPanelsStyles, cssProp), className)}
+      className={cx(css({ display: 'grid' }, cssProp), className)}
       {...props}
     />
   )

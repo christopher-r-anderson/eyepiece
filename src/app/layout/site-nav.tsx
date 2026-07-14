@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import { useLandmark } from 'react-aria'
 import { css, cx } from 'styled-system/css'
+import { grid, wrap } from 'styled-system/patterns'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
 import ThemeSwitch from '@/components/theme/theme-switch'
@@ -29,8 +30,7 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
       )}
     >
       <div
-        className={css({
-          display: 'grid',
+        className={grid({
           gridTemplateColumns: 'minmax(0, 1fr)',
           gridTemplateAreas: '"logo" "links"',
           gap: '2',
@@ -83,12 +83,10 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
           </svg>
         </Link>
         <div
-          className={css({
+          className={wrap({
             gridArea: 'links',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
+            align: 'center',
+            justify: 'center',
             rowGap: '1',
             columnGap: '3',
             fontSize: 'base',

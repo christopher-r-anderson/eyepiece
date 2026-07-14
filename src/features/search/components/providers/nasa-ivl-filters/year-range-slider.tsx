@@ -1,5 +1,6 @@
 import { CircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { flex } from 'styled-system/patterns'
 import type { SliderProps } from '@/components/ui/slider'
 import {
   Slider,
@@ -62,8 +63,7 @@ export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
       >
         {({ state }) => (
           <div
-            className={css({
-              display: 'flex',
+            className={flex({
               width: '100%',
               borderTop: '1px solid token(colors.text.muted)',
             })}
