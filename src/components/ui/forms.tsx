@@ -92,11 +92,9 @@ const textFieldControlStyles = css.raw({
   backgroundColor: 'secondary.bg',
   color: 'secondary.text',
   boxShadow: 'sm',
-  transitionProperty: 'border-color, outline-color',
-  transitionDuration: 'fast',
-  transitionTimingFunction: 'default',
+  transitionFast: 'border-color, outline-color',
   _focusWithin: {
-    outline: '1px solid token(colors.outline)',
+    outline: 'focusRing',
     outlineOffset: '1px',
   },
 })

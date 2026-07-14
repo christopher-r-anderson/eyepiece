@@ -88,6 +88,19 @@ export default defineConfig({
       // CSS properties missing from Panda's generated property set
       viewTransitionClass: { className: 'view-transition-class' },
       WebkitBoxOrient: { className: 'webkit-box-orient' },
+      // expands to the app's standard transition (fast duration, default
+      // easing) over the given property list
+      transitionFast: {
+        className: 'transition-fast',
+        values: { type: 'string' },
+        transform(value: string, { token }) {
+          return {
+            transitionProperty: value,
+            transitionDuration: token('durations.fast'),
+            transitionTimingFunction: token('easings.default'),
+          }
+        },
+      },
     },
   },
   conditions: {
@@ -166,6 +179,8 @@ export default defineConfig({
       borders: {
         default: { value: '1px solid {colors.border}' },
         separator: { value: '1px solid {colors.separator}' },
+        // the app's single focus ring, applied as outline: 'focusRing'
+        focusRing: { value: '1px solid {colors.outline}' },
       },
       shadows: {
         sm: { value: '0 1px 2px rgba(0, 0, 0, 0.08)' },

@@ -122,7 +122,7 @@ export function ModalDialog({
                 color: 'text',
                 opacity: 0.8,
                 flexShrink: 0,
-                transitionProperty: 'background-color, color, opacity',
+                transitionFast: 'background-color, color, opacity',
                 _hovered: {
                   backgroundColor: 'tertiary.bg',
                   opacity: 1,
