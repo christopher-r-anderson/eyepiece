@@ -2,7 +2,7 @@ import { Button as ReactAriaButton } from 'react-aria-components'
 import { css, cva, cx } from 'styled-system/css'
 import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 // exported for non-Button elements that need the same treatment
 // (e.g. links styled as header actions)
@@ -89,9 +89,7 @@ export type ButtonProps = RacButtonProps & {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
   variant?: ButtonVariant
-  css?: SystemStyleObject
-  className?: string
-}
+} & StyleProps
 
 export function Button({
   children,

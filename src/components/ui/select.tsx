@@ -7,7 +7,7 @@ import type {
   ListBoxItemRenderProps,
   SelectProps as RacSelectProps,
 } from 'react-aria-components'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
 
@@ -18,12 +18,16 @@ type SelectProps<T extends object> = {
   getItemText: (item: T) => string
   renderItem?: (item: T, itemProps?: ListBoxItemRenderProps) => React.ReactNode
   buttonVariant?: ButtonProps['variant']
-  css?: SystemStyleObject
-  className?: string
-} & Pick<
-  RacSelectProps<T>,
-  'defaultValue' | 'value' | 'placeholder' | 'onChange' | 'style' | 'aria-label'
->
+} & StyleProps &
+  Pick<
+    RacSelectProps<T>,
+    | 'defaultValue'
+    | 'value'
+    | 'placeholder'
+    | 'onChange'
+    | 'style'
+    | 'aria-label'
+  >
 
 const selectStyles = css.raw({
   display: 'inline-flex',

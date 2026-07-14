@@ -4,17 +4,11 @@ import type {
   MenuItemProps as RacMenuItemProps,
   MenuProps as RacMenuProps,
 } from 'react-aria-components'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
-export type MenuProps<T extends object> = RacMenuProps<T> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type MenuProps<T extends object> = RacMenuProps<T> & StyleProps
 
-export type MenuItemProps = RacMenuItemProps & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type MenuItemProps = RacMenuItemProps & StyleProps
 
 const menuStyles = css.raw({
   backgroundColor: 'secondary.bg',

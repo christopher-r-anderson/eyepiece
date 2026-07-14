@@ -6,7 +6,7 @@ import {
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const sliderStyles = css.raw({
   display: 'grid',
@@ -47,25 +47,16 @@ const sliderOutputStyles = css.raw({
   padding: '3',
 })
 
-export type SliderProps = ComponentProps<typeof RacSlider> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type SliderProps = ComponentProps<typeof RacSlider> & StyleProps
 
-export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> &
+  StyleProps
 
-export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> &
+  StyleProps
 
-export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> & {
-  css?: SystemStyleObject
-  className?: string
-}
+export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> &
+  StyleProps
 
 export function Slider({ css: cssProp, className, ...props }: SliderProps) {
   return (

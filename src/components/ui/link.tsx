@@ -2,7 +2,7 @@ import { createLink } from '@tanstack/react-router'
 import { Link as ReactAriaLink } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { LinkProps } from 'react-aria-components'
-import type { SystemStyleObject } from 'styled-system/types'
+import type { StyleProps } from './style-props'
 
 const linkStyles = css.raw({
   color: 'link',
@@ -15,10 +15,7 @@ const linkStyles = css.raw({
   },
 })
 
-type AppLinkProps = LinkProps & {
-  css?: SystemStyleObject
-  className?: string
-}
+type AppLinkProps = LinkProps & StyleProps
 
 function AppLink({ css: cssProp, className, ...props }: AppLinkProps) {
   return (
