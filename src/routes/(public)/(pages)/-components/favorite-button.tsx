@@ -1,16 +1,17 @@
 import { ClientOnly } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
+import { css } from 'styled-system/css'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import { ToggleFavoriteButton } from '@/features/favorites/components/toggle-favorite-button'
 
-const favoriteToggleFallbackCss = {
-  '--toggle-icon-color': 'var(--favorite-toggle-idle)',
+const favoriteToggleFallbackCss = css.raw({
+  '--toggle-icon-color': 'token(colors.favoriteToggle.idle)',
   opacity: 0.75,
-}
+})
 
 export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
   const queueToastMessage = useQueueToastMessage()
@@ -41,7 +42,7 @@ function FavoriteButtonFallback() {
     <ToggleButton
       aria-label="Star"
       variant="icon"
-      css={favoriteToggleFallbackCss}
+      styles={favoriteToggleFallbackCss}
       isDisabled
     >
       <StarIcon size={20} weight="regular" />

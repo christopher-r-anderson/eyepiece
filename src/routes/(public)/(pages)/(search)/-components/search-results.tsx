@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { hashKey } from '@tanstack/react-query'
+import { css } from 'styled-system/css'
 import { AssetResultsGrid } from './asset-results-grid'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { useSuspenseInfiniteSearch } from '@/features/search/search.queries'
@@ -30,7 +31,7 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
       hasNextPage={hasNextPage}
       loadedCount={data.items.length}
       uiResetKey={uiResetKey}
-      css={{ width: '100%' }}
+      className={css({ width: '100%' })}
     >
       <AssetResultsGrid items={data.items} />
     </InfiniteLoader>

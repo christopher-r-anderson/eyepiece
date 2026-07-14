@@ -1,9 +1,9 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
-import { COMPACT_LAYOUT_MIN_WIDTH } from '@/lib/breakpoints'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
@@ -20,82 +20,87 @@ import {
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
     <h1
-      css={{
+      className={css({
         margin: 0,
         minWidth: 0,
-        fontSize: 'var(--text-2xl)',
-        lineHeight: 'var(--line-height-tight)',
+        fontSize: '2xl',
+        lineHeight: 'tight',
         overflowWrap: 'anywhere',
-      }}
+      })}
     >
       {name}
     </h1>
   )
 }
 
-const assetHeaderCss = {
+const assetHeaderCss = css.raw({
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr) auto',
   gridTemplateAreas: '"back actions" "title title"',
   alignItems: 'center',
-  rowGap: 'var(--space-3)',
-  columnGap: 'var(--space-3)',
+  rowGap: '3',
+  columnGap: '3',
   alignSelf: 'stretch',
   width: '100%',
-  maxWidth: 'var(--size-content-max)',
-  margin: '0 auto var(--space-5)',
-  padding: 'var(--space-2) var(--space-4) 0',
+  maxWidth: 'contentMax',
+  marginTop: 0,
+  marginInline: 'auto',
+  marginBottom: '5',
+  paddingTop: '2',
+  paddingInline: '4',
+  paddingBottom: 0,
   containerType: 'inline-size',
-  [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+  _compactLayout: {
     gridTemplateColumns: 'auto minmax(0, 1fr) auto',
     gridTemplateAreas: '"back title actions"',
-    columnGap: 'var(--space-4)',
-    rowGap: 'var(--space-2)',
+    columnGap: '4',
+    rowGap: '2',
   },
-}
+})
 
-const assetHeaderBackCss = {
+const assetHeaderBackCss = css.raw({
   gridArea: 'back',
   justifySelf: 'start',
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--space-2)',
-  minHeight: 'calc(var(--size-control-height) - var(--space-1))',
-  padding: 'var(--space-2) var(--space-3)',
-  borderRadius: 'var(--radius-md)',
+  gap: '2',
+  minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+  paddingBlock: '2',
+  paddingInline: '3',
+  borderRadius: 'md',
   border: '1px solid transparent',
   backgroundColor: 'transparent',
-  color: 'var(--primary-text-muted)',
+  color: 'primary.textMuted',
   fontWeight: 600,
-  lineHeight: 'var(--line-height-tight)',
-  '&[data-hovered]': {
-    color: 'var(--text)',
+  lineHeight: 'tight',
+  _hovered: {
+    color: 'text',
     textDecoration: 'none',
     border:
-      '1px solid color-mix(in oklab, var(--border-color) 88%, var(--text) 12%)',
+      '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
     backgroundColor:
-      'color-mix(in oklab, var(--tertiary-bg) 72%, var(--background) 28%)',
+      'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
   },
-}
+})
 
-const assetHeaderTitleCss = {
+const assetHeaderTitleCss = css.raw({
   gridArea: 'title',
   minWidth: 0,
-  textAlign: 'center' as const,
-}
+  textAlign: 'center',
+})
 
-const assetHeaderActionsCss = {
+const assetHeaderActionsCss = css.raw({
   gridArea: 'actions',
   justifySelf: 'end',
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--space-2)',
-}
+  gap: '2',
+})
 
-const headerActionButtonCss = {
-  minWidth: 'calc(var(--size-control-height) - var(--space-1))',
-  minHeight: 'calc(var(--size-control-height) - var(--space-1))',
-}
+const headerActionButtonCss = css.raw({
+  minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+  minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+})
 
 export const Route = createFileRoute(
   '/(public)/(pages)/assets/$providerId/$assetId',
@@ -162,24 +167,27 @@ function AssetPage() {
   })
   return (
     <>
-      <div css={assetHeaderCss}>
+      <div className={css(assetHeaderCss)}>
         {returnUrl && (
           <Link
             to={returnUrl}
             aria-label="Back to search results"
-            css={assetHeaderBackCss}
+            styles={assetHeaderBackCss}
           >
             <ArrowLeftIcon aria-hidden="true" size={18} />
             <span>Back</span>
           </Link>
         )}
-        <div css={assetHeaderTitleCss}>
+        <div className={css(assetHeaderTitleCss)}>
           <AssetHeading name={data.title} />
         </div>
-        <div css={assetHeaderActionsCss}>
+        <div className={css(assetHeaderActionsCss)}>
           <FavoriteButton assetKey={assetKey} />
           {canViewMetadata ? (
-            <MetadataButton assetKey={assetKey} css={headerActionButtonCss} />
+            <MetadataButton
+              assetKey={assetKey}
+              styles={headerActionButtonCss}
+            />
           ) : null}
         </div>
       </div>

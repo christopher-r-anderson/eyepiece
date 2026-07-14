@@ -1,60 +1,62 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
-import type { Interpolation, Theme } from '@emotion/react'
+import { css } from 'styled-system/css'
 import type { ReactNode } from 'react'
+import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Link } from '@/components/ui/link'
 import { Heading } from '@/components/ui/heading'
 import { PageHeading } from '@/routes/-components/page-heading'
 
-export const devPageSectionCss = {
+export const devPageSectionCss = css.raw({
   display: 'grid',
-  gap: 'var(--space-section-gap)',
-}
+  gap: 'sectionGap',
+})
 
-export const devCardGridCss = {
+export const devCardGridCss = css.raw({
   display: 'grid',
   alignItems: 'start',
   gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
-  gap: 'var(--space-4)',
-}
+  gap: '4',
+})
 
-export const devSurfaceCss = {
+export const devSurfaceCss = css.raw({
   display: 'grid',
-  gap: 'var(--space-4)',
-  padding: 'var(--space-5)',
-  border: '1px solid var(--border-color)',
-  borderRadius: 'var(--radius-lg)',
-  backgroundColor: 'var(--secondary-bg)',
-}
+  gap: '4',
+  padding: '5',
+  border: '1px solid token(colors.border)',
+  borderRadius: 'lg',
+  backgroundColor: 'secondary.bg',
+})
 
-const devTextStackCss = {
+const devTextStackCss = css.raw({
   display: 'grid',
-  gap: 'var(--space-2)',
+  gap: '2',
   '& > p': {
     margin: 0,
   },
-}
+})
 
-const devMetaRowCss = {
+const devMetaRowCss = css.raw({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
-  gap: 'var(--space-2) var(--space-4)',
-} as const
+  rowGap: '2',
+  columnGap: '4',
+})
 
-const devMetaLabelCss = {
+const devMetaLabelCss = css.raw({
   margin: 0,
-  color: 'var(--text-muted)',
-  fontSize: 'var(--text-xs)',
+  color: 'text.muted',
+  fontSize: 'xs',
   fontWeight: 600,
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
   padding: '0.35rem 0.65rem',
-  border: '1px solid var(--border-color)',
+  border: '1px solid token(colors.border)',
   borderRadius: '999px',
-  backgroundColor: 'var(--secondary-bg)',
-} as const
+  backgroundColor: 'secondary.bg',
+})
 
 type DevPageIntroProps = {
   title: string
@@ -70,35 +72,36 @@ export function DevPageIntro({
   descriptionTone = 'default',
 }: DevPageIntroProps) {
   return (
-    <header css={{ display: 'grid', gap: 'var(--space-4)' }}>
+    <header className={css({ display: 'grid', gap: '4' })}>
       <div
-        css={[
+        className={css(
           devMetaRowCss,
           backLink ? undefined : { justifyContent: 'flex-end' },
-        ]}
+        )}
       >
-        {backLink ? <div css={{ minWidth: 0 }}>{backLink}</div> : null}
+        {backLink ? (
+          <div className={css({ minWidth: 0 })}>{backLink}</div>
+        ) : null}
         <p
-          css={{
-            ...devMetaLabelCss,
+          className={css(devMetaLabelCss, {
             textAlign: 'right',
-          }}
+          })}
         >
           Development Only
         </p>
       </div>
 
-      <div css={devTextStackCss}>
-        <PageHeading css={{ margin: 0 }}>{title}</PageHeading>
+      <div className={css(devTextStackCss)}>
+        <PageHeading styles={css.raw({ margin: 0 })}>{title}</PageHeading>
         <p
-          css={
+          className={css(
             descriptionTone === 'muted'
               ? {
-                  color: 'var(--text-muted)',
-                  maxWidth: 'var(--size-reading-max)',
+                  color: 'text.muted',
+                  maxWidth: 'readingMax',
                 }
-              : { maxWidth: 'var(--size-reading-max)' }
-          }
+              : { maxWidth: 'readingMax' },
+          )}
         >
           {description}
         </p>
@@ -117,11 +120,11 @@ export function DevBackLink({
   return (
     <Link
       to={to}
-      css={{
+      styles={css.raw({
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--space-2)',
-      }}
+        gap: '2',
+      })}
     >
       <ArrowLeftIcon aria-hidden="true" size={18} /> {children}
     </Link>
@@ -138,8 +141,11 @@ export function DevTitleBlock({
   headingLevel?: HeadingLevel
 }) {
   return (
-    <div css={devTextStackCss}>
-      <Heading headingLevel={headingLevel} css={{ marginBlockEnd: 0 }}>
+    <div className={css(devTextStackCss)}>
+      <Heading
+        headingLevel={headingLevel}
+        styles={css.raw({ marginBlockEnd: 0 })}
+      >
         {title}
       </Heading>
       {description ? <p>{description}</p> : null}
@@ -149,16 +155,18 @@ export function DevTitleBlock({
 
 export function DevPanel({
   as = 'section',
-  css,
+  styles,
   children,
 }: {
   as?: 'article' | 'section' | 'div'
-  css?: Interpolation<Theme>
+  styles?: SystemStyleObject
   children: ReactNode
 }) {
   const Component = as
 
-  return <Component css={[devSurfaceCss, css]}>{children}</Component>
+  return (
+    <Component className={css(devSurfaceCss, styles)}>{children}</Component>
+  )
 }
 
 export function DevLinkCard({
@@ -171,7 +179,7 @@ export function DevLinkCard({
   action: ReactNode
 }) {
   return (
-    <DevPanel as="article" css={{ color: 'var(--secondary-text)' }}>
+    <DevPanel as="article" styles={css.raw({ color: 'secondary.text' })}>
       <DevTitleBlock title={title} description={description} />
       {action}
     </DevPanel>

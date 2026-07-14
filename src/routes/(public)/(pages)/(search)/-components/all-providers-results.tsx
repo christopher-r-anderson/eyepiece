@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { AssetResultsGrid } from './asset-results-grid'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
@@ -19,7 +20,7 @@ import {
 // or stalling never affects the others.
 export function AllProvidersResults({ query }: { query: SearchQuery }) {
   return (
-    <div css={{ display: 'grid', gap: 'var(--space-7)' }}>
+    <div className={css({ display: 'grid', gap: '7' })}>
       {PROVIDERS.map((providerId) => (
         <ProviderSection
           key={providerId}
@@ -43,16 +44,16 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
   return (
     <section aria-labelledby={headingId}>
       <div
-        css={{
+        className={css({
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'baseline',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-4)',
-        }}
+          gap: '4',
+          marginBottom: '4',
+        })}
       >
-        <h2 id={headingId} css={{ margin: 0, fontSize: 'var(--text-xl)' }}>
+        <h2 id={headingId} className={css({ margin: 0, fontSize: 'xl' })}>
           {display.displayName}
         </h2>
         <Link

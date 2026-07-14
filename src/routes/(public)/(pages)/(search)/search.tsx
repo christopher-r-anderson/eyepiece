@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
+import { css } from 'styled-system/css'
 import { SearchResults } from './-components/search-results'
 import { SearchPrompt } from './-components/search-prompt'
 import { AllProvidersResults } from './-components/all-providers-results'
@@ -152,12 +153,13 @@ function SearchPage() {
     <>
       <PageHeading>{searchTitle(state)}</PageHeading>
       <div
-        css={{
+        className={css({
           width: '100%',
           maxWidth: '40rem',
-          margin: 'var(--space-7) auto',
-          paddingInline: 'var(--space-4)',
-        }}
+          marginBlock: '7',
+          marginInline: 'auto',
+          paddingInline: '4',
+        })}
       >
         <SearchBar key={formResetKey} initialQuery={q} scope={scope} />
       </div>

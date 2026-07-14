@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
+import { css } from 'styled-system/css'
 import { FavoriteButton } from '../../-components/favorite-button'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
@@ -35,10 +36,10 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
       hasNextPage={hasNextPage}
       loadedCount={data.items.length}
       uiResetKey={uiResetKey}
-      css={{ width: '100%' }}
+      className={css({ width: '100%' })}
     >
       <HybridGrid
-        css={{ width: '100%' }}
+        className={css({ width: '100%' })}
         items={data.items}
         getItemKey={(item) => toAssetKeyString(item.key)}
         getItemTextValue={(item) => item.title}

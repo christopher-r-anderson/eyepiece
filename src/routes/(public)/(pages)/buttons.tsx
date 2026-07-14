@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/(public)/(pages)/buttons')({
@@ -9,12 +10,12 @@ export const Route = createFileRoute('/(public)/(pages)/buttons')({
 function RouteComponent() {
   return (
     <div
-      css={{
+      className={css({
         width: '100%',
         maxWidth: '40rem',
         display: 'grid',
-        gap: 'var(--space-4)',
-      }}
+        gap: '4',
+      })}
     >
       <h1>Buttons</h1>
       <p>This page is for testing button styles.</p>
@@ -26,7 +27,7 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          css={{ width: 'min(100%, 37.5rem)' }}
+          styles={css.raw({ width: 'min(100%, 37.5rem)' })}
           icon={MagnifyingGlassIcon}
         >
           Secondary Button
@@ -34,17 +35,21 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          css={{ width: 'min(100%, 37.5rem)' }}
+          styles={css.raw({ width: 'min(100%, 37.5rem)' })}
           icon={MagnifyingGlassIcon}
         >
-          <span css={{ flex: 1, minWidth: 0 }}>Secondary Button</span>
+          <span className={css({ flex: 1, minWidth: 0 })}>
+            Secondary Button
+          </span>
         </Button>
       </p>
       <p>
-        <Button css={{ width: 'min(100%, 37.5rem)' }}>
+        <Button styles={css.raw({ width: 'min(100%, 37.5rem)' })}>
           {() => (
             <>
-              <span css={{ flex: 1, minWidth: 0 }}>Secondary Button</span>
+              <span className={css({ flex: 1, minWidth: 0 })}>
+                Secondary Button
+              </span>
               <MagnifyingGlassIcon />
             </>
           )}

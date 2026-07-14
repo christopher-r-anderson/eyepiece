@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { startTransition } from 'react'
+import { css } from 'styled-system/css'
 import { AssetTile } from '@/features/assets/components/asset-tile'
 import { HybridGrid } from '@/features/listing/item-grid/components/hybrid-grid'
 import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
@@ -85,10 +86,10 @@ function FavoritesPage() {
         hasNextPage={favoritesResult.hasNextPage}
         loadedCount={assetSummariesResult.data?.length ?? 0}
         uiResetKey="favorites"
-        css={{ width: '100%' }}
+        className={css({ width: '100%' })}
       >
         <HybridGrid
-          css={{ width: '100%' }}
+          className={css({ width: '100%' })}
           items={assetSummariesResult.data ?? []}
           getItemKey={(item) => toAssetKeyString(item.key)}
           getItemTextValue={(item) => item.title}

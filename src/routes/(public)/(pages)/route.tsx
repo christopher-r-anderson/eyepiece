@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import {
   authModalSearchParamsSchema,
   authModalStateSchema,
@@ -17,16 +18,18 @@ function PublicPagesLayout() {
   return (
     <>
       <main
-        css={{
+        className={css({
           width: '100%',
-          maxWidth: 'var(--size-content-max)',
+          maxWidth: 'contentMax',
           flexGrow: 1,
           margin: '0 auto',
-          padding: '0 var(--space-4) var(--space-7)',
+          paddingTop: 0,
+          paddingInline: '4',
+          paddingBottom: '7',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'stretch',
-        }}
+        })}
       >
         <Outlet />
       </main>
