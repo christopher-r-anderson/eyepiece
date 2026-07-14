@@ -7,6 +7,7 @@ export default [
       '.netlify/**',
       './src/integrations/supabase/database.types.ts',
       'playwright-report/**',
+      'styled-system/**',
     ],
   },
   ...tanstackConfig,

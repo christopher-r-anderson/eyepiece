@@ -9,13 +9,18 @@ export default defineConfig({
   outdir: 'styled-system',
   conditions: {
     extend: {
-      // react-aria-components state attributes
+      // react-aria-components state attributes. pressed and selected
+      // intentionally replace Panda's aria-inclusive defaults: RAC sets
+      // aria-pressed to reflect a ToggleButton's toggled state, so
+      // [aria-pressed=true] would apply momentary-press styles to every
+      // toggled-on button.
       hovered: '&[data-hovered]',
       pressed: '&[data-pressed]',
       focused: '&[data-focused]',
       selected: '&[data-selected]',
       entering: '&[data-entering]',
       exiting: '&[data-exiting]',
+      // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
     },
   },
