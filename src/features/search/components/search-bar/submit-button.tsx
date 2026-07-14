@@ -23,7 +23,7 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
       )}
       {...props}
     >
-      <MagnifyingGlassIcon />
+      <MagnifyingGlassIcon aria-hidden="true" />
     </Button>
   )
 }

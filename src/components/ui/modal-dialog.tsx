@@ -138,7 +138,7 @@ export function ModalDialog({
                 },
               })}
             >
-              <XIcon size={18} weight="bold" />
+              <XIcon aria-hidden="true" size={18} weight="bold" />
             </Button>
           </div>
           <div
