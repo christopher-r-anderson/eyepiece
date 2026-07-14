@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import {
-  COMPACT_FORM_ACTIONS_MIN_WIDTH,
   Form,
   InputGroup,
   TextField,
@@ -60,23 +60,23 @@ export function LoginForm({
       aria-busy={isPending || undefined}
       controls={
         <div
-          css={{
+          className={css({
             display: 'grid',
             gridTemplateColumns: 'minmax(0, 1fr)',
-            gap: 'var(--space-3)',
+            gap: '3',
             alignItems: 'center',
-            marginBlockStart: 'var(--space-4)',
-            [`@container (min-width: ${COMPACT_FORM_ACTIONS_MIN_WIDTH})`]: {
+            marginBlockStart: '4',
+            _compactLayout: {
               gridTemplateColumns: 'minmax(0, 1fr) auto',
             },
-          }}
+          })}
         >
-          <div css={{ minWidth: 0 }}>{forgotPasswordLink}</div>
+          <div className={css({ minWidth: 0 })}>{forgotPasswordLink}</div>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             Log In
           </Button>

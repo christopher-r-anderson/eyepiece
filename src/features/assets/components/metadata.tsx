@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { VisuallyHidden } from 'react-aria'
+import { css } from 'styled-system/css'
 import type { Metadata } from '@/domain/asset/asset.schema'
 
 type Row = { key: string; value: unknown }
@@ -23,29 +24,29 @@ export function MetadataTable({ data }: { data: Metadata }) {
   return (
     <div>
       <table
-        css={{
-          border: '1px solid var(--border-color)',
+        className={css({
+          border: '1px solid token(colors.border)',
           width: '100%',
           borderCollapse: 'collapse',
-          thead: {
-            borderBottom: '1px solid var(--border-color)',
-            backgroundColor: 'var(--secondary-bg)',
-            color: 'var(--secondary-text)',
+          '& thead': {
+            borderBottom: '1px solid token(colors.border)',
+            backgroundColor: 'secondary.bg',
+            color: 'secondary.text',
           },
-          'th, td': {
-            padding: 'var(--space-2)',
+          '& th, & td': {
+            padding: '2',
           },
-          'th:first-of-type': {
-            borderRight: '1px solid var(--border-color)',
+          '& th:first-of-type': {
+            borderRight: '1px solid token(colors.border)',
           },
-          tr: {
-            backgroundColor: 'var(--secondary-bg)',
-            color: 'var(--secondary-text)',
+          '& tr': {
+            backgroundColor: 'secondary.bg',
+            color: 'secondary.text',
           },
-          'tbody tr:nth-of-type(odd)': {
-            backgroundColor: 'var(--tertiary-bg)',
+          '& tbody tr:nth-of-type(odd)': {
+            backgroundColor: 'tertiary.bg',
           },
-        }}
+        })}
       >
         <caption>
           <VisuallyHidden>Image metadata</VisuallyHidden>
@@ -59,10 +60,15 @@ export function MetadataTable({ data }: { data: Metadata }) {
         <tbody>
           {rows.map(({ key, value }) => (
             <tr key={key}>
-              <th scope="row" css={{ textAlign: 'left', verticalAlign: 'top' }}>
+              <th
+                scope="row"
+                className={css({ textAlign: 'left', verticalAlign: 'top' })}
+              >
                 <code>{key}</code>
               </th>
-              <td css={{ verticalAlign: 'top' }}>{safeStringify(value)}</td>
+              <td className={css({ verticalAlign: 'top' })}>
+                {safeStringify(value)}
+              </td>
             </tr>
           ))}
         </tbody>

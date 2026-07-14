@@ -1,12 +1,13 @@
 import { Fragment } from 'react'
+import { css, cx } from 'styled-system/css'
 import type { ListState } from '@react-stately/list'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
 import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
-const gridCss = {
+const gridCss = css.raw({
   display: 'grid',
   justifyContent: 'center',
-}
+})
 
 export function StaticGrid<T extends object>({
   ref,
@@ -29,12 +30,12 @@ export function StaticGrid<T extends object>({
   return (
     <div
       ref={ref}
-      css={gridCss}
       style={{
         gap,
         gridTemplateColumns: `repeat(auto-fit, minmax(${minTileWidth}px, 1fr))`,
       }}
       {...props}
+      className={cx(css(gridCss), props.className)}
     >
       {items.map((item) => (
         <Fragment key={getItemKey(item)}>

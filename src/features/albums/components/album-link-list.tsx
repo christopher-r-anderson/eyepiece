@@ -1,27 +1,28 @@
+import { css } from 'styled-system/css'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import { Link } from '@/components/ui/link'
 import { toAlbumKeyString } from '@/domain/album/album.utils'
 
-const albumListCss = {
+const albumListCss = css.raw({
   listStyleType: 'none',
   margin: 0,
   padding: 0,
-}
+})
 
-const albumLinkCss = {
+const albumLinkCss = css.raw({
   color: 'gray',
   textDecoration: 'underline',
-}
+})
 
 export function AlbumLinkList({ albums }: { albums: Array<AlbumKey> }) {
   return (
-    <ul css={albumListCss}>
+    <ul className={css(albumListCss)}>
       {albums.map((album) => (
         <li key={toAlbumKeyString(album)}>
           <Link
             to="/albums/$providerId/$albumId"
             params={{ providerId: album.providerId, albumId: album.externalId }}
-            css={albumLinkCss}
+            styles={albumLinkCss}
           >
             {album.externalId}
           </Link>

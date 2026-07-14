@@ -1,4 +1,5 @@
 import { startTransition, useEffect } from 'react'
+import { css } from 'styled-system/css'
 import { LoadMoreButton } from './load-more-button'
 import type { ComponentPropsWithoutRef } from 'react'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
@@ -38,7 +39,7 @@ export function InfiniteLoader({
   return (
     <div {...props}>
       {children}
-      <div css={{ position: 'relative' }}>
+      <div className={css({ position: 'relative' })}>
         <VisuallyHidden>
           <div role="status" aria-live="polite" aria-atomic="true">
             {status}
@@ -49,7 +50,7 @@ export function InfiniteLoader({
       <div ref={sentinelRef} />
 
       {showLoadMore && (
-        <div css={{ marginTop: '1rem', textAlign: 'center' }}>
+        <div className={css({ marginTop: '1rem', textAlign: 'center' })}>
           <LoadMoreButton
             type="button"
             disabled={isFetchingNextPage}

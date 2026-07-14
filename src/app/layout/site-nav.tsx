@@ -1,16 +1,13 @@
 import { useRef } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import { useLandmark } from 'react-aria'
+import { css, cx } from 'styled-system/css'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
 import ThemeSwitch from '@/components/theme/theme-switch'
 import logo from '@/assets/eyepiece-logo.svg'
 import { LoginLink } from '@/features/auth/components/login-link'
 import { UserStatus } from '@/features/auth/components/user-status'
-import {
-  COMPACT_LAYOUT_MIN_WIDTH,
-  HEADER_INLINE_MIN_WIDTH,
-} from '@/lib/breakpoints'
 
 export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
   const ref = useRef(null)
@@ -24,41 +21,45 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
       {...props}
       {...landmarkProps}
       ref={ref}
-      css={{
-        containerType: 'inline-size',
-      }}
+      className={cx(
+        css({
+          containerType: 'inline-size',
+        }),
+        props.className,
+      )}
     >
       <div
-        css={{
+        className={css({
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr)',
           gridTemplateAreas: '"logo" "links"',
-          gap: 'var(--space-2)',
+          gap: '2',
           justifyItems: 'center',
           alignItems: 'center',
-          padding: 'var(--space-3) var(--space-4)',
-          [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+          paddingBlock: '3',
+          paddingInline: '4',
+          _compactLayout: {
             gridTemplateColumns: '1fr auto',
             gridTemplateAreas: '"logo links"',
-            gap: 'var(--space-4)',
+            gap: '4',
             alignItems: 'center',
             justifyItems: 'stretch',
           },
-          [`@container (min-width: ${HEADER_INLINE_MIN_WIDTH})`]: {
+          _headerInline: {
             gridTemplateColumns: 'auto minmax(0, 1fr)',
             gridTemplateAreas: '"logo links"',
-            paddingBlock: 'var(--space-4)',
+            paddingBlock: '4',
           },
-        }}
+        })}
       >
         <Link
           to="/"
-          css={{
-            color: 'var(--text)',
+          styles={css.raw({
+            color: 'text',
             gridArea: 'logo',
             width: '100%',
             maxWidth: '14rem',
-          }}
+          })}
           aria-label="eyepiece Home"
         >
           {/*
@@ -82,27 +83,27 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
           </svg>
         </Link>
         <div
-          css={{
+          className={css({
             gridArea: 'links',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexWrap: 'wrap',
-            rowGap: 'var(--space-1)',
-            columnGap: 'var(--space-3)',
-            fontSize: 'var(--text-base)',
-            lineHeight: 'var(--line-height-tight)',
+            rowGap: '1',
+            columnGap: '3',
+            fontSize: 'base',
+            lineHeight: 'tight',
             minWidth: 0,
             width: '100%',
-            [`@container (min-width: ${COMPACT_LAYOUT_MIN_WIDTH})`]: {
+            _compactLayout: {
               justifyContent: 'flex-end',
               width: 'auto',
             },
-            [`@container (min-width: ${HEADER_INLINE_MIN_WIDTH})`]: {
+            _headerInline: {
               flexWrap: 'nowrap',
-              columnGap: 'var(--space-4)',
+              columnGap: '4',
             },
-          }}
+          })}
         >
           <ThemeSwitch />
           <Link to="/favorites">Favorites</Link>

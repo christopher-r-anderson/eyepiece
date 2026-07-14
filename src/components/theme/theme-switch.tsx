@@ -4,6 +4,7 @@ import {
   ToggleLeftIcon,
   ToggleRightIcon,
 } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import { useThemeToggle } from './theme-provider'
 import type { SwitchProps } from '@/components/ui/switch'
 import { Switch } from '@/components/ui/switch'
@@ -16,26 +17,26 @@ const ThemeSwitch = (props: SwitchProps) => {
   return (
     <form
       autoComplete="off"
-      css={{
+      className={css({
         display: 'inline-flex',
         width: 'fit-content',
         flex: 'none',
-        fontSize: 'var(--text-base)',
+        fontSize: 'base',
         padding: 0,
         margin: 0,
-      }}
+      })}
     >
       <div
-        css={{
+        className={css({
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 'var(--space-2)',
+          gap: '2',
           transition: 'opacity 0.3s ease',
-        }}
+        })}
         style={{ opacity: isThemeSet ? 1 : 0.3 }}
         aria-hidden={!isThemeSet}
       >
-        <SunIcon color="var(--text-muted)" />
+        <SunIcon className={css({ color: 'text.muted' })} />
         <Switch
           aria-label="Toggle Light and Dark Mode"
           {...props}
@@ -46,7 +47,7 @@ const ThemeSwitch = (props: SwitchProps) => {
         >
           {theme === 'dark' ? <ToggleRightIcon /> : <ToggleLeftIcon />}
         </Switch>
-        <MoonStarsIcon color="var(--text-muted)" />
+        <MoonStarsIcon className={css({ color: 'text.muted' })} />
       </div>
     </form>
   )

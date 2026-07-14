@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { css, cx } from 'styled-system/css'
 import { StaticGrid } from './static-grid'
 import { VirtualGrid } from './virtual-grid'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
@@ -61,14 +62,14 @@ export function HybridGrid<T extends object>({
   )
 }
 
-const skeletonCss = {
+const skeletonCss = css.raw({
   display: 'grid',
   listStyleType: 'none',
   padding: 0,
   justifyContent: 'center',
   margin: 0,
   width: '100%',
-}
+})
 
 export function ItemGridSkeleton({
   children,
@@ -85,12 +86,12 @@ export function ItemGridSkeleton({
   return (
     <div
       aria-hidden="true"
-      css={skeletonCss}
       style={{
         gap,
         gridTemplateColumns: `repeat(auto-fit, minmax(${minTileWidth}px, 1fr))`,
       }}
       {...props}
+      className={cx(css(skeletonCss), props.className)}
     >
       {Array.from({ length: count }).map((_, index) => (
         <Fragment key={index}>{children()}</Fragment>

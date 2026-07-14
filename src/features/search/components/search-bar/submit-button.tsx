@@ -1,4 +1,5 @@
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
+import { css } from 'styled-system/css'
 import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 
@@ -7,21 +8,21 @@ export function SubmitButton(props: ButtonProps) {
     <Button
       type="submit"
       aria-label="Search"
-      css={{
+      styles={css.raw({
         background: 'transparent',
         borderColor: 'transparent',
-        color: 'var(--secondary-text)',
+        color: 'secondary.text',
         fontSize: '1em',
         minHeight: 'auto',
         padding: 0,
-        '&[data-hovered]': {
+        _hovered: {
           backgroundColor: 'transparent',
-          color: 'var(--text-accent)',
+          color: 'text.accent',
         },
-        '&[data-disabled]': {
-          color: 'var(--text-muted)',
+        _disabled: {
+          color: 'text.muted',
         },
-      }}
+      })}
       {...props}
     >
       <MagnifyingGlassIcon />

@@ -1,17 +1,18 @@
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Fragment } from 'react'
+import { css } from 'styled-system/css'
 import type { ListState } from '@react-stately/list'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
 import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
-const rowCss = {
+const rowCss = css.raw({
   display: 'grid',
   justifyContent: 'center',
   width: '100%',
-  position: 'absolute' as const,
+  position: 'absolute',
   top: 0,
   left: 0,
-}
+})
 
 export function VirtualGrid<T extends object>({
   ref,
@@ -67,7 +68,7 @@ export function VirtualGrid<T extends object>({
             data-index={vr.index}
             key={vr.key}
             ref={rowVirtualizer.measureElement}
-            css={rowCss}
+            className={css(rowCss)}
             style={{
               gap,
               gridTemplateColumns: `repeat(${itemsPerRow}, minmax(${minTileWidth}px, 1fr))`,

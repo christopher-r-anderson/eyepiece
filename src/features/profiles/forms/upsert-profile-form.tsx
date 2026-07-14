@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { useProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
@@ -61,12 +62,12 @@ export function UpsertProfileForm({
       aria-labelledby={headingId}
       aria-busy={isPending || undefined}
       controls={
-        <div css={formActionsCss}>
+        <div className={css(formActionsCss)}>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isDisabled || isPending}
-            css={formActionButtonCss}
+            styles={formActionButtonCss}
           >
             {isUpdating ? 'Update' : 'Create'}
           </Button>

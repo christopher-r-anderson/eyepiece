@@ -1,6 +1,7 @@
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { useHydrated } from '@tanstack/react-router'
 import { useCallback } from 'react'
+import { css } from 'styled-system/css'
 import { ToggleFavoriteErrorCodes } from '../favorites.const'
 import {
   useToggleUserFavorite,
@@ -10,19 +11,19 @@ import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
 
-const favoriteToggleCss = {
-  '--toggle-icon-color': 'var(--favorite-toggle-idle)',
-  '--toggle-icon-hover-color': 'var(--favorite-toggle-hover)',
-  '--toggle-icon-hover-glow': 'var(--favorite-toggle-glow)',
-  '--toggle-icon-selected-color': 'var(--favorite-toggle-selected)',
-  '--toggle-icon-selected-glow': 'var(--favorite-toggle-glow)',
-  '&[data-hovered]': {
+const favoriteToggleCss = css.raw({
+  '--toggle-icon-color': 'token(colors.favoriteToggle.idle)',
+  '--toggle-icon-hover-color': 'token(colors.favoriteToggle.hover)',
+  '--toggle-icon-hover-glow': 'token(colors.favoriteToggle.glow)',
+  '--toggle-icon-selected-color': 'token(colors.favoriteToggle.selected)',
+  '--toggle-icon-selected-glow': 'token(colors.favoriteToggle.glow)',
+  _hovered: {
     transform: 'scale(1.06)',
   },
-  '&[data-selected]': {
+  _selected: {
     transform: 'scale(1.02)',
   },
-}
+})
 
 interface ToggleFavoriteButtonProps {
   assetKey: AssetKey
@@ -66,7 +67,7 @@ export function ToggleFavoriteButton({
   return (
     <ToggleButton
       aria-label="Star"
-      css={favoriteToggleCss}
+      styles={favoriteToggleCss}
       variant="icon"
       isSelected={isSelected}
       isDisabled={isDisabled}

@@ -1,3 +1,4 @@
+import { css } from 'styled-system/css'
 import { toCanonicalUrlParams, toSearchPageParams } from '../search-page-params'
 import type { SearchPageParams, SearchScope } from '../search-page-params'
 import { Link } from '@/components/ui/link'
@@ -7,50 +8,52 @@ import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 // purpose not ARIA tabs: scope changes are navigations, and react-aria
 // collection components break SSR hydration here (Emotion style tags inside
 // their <template>). See docs/Search.md.
-const tabListCss = {
-  display: 'flex' as const,
-  flexWrap: 'wrap' as const,
-  gap: 'var(--space-2)',
-  alignItems: 'end' as const,
+const tabListCss = css.raw({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '2',
+  alignItems: 'end',
   marginBottom: '-1px',
-}
+})
 
-const tabLinkCss = {
-  minHeight: 'var(--size-control-height)',
-  padding: 'var(--space-2) var(--space-4)',
-  border: '1px solid var(--border-color)',
+const tabLinkCss = css.raw({
+  minHeight: 'controlHeight',
+  paddingBlock: '2',
+  paddingInline: '4',
+  border: '1px solid token(colors.border)',
   borderBottomWidth: 0,
-  borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-  backgroundColor: 'var(--secondary-bg)',
-  color: 'var(--secondary-text)',
+  borderRadius: 'token(radii.md) token(radii.md) 0 0',
+  backgroundColor: 'secondary.bg',
+  color: 'secondary.text',
   display: 'inline-flex',
   alignItems: 'center',
   cursor: 'pointer',
   outline: 'none',
   textDecoration: 'none',
-  transition:
-    'background-color var(--transition-fast), color var(--transition-fast)',
-  '&[data-hovered]': {
+  transitionProperty: 'background-color, color',
+  transitionDuration: 'fast',
+  transitionTimingFunction: 'default',
+  _hovered: {
     textDecoration: 'none',
   },
   '&[aria-current="page"]': {
     fontWeight: 'bold',
-    backgroundColor: 'var(--tertiary-bg)',
-    position: 'relative' as const,
+    backgroundColor: 'tertiary.bg',
+    position: 'relative',
     zIndex: 1,
   },
-  '&[data-focus-visible]': {
-    outline: '1px solid var(--outline-color)',
+  _focusVisible: {
+    outline: '1px solid token(colors.outline)',
     outlineOffset: 0,
   },
-}
+})
 
-const tabPanelCss = {
-  backgroundColor: 'var(--tertiary-bg)',
-  border: '1px solid var(--border-color)',
-  borderRadius: '0 var(--radius-lg) var(--radius-lg) var(--radius-lg)',
-  padding: 'var(--space-4)',
-}
+const tabPanelCss = css.raw({
+  backgroundColor: 'tertiary.bg',
+  border: '1px solid token(colors.border)',
+  borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
+  padding: '4',
+})
 
 const ALL_SCOPE_KEY = 'all'
 
@@ -77,8 +80,8 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
   ] satisfies Array<{ key: string; label: string; scope: SearchScope }>
 
   return (
-    <div css={{ display: 'grid', gap: 0, width: '100%' }}>
-      <nav aria-label="Search scope" css={tabListCss}>
+    <div className={css({ display: 'grid', gap: 0, width: '100%' })}>
+      <nav aria-label="Search scope" className={css(tabListCss)}>
         {scopeTabs.map((tab) => {
           const isCurrent = tab.key === selectedKey
           return (
@@ -93,14 +96,14 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
                 ) as SearchPageParams
               }
               aria-current={isCurrent ? 'page' : undefined}
-              css={tabLinkCss}
+              styles={tabLinkCss}
             >
               {tab.label}
             </Link>
           )
         })}
       </nav>
-      <div css={tabPanelCss}>{children}</div>
+      <div className={css(tabPanelCss)}>{children}</div>
     </div>
   )
 }

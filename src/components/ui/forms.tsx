@@ -40,32 +40,28 @@ export type FormProps = {
   className?: string
 } & RacFormProps
 
-export const COMPACT_FORM_ACTIONS_MIN_WIDTH = '40rem'
-
-// these exported style objects are still consumed through Emotion css props
-// in feature files; they keep raw var() values until the features port (#95)
-export const formActionsCss = {
+export const formActionsCss = css.raw({
   display: 'flex',
-  flexWrap: 'wrap' as const,
+  flexWrap: 'wrap',
   justifyContent: 'flex-end',
   alignItems: 'center',
-  gap: 'var(--space-3)',
-  marginBlockStart: 'var(--space-4)',
-}
+  gap: '3',
+  marginBlockStart: '4',
+})
 
-export const formActionButtonCss = {
+export const formActionButtonCss = css.raw({
   width: '100%',
-  [`@container (min-width: ${COMPACT_FORM_ACTIONS_MIN_WIDTH})`]: {
+  _compactLayout: {
     width: 'auto',
   },
-}
+})
 
-export const formStatusPanelCss = {
+export const formStatusPanelCss = css.raw({
   width: '100%',
   maxWidth: '32rem',
   display: 'grid',
-  gap: 'var(--space-3)',
-}
+  gap: '3',
+})
 
 const formStyles = css.raw({
   width: '100%',

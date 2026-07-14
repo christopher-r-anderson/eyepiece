@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
+import { css, cx } from 'styled-system/css'
 import type {
   ComponentPropsWithRef,
   ComponentPropsWithoutRef,
@@ -18,8 +19,8 @@ interface AssetTileProps extends Omit<
   actions?: ReactNode
 }
 
-const figureCss = {
-  position: 'relative' as const,
+const figureCss = css.raw({
+  position: 'relative',
   width: '100%',
   height: '100%',
   margin: 0,
@@ -27,39 +28,39 @@ const figureCss = {
   alignItems: 'center',
   justifyContent: 'center',
   overflow: 'hidden',
-}
+})
 
-const thumbnailCss = {
+const thumbnailCss = css.raw({
   maxWidth: '100%',
   maxHeight: '100%',
-  objectFit: 'scale-down' as const,
+  objectFit: 'scale-down',
   width: 'auto',
   height: 'auto',
   viewTransitionClass: 'asset-image',
-}
+})
 
-const captionCss = {
-  fontSize: 'var(--text-sm)',
-  backgroundColor: 'var(--asset-tile-caption-bg)',
+const captionCss = css.raw({
+  fontSize: 'sm',
+  backgroundColor: 'assetTile.captionBg',
   backdropFilter: 'blur(4px)',
-  position: 'absolute' as const,
-  padding: 'var(--space-3)',
+  position: 'absolute',
+  padding: '3',
   bottom: 0,
   right: 0,
   left: 0,
-}
+})
 
-const captionTextCss = {
+const captionTextCss = css.raw({
   margin: 0,
-  color: 'var(--asset-tile-caption-text)',
+  color: 'assetTile.captionText',
   height: '2.2em',
   lineHeight: '1.1em',
   display: '-webkit-box',
-  WebkitBoxOrient: 'vertical' as const,
+  WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 2,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-}
+})
 
 const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
@@ -73,22 +74,22 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
       onClick={() => setDetailClicked(true)}
-      css={{
+      styles={css.raw({
         width: '100%',
         height: '100%',
         display: 'block',
         color: 'inherit',
-        borderRadius: 'calc(var(--radius-lg) - var(--space-2))',
+        borderRadius: 'calc(token(radii.lg) - token(spacing.2))',
         overflow: 'hidden',
-        '&[data-focus-visible]': {
-          outline: '1px solid var(--outline-color)',
+        _focusVisible: {
+          outline: '1px solid token(colors.outline)',
           outlineOffset: '-2px',
         },
-      }}
+      })}
     >
-      <figure css={figureCss}>
+      <figure className={css(figureCss)}>
         <img
-          css={thumbnailCss}
+          className={css(thumbnailCss)}
           style={{
             viewTransitionName: detailClicked
               ? `asset-${toAssetKeyString(assetPreview.key)}`
@@ -99,73 +100,82 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
           width={assetPreview.thumbnail.width}
           height={assetPreview.thumbnail.height}
         />
-        <figcaption css={captionCss}>
-          <p css={captionTextCss}>{assetPreview.title}</p>
+        <figcaption className={css(captionCss)}>
+          <p className={css(captionTextCss)}>{assetPreview.title}</p>
         </figcaption>
       </figure>
     </Link>
   )
 }
 
-const containerCss = {
-  backgroundColor: 'var(--asset-tile-bg)',
-  padding: 'var(--space-2)',
-  borderRadius: 'var(--radius-lg)',
-  border: '1px solid var(--asset-tile-border)',
-  boxShadow: 'var(--shadow-sm)',
-  position: 'relative' as const,
+const containerCss = css.raw({
+  backgroundColor: 'assetTile.bg',
+  padding: '2',
+  borderRadius: 'lg',
+  border: '1px solid token(colors.assetTile.border)',
+  boxShadow: 'sm',
+  position: 'relative',
   display: 'flex',
   alignItems: 'center',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
-}
+})
 
-const relatedCss = {
-  position: 'absolute' as const,
-  top: 'var(--space-2)',
-  left: 'var(--space-2)',
+const relatedCss = css.raw({
+  position: 'absolute',
+  top: '2',
+  left: '2',
   margin: 0,
-  padding: 'var(--space-1) var(--space-2)',
-  border: '1px solid var(--asset-tile-badge-border)',
-  borderRadius: 'var(--radius-sm)',
-  backgroundColor: 'var(--asset-tile-badge-bg)',
-  color: 'var(--asset-tile-badge-text)',
+  paddingBlock: '1',
+  paddingInline: '2',
+  border: '1px solid token(colors.assetTile.badgeBorder)',
+  borderRadius: 'sm',
+  backgroundColor: 'assetTile.badgeBg',
+  color: 'assetTile.badgeText',
   backdropFilter: 'blur(6px)',
-  boxShadow: 'var(--shadow-sm)',
-  fontSize: 'var(--text-xs)',
-}
+  boxShadow: 'sm',
+  fontSize: 'xs',
+})
 
-const actionsBarCss = {
-  position: 'absolute' as const,
-  top: 'var(--space-1)',
-  right: 'var(--space-1)',
+const actionsBarCss = css.raw({
+  position: 'absolute',
+  top: '1',
+  right: '1',
   display: 'flex',
   justifyContent: 'flex-end',
-  padding: 'var(--space-1)',
-  backgroundColor: 'var(--asset-tile-action-bg)',
-  color: 'var(--asset-tile-badge-text)',
-  border: '1px solid var(--asset-tile-action-border)',
-  borderRadius: 'var(--radius-md)',
+  padding: '1',
+  backgroundColor: 'assetTile.actionBg',
+  color: 'assetTile.badgeText',
+  border: '1px solid token(colors.assetTile.actionBorder)',
+  borderRadius: 'md',
   backdropFilter: 'blur(4px)',
-}
+})
 
 export function AssetTile({
   assetPreview,
   relatedLinks,
   actions,
+  className,
   ...props
 }: AssetTileProps) {
   return (
-    <div css={containerCss} {...props}>
+    <div className={cx(css(containerCss), className)} {...props}>
       <Thumbnail assetPreview={assetPreview} />
-      {relatedLinks && <div css={relatedCss}>{relatedLinks}</div>}
-      {actions && <div css={actionsBarCss}>{actions}</div>}
+      {relatedLinks && <div className={css(relatedCss)}>{relatedLinks}</div>}
+      {actions && <div className={css(actionsBarCss)}>{actions}</div>}
     </div>
   )
 }
 
-export function AssetTileSkeleton(
-  props: Omit<ComponentPropsWithoutRef<'div'>, 'children'>,
-) {
-  return <div css={containerCss} aria-hidden="true" {...props}></div>
+export function AssetTileSkeleton({
+  className,
+  ...props
+}: Omit<ComponentPropsWithoutRef<'div'>, 'children'>) {
+  return (
+    <div
+      className={cx(css(containerCss), className)}
+      aria-hidden="true"
+      {...props}
+    ></div>
+  )
 }
