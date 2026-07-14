@@ -6,9 +6,9 @@ One search box everywhere. The provider is a scope owned by the URL, not a
 pre-search choice:
 
 - `/search?q=moon` - the default "All libraries" scope
-- `/search?q=moon&providerId=nasa_ivl` - a provider scope
-- `/search?q=moon&providerId=nasa_ivl&mediaType=image&yearStart=1990` -
-  provider filters, flat in the query string
+- `/search?providerId=nasa_ivl&q=moon` - a provider scope
+- `/search?mediaType=image&providerId=nasa_ivl&q=moon&yearStart=1990` -
+  provider filters, flat in the query string (params always key-sorted)
 
 ### Why this shape
 
@@ -55,10 +55,13 @@ not.
 
 Non-canonical /search URLs render normally (the lenient parse guarantees
 it), then `useCanonicalSearchReplace` rewrites them once, client-side, to a
-single spelling per document so the CDN caches one key per document. Covered:
-junk values, stripped defaults (empty `q`, no `providerId` on the All
-scope), and param-order/encoding variants. Auth-modal params (`auth`,
-`next`, `fp`) survive and sort last, matching the order the modal emits.
+single spelling per document so the CDN caches one key per document.
+Covered: junk values, stripped defaults (empty or whitespace-only `q`, no
+`providerId` on the All scope), and param-order/encoding variants.
+Auth-modal params (`auth`, `next`, `fp`) survive. The router serializes all
+search params key-sorted (`stringifySearchParams` in
+`src/lib/search-params.ts` is its `stringifySearch`), so app-generated URLs
+are already canonical.
 
 Constraints the implementation depends on:
 
@@ -90,7 +93,8 @@ no "remember my tab".
 3. Canonical output stays idempotent (`search-page-params.unit.test.ts`
    invariants pass)
 4. Navigation payloads are built with `toSearchPageParams` /
-   `toCanonicalUrlParams`, never object literals
+   `toCanonicalUrlParams`, never object literals; query strings are built
+   with `stringifySearchParams`, never hand-assembled
 5. Provider display strings come from `PROVIDER_DISPLAY`
 6. No react-aria collection components in SSR'd page chrome
 7. Behavior within a provider scope (filters, infinite results) and API

@@ -7,6 +7,7 @@ import { NotFoundPage } from './app/layout/not-found'
 import { getPublicSupabaseClientContext } from './integrations/supabase/providers/public-provider'
 import { getOrigin } from './lib/utils'
 import { getEyepieceClientContext } from './lib/eyepiece-api-client/eyepiece-client-provider'
+import { stringifySearchParams } from './lib/search-params'
 import type { AuthInteractionStrategy } from '@/features/auth/auth.types'
 
 declare module '@tanstack/react-router' {
@@ -32,6 +33,7 @@ export const getRouter = () => {
       ...publicSupabaseContext,
     },
     defaultPreload: 'intent',
+    stringifySearch: stringifySearchParams,
     scrollRestoration: true,
     defaultStructuralSharing: true,
     defaultNotFoundComponent: NotFoundPage,

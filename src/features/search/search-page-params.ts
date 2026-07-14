@@ -34,7 +34,7 @@ export interface SearchPageState {
 // TanStack Router JSON-parses search values, so ?q=123 arrives as a number.
 const lenientSearchQuerySchema = z
   .union([z.string(), z.number()])
-  .transform(String)
+  .transform((value) => String(value).trim())
   .catch('')
 
 function compactDefined<T extends Record<string, unknown>>(params: T): T {
@@ -99,17 +99,18 @@ export function toSearchPageParams(
   q: string,
   scope: SearchScope,
 ): SearchPageParams {
+  const query = q.trim()
   if (scope.scope === 'all') {
-    return { q }
+    return { q: query }
   }
   if (scope.filters.providerId === NASA_IVL_PROVIDER_ID) {
     return compactDefined({
-      q,
+      q: query,
       providerId: scope.filters.providerId,
       ...scope.filters.filters,
     })
   }
-  return { q, providerId: scope.filters.providerId }
+  return { q: query, providerId: scope.filters.providerId }
 }
 
 // Omits an empty q so /search?q= and /search share one CDN cache key.

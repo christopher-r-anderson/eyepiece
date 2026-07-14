@@ -1,11 +1,9 @@
 import { createElement } from 'react'
 import { cleanup, render } from '@testing-library/react'
-import {
-  defaultParseSearch,
-  defaultStringifySearch,
-} from '@tanstack/react-router'
+import { defaultParseSearch } from '@tanstack/react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import { stringifySearchParams } from '@/lib/search-params'
 
 const mockReplace = vi.fn()
 let mockLocation = makeLocation('')
@@ -40,7 +38,7 @@ function Harness() {
 }
 
 function canonicalHref(search: Record<string, unknown>, hash = '') {
-  return `/search${defaultStringifySearch(search)}${hash}`
+  return `/search${stringifySearchParams(search)}${hash}`
 }
 
 describe('useCanonicalSearchReplace', () => {
@@ -65,7 +63,7 @@ describe('useCanonicalSearchReplace', () => {
 
   it('does not replace a canonical URL', () => {
     mockLocation = makeLocation(
-      defaultStringifySearch({
+      stringifySearchParams({
         q: 'moon',
         providerId: NASA_IVL_PROVIDER_ID,
         yearStart: 1990,
@@ -77,8 +75,8 @@ describe('useCanonicalSearchReplace', () => {
     expect(mockReplace).not.toHaveBeenCalled()
   })
 
-  it('normalizes param order to the canonical spelling', () => {
-    mockLocation = makeLocation(`?providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
+  it('normalizes param order to the sorted canonical spelling', () => {
+    mockLocation = makeLocation(`?q=moon&providerId=${NASA_IVL_PROVIDER_ID}`)
 
     render(createElement(Harness))
 
@@ -87,13 +85,16 @@ describe('useCanonicalSearchReplace', () => {
     )
   })
 
-  it('strips an empty query', () => {
-    mockLocation = makeLocation('?q=')
+  it.each([['?q='], ['?q=%20%20']])(
+    'strips an empty or whitespace-only query %s',
+    (searchStr) => {
+      mockLocation = makeLocation(searchStr)
 
-    render(createElement(Harness))
+      render(createElement(Harness))
 
-    expect(mockReplace).toHaveBeenCalledWith('/search')
-  })
+      expect(mockReplace).toHaveBeenCalledWith('/search')
+    },
+  )
 
   it('preserves auth-modal params after the page params', () => {
     mockLocation = makeLocation('?auth=login&fp=1&q=moon&providerId=bogus')
@@ -105,9 +106,9 @@ describe('useCanonicalSearchReplace', () => {
     )
   })
 
-  it('does not replace when auth params are already in app-emitted order', () => {
+  it('does not replace a canonical URL with auth params', () => {
     mockLocation = makeLocation(
-      defaultStringifySearch({ q: 'moon', auth: 'login' }),
+      stringifySearchParams({ q: 'moon', auth: 'login' }),
     )
 
     render(createElement(Harness))

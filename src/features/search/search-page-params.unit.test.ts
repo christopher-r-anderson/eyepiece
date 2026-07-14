@@ -100,12 +100,18 @@ describe('searchPageParamsSchema', () => {
     ).toEqual({ q: 'moon', providerId: NASA_IVL_PROVIDER_ID })
   })
 
-  it.each([[{}], [{ q: '' }], [{ q: undefined }]])(
+  it.each([[{}], [{ q: '' }], [{ q: '   ' }], [{ q: undefined }]])(
     'P5: missing or empty query %j parses to an empty string',
     (input) => {
       expect(searchPageParamsSchema.parse(input)).toEqual({ q: '' })
     },
   )
+
+  it('trims surrounding whitespace from the query', () => {
+    expect(searchPageParamsSchema.parse({ q: ' moon ' })).toEqual({
+      q: 'moon',
+    })
+  })
 
   it('P6: a numeric query is stringified', () => {
     expect(searchPageParamsSchema.parse({ q: 123 })).toEqual({ q: '123' })
@@ -211,6 +217,12 @@ describe('toSearchPageState', () => {
 })
 
 describe('toSearchPageParams', () => {
+  it('trims the query', () => {
+    expect(toSearchPageParams(' moon ', { scope: 'all' })).toEqual({
+      q: 'moon',
+    })
+  })
+
   it('round-trips canonical params through the scope model', () => {
     const paramsTable = [
       { q: 'moon' },

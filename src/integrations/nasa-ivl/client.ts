@@ -1,6 +1,6 @@
-import { defaultStringifySearch } from '@tanstack/react-router'
 import { nasaMediaCollectionResponseSchema, nasaMetadataSchema } from './types'
 import type { NasaAlbumParams, NasaSearchParams } from './types'
+import { stringifySearchParams } from '@/lib/search-params'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { ProviderClientError } from '@/integrations/provider-client-error'
 
@@ -10,7 +10,7 @@ const ASSET_HOST = 'https://images-assets.nasa.gov'
 export const NASA_ALBUM_PAGE_SIZE = 100
 
 function stringifyParams(params: Record<string, any>): string {
-  return defaultStringifySearch(
+  return stringifySearchParams(
     Object.fromEntries(
       Object.entries(params).map(([key, value]) => [
         key,

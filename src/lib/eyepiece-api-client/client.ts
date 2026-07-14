@@ -1,4 +1,3 @@
-import { defaultStringifySearch } from '@tanstack/react-router'
 import type { InfiniteData } from '@tanstack/react-query'
 import type {
   AlbumCollectionMetadata,
@@ -10,6 +9,7 @@ import type {
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
+import { stringifySearchParams } from '@/lib/search-params'
 import {
   SEARCH_URL,
   buildAlbumUrl,
@@ -102,7 +102,7 @@ export function createEyepieceClient({
     getAlbum: async function getAlbum(key: AlbumKey, pagination: Pagination) {
       const res = await fetch(
         withOrigin(
-          `${buildAlbumUrl(key.providerId, key.externalId)}${defaultStringifySearch(pagination)}`,
+          `${buildAlbumUrl(key.providerId, key.externalId)}${stringifySearchParams(pagination)}`,
         ),
       )
       if (!res.ok) {
@@ -141,7 +141,7 @@ export function createEyepieceClient({
     ) {
       const res = await fetch(
         withOrigin(
-          `${SEARCH_URL}${defaultStringifySearch({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
+          `${SEARCH_URL}${stringifySearchParams({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
         ),
       )
       if (!res.ok) {

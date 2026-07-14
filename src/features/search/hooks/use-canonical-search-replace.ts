@@ -1,14 +1,11 @@
 import { useEffect } from 'react'
-import {
-  defaultStringifySearch,
-  useRouter,
-  useRouterState,
-} from '@tanstack/react-router'
+import { useRouter, useRouterState } from '@tanstack/react-router'
 import {
   searchPageParamsSchema,
   toCanonicalUrlParams,
 } from '../search-page-params'
 import { pickAuthSearchParams } from '@/features/auth/auth.utils'
+import { stringifySearchParams } from '@/lib/search-params'
 
 // Replace-navigates non-canonical /search URLs (junk params, invalid values,
 // param order/encoding variants) to a single spelling per document for CDN
@@ -29,12 +26,11 @@ export function useCanonicalSearchReplace() {
   const router = useRouter()
 
   useEffect(() => {
-    // auth-modal params sort last, matching the order the modal emits
     const target = {
       ...toCanonicalUrlParams(searchPageParamsSchema.parse(location.search)),
       ...pickAuthSearchParams(location.search),
     }
-    const targetSearchStr = defaultStringifySearch(target)
+    const targetSearchStr = stringifySearchParams(target)
     if (location.searchStr === targetSearchStr) {
       return
     }

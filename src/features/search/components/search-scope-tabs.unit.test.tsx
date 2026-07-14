@@ -6,6 +6,7 @@ import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
+import { stringifySearchParams } from '@/lib/search-params'
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal()
@@ -23,7 +24,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     }) =>
       createElement(
         'a',
-        { ...rest, href: `${to}?${new URLSearchParams(search)}` },
+        { ...rest, href: `${to}${stringifySearchParams(search)}` },
         children,
       ),
   })
@@ -93,7 +94,7 @@ describe('search scope tabs', () => {
 
     expect(
       scopeNav().getByRole('link', { name: 'NASA' }).getAttribute('href'),
-    ).toBe(`/search?q=moon&providerId=${NASA_IVL_PROVIDER_ID}`)
+    ).toBe(`/search?providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
     expect(
       scopeNav()
         .getByRole('link', { name: 'All libraries' })
@@ -119,7 +120,7 @@ describe('search scope tabs', () => {
 
     expect(
       scopeNav().getByRole('link', { name: 'NASA' }).getAttribute('href'),
-    ).toBe(`/search?q=moon&providerId=${NASA_IVL_PROVIDER_ID}&mediaType=image`)
+    ).toBe(`/search?mediaType=image&providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
   })
 
   it('omits an empty query from tab links', () => {

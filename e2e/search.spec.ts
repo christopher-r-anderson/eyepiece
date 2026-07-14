@@ -116,15 +116,17 @@ test('junk search params canonicalize away by replacement', async ({
   expect(consoleErrors).toEqual([])
 })
 
-test('param-order variants canonicalize to one spelling', async ({ page }) => {
+test('param-order variants canonicalize to one sorted spelling', async ({
+  page,
+}) => {
   await page.route('**/api/v1/search*', (route) =>
     route.fulfill({ json: stubSearchResponse }),
   )
 
-  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
 
   await page.waitForURL(
-    (url) => url.search === `?q=moon&providerId=${NASA_PROVIDER_ID}`,
+    (url) => url.search === `?providerId=${NASA_PROVIDER_ID}&q=moon`,
   )
 })
 
