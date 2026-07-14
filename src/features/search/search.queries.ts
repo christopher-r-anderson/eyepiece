@@ -69,11 +69,13 @@ export const ALL_SCOPE_SECTION_SIZE = 6
 
 // A select over the same query the scoped tab uses; the key must stay
 // identical so "See all" renders from cache (see the key-parity test).
+// Reads the first page only, so n must stay <= DEFAULT_PAGE_SIZE.
 export function makeTopNSearchSelector(n: number) {
   return (data: SearchImagesInfinite) => {
+    const firstPage = data.pages[0]
     return {
-      items: flattenAssetsSelector(data).items.slice(0, n),
-      total: data.pages[0]?.pagination.total ?? 0,
+      items: firstPage.items.slice(0, n),
+      total: firstPage.pagination.total,
     }
   }
 }

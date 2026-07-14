@@ -102,7 +102,7 @@ describe('prefetchInfiniteSearch', () => {
 describe('makeTopNSearchSelector', () => {
   const asset = (externalId: string) => ({ key: { externalId } }) as any
 
-  it('slices flattened pages to n and surfaces the total', () => {
+  it('slices the first page to n and surfaces the total', () => {
     const select = makeTopNSearchSelector(2)
 
     expect(
