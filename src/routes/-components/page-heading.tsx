@@ -17,10 +17,10 @@ const pageHeadingStyles = css.raw({
   alignSelf: 'flex-start',
 })
 
-export function PageHeading({ styles, ...props }: PageHeadingProps) {
+export function PageHeading({ css: styles, ...props }: PageHeadingProps) {
   return (
     <Heading
-      styles={css.raw(pageHeadingStyles, styles)}
+      css={css.raw(pageHeadingStyles, styles)}
       headingLevel={1}
       {...props}
     />

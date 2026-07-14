@@ -27,7 +27,7 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          styles={css.raw({ width: 'min(100%, 37.5rem)' })}
+          css={css.raw({ width: 'min(100%, 37.5rem)' })}
           icon={MagnifyingGlassIcon}
         >
           Secondary Button
@@ -35,7 +35,7 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          styles={css.raw({ width: 'min(100%, 37.5rem)' })}
+          css={css.raw({ width: 'min(100%, 37.5rem)' })}
           icon={MagnifyingGlassIcon}
         >
           <span className={css({ flex: 1, minWidth: 0 })}>
@@ -44,7 +44,7 @@ function RouteComponent() {
         </Button>
       </p>
       <p>
-        <Button styles={css.raw({ width: 'min(100%, 37.5rem)' })}>
+        <Button css={css.raw({ width: 'min(100%, 37.5rem)' })}>
           {() => (
             <>
               <span className={css({ flex: 1, minWidth: 0 })}>

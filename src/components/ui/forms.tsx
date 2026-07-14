@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import {
   FieldError,
   Input,
@@ -36,7 +35,7 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
   surface?: 'plain' | 'panel'
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 } & RacFormProps
 
@@ -126,7 +125,7 @@ const textFieldInputStyles = css.raw({
 
 export function Form({
   children,
-  styles: cssProp,
+  css: cssProp,
   className,
   formError,
   controls,
@@ -248,7 +247,7 @@ export function TextField({
             aria-label="Toggle password visibility"
             aria-controls={inputId}
             variant="icon"
-            styles={css.raw({
+            css={css.raw({
               display: 'flex',
               alignItems: 'center',
               '--toggle-icon-color': 'token(colors.text.muted)',

@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { Button as ReactAriaButton } from 'react-aria-components'
 import { css, cva, cx } from 'styled-system/css'
 import type { Ref } from 'react'
@@ -67,7 +66,7 @@ export type ButtonProps = RacButtonProps & {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
   variant?: ButtonVariant
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
@@ -75,7 +74,7 @@ export function Button({
   children,
   variant = 'secondary',
   icon: Icon,
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: ButtonProps) {

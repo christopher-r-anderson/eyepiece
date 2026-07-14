@@ -3,12 +3,12 @@ import { css } from 'styled-system/css'
 import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 
-export function SubmitButton({ styles, ...props }: ButtonProps) {
+export function SubmitButton({ css: styles, ...props }: ButtonProps) {
   return (
     <Button
       type="submit"
       aria-label="Search"
-      styles={css.raw(
+      css={css.raw(
         {
           background: 'transparent',
           borderColor: 'transparent',

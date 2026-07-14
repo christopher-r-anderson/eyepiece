@@ -1,12 +1,88 @@
 import { defineConfig } from '@pandacss/dev'
 
-// Token values mirror src/tokens.css and src/theme.css; keep them in sync
-// until the Emotion removal stage of #95 deletes those files.
 export default defineConfig({
   presets: ['@pandacss/preset-base'],
   preflight: false,
   include: ['./src/**/*.{ts,tsx}'],
   outdir: 'styled-system',
+  globalCss: {
+    '*, *::before, *::after': {
+      boxSizing: 'border-box',
+    },
+    html: {
+      // react aria sets stable (not stable both-edges) which causes a jump in layout when a popover shows
+      scrollbarGutter: 'stable both-edges !important',
+      background: 'background',
+      color: 'text',
+    },
+    "html[data-modal-open='true']": {
+      scrollbarGutter: 'auto !important',
+    },
+    body: {
+      margin: 0,
+      fontFamily: 'sans',
+      fontSize: 'base',
+      lineHeight: 'base',
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
+    },
+    'h1, h2, h3, h4, h5, h6': {
+      margin: 0,
+      color: 'inherit',
+      fontFamily: 'inherit',
+      fontWeight: 700,
+      lineHeight: 'tight',
+    },
+    h1: { fontSize: '2xl' },
+    h2: { fontSize: 'xl' },
+    h3: { fontSize: 'lg' },
+    h4: { fontSize: 'base' },
+    h5: { fontSize: 'sm' },
+    h6: { fontSize: 'xs' },
+    'button, input, textarea, select': {
+      font: 'inherit',
+      color: 'inherit',
+    },
+    a: {
+      color: 'link',
+      textDecorationThickness: '0.08em',
+      textUnderlineOffset: '0.18em',
+    },
+    'p, blockquote, dl, dd, figure, pre': {
+      margin: 0,
+    },
+    'p:not(:first-child)': {
+      marginBlockStart: '3',
+    },
+    'ul, ol': {
+      margin: 0,
+      paddingInlineStart: '1.25em',
+    },
+    li: { margin: 0 },
+    small: { fontSize: 'sm' },
+    'strong, b': { fontWeight: 700 },
+    'em, i': { fontStyle: 'italic' },
+    'img, picture, svg, canvas, video': {
+      display: 'block',
+      maxWidth: '100%',
+    },
+    textarea: { resize: 'vertical' },
+    fieldset: {
+      minInlineSize: 0,
+      margin: 0,
+      padding: 0,
+      border: 0,
+    },
+    legend: { padding: 0 },
+    hr: {
+      margin: 0,
+      border: 0,
+      borderTop: '1px solid token(colors.separator)',
+    },
+    'code, pre, kbd, samp': {
+      fontFamily: 'mono',
+    },
+  },
   utilities: {
     extend: {
       // CSS properties missing from Panda's generated property set

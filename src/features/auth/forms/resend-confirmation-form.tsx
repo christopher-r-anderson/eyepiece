@@ -62,7 +62,7 @@ export function ResendConfirmationForm({
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             Send
           </Button>

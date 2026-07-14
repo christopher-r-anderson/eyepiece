@@ -62,7 +62,7 @@ export function AuthModalController({
       <Tabs
         selectedKey={authMode ?? 'login'}
         aria-label="Authentication options"
-        styles={css.raw({ maxWidth: 500 })}
+        css={css.raw({ maxWidth: 500 })}
       >
         <TabList>
           <Tab id="login" onClick={() => showAuthModal('login')}>
@@ -116,7 +116,7 @@ function LoginSection({
         <Link
           to="/login"
           search={{ next }}
-          styles={fullPageLinkCss}
+          css={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full log in page
@@ -143,7 +143,7 @@ function ForgotPasswordSection({ next }: { next: string }) {
         <Link
           to="/auth/forgot-password"
           search={{ next }}
-          styles={fullPageLinkCss}
+          css={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full forgot password page
@@ -169,7 +169,7 @@ function RegistrationSection({ next }: { next: string }) {
         <Link
           to="/register"
           search={{ next }}
-          styles={fullPageLinkCss}
+          css={fullPageLinkCss}
           viewTransition={false}
         >
           Visit the full register page

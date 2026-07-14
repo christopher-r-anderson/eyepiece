@@ -54,7 +54,7 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
       >
         <Link
           to="/"
-          styles={css.raw({
+          css={css.raw({
             color: 'text',
             gridArea: 'logo',
             width: '100%',

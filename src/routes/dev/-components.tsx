@@ -92,7 +92,7 @@ export function DevPageIntro({
       </div>
 
       <div className={css(devTextStackCss)}>
-        <PageHeading styles={css.raw({ margin: 0 })}>{title}</PageHeading>
+        <PageHeading css={css.raw({ margin: 0 })}>{title}</PageHeading>
         <p
           className={css(
             descriptionTone === 'muted'
@@ -120,7 +120,7 @@ export function DevBackLink({
   return (
     <Link
       to={to}
-      styles={css.raw({
+      css={css.raw({
         display: 'inline-flex',
         alignItems: 'center',
         gap: '2',
@@ -142,10 +142,7 @@ export function DevTitleBlock({
 }) {
   return (
     <div className={css(devTextStackCss)}>
-      <Heading
-        headingLevel={headingLevel}
-        styles={css.raw({ marginBlockEnd: 0 })}
-      >
+      <Heading headingLevel={headingLevel} css={css.raw({ marginBlockEnd: 0 })}>
         {title}
       </Heading>
       {description ? <p>{description}</p> : null}
@@ -155,11 +152,11 @@ export function DevTitleBlock({
 
 export function DevPanel({
   as = 'section',
-  styles,
+  css: styles,
   children,
 }: {
   as?: 'article' | 'section' | 'div'
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   children: ReactNode
 }) {
   const Component = as
@@ -179,7 +176,7 @@ export function DevLinkCard({
   action: ReactNode
 }) {
   return (
-    <DevPanel as="article" styles={css.raw({ color: 'secondary.text' })}>
+    <DevPanel as="article" css={css.raw({ color: 'secondary.text' })}>
       <DevTitleBlock title={title} description={description} />
       {action}
     </DevPanel>

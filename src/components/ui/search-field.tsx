@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { SearchField as RacSearchField } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
@@ -19,12 +18,12 @@ const searchFieldStyles = css.raw({
 })
 
 export type SearchFieldProps = ComponentProps<typeof RacSearchField> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export function SearchField({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: SearchFieldProps) {

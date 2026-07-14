@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import {
   Slider as RacSlider,
   SliderOutput as RacSliderOutput,
@@ -49,26 +48,26 @@ const sliderOutputStyles = css.raw({
 })
 
 export type SliderProps = ComponentProps<typeof RacSlider> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
-export function Slider({ styles: cssProp, className, ...props }: SliderProps) {
+export function Slider({ css: cssProp, className, ...props }: SliderProps) {
   return (
     <RacSlider
       className={cx(css(sliderStyles, cssProp), className)}
@@ -78,7 +77,7 @@ export function Slider({ styles: cssProp, className, ...props }: SliderProps) {
 }
 
 export function SliderTrack({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: SliderTrackProps) {
@@ -91,7 +90,7 @@ export function SliderTrack({
 }
 
 export function SliderThumb({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: SliderThumbProps) {
@@ -104,7 +103,7 @@ export function SliderThumb({
 }
 
 export function SliderOutput({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: SliderOutputProps) {

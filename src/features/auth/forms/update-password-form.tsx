@@ -62,7 +62,7 @@ export function UpdatePasswordForm({
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             Update
           </Button>

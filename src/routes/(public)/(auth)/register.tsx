@@ -47,7 +47,7 @@ function RegisterPage() {
           Already have an account?{' '}
           <Link
             to="/login"
-            styles={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
+            css={css.raw({ textDecoration: 'underline', marginLeft: '2' })}
           >
             Log in
           </Link>

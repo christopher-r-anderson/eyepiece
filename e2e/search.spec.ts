@@ -244,3 +244,31 @@ test('a failing provider only takes down its own section', async ({ page }) => {
     "Couldn't load results from Smithsonian National Air and Space Museum.",
   )
 })
+
+test('provider scope server-renders the media type select and hydrates cleanly', async ({
+  page,
+}) => {
+  const consoleErrors = collectConsoleErrors(page)
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+
+  const response = await page.goto(
+    `/search?q=moon&providerId=${NASA_PROVIDER_ID}`,
+  )
+  expect(response?.status()).toBe(200)
+
+  // the real select (including its hidden <select>) ships in the server
+  // HTML; there is no client-only placeholder swap after hydration
+  const serverHtml = (await response?.text()) ?? ''
+  expect(serverHtml).toContain('<select')
+
+  const mediaTypeSelect = page.getByRole('button', { name: 'All Media Type' })
+  await mediaTypeSelect.click()
+  await page.getByRole('option', { name: 'Video' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Video Media Type' }),
+  ).toBeVisible()
+
+  expect(consoleErrors).toEqual([])
+})

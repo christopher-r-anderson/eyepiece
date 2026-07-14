@@ -1,5 +1,3 @@
-/** @jsxImportSource react */
-import { useHydrated } from '@tanstack/react-router'
 import { Select as RacSelect, SelectValue } from 'react-aria-components'
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
@@ -16,39 +14,16 @@ import { Popover } from '@/components/ui/popover'
 type SelectProps<T extends object> = {
   items: Array<T>
   getItemId: (item: T) => string
+  // explicit getItemText keeps react aria from extracting text from complex children
   getItemText: (item: T) => string
   renderItem?: (item: T, itemProps?: ListBoxItemRenderProps) => React.ReactNode
   buttonVariant?: ButtonProps['variant']
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 } & Pick<
   RacSelectProps<T>,
-  'defaultValue' | 'value' | 'placeholder' | 'onChange' | 'style'
+  'defaultValue' | 'value' | 'placeholder' | 'onChange' | 'style' | 'aria-label'
 >
-
-// React Aria Components' Select does not support emotion and causes hydration errors and flashes of unstyled content
-// https://github.com/adobe/react-spectrum/issues/6214
-// rather than having a custom styling approach that uses `<ClassNames>` and `className={css()}` (which also requires styling inside of a render),
-// render a placeholder on the server that does not use Select, but does use the same styles and text
-// the tradeoff is that this requires always using `placeholder` and `getItemText`,
-// though `placeholder` is handled internally (will need to address once i18n is added)
-// and `getItemText` is better handled explicitly anyways so react aria components don't have to try and extract it with complex children
-export function Select<T extends object>(
-  props: SelectProps<T> & { serverOnly?: boolean },
-) {
-  const isHydrated = useHydrated()
-  // make sure we have a placeholder so it can be used in the server rendered component
-  const { serverOnly, placeholder = 'Please select an item', ...rest } = props
-  const mappedProps = {
-    placeholder,
-    ...rest,
-  }
-  return !serverOnly && isHydrated ? (
-    <ClientSelect {...mappedProps} />
-  ) : (
-    <ServerPlaceholder {...mappedProps} />
-  )
-}
 
 const selectStyles = css.raw({
   display: 'inline-flex',
@@ -109,55 +84,32 @@ function Caret() {
   )
 }
 
-function ServerPlaceholder<T extends object>({
-  buttonVariant,
-  getItemId,
-  getItemText,
-  items,
-  placeholder,
-  defaultValue,
-  value,
-  styles,
-  className,
-}: SelectProps<T>) {
-  let text = placeholder
-  const selectedValue = value ?? defaultValue
-  if (selectedValue !== undefined) {
-    const selectedItem = items.find((item) => getItemId(item) === selectedValue)
-    if (selectedItem) {
-      text = getItemText(selectedItem)
-    }
-  }
-  return (
-    <div className={cx(css(selectStyles, styles), className)}>
-      <Button variant={buttonVariant} styles={buttonStyles}>
-        <span className={css(itemStyles)}>{text}</span>
-        <Caret />
-      </Button>
-    </div>
-  )
-}
-
-function ClientSelect<T extends object>({
+export function Select<T extends object>({
   items,
   getItemId,
   getItemText,
   renderItem,
   buttonVariant,
-  styles: cssProp,
+  css: cssProp,
   className,
+  // defaulted internally so callers always have placeholder text (address when i18n lands)
+  placeholder = 'Please select an item',
   ...props
 }: SelectProps<T>) {
   return (
-    <RacSelect className={cx(css(selectStyles, cssProp), className)} {...props}>
-      <Button variant={buttonVariant} styles={buttonStyles}>
+    <RacSelect
+      className={cx(css(selectStyles, cssProp), className)}
+      placeholder={placeholder}
+      {...props}
+    >
+      <Button variant={buttonVariant} css={buttonStyles}>
         <SelectValue className={css(itemStyles)}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
         <Caret />
       </Button>
       <Popover placement="bottom start" offset={4}>
-        <ListBox items={items} styles={css.raw({ width: '100%' })}>
+        <ListBox items={items} css={css.raw({ width: '100%' })}>
           {(item) => (
             <ListBoxItem
               id={getItemId(item)}

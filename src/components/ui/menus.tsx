@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import {
   Menu as RacMenu,
   MenuItem as RacMenuItem,
@@ -13,17 +12,17 @@ import type {
 import type { SystemStyleObject } from 'styled-system/types'
 
 export type MenuProps<T extends object> = RacMenuProps<T> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type MenuItemProps = RacMenuItemProps & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export type PopoverProps = RacPopoverProps & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
@@ -68,7 +67,7 @@ const menuPopoverStyles = css.raw({
 })
 
 export function Menu<T extends object>({
-  styles,
+  css: styles,
   className,
   ...props
 }: MenuProps<T>) {
@@ -77,7 +76,7 @@ export function Menu<T extends object>({
   )
 }
 
-export function MenuItem({ styles, className, ...props }: MenuItemProps) {
+export function MenuItem({ css: styles, className, ...props }: MenuItemProps) {
   return (
     <RacMenuItem
       {...props}
@@ -86,7 +85,7 @@ export function MenuItem({ styles, className, ...props }: MenuItemProps) {
   )
 }
 
-export function Popover({ styles, className, ...props }: PopoverProps) {
+export function Popover({ css: styles, className, ...props }: PopoverProps) {
   return (
     <RacPopover
       {...props}

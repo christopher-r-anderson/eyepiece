@@ -67,7 +67,7 @@ export function UpsertProfileForm({
             variant="primary"
             type="submit"
             isDisabled={isDisabled || isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             {isUpdating ? 'Update' : 'Create'}
           </Button>

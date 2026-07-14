@@ -22,10 +22,10 @@ function getProviderLabel(item: object) {
 }
 
 describe('Select', () => {
-  it('renders the selected item text in the server placeholder when value is provided', () => {
+  it('renders the selected item text when a value is provided', () => {
     render(
       createElement(Select, {
-        serverOnly: true,
+        'aria-label': 'Provider',
         items: PROVIDERS,
         value: 'si',
         getItemId: getProviderId,
@@ -33,13 +33,13 @@ describe('Select', () => {
       }),
     )
 
-    expect(screen.getByText('SI')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /SI/ })).toBeTruthy()
   })
 
-  it('renders the placeholder in the server placeholder when no value is selected', () => {
+  it('renders the placeholder when no value is selected', () => {
     render(
       createElement(Select, {
-        serverOnly: true,
+        'aria-label': 'Provider',
         items: PROVIDERS,
         placeholder: 'Choose a provider',
         getItemId: getProviderId,

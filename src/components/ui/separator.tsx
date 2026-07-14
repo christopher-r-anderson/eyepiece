@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { Separator as RacSeparator } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
@@ -12,12 +11,12 @@ const separatorStyles = css.raw({
 })
 
 export type SeparatorProps = ComponentProps<typeof RacSeparator> & {
-  styles?: SystemStyleObject
+  css?: SystemStyleObject
   className?: string
 }
 
 export function Separator({
-  styles: cssProp,
+  css: cssProp,
   className,
   ...props
 }: SeparatorProps) {

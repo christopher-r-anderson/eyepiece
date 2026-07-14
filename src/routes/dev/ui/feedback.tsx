@@ -16,7 +16,7 @@ function DevUiFeedbackPage() {
 
   return (
     <div className={css(devPageSectionCss)}>
-      <DevPanel styles={css.raw({ padding: '4' })}>
+      <DevPanel css={css.raw({ padding: '4' })}>
         <DevTitleBlock
           title="Feedback"
           description="Use this page to trigger overlays and transient UI."

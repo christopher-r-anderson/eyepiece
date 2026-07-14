@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import {
   Button,

@@ -2,37 +2,15 @@ import { css } from 'styled-system/css'
 import { toCanonicalUrlParams, toSearchPageParams } from '../search-page-params'
 import type { SearchPageParams, SearchScope } from '../search-page-params'
 import { Link } from '@/components/ui/link'
+import { tabListStyles, tabPanelStyles, tabStyles } from '@/components/ui/tabs'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 
-// Links styled as tabs (visuals match src/components/ui/tabs.tsx), on
-// purpose not ARIA tabs: scope changes are navigations, and react-aria
-// collection components break SSR hydration here (Emotion style tags inside
-// their <template>). See docs/Search.md.
-const tabListCss = css.raw({
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '2',
-  alignItems: 'end',
-  marginBottom: '-1px',
-})
-
-const tabLinkCss = css.raw({
-  minHeight: 'controlHeight',
-  paddingBlock: '2',
-  paddingInline: '4',
-  border: '1px solid token(colors.border)',
-  borderBottomWidth: 0,
-  borderRadius: 'token(radii.md) token(radii.md) 0 0',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
-  display: 'inline-flex',
-  alignItems: 'center',
-  cursor: 'pointer',
-  outline: 'none',
+// Links styled as tabs (shared visuals from @/components/ui/tabs), on
+// purpose not ARIA tabs: scope changes are navigations. See docs/Search.md.
+// the selected state duplicates tabStyles._selected under [aria-current]
+// because links get aria-current, not react aria's data-selected
+const tabLinkCss = css.raw(tabStyles, {
   textDecoration: 'none',
-  transitionProperty: 'background-color, color',
-  transitionDuration: 'fast',
-  transitionTimingFunction: 'default',
   _hovered: {
     textDecoration: 'none',
   },
@@ -46,13 +24,6 @@ const tabLinkCss = css.raw({
     outline: '1px solid token(colors.outline)',
     outlineOffset: 0,
   },
-})
-
-const tabPanelCss = css.raw({
-  backgroundColor: 'tertiary.bg',
-  border: '1px solid token(colors.border)',
-  borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
-  padding: '4',
 })
 
 const ALL_SCOPE_KEY = 'all'
@@ -81,7 +52,7 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
 
   return (
     <div className={css({ display: 'grid', gap: 0, width: '100%' })}>
-      <nav aria-label="Search scope" className={css(tabListCss)}>
+      <nav aria-label="Search scope" className={css(tabListStyles)}>
         {scopeTabs.map((tab) => {
           const isCurrent = tab.key === selectedKey
           return (
@@ -96,14 +67,14 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
                 ) as SearchPageParams
               }
               aria-current={isCurrent ? 'page' : undefined}
-              styles={tabLinkCss}
+              css={tabLinkCss}
             >
               {tab.label}
             </Link>
           )
         })}
       </nav>
-      <div className={css(tabPanelCss)}>{children}</div>
+      <div className={css(tabPanelStyles)}>{children}</div>
     </div>
   )
 }

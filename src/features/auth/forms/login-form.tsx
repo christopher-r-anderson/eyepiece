@@ -76,7 +76,7 @@ export function LoginForm({
             variant="primary"
             type="submit"
             isDisabled={isPending}
-            styles={formActionButtonCss}
+            css={formActionButtonCss}
           >
             Log In
           </Button>

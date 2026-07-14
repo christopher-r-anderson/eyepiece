@@ -5,11 +5,11 @@ import { FieldError, Input } from '@/components/ui/forms'
 import { SearchField } from '@/components/ui/search-field'
 import { Button } from '@/components/ui/button'
 
-export function SearchInput({ styles, ...props }: SearchFieldProps) {
+export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
   return (
     <SearchField
       {...props}
-      styles={css.raw(
+      css={css.raw(
         {
           flexGrow: 1,
         },
@@ -40,7 +40,7 @@ export function SearchInput({ styles, ...props }: SearchFieldProps) {
         })}
       />
       <Button
-        styles={css.raw(
+        css={css.raw(
           {
             background: 'transparent',
             borderColor: 'transparent',

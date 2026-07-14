@@ -42,7 +42,7 @@ function FavoriteButtonFallback() {
     <ToggleButton
       aria-label="Star"
       variant="icon"
-      styles={favoriteToggleFallbackCss}
+      css={favoriteToggleFallbackCss}
       isDisabled
     >
       <StarIcon size={20} weight="regular" />

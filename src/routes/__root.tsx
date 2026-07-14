@@ -10,9 +10,6 @@ import { useEffect } from 'react'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import pandaCss from '../panda.css?url'
-import tokensCss from '../tokens.css?url'
-import themeCss from '../theme.css?url'
-import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import type { SupabaseClient } from '@/integrations/supabase/types'
@@ -37,13 +34,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     ],
-    links: [
-      // panda.css declares the cascade layer order, so it must come first
-      { rel: 'stylesheet', href: pandaCss },
-      { rel: 'stylesheet', href: tokensCss },
-      { rel: 'stylesheet', href: themeCss },
-      { rel: 'stylesheet', href: appCss },
-    ],
+    links: [{ rel: 'stylesheet', href: pandaCss }],
   }),
 
   component: RootComponent,
