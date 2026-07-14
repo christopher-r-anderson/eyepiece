@@ -83,7 +83,7 @@ export function ModalDialog({
             flexDirection: 'column',
             maxHeight: '90vh',
             maxWidth: '90vw',
-            border: '1px solid token(colors.border)',
+            border: 'default',
             borderRadius: 'lg',
             boxShadow: 'overlay',
             overflow: 'hidden',

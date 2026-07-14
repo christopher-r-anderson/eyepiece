@@ -39,8 +39,8 @@ export function MetadataButton({
         variant="secondary"
         css={css.raw(
           {
-            minWidth: 'calc(token(sizes.controlHeight) - token(spacing.1))',
-            minHeight: 'calc(token(sizes.controlHeight) - token(spacing.1))',
+            minWidth: 'controlHeightSm',
+            minHeight: 'controlHeightSm',
             padding: '2',
             margin: 0,
             color: 'text.muted',

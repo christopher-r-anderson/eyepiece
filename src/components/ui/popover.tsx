@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
 
 const popoverStyles = css.raw({
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderRadius: 'lg',
   backgroundColor: 'background',
   boxShadow: 'md',

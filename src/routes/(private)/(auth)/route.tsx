@@ -27,7 +27,7 @@ function PrivateAuthLayout() {
           maxWidth: '32rem',
           margin: '0 auto',
           backgroundColor: 'tertiary.bg',
-          border: '1px solid token(colors.border)',
+          border: 'default',
           borderRadius: 'lg',
           boxShadow: 'sm',
           padding: '4',

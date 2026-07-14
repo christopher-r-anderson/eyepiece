@@ -59,7 +59,7 @@ const menuItemStyles = css.raw({
 })
 
 const menuPopoverStyles = css.raw({
-  border: '1px solid token(colors.border)',
+  border: 'default',
   borderRadius: 'lg',
   backgroundColor: 'secondary.bg',
   boxShadow: 'md',
