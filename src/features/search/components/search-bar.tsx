@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import { toSearchPageParams } from '../search-page-params'
 import { SearchInput } from './search-bar/search-input'
 import { SubmitButton } from './search-bar/submit-button'
@@ -11,11 +12,6 @@ import type { SearchScope } from '../search-page-params'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import { Form } from '@/components/ui/forms'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
-
-const searchValidationMessageCss = css.raw({
-  color: 'danger.text',
-  fontSize: 'sm',
-})
 
 const SEARCH_VALIDATION_MESSAGE = 'Enter search keywords before searching.'
 
@@ -80,10 +76,9 @@ export function SearchBar({
       {...props}
     >
       <div
-        className={css({
+        className={grid({
           background: 'secondary.bg',
           color: 'secondary.text',
-          display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr)',
           gap: '2',
           alignItems: 'stretch',
@@ -113,7 +108,10 @@ export function SearchBar({
         <p
           id={validationMessageId}
           role="alert"
-          className={css(searchValidationMessageCss)}
+          className={css({
+            color: 'danger.text',
+            fontSize: 'sm',
+          })}
         >
           {SEARCH_VALIDATION_MESSAGE}
         </p>
@@ -127,17 +125,21 @@ export function SearchBar({
   )
 }
 
-const filtersPanelCss = css.raw({
-  marginTop: '2',
-  padding: '4',
-  background: 'secondary.bg',
-  color: 'secondary.text',
-  borderRadius: 'md',
-  border: 'default',
-  boxShadow: 'sm',
-  overflowX: 'auto',
-})
-
 function FiltersPanel({ children }: { children: React.ReactNode }) {
-  return <div className={css(filtersPanelCss)}>{children}</div>
+  return (
+    <div
+      className={css({
+        marginTop: '2',
+        padding: '4',
+        background: 'secondary.bg',
+        color: 'secondary.text',
+        borderRadius: 'md',
+        border: 'default',
+        boxShadow: 'sm',
+        overflowX: 'auto',
+      })}
+    >
+      {children}
+    </div>
+  )
 }

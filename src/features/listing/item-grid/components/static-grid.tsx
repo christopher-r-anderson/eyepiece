@@ -4,11 +4,6 @@ import type { ListState } from '@react-stately/list'
 import type { HybridGridItemProvidedProps } from './hybrid-grid-item'
 import type { ComponentPropsWithoutRef, ReactNode, RefObject } from 'react'
 
-const gridCss = css.raw({
-  display: 'grid',
-  justifyContent: 'center',
-})
-
 export function StaticGrid<T extends object>({
   ref,
   items,
@@ -35,7 +30,10 @@ export function StaticGrid<T extends object>({
         gridTemplateColumns: `repeat(auto-fit, minmax(${minTileWidth}px, 1fr))`,
       }}
       {...props}
-      className={cx(css(gridCss), props.className)}
+      className={cx(
+        css({ display: 'grid', justifyContent: 'center' }),
+        props.className,
+      )}
     >
       {items.map((item) => (
         <Fragment key={getItemKey(item)}>

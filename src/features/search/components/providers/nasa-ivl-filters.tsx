@@ -5,7 +5,7 @@ import {
   VideoIcon,
   WaveformIcon,
 } from '@phosphor-icons/react/dist/ssr'
-import { css } from 'styled-system/css'
+import { stack } from 'styled-system/patterns'
 import { YearRangeSlider } from './nasa-ivl-filters/year-range-slider'
 import type { NasaIvlMediaType } from '@/domain/search/providers/nasa-ivl-filters'
 import { YEAR_MAX, YEAR_MIN } from '@/domain/search/providers/nasa-ivl-filters'
@@ -68,9 +68,7 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
 
   return (
     <div
-      className={css({
-        display: 'flex',
-        flexDirection: 'column',
+      className={stack({
         gap: '4',
         color: 'secondary.text',
       })}

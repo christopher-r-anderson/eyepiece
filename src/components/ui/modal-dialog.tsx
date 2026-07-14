@@ -3,6 +3,7 @@ import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { useId } from 'react-aria'
 import { useEffect } from 'react'
 import { css } from 'styled-system/css'
+import { center, hstack } from 'styled-system/patterns'
 import { Button } from './button'
 import { Heading } from './heading'
 import type { ReactNode } from 'react'
@@ -60,14 +61,11 @@ export function ModalDialog({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable={isDismissable}
-      className={css({
+      className={center({
         position: 'fixed',
         inset: 0,
         zIndex: 'overlay',
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
       })}
     >
       <RacModal className={css({ maxHeight: '100vh', padding: '6' })}>
@@ -86,11 +84,9 @@ export function ModalDialog({
           })}
         >
           <div
-            className={css({
-              display: 'flex',
-              justifyContent: 'space-between',
+            className={hstack({
+              justify: 'space-between',
               gap: '3',
-              alignItems: 'center',
               paddingTop: '4',
               paddingInline: '5',
               paddingBottom: '3',

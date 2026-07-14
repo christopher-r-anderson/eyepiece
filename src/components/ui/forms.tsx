@@ -10,6 +10,7 @@ import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cva, cx } from 'styled-system/css'
+import { grid, hstack } from 'styled-system/patterns'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
@@ -82,49 +83,6 @@ const form = cva({
   },
 })
 
-const textFieldControlStyles = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-  minWidth: 0,
-  minHeight: 'controlHeight',
-  paddingInline: '3',
-  gap: '2',
-  borderRadius: 'md',
-  border:
-    '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
-  boxShadow: 'sm',
-  transitionFast: 'border-color, outline-color',
-  _focusWithin: {
-    outline: 'focusRing',
-    outlineOffset: '1px',
-  },
-})
-
-const textFieldInputStyles = css.raw({
-  width: '100%',
-  minWidth: 0,
-  minHeight: 'calc(token(sizes.controlHeight) - 2px)',
-  paddingBlock: '2',
-  border: 0,
-  outline: 'none',
-  backgroundColor: 'transparent',
-  color: 'inherit',
-  caretColor: 'currentColor',
-  '&:focus': {
-    outline: 'none',
-  },
-  _placeholder: {
-    color: 'text.muted',
-  },
-  _autofill: {
-    boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
-    WebkitTextFillColor: 'token(colors.secondary.text)',
-  },
-})
-
 export function Form({
   children,
   css: cssProp,
@@ -180,8 +138,7 @@ export function InputGroup({
     <div
       {...props}
       className={cx(
-        css({
-          display: 'grid',
+        grid({
           gridTemplateColumns: 'minmax(0, 1fr)',
           rowGap: '4',
           '@/2xl': {
@@ -235,10 +192,50 @@ export function TextField({
       {...props}
     >
       <Label className={css({ textAlign: 'left' })}>{label}</Label>
-      <div className={css(textFieldControlStyles)}>
+      <div
+        className={hstack({
+          width: '100%',
+          minWidth: 0,
+          minHeight: 'controlHeight',
+          paddingInline: '3',
+          gap: '2',
+          borderRadius: 'md',
+          border:
+            '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+          backgroundColor: 'secondary.bg',
+          color: 'secondary.text',
+          boxShadow: 'sm',
+          transitionFast: 'border-color, outline-color',
+          _focusWithin: {
+            outline: 'focusRing',
+            outlineOffset: '1px',
+          },
+        })}
+      >
         <Input
           placeholder={placeholder}
-          className={css(textFieldInputStyles, { maxWidth: '100%' })}
+          className={css({
+            width: '100%',
+            maxWidth: '100%',
+            minWidth: 0,
+            minHeight: 'calc(token(sizes.controlHeight) - 2px)',
+            paddingBlock: '2',
+            border: 0,
+            outline: 'none',
+            backgroundColor: 'transparent',
+            color: 'inherit',
+            caretColor: 'currentColor',
+            '&:focus': {
+              outline: 'none',
+            },
+            _placeholder: {
+              color: 'text.muted',
+            },
+            _autofill: {
+              boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
+              WebkitTextFillColor: 'token(colors.secondary.text)',
+            },
+          })}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (

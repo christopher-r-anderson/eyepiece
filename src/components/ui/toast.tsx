@@ -6,6 +6,7 @@ import {
 } from 'react-aria-components'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { flex, stack } from 'styled-system/patterns'
 import { Button } from './button'
 import { toastQueue } from './toast.hooks'
 import type { ToastProps } from 'react-aria-components'
@@ -15,61 +16,48 @@ export interface ToastContent {
   description?: string
 }
 
-const regionStyles = css.raw({
-  position: 'fixed',
-  bottom: '7',
-  right: '7',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '2',
-  maxWidth:
-    'min(token(sizes.readingMax), calc(100vw - (2 * token(spacing.7))))',
-})
-
-const toastStyles = css.raw({
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
-  outline: '1px solid token(colors.outline)',
-  padding: '4',
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: '2',
-})
-
-const contentStyles = css.raw({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '2',
-})
-
-const titleStyles = css.raw({
-  fontWeight: 700,
-  lineHeight: 'tight',
-})
-
-const closeButtonStyles = css.raw({
-  marginInlineStart: 'auto',
-  padding: 0,
-})
-
 export function ToastRegion() {
   return (
-    <RacToastRegion queue={toastQueue} className={css(regionStyles)}>
+    <RacToastRegion
+      queue={toastQueue}
+      className={stack({
+        position: 'fixed',
+        bottom: '7',
+        right: '7',
+        gap: '2',
+        maxWidth:
+          'min(token(sizes.readingMax), calc(100vw - (2 * token(spacing.7))))',
+      })}
+    >
       {({ toast }) => (
         <Toast
           toast={toast}
           style={{ viewTransitionName: toast.key }}
-          className={css(toastStyles)}
+          className={flex({
+            align: 'flex-start',
+            gap: '2',
+            backgroundColor: 'secondary.bg',
+            color: 'secondary.text',
+            outline: '1px solid token(colors.outline)',
+            padding: '4',
+          })}
         >
-          <RacToastContent className={css(contentStyles)}>
-            <Text slot="title" className={css(titleStyles)}>
+          <RacToastContent className={stack({ gap: '2' })}>
+            <Text
+              slot="title"
+              className={css({ fontWeight: 700, lineHeight: 'tight' })}
+            >
               {toast.content.title}
             </Text>
             {toast.content.description && (
               <Text slot="description">{toast.content.description}</Text>
             )}
           </RacToastContent>
-          <Button slot="close" aria-label="Close" css={closeButtonStyles}>
+          <Button
+            slot="close"
+            aria-label="Close"
+            css={css.raw({ marginInlineStart: 'auto', padding: 0 })}
+          >
             <XIcon size={16} />
           </Button>
         </Toast>

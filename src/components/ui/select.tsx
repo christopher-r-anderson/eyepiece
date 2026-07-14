@@ -29,29 +29,6 @@ type SelectProps<T extends object> = {
     | 'aria-label'
   >
 
-const selectStyles = css.raw({
-  display: 'inline-flex',
-  alignItems: 'center',
-})
-
-const buttonStyles = css.raw({
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  border:
-    '1px solid color-mix(in oklab, token(colors.border) 80%, token(colors.text) 20%)',
-  backgroundColor:
-    'color-mix(in oklab, token(colors.secondary.bg) 78%, token(colors.background) 22%)',
-  _hovered: {
-    backgroundColor:
-      'color-mix(in oklab, token(colors.secondary.bg) 70%, token(colors.background) 30%)',
-  },
-  _pressed: {
-    transform: 'none',
-  },
-})
-
 const itemStyles = css.raw({
   display: 'flex',
   alignItems: 'center',
@@ -98,11 +75,39 @@ export function Select<T extends object>({
 }: SelectProps<T>) {
   return (
     <RacSelect
-      className={cx(css(selectStyles, cssProp), className)}
+      className={cx(
+        css(
+          {
+            display: 'inline-flex',
+            alignItems: 'center',
+          },
+          cssProp,
+        ),
+        className,
+      )}
       placeholder={placeholder}
       {...props}
     >
-      <Button variant={buttonVariant} css={buttonStyles}>
+      <Button
+        variant={buttonVariant}
+        css={css.raw({
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          border:
+            '1px solid color-mix(in oklab, token(colors.border) 80%, token(colors.text) 20%)',
+          backgroundColor:
+            'color-mix(in oklab, token(colors.secondary.bg) 78%, token(colors.background) 22%)',
+          _hovered: {
+            backgroundColor:
+              'color-mix(in oklab, token(colors.secondary.bg) 70%, token(colors.background) 30%)',
+          },
+          _pressed: {
+            transform: 'none',
+          },
+        })}
+      >
         <SelectValue className={css(itemStyles)}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
