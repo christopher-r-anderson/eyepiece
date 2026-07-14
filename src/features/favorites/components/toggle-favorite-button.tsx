@@ -16,10 +16,10 @@ const favoriteToggleCss = {
   '--toggle-icon-hover-glow': 'var(--favorite-toggle-glow)',
   '--toggle-icon-selected-color': 'var(--favorite-toggle-selected)',
   '--toggle-icon-selected-glow': 'var(--favorite-toggle-glow)',
-  '&[data-hovered="true"]': {
+  '&[data-hovered]': {
     transform: 'scale(1.06)',
   },
-  '&[data-selected="true"]': {
+  '&[data-selected]': {
     transform: 'scale(1.02)',
   },
 }
