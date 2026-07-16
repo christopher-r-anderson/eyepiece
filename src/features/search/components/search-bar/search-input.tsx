@@ -31,7 +31,6 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
             boxShadow: '0 1px 0 0 token(colors.border)',
           },
           '&::-webkit-search-cancel-button': { display: 'none' },
-          _placeholder: { color: 'text.muted' },
           _autofill: {
             boxShadow:
               '0 1px 0 0 token(colors.border), inset 0 0 0 100px token(colors.tertiary.bg)',
