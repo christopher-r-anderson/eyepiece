@@ -2,6 +2,20 @@ import { defineConfig } from '@pandacss/dev'
 import { globalCss } from './panda/global-css'
 import { semanticTokens } from './panda/semantic-tokens'
 import { tokens } from './panda/tokens'
+import { buttonRecipe } from '@/components/ui/button.recipe'
+import { formRecipe } from '@/components/ui/form.recipe'
+import { headingRecipe } from '@/components/ui/heading.recipe'
+import { linkRecipe } from '@/components/ui/link.recipe'
+import {
+  listBoxItemRecipe,
+  listBoxRecipe,
+} from '@/components/ui/list-box.recipe'
+import { menuItemRecipe, menuRecipe } from '@/components/ui/menus.recipe'
+import { popoverRecipe } from '@/components/ui/popover.recipe'
+import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
+import { separatorRecipe } from '@/components/ui/separator.recipe'
+import { switchRecipe } from '@/components/ui/switch.recipe'
+import { toggleButtonRecipe } from '@/components/ui/toggle-button.recipe'
 
 export default defineConfig({
   presets: ['@pandacss/preset-base'],
@@ -60,5 +74,21 @@ export default defineConfig({
     },
     tokens,
     semanticTokens,
+    recipes: {
+      button: buttonRecipe,
+      form: formRecipe,
+      heading: headingRecipe,
+      link: linkRecipe,
+      listBox: listBoxRecipe,
+      listBoxItem: listBoxItemRecipe,
+      menu: menuRecipe,
+      menuItem: menuItemRecipe,
+      popover: popoverRecipe,
+      searchField: searchFieldRecipe,
+      separator: separatorRecipe,
+      // key avoids generating an unimportable `switch` binding
+      switchRecipe: switchRecipe,
+      toggleButton: toggleButtonRecipe,
+    },
   },
 })

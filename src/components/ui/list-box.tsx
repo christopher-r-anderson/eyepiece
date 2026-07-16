@@ -5,6 +5,7 @@ import {
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import { hstack } from 'styled-system/patterns'
+import { listBox, listBoxItem } from 'styled-system/recipes'
 import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
@@ -19,29 +20,7 @@ export function ListBox<T extends object>({
   ...props
 }: ListBoxProps<T>) {
   return (
-    <RacListBox
-      {...props}
-      className={cx(
-        css(
-          {
-            display: 'grid',
-            gap: '1',
-            minWidth: '16ch',
-            padding: '2',
-            borderRadius: 'lg',
-            border:
-              '1px solid color-mix(in oklab, token(colors.border) 85%, token(colors.text) 15%)',
-            backgroundColor:
-              'color-mix(in oklab, token(colors.secondary.bg) 92%, token(colors.background) 8%)',
-            color: 'secondary.text',
-            boxShadow: 'sm',
-            outline: 'none',
-          },
-          cssProp,
-        ),
-        className,
-      )}
-    />
+    <RacListBox {...props} className={cx(listBox(), css(cssProp), className)} />
   )
 }
 
@@ -56,27 +35,7 @@ export function ListBoxItem({
   return (
     <RacListBoxItem
       {...props}
-      className={cx(
-        css(
-          {
-            paddingBlock: '2',
-            paddingInline: '3',
-            borderRadius: 'md',
-            cursor: 'pointer',
-            outline: 'none',
-            transitionFast: 'background-color, color',
-            '&[data-hovered], &[data-focused], &[data-selected]': {
-              backgroundColor: 'tertiary.bg',
-              color: 'tertiary.text',
-            },
-            _focusVisible: {
-              outline: 'focusRing',
-            },
-          },
-          cssProp,
-        ),
-        className,
-      )}
+      className={cx(listBoxItem(), css(cssProp), className)}
       render={
         render
           ? (domProps, renderProps) => {

@@ -9,14 +9,16 @@ import {
 import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
-import { css, cva, cx } from 'styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { grid, hstack } from 'styled-system/patterns'
+import { form } from 'styled-system/recipes'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import type { FormVariantProps } from 'styled-system/recipes'
 import type { StyleProps } from './style-props'
 import type {
   FormProps as RacFormProps,
@@ -35,8 +37,8 @@ export function FormError({ error }: { error?: string }) {
 export type FormProps = {
   formError?: string
   controls?: React.ReactNode
-  surface?: 'plain' | 'panel'
-} & StyleProps &
+} & FormVariantProps &
+  StyleProps &
   RacFormProps
 
 export const formActionsCss = css.raw({
@@ -62,40 +64,19 @@ export const formStatusPanelCss = css.raw({
   gap: '3',
 })
 
-const form = cva({
-  base: {
-    width: '100%',
-    padding: '4',
-    margin: '0 auto',
-    containerType: 'inline-size',
-  },
-  variants: {
-    surface: {
-      plain: {},
-      panel: {
-        padding: '5',
-        border: 'default',
-        borderRadius: 'lg',
-        backgroundColor: 'secondary.bg',
-        boxShadow: 'sm',
-      },
-    },
-  },
-})
-
 export function Form({
   children,
   css: cssProp,
   className,
   formError,
   controls,
-  surface = 'plain',
+  surface,
   ...props
 }: FormProps) {
   return (
     <RacForm
       {...props}
-      className={cx(css(form.raw({ surface }), cssProp), className)}
+      className={cx(form({ surface }), css(cssProp), className)}
     >
       {children}
       {formError && <FormError error={formError} />}
