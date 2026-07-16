@@ -228,9 +228,6 @@ export function TextField({
             '&:focus': {
               outline: 'none',
             },
-            _placeholder: {
-              color: 'text.muted',
-            },
             _autofill: {
               boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
               WebkitTextFillColor: 'token(colors.secondary.text)',
