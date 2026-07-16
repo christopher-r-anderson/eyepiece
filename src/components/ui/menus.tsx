@@ -16,9 +16,7 @@ export function Menu<T extends object>({
   className,
   ...props
 }: MenuProps<T>) {
-  return (
-    <RacMenu {...props} className={cx(menu(), css(styles), className)} />
-  )
+  return <RacMenu {...props} className={cx(menu(), css(styles), className)} />
 }
 
 export function MenuItem({ css: styles, className, ...props }: MenuItemProps) {

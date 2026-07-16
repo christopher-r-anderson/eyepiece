@@ -8,9 +8,6 @@ export type PopoverProps = ComponentProps<typeof RacPopover> & StyleProps
 
 export function Popover({ css: cssProp, className, ...props }: PopoverProps) {
   return (
-    <RacPopover
-      className={cx(popover(), css(cssProp), className)}
-      {...props}
-    />
+    <RacPopover className={cx(popover(), css(cssProp), className)} {...props} />
   )
 }

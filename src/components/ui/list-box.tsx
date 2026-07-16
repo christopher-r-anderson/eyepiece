@@ -20,10 +20,7 @@ export function ListBox<T extends object>({
   ...props
 }: ListBoxProps<T>) {
   return (
-    <RacListBox
-      {...props}
-      className={cx(listBox(), css(cssProp), className)}
-    />
+    <RacListBox {...props} className={cx(listBox(), css(cssProp), className)} />
   )
 }
 

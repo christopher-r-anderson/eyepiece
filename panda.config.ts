@@ -6,7 +6,10 @@ import { buttonRecipe } from '@/components/ui/button.recipe'
 import { formRecipe } from '@/components/ui/form.recipe'
 import { headingRecipe } from '@/components/ui/heading.recipe'
 import { linkRecipe } from '@/components/ui/link.recipe'
-import { listBoxItemRecipe, listBoxRecipe } from '@/components/ui/list-box.recipe'
+import {
+  listBoxItemRecipe,
+  listBoxRecipe,
+} from '@/components/ui/list-box.recipe'
 import { menuItemRecipe, menuRecipe } from '@/components/ui/menus.recipe'
 import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'

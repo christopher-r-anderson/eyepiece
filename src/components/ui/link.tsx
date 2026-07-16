@@ -9,10 +9,7 @@ type AppLinkProps = LinkProps & StyleProps
 
 function AppLink({ css: cssProp, className, ...props }: AppLinkProps) {
   return (
-    <ReactAriaLink
-      className={cx(link(), css(cssProp), className)}
-      {...props}
-    />
+    <ReactAriaLink className={cx(link(), css(cssProp), className)} {...props} />
   )
 }
 
