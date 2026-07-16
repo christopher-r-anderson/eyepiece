@@ -11,10 +11,15 @@ import {
   listBoxRecipe,
 } from '@/components/ui/list-box.recipe'
 import { menuItemRecipe, menuRecipe } from '@/components/ui/menus.recipe'
+import { modalDialogRecipe } from '@/components/ui/modal-dialog.recipe'
 import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
+import { selectRecipe } from '@/components/ui/select.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
+import { sliderRecipe } from '@/components/ui/slider.recipe'
 import { switchRecipe } from '@/components/ui/switch.recipe'
+import { textFieldRecipe } from '@/components/ui/text-field.recipe'
+import { toastRecipe } from '@/components/ui/toast.recipe'
 import { toggleButtonRecipe } from '@/components/ui/toggle-button.recipe'
 
 export default defineConfig({
@@ -23,6 +28,16 @@ export default defineConfig({
   include: ['./src/**/*.{ts,tsx}'],
   outdir: 'styled-system',
   globalCss,
+  // the icon toggle-button's per-instance theming channel, set by consumers
+  // through the css prop; registered for typing and autocomplete only
+  // (universal syntax + no initial value keeps the variant fallbacks active)
+  globalVars: {
+    '--toggle-icon-color': { syntax: '*', inherits: true },
+    '--toggle-icon-hover-color': { syntax: '*', inherits: true },
+    '--toggle-icon-hover-glow': { syntax: '*', inherits: true },
+    '--toggle-icon-selected-color': { syntax: '*', inherits: true },
+    '--toggle-icon-selected-glow': { syntax: '*', inherits: true },
+  },
   utilities: {
     extend: {
       // CSS properties missing from Panda's generated property set
@@ -89,6 +104,13 @@ export default defineConfig({
       // key avoids generating an unimportable `switch` binding
       switchRecipe: switchRecipe,
       toggleButton: toggleButtonRecipe,
+    },
+    slotRecipes: {
+      modalDialog: modalDialogRecipe,
+      select: selectRecipe,
+      slider: sliderRecipe,
+      textField: textFieldRecipe,
+      toast: toastRecipe,
     },
   },
 })

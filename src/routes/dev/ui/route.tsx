@@ -33,16 +33,13 @@ function DevUiLayout() {
               key={link.to}
               to={link.to}
               activeOptions={{ exact: link.exact }}
-              activeProps={{
-                className: 'is-active',
-              }}
               css={css.raw({
                 paddingBlock: '2',
                 paddingInline: '3',
                 border: 'default',
                 borderRadius: 'md',
                 textDecoration: 'none',
-                '&.is-active': {
+                '&[aria-current=page]': {
                   backgroundColor: 'secondary.bg',
                   color: 'secondary.text',
                 },

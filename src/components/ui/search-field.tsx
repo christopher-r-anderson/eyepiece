@@ -7,15 +7,8 @@ import type { StyleProps } from './style-props'
 export type SearchFieldProps = ComponentProps<typeof RacSearchField> &
   StyleProps
 
-export function SearchField({
-  css: cssProp,
-  className,
-  ...props
-}: SearchFieldProps) {
+export function SearchField({ css: cssProp, ...props }: SearchFieldProps) {
   return (
-    <RacSearchField
-      className={cx(searchField(), css(cssProp), className)}
-      {...props}
-    />
+    <RacSearchField {...props} className={cx(searchField(), css(cssProp))} />
   )
 }

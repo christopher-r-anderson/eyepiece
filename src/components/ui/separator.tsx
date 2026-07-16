@@ -6,15 +6,6 @@ import type { StyleProps } from './style-props'
 
 export type SeparatorProps = ComponentProps<typeof RacSeparator> & StyleProps
 
-export function Separator({
-  css: cssProp,
-  className,
-  ...props
-}: SeparatorProps) {
-  return (
-    <RacSeparator
-      className={cx(separator(), css(cssProp), className)}
-      {...props}
-    />
-  )
+export function Separator({ css: cssProp, ...props }: SeparatorProps) {
+  return <RacSeparator {...props} className={cx(separator(), css(cssProp))} />
 }
