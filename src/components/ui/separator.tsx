@@ -1,5 +1,6 @@
 import { Separator as RacSeparator } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
+import { separator } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
 import type { StyleProps } from './style-props'
 
@@ -12,18 +13,7 @@ export function Separator({
 }: SeparatorProps) {
   return (
     <RacSeparator
-      className={cx(
-        css(
-          {
-            border: 0,
-            borderTop: 'separator',
-            marginBlock: '1',
-            marginInline: '2',
-          },
-          cssProp,
-        ),
-        className,
-      )}
+      className={cx(separator(), css(cssProp), className)}
       {...props}
     />
   )

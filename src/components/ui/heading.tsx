@@ -1,4 +1,5 @@
-import { css, cva, cx } from 'styled-system/css'
+import { css, cx } from 'styled-system/css'
+import { heading } from 'styled-system/recipes'
 import type { ComponentPropsWithoutRef } from 'react'
 import type { StyleProps } from './style-props'
 
@@ -10,26 +11,6 @@ export type HeadingProps = {
   ComponentPropsWithoutRef<HeadingTag>
 
 type HeadingTag = `h${HeadingLevel}`
-
-const heading = cva({
-  base: {
-    margin: 0,
-    color: 'inherit',
-    fontFamily: 'inherit',
-    fontWeight: 700,
-    lineHeight: 'tight',
-  },
-  variants: {
-    level: {
-      1: { fontSize: '2xl', marginBlockEnd: '5' },
-      2: { fontSize: 'xl', marginBlockEnd: '4' },
-      3: { fontSize: 'lg', marginBlockEnd: '3' },
-      4: { fontSize: 'base', marginBlockEnd: '3' },
-      5: { fontSize: 'sm', marginBlockEnd: '2' },
-      6: { fontSize: 'xs', marginBlockEnd: '2' },
-    },
-  },
-})
 
 export function Heading({
   headingLevel,
@@ -43,7 +24,8 @@ export function Heading({
     <Hn
       {...props}
       className={cx(
-        css(heading.raw({ level: headingLevel }), cssProp),
+        heading({ level: `${headingLevel}` }),
+        css(cssProp),
         className,
       )}
     />

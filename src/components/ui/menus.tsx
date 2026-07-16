@@ -1,5 +1,6 @@
 import { Menu as RacMenu, MenuItem as RacMenuItem } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
+import { menu, menuItem } from 'styled-system/recipes'
 import type {
   MenuItemProps as RacMenuItemProps,
   MenuProps as RacMenuProps,
@@ -16,27 +17,7 @@ export function Menu<T extends object>({
   ...props
 }: MenuProps<T>) {
   return (
-    <RacMenu
-      {...props}
-      className={cx(
-        css(
-          {
-            backgroundColor: 'secondary.bg',
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: '12rem',
-            borderRadius: 'inherit',
-            overflow: 'hidden',
-            // focus ring still shows *on the first menu item* when opening the menu via the keyboard
-            '&:focus': {
-              outline: 'none',
-            },
-          },
-          styles,
-        ),
-        className,
-      )}
-    />
+    <RacMenu {...props} className={cx(menu(), css(styles), className)} />
   )
 }
 
@@ -44,30 +25,7 @@ export function MenuItem({ css: styles, className, ...props }: MenuItemProps) {
   return (
     <RacMenuItem
       {...props}
-      className={cx(
-        css(
-          {
-            color: 'secondary.text',
-            paddingBlock: '2',
-            paddingInline: '4',
-            borderRadius: 'sm',
-            cursor: 'pointer',
-            _hovered: {
-              backgroundColor: 'tertiary.bg',
-              color: 'tertiary.text',
-            },
-            outline: 'none',
-            _focused: {
-              outline: 'none',
-            },
-            _focusVisible: {
-              outline: 'focusRing',
-            },
-          },
-          styles,
-        ),
-        className,
-      )}
+      className={cx(menuItem(), css(styles), className)}
     />
   )
 }
