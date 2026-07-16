@@ -9,16 +9,11 @@ export type SwitchProps = ComponentProps<typeof RacSwitch> &
   SwitchRecipeVariantProps &
   StyleProps
 
-export function Switch({
-  css: cssProp,
-  className,
-  variant,
-  ...props
-}: SwitchProps) {
+export function Switch({ css: cssProp, variant, ...props }: SwitchProps) {
   return (
     <RacSwitch
-      className={cx(switchRecipe({ variant }), css(cssProp), className)}
       {...props}
+      className={cx(switchRecipe({ variant }), css(cssProp))}
     />
   )
 }

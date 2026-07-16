@@ -15,7 +15,6 @@ type HeadingTag = `h${HeadingLevel}`
 export function Heading({
   headingLevel,
   css: cssProp,
-  className,
   ...props
 }: HeadingProps) {
   const Hn: HeadingTag = `h${headingLevel}`
@@ -23,11 +22,7 @@ export function Heading({
   return (
     <Hn
       {...props}
-      className={cx(
-        heading({ level: `${headingLevel}` }),
-        css(cssProp),
-        className,
-      )}
+      className={cx(heading({ level: `${headingLevel}` }), css(cssProp))}
     />
   )
 }

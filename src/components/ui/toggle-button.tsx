@@ -12,13 +12,12 @@ export type ToggleButtonProps = ComponentProps<typeof RacToggleButton> &
 export function ToggleButton({
   variant,
   css: cssProp,
-  className,
   ...props
 }: ToggleButtonProps) {
   return (
     <RacToggleButton
-      className={cx(toggleButton({ variant }), css(cssProp), className)}
       {...props}
+      className={cx(toggleButton({ variant }), css(cssProp))}
     />
   )
 }

@@ -13,19 +13,13 @@ export type MenuItemProps = RacMenuItemProps & StyleProps
 
 export function Menu<T extends object>({
   css: styles,
-  className,
   ...props
 }: MenuProps<T>) {
-  return <RacMenu {...props} className={cx(menu(), css(styles), className)} />
+  return <RacMenu {...props} className={cx(menu(), css(styles))} />
 }
 
-export function MenuItem({ css: styles, className, ...props }: MenuItemProps) {
-  return (
-    <RacMenuItem
-      {...props}
-      className={cx(menuItem(), css(styles), className)}
-    />
-  )
+export function MenuItem({ css: styles, ...props }: MenuItemProps) {
+  return <RacMenuItem {...props} className={cx(menuItem(), css(styles))} />
 }
 
 export { MenuTrigger } from 'react-aria-components'

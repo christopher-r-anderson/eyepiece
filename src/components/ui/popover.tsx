@@ -6,8 +6,6 @@ import type { StyleProps } from './style-props'
 
 export type PopoverProps = ComponentProps<typeof RacPopover> & StyleProps
 
-export function Popover({ css: cssProp, className, ...props }: PopoverProps) {
-  return (
-    <RacPopover className={cx(popover(), css(cssProp), className)} {...props} />
-  )
+export function Popover({ css: cssProp, ...props }: PopoverProps) {
+  return <RacPopover {...props} className={cx(popover(), css(cssProp))} />
 }

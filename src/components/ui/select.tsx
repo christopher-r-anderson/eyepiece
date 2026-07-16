@@ -1,6 +1,7 @@
 import { Select as RacSelect, SelectValue } from 'react-aria-components'
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
+import { select } from 'styled-system/recipes'
 import { Button } from './button'
 import type { ButtonProps } from './button'
 import type {
@@ -29,14 +30,6 @@ type SelectProps<T extends object> = {
     | 'aria-label'
   >
 
-const itemStyles = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '2',
-  cursor: 'pointer',
-  lineHeight: 'tight',
-})
-
 // react aria includes an `href` key in domProps even when it is `undefined`
 // which keeps typescript from being able to narrow the type appropriately on its own
 function hasRenderableHref(
@@ -49,13 +42,7 @@ function hasRenderableHref(
 
 function Caret() {
   return (
-    <span
-      aria-hidden="true"
-      className={css({
-        display: 'inline-flex',
-        alignItems: 'center',
-      })}
-    >
+    <span aria-hidden="true" className={select().caret}>
       <CaretDownIcon />
     </span>
   )
@@ -68,25 +55,15 @@ export function Select<T extends object>({
   renderItem,
   buttonVariant,
   css: cssProp,
-  className,
   // defaulted internally so callers always have placeholder text (address when i18n lands)
   placeholder = 'Please select an item',
   ...props
 }: SelectProps<T>) {
   return (
     <RacSelect
-      className={cx(
-        css(
-          {
-            display: 'inline-flex',
-            alignItems: 'center',
-          },
-          cssProp,
-        ),
-        className,
-      )}
       placeholder={placeholder}
       {...props}
+      className={cx(select().root, css(cssProp))}
     >
       <Button
         variant={buttonVariant}
@@ -108,7 +85,7 @@ export function Select<T extends object>({
           },
         })}
       >
-        <SelectValue className={css(itemStyles)}>
+        <SelectValue className={select().item}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
         <Caret />
@@ -124,7 +101,7 @@ export function Select<T extends object>({
                   return (
                     <a
                       {...domProps}
-                      className={cx(css(itemStyles), domProps.className)}
+                      className={cx(select().item, domProps.className)}
                     >
                       {renderItem
                         ? renderItem(item, itemProps)
@@ -136,7 +113,7 @@ export function Select<T extends object>({
                 return (
                   <div
                     {...domProps}
-                    className={cx(css(itemStyles), domProps.className)}
+                    className={cx(select().item, domProps.className)}
                   >
                     {renderItem
                       ? renderItem(item, itemProps)

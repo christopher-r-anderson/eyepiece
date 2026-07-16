@@ -3,7 +3,7 @@ import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { useId } from 'react-aria'
 import { useEffect } from 'react'
 import { css } from 'styled-system/css'
-import { center, hstack } from 'styled-system/patterns'
+import { modalDialog } from 'styled-system/recipes'
 import { Button } from './button'
 import { Heading } from './heading'
 import type { ReactNode } from 'react'
@@ -61,37 +61,11 @@ export function ModalDialog({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable={isDismissable}
-      className={center({
-        position: 'fixed',
-        inset: 0,
-        zIndex: 'overlay',
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-      })}
+      className={modalDialog().overlay}
     >
-      <RacModal className={css({ maxHeight: '100vh', padding: '6' })}>
-        <Dialog
-          aria-labelledby={titleId}
-          className={css({
-            backgroundColor: 'background',
-            display: 'flex',
-            flexDirection: 'column',
-            maxHeight: '90vh',
-            maxWidth: '90vw',
-            border: 'default',
-            borderRadius: 'lg',
-            boxShadow: 'overlay',
-            overflow: 'hidden',
-          })}
-        >
-          <div
-            className={hstack({
-              justify: 'space-between',
-              gap: '3',
-              paddingTop: '4',
-              paddingInline: '5',
-              paddingBottom: '3',
-            })}
-          >
+      <RacModal className={modalDialog().modal}>
+        <Dialog aria-labelledby={titleId} className={modalDialog().dialog}>
+          <div className={modalDialog().header}>
             <Heading
               headingLevel={3}
               id={titleId}
@@ -133,17 +107,7 @@ export function ModalDialog({
               <XIcon aria-hidden="true" size={18} weight="bold" />
             </Button>
           </div>
-          <div
-            className={css({
-              minHeight: 0,
-              overflowY: 'auto',
-              paddingTop: 0,
-              paddingInline: '5',
-              paddingBottom: '5',
-            })}
-          >
-            {children}
-          </div>
+          <div className={modalDialog().body}>{children}</div>
         </Dialog>
       </RacModal>
     </ModalOverlay>

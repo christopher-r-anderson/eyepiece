@@ -10,8 +10,8 @@ import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
-import { grid, hstack } from 'styled-system/patterns'
-import { form } from 'styled-system/recipes'
+import { grid } from 'styled-system/patterns'
+import { form, textField } from 'styled-system/recipes'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
@@ -67,17 +67,13 @@ export const formStatusPanelCss = css.raw({
 export function Form({
   children,
   css: cssProp,
-  className,
   formError,
   controls,
   surface,
   ...props
 }: FormProps) {
   return (
-    <RacForm
-      {...props}
-      className={cx(form({ surface }), css(cssProp), className)}
-    >
+    <RacForm {...props} className={cx(form({ surface }), css(cssProp))}>
       {children}
       {formError && <FormError error={formError} />}
       {controls}
@@ -111,10 +107,7 @@ export function FormStatusSwitcher({
   )
 }
 
-export function InputGroup({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<'div'>) {
+export function InputGroup({ ...props }: ComponentPropsWithoutRef<'div'>) {
   return (
     <div
       {...props}
@@ -128,7 +121,6 @@ export function InputGroup({
             rowGap: '5',
           },
         }),
-        className,
       )}
     />
   )
@@ -138,7 +130,6 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
-  className?: string
 } & RacTextFieldProps
 
 export function TextField({
@@ -146,7 +137,6 @@ export function TextField({
   label,
   placeholder,
   type,
-  className,
   ...props
 }: TextFieldProps) {
   const inputId = useId()
@@ -161,59 +151,14 @@ export function TextField({
     <RacTextField
       id={inputId}
       type={actualType}
-      className={cx(
-        css({
-          gridColumn: '1 / -1',
-          display: 'grid',
-          gridTemplateColumns: 'subgrid',
-          minWidth: 0,
-        }),
-        className,
-      )}
       {...props}
+      className={textField().root}
     >
-      <Label className={css({ textAlign: 'left' })}>{label}</Label>
-      <div
-        className={hstack({
-          width: '100%',
-          minWidth: 0,
-          minHeight: 'controlHeight',
-          paddingInline: '3',
-          gap: '2',
-          borderRadius: 'md',
-          border:
-            '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-          backgroundColor: 'secondary.bg',
-          color: 'secondary.text',
-          boxShadow: 'sm',
-          transitionFast: 'border-color, outline-color',
-          _focusWithin: {
-            outline: 'focusRing',
-            outlineOffset: '1px',
-          },
-        })}
-      >
+      <Label className={textField().label}>{label}</Label>
+      <div className={textField().control}>
         <Input
           placeholder={placeholder}
-          className={css({
-            width: '100%',
-            maxWidth: '100%',
-            minWidth: 0,
-            minHeight: 'calc(token(sizes.controlHeight) - 2px)',
-            paddingBlock: '2',
-            border: 0,
-            outline: 'none',
-            backgroundColor: 'transparent',
-            color: 'inherit',
-            caretColor: 'currentColor',
-            '&:focus': {
-              outline: 'none',
-            },
-            _autofill: {
-              boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
-              WebkitTextFillColor: 'token(colors.secondary.text)',
-            },
-          })}
+          className={textField().input}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (
@@ -237,25 +182,11 @@ export function TextField({
         )}
       </div>
       {description && (
-        <Text
-          slot="description"
-          className={css({
-            fontSize: 'xs',
-            marginTop: '2',
-            gridColumn: '1 / -1',
-          })}
-        >
+        <Text slot="description" className={textField().description}>
           {description}
         </Text>
       )}
-      <FieldError
-        className={css({
-          color: 'danger.text',
-          fontSize: 'sm',
-          gridColumn: '1 / -1',
-          paddingBlockStart: '2',
-        })}
-      />
+      <FieldError className={textField().error} />
     </RacTextField>
   )
 }

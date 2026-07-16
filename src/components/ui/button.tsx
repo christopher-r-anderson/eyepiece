@@ -17,13 +17,12 @@ export function Button({
   variant,
   icon: Icon,
   css: cssProp,
-  className,
   ...props
 }: ButtonProps) {
   return (
     <ReactAriaButton
-      className={cx(button({ variant }), css(cssProp), className)}
       {...props}
+      className={cx(button({ variant }), css(cssProp))}
     >
       {(state) => (
         <>

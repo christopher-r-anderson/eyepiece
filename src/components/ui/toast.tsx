@@ -6,7 +6,7 @@ import {
 } from 'react-aria-components'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import { flex, stack } from 'styled-system/patterns'
+import { toast as toastRecipe } from 'styled-system/recipes'
 import { Button } from './button'
 import { toastQueue } from './toast.hooks'
 import type { ToastProps } from 'react-aria-components'
@@ -18,36 +18,15 @@ export interface ToastContent {
 
 export function ToastRegion() {
   return (
-    <RacToastRegion
-      queue={toastQueue}
-      className={stack({
-        position: 'fixed',
-        bottom: '7',
-        right: '7',
-        gap: '2',
-        maxWidth:
-          'min(token(sizes.readingMax), calc(100vw - (2 * token(spacing.7))))',
-      })}
-    >
+    <RacToastRegion queue={toastQueue} className={toastRecipe().region}>
       {({ toast }) => (
         <Toast
           toast={toast}
           style={{ viewTransitionName: toast.key }}
-          className={flex({
-            align: 'flex-start',
-            gap: '2',
-            backgroundColor: 'secondary.bg',
-            color: 'secondary.text',
-            // decorative surface outline, deliberately not the focusRing border token
-            outline: '1px solid token(colors.outline)',
-            padding: '4',
-          })}
+          className={toastRecipe().root}
         >
-          <RacToastContent className={stack({ gap: '2' })}>
-            <Text
-              slot="title"
-              className={css({ fontWeight: 700, lineHeight: 'tight' })}
-            >
+          <RacToastContent className={toastRecipe().content}>
+            <Text slot="title" className={toastRecipe().title}>
               {toast.content.title}
             </Text>
             {toast.content.description && (
