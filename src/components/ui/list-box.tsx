@@ -16,22 +16,26 @@ export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
 
 export function ListBox<T extends object>({
   css: cssProp,
+  className,
   ...props
 }: ListBoxProps<T>) {
-  return <RacListBox {...props} className={cx(listBox(), css(cssProp))} />
+  return (
+    <RacListBox {...props} className={cx(listBox(), css(cssProp), className)} />
+  )
 }
 
 export type ListBoxItemProps = RacListBoxItemProps & StyleProps
 
 export function ListBoxItem({
   css: cssProp,
+  className,
   render,
   ...props
 }: ListBoxItemProps) {
   return (
     <RacListBoxItem
       {...props}
-      className={cx(listBoxItem(), css(cssProp))}
+      className={cx(listBoxItem(), css(cssProp), className)}
       render={
         render
           ? (domProps, renderProps) => {

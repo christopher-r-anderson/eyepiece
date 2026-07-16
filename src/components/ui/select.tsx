@@ -55,6 +55,7 @@ export function Select<T extends object>({
   renderItem,
   buttonVariant,
   css: cssProp,
+  className,
   // defaulted internally so callers always have placeholder text (address when i18n lands)
   placeholder = 'Please select an item',
   ...props
@@ -63,7 +64,7 @@ export function Select<T extends object>({
     <RacSelect
       placeholder={placeholder}
       {...props}
-      className={cx(select().root, css(cssProp))}
+      className={cx(select().root, css(cssProp), className)}
     >
       <Button
         variant={buttonVariant}

@@ -59,7 +59,7 @@ export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & StyleProps
 
 export type TabPanelProps = ComponentProps<typeof RacTabPanel> & StyleProps
 
-export function Tabs({ css: cssProp, ...props }: TabsProps) {
+export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
     <RacTabs
       className={cx(
@@ -71,29 +71,46 @@ export function Tabs({ css: cssProp, ...props }: TabsProps) {
           },
           cssProp,
         ),
+        className,
       )}
       {...props}
     />
   )
 }
 
-export function TabList({ css: cssProp, ...props }: TabListProps) {
-  return <RacTabList {...props} className={cx(css(tabListStyles, cssProp))} />
-}
-
-export function Tab({ css: cssProp, ...props }: TabProps) {
-  return <RacTab {...props} className={cx(css(tabStyles, cssProp))} />
-}
-
-export function TabPanels({ css: cssProp, ...props }: TabPanelsProps) {
+export function TabList({ css: cssProp, className, ...props }: TabListProps) {
   return (
-    <RacTabPanels
+    <RacTabList
       {...props}
-      className={cx(css({ display: 'grid' }, cssProp))}
+      className={cx(css(tabListStyles, cssProp), className)}
     />
   )
 }
 
-export function TabPanel({ css: cssProp, ...props }: TabPanelProps) {
-  return <RacTabPanel {...props} className={cx(css(tabPanelStyles, cssProp))} />
+export function Tab({ css: cssProp, className, ...props }: TabProps) {
+  return (
+    <RacTab {...props} className={cx(css(tabStyles, cssProp), className)} />
+  )
+}
+
+export function TabPanels({
+  css: cssProp,
+  className,
+  ...props
+}: TabPanelsProps) {
+  return (
+    <RacTabPanels
+      {...props}
+      className={cx(css({ display: 'grid' }, cssProp), className)}
+    />
+  )
+}
+
+export function TabPanel({ css: cssProp, className, ...props }: TabPanelProps) {
+  return (
+    <RacTabPanel
+      {...props}
+      className={cx(css(tabPanelStyles, cssProp), className)}
+    />
+  )
 }

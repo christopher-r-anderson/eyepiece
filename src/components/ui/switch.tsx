@@ -1,19 +1,8 @@
 import { Switch as RacSwitch } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
+import { styled } from 'styled-system/jsx'
 import { switchRecipe } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
-import type { SwitchRecipeVariantProps } from 'styled-system/recipes'
-import type { StyleProps } from './style-props'
 
-export type SwitchProps = ComponentProps<typeof RacSwitch> &
-  SwitchRecipeVariantProps &
-  StyleProps
+export const Switch = styled(RacSwitch, switchRecipe)
 
-export function Switch({ css: cssProp, variant, ...props }: SwitchProps) {
-  return (
-    <RacSwitch
-      {...props}
-      className={cx(switchRecipe({ variant }), css(cssProp))}
-    />
-  )
-}
+export type SwitchProps = ComponentProps<typeof Switch>

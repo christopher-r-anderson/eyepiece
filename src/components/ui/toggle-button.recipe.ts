@@ -2,7 +2,6 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const toggleButtonRecipe = defineRecipe({
   className: 'toggle-button',
-  staticCss: ['*'],
   base: {
     display: 'inline-flex',
     alignItems: 'center',

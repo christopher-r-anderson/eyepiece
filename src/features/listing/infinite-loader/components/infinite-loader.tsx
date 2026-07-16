@@ -4,7 +4,7 @@ import type { ComponentPropsWithoutRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
 import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
-import { VisuallyHidden } from '@/components/ui/a11y'
+import { RacVisuallyHidden } from '@/components/ui/a11y'
 
 export function InfiniteLoader({
   children,
@@ -40,11 +40,11 @@ export function InfiniteLoader({
     <div {...props}>
       {children}
       <div className={css({ position: 'relative' })}>
-        <VisuallyHidden>
+        <RacVisuallyHidden>
           <div role="status" aria-live="polite" aria-atomic="true">
             {status}
           </div>
-        </VisuallyHidden>
+        </RacVisuallyHidden>
       </div>
 
       <div ref={sentinelRef} />

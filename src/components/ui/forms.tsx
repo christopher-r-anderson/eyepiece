@@ -67,13 +67,17 @@ export const formStatusPanelCss = css.raw({
 export function Form({
   children,
   css: cssProp,
+  className,
   formError,
   controls,
   surface,
   ...props
 }: FormProps) {
   return (
-    <RacForm {...props} className={cx(form({ surface }), css(cssProp))}>
+    <RacForm
+      {...props}
+      className={cx(form({ surface }), css(cssProp), className)}
+    >
       {children}
       {formError && <FormError error={formError} />}
       {controls}
@@ -107,7 +111,10 @@ export function FormStatusSwitcher({
   )
 }
 
-export function InputGroup({ ...props }: ComponentPropsWithoutRef<'div'>) {
+export function InputGroup({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<'div'>) {
   return (
     <div
       {...props}
@@ -121,6 +128,7 @@ export function InputGroup({ ...props }: ComponentPropsWithoutRef<'div'>) {
             rowGap: '5',
           },
         }),
+        className,
       )}
     />
   )
@@ -130,6 +138,8 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
+  // narrows RAC's className render-prop union for the cx merge
+  className?: string
 } & RacTextFieldProps
 
 export function TextField({
@@ -137,6 +147,7 @@ export function TextField({
   label,
   placeholder,
   type,
+  className,
   ...props
 }: TextFieldProps) {
   const inputId = useId()
@@ -152,7 +163,7 @@ export function TextField({
       id={inputId}
       type={actualType}
       {...props}
-      className={textField().root}
+      className={cx(textField().root, className)}
     >
       <Label className={textField().label}>{label}</Label>
       <div className={textField().control}>

@@ -20,24 +20,50 @@ export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> &
 export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> &
   StyleProps
 
-export function Slider({ css: cssProp, ...props }: SliderProps) {
-  return <RacSlider {...props} className={cx(slider().root, css(cssProp))} />
-}
-
-export function SliderTrack({ css: cssProp, ...props }: SliderTrackProps) {
+export function Slider({ css: cssProp, className, ...props }: SliderProps) {
   return (
-    <RacSliderTrack {...props} className={cx(slider().track, css(cssProp))} />
+    <RacSlider
+      {...props}
+      className={cx(slider().root, css(cssProp), className)}
+    />
   )
 }
 
-export function SliderThumb({ css: cssProp, ...props }: SliderThumbProps) {
+export function SliderTrack({
+  css: cssProp,
+  className,
+  ...props
+}: SliderTrackProps) {
   return (
-    <RacSliderThumb {...props} className={cx(slider().thumb, css(cssProp))} />
+    <RacSliderTrack
+      {...props}
+      className={cx(slider().track, css(cssProp), className)}
+    />
   )
 }
 
-export function SliderOutput({ css: cssProp, ...props }: SliderOutputProps) {
+export function SliderThumb({
+  css: cssProp,
+  className,
+  ...props
+}: SliderThumbProps) {
   return (
-    <RacSliderOutput {...props} className={cx(slider().output, css(cssProp))} />
+    <RacSliderThumb
+      {...props}
+      className={cx(slider().thumb, css(cssProp), className)}
+    />
+  )
+}
+
+export function SliderOutput({
+  css: cssProp,
+  className,
+  ...props
+}: SliderOutputProps) {
+  return (
+    <RacSliderOutput
+      {...props}
+      className={cx(slider().output, css(cssProp), className)}
+    />
   )
 }

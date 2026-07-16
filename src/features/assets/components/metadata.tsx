@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
-import { VisuallyHidden } from 'react-aria'
+// aliased: a JSX element named VisuallyHidden matches Panda's built-in
+// pattern and emits a dead .sr_true rule
+import { VisuallyHidden as RacVisuallyHidden } from 'react-aria'
 import { css } from 'styled-system/css'
 import type { Metadata } from '@/domain/asset/asset.schema'
 
@@ -49,7 +51,7 @@ export function MetadataTable({ data }: { data: Metadata }) {
         })}
       >
         <caption>
-          <VisuallyHidden>Image metadata</VisuallyHidden>
+          <RacVisuallyHidden>Image metadata</RacVisuallyHidden>
         </caption>
         <thead>
           <tr>

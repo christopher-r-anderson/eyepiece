@@ -27,6 +27,9 @@ export default defineConfig({
   preflight: true,
   include: ['./src/**/*.{ts,tsx}'],
   outdir: 'styled-system',
+  jsxFramework: 'react',
+  // styled components take only the css prop; no utility shorthand props
+  jsxStyleProps: 'minimal',
   globalCss,
   // the icon toggle-button's per-instance theming channel, set by consumers
   // through the css prop; registered for typing and autocomplete only

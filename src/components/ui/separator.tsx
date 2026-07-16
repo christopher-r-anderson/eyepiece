@@ -1,11 +1,8 @@
 import { Separator as RacSeparator } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
+import { styled } from 'styled-system/jsx'
 import { separator } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
 
-export type SeparatorProps = ComponentProps<typeof RacSeparator> & StyleProps
+export const Separator = styled(RacSeparator, separator)
 
-export function Separator({ css: cssProp, ...props }: SeparatorProps) {
-  return <RacSeparator {...props} className={cx(separator(), css(cssProp))} />
-}
+export type SeparatorProps = ComponentProps<typeof Separator>
