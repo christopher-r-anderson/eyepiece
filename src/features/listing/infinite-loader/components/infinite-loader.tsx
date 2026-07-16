@@ -1,10 +1,10 @@
 import { startTransition, useEffect } from 'react'
 import { css } from 'styled-system/css'
+import { VisuallyHidden } from 'styled-system/jsx'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
 import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
-import { RacVisuallyHidden } from '@/components/ui/a11y'
 
 export function InfiniteLoader({
   children,
@@ -40,11 +40,11 @@ export function InfiniteLoader({
     <div {...props}>
       {children}
       <div className={css({ position: 'relative' })}>
-        <RacVisuallyHidden>
+        <VisuallyHidden>
           <div role="status" aria-live="polite" aria-atomic="true">
             {status}
           </div>
-        </RacVisuallyHidden>
+        </VisuallyHidden>
       </div>
 
       <div ref={sentinelRef} />

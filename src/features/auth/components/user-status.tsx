@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-// aliased: a JSX element named VisuallyHidden matches Panda's built-in
-// pattern and emits a dead .sr_true rule
-import { VisuallyHidden as RacVisuallyHidden } from 'react-aria'
+import { VisuallyHidden } from 'styled-system/jsx'
 import { UserMenu } from './user-menu'
 import { LoginLink } from './login-link'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
@@ -26,10 +24,10 @@ export function UserStatus() {
   }, [isPending, user])
   return (
     <>
-      <RacVisuallyHidden aria-live="polite" aria-atomic="true">
+      <VisuallyHidden aria-live="polite" aria-atomic="true">
         {authStatus === 'logged-in' ? 'User menu loaded.' : ''}
         {authStatus === 'logged-out' ? 'Please log in to see the menu.' : ''}
-      </RacVisuallyHidden>
+      </VisuallyHidden>
       <StableVisibilityStack activeKey={authStatus}>
         <StableVisibilityStackItem itemKey="logged-out" align="center">
           <LoginLink />
