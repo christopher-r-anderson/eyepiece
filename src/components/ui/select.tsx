@@ -12,6 +12,8 @@ import type { StyleProps } from './style-props'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
 
+const slots = select()
+
 type SelectProps<T extends object> = {
   items: Array<T>
   getItemId: (item: T) => string
@@ -42,7 +44,7 @@ function hasRenderableHref(
 
 function Caret() {
   return (
-    <span aria-hidden="true" className={select().caret}>
+    <span aria-hidden="true" className={slots.caret}>
       <CaretDownIcon />
     </span>
   )
@@ -64,7 +66,7 @@ export function Select<T extends object>({
     <RacSelect
       placeholder={placeholder}
       {...props}
-      className={cx(select().root, css(cssProp), className)}
+      className={cx(slots.root, css(cssProp), className)}
     >
       <Button
         variant={buttonVariant}
@@ -86,7 +88,7 @@ export function Select<T extends object>({
           },
         })}
       >
-        <SelectValue className={select().item}>
+        <SelectValue className={slots.item}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
         <Caret />
@@ -98,27 +100,22 @@ export function Select<T extends object>({
               id={getItemId(item)}
               textValue={getItemText(item)}
               render={(domProps, itemProps) => {
+                const content = renderItem
+                  ? renderItem(item, itemProps)
+                  : getItemText(item)
+                const itemClass = cx(slots.item, domProps.className)
+
                 if (hasRenderableHref(domProps)) {
                   return (
-                    <a
-                      {...domProps}
-                      className={cx(select().item, domProps.className)}
-                    >
-                      {renderItem
-                        ? renderItem(item, itemProps)
-                        : getItemText(item)}
+                    <a {...domProps} className={itemClass}>
+                      {content}
                     </a>
                   )
                 }
 
                 return (
-                  <div
-                    {...domProps}
-                    className={cx(select().item, domProps.className)}
-                  >
-                    {renderItem
-                      ? renderItem(item, itemProps)
-                      : getItemText(item)}
+                  <div {...domProps} className={itemClass}>
+                    {content}
                   </div>
                 )
               }}

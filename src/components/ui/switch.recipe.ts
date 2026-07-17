@@ -2,8 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const switchRecipe = defineRecipe({
   className: 'switch',
-  // jsx tracking: the component name does not match the recipe name
-  jsx: ['Switch'],
+  // typed variants are forwardable at runtime, invisible to jsx tracking
+  staticCss: [{ variant: ['*'] }],
   base: {
     display: 'inline-flex',
     alignItems: 'center',

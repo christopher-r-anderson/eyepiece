@@ -2,7 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const headingRecipe = defineRecipe({
   className: 'heading',
-  staticCss: ['*'],
+  // typed variants are forwardable at runtime, invisible to jsx tracking
+  staticCss: [{ level: ['*'] }],
   base: {
     margin: 0,
     color: 'inherit',

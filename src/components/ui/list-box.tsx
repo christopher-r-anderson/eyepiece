@@ -12,6 +12,9 @@ import type {
 } from 'react-aria-components'
 import type { StyleProps } from './style-props'
 
+const listBoxClass = listBox()
+const listBoxItemClass = listBoxItem()
+
 export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
 
 export function ListBox<T extends object>({
@@ -20,7 +23,10 @@ export function ListBox<T extends object>({
   ...props
 }: ListBoxProps<T>) {
   return (
-    <RacListBox {...props} className={cx(listBox(), css(cssProp), className)} />
+    <RacListBox
+      {...props}
+      className={cx(listBoxClass, css(cssProp), className)}
+    />
   )
 }
 
@@ -35,7 +41,7 @@ export function ListBoxItem({
   return (
     <RacListBoxItem
       {...props}
-      className={cx(listBoxItem(), css(cssProp), className)}
+      className={cx(listBoxItemClass, css(cssProp), className)}
       render={
         render
           ? (domProps, renderProps) => {

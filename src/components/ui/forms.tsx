@@ -25,6 +25,8 @@ import type {
   TextFieldProps as RacTextFieldProps,
 } from 'react-aria-components'
 
+const textFieldSlots = textField()
+
 export { FieldError, Input, Label }
 
 export type { FormState, FormErrorState } from './forms.types'
@@ -138,15 +140,15 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
-  // narrows RAC's className render-prop union for the cx merge
-  className?: string
-} & RacTextFieldProps
+} & StyleProps &
+  RacTextFieldProps
 
 export function TextField({
   description,
   label,
   placeholder,
   type,
+  css: cssProp,
   className,
   ...props
 }: TextFieldProps) {
@@ -163,13 +165,13 @@ export function TextField({
       id={inputId}
       type={actualType}
       {...props}
-      className={cx(textField().root, className)}
+      className={cx(textFieldSlots.root, css(cssProp), className)}
     >
-      <Label className={textField().label}>{label}</Label>
-      <div className={textField().control}>
+      <Label className={textFieldSlots.label}>{label}</Label>
+      <div className={textFieldSlots.control}>
         <Input
           placeholder={placeholder}
-          className={textField().input}
+          className={textFieldSlots.input}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (
@@ -193,11 +195,11 @@ export function TextField({
         )}
       </div>
       {description && (
-        <Text slot="description" className={textField().description}>
+        <Text slot="description" className={textFieldSlots.description}>
           {description}
         </Text>
       )}
-      <FieldError className={textField().error} />
+      <FieldError className={textFieldSlots.error} />
     </RacTextField>
   )
 }

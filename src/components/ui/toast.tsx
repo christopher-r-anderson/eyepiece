@@ -11,6 +11,8 @@ import { Button } from './button'
 import { toastQueue } from './toast.hooks'
 import type { ToastProps } from 'react-aria-components'
 
+const slots = toastRecipe()
+
 export interface ToastContent {
   title: string
   description?: string
@@ -18,15 +20,15 @@ export interface ToastContent {
 
 export function ToastRegion() {
   return (
-    <RacToastRegion queue={toastQueue} className={toastRecipe().region}>
+    <RacToastRegion queue={toastQueue} className={slots.region}>
       {({ toast }) => (
         <Toast
           toast={toast}
           style={{ viewTransitionName: toast.key }}
-          className={toastRecipe().root}
+          className={slots.root}
         >
-          <RacToastContent className={toastRecipe().content}>
-            <Text slot="title" className={toastRecipe().title}>
+          <RacToastContent className={slots.content}>
+            <Text slot="title" className={slots.title}>
               {toast.content.title}
             </Text>
             {toast.content.description && (

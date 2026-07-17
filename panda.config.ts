@@ -16,7 +16,12 @@ import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
 import { selectRecipe } from '@/components/ui/select.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
-import { sliderRecipe } from '@/components/ui/slider.recipe'
+import {
+  sliderOutputRecipe,
+  sliderRecipe,
+  sliderThumbRecipe,
+  sliderTrackRecipe,
+} from '@/components/ui/slider.recipe'
 import { switchRecipe } from '@/components/ui/switch.recipe'
 import { textFieldRecipe } from '@/components/ui/text-field.recipe'
 import { toastRecipe } from '@/components/ui/toast.recipe'
@@ -104,6 +109,10 @@ export default defineConfig({
       popover: popoverRecipe,
       searchField: searchFieldRecipe,
       separator: separatorRecipe,
+      slider: sliderRecipe,
+      sliderOutput: sliderOutputRecipe,
+      sliderThumb: sliderThumbRecipe,
+      sliderTrack: sliderTrackRecipe,
       // key avoids generating an unimportable `switch` binding
       switchRecipe: switchRecipe,
       toggleButton: toggleButtonRecipe,
@@ -111,7 +120,6 @@ export default defineConfig({
     slotRecipes: {
       modalDialog: modalDialogRecipe,
       select: selectRecipe,
-      slider: sliderRecipe,
       textField: textFieldRecipe,
       toast: toastRecipe,
     },

@@ -2,6 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const toggleButtonRecipe = defineRecipe({
   className: 'toggle-button',
+  // typed variants are forwardable at runtime, invisible to jsx tracking
+  staticCss: [{ variant: ['*'] }],
   base: {
     display: 'inline-flex',
     alignItems: 'center',

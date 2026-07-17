@@ -8,6 +8,8 @@ import { Button } from './button'
 import { Heading } from './heading'
 import type { ReactNode } from 'react'
 
+const slots = modalDialog()
+
 const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
 
 let openModalCount = 0
@@ -61,11 +63,11 @@ export function ModalDialog({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable={isDismissable}
-      className={modalDialog().overlay}
+      className={slots.overlay}
     >
-      <RacModal className={modalDialog().modal}>
-        <Dialog aria-labelledby={titleId} className={modalDialog().dialog}>
-          <div className={modalDialog().header}>
+      <RacModal className={slots.modal}>
+        <Dialog aria-labelledby={titleId} className={slots.dialog}>
+          <div className={slots.header}>
             <Heading
               headingLevel={3}
               id={titleId}
@@ -107,7 +109,7 @@ export function ModalDialog({
               <XIcon aria-hidden="true" size={18} weight="bold" />
             </Button>
           </div>
-          <div className={modalDialog().body}>{children}</div>
+          <div className={slots.body}>{children}</div>
         </Dialog>
       </RacModal>
     </ModalOverlay>

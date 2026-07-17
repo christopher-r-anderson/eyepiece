@@ -2,7 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const formRecipe = defineRecipe({
   className: 'form',
-  staticCss: ['*'],
+  // typed variants are forwardable at runtime, invisible to jsx tracking
+  staticCss: [{ surface: ['*'] }],
   base: {
     width: '100%',
     padding: '4',
