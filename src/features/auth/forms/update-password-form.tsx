@@ -69,7 +69,7 @@ export function UpdatePasswordForm({
         </div>
       }
     >
-      <Heading id={id} headingLevel={headingLevel}>
+      <Heading id={id} level={headingLevel}>
         Update Password
       </Heading>
       <InputGroup>

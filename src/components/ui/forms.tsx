@@ -19,7 +19,7 @@ import {
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import type { FormVariantProps } from 'styled-system/recipes'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-props'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
@@ -40,8 +40,7 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
 } & FormVariantProps &
-  StyleProps &
-  RacFormProps
+  UiProps<RacFormProps>
 
 export const formActionsCss = css.raw({
   display: 'flex',
@@ -140,8 +139,7 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
-} & StyleProps &
-  RacTextFieldProps
+} & UiProps<RacTextFieldProps>
 
 export function TextField({
   description,

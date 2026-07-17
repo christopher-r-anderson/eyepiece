@@ -80,7 +80,7 @@ export function LoginForm({
         </div>
       }
     >
-      <Heading id={id} headingLevel={headingLevel}>
+      <Heading id={id} level={headingLevel}>
         Log In
       </Heading>
       <InputGroup>

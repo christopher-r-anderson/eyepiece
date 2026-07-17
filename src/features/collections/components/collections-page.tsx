@@ -12,7 +12,7 @@ export function CollectionsPage() {
       })}
     >
       <Heading
-        headingLevel={1}
+        level={1}
         css={css.raw({ color: 'text.accent', marginBlockEnd: 0 })}
       >
         Collections

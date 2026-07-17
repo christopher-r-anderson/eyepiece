@@ -3,7 +3,6 @@ import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
 import { select } from 'styled-system/recipes'
 import { Button } from './button'
-import type { ButtonProps } from './button'
 import type {
   ListBoxItemRenderProps,
   SelectProps as RacSelectProps,
@@ -20,7 +19,6 @@ type SelectProps<T extends object> = {
   // explicit getItemText keeps react aria from extracting text from complex children
   getItemText: (item: T) => string
   renderItem?: (item: T, itemProps?: ListBoxItemRenderProps) => React.ReactNode
-  buttonVariant?: ButtonProps['variant']
 } & StyleProps &
   Pick<
     RacSelectProps<T>,
@@ -55,7 +53,6 @@ export function Select<T extends object>({
   getItemId,
   getItemText,
   renderItem,
-  buttonVariant,
   css: cssProp,
   className,
   // defaulted internally so callers always have placeholder text (address when i18n lands)
@@ -69,7 +66,6 @@ export function Select<T extends object>({
       className={cx(slots.root, css(cssProp), className)}
     >
       <Button
-        variant={buttonVariant}
         css={css.raw({
           width: '100%',
           display: 'flex',

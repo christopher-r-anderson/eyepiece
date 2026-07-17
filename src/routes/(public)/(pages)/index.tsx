@@ -17,7 +17,7 @@ function HomePage() {
       })}
     >
       <Heading
-        headingLevel={1}
+        level={1}
         css={css.raw({
           fontSize: 'clamp(token(fontSizes.2xl), 5vw, 3rem)',
           marginTop: '4',

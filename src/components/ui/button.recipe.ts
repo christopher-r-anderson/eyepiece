@@ -2,8 +2,6 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const buttonRecipe = defineRecipe({
   className: 'button',
-  // typed variants are forwardable at runtime, invisible to jsx tracking
-  staticCss: [{ variant: ['*'] }],
   base: {
     border: 'none',
     minHeight: 'controlHeight',

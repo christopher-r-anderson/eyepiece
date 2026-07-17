@@ -4,21 +4,30 @@ import {
   SliderThumb as RacSliderThumb,
   SliderTrack as RacSliderTrack,
 } from 'react-aria-components'
-import { styled } from 'styled-system/jsx'
-import {
-  slider,
-  sliderOutput,
-  sliderThumb,
-  sliderTrack,
-} from 'styled-system/recipes'
+import { createStyleContext } from 'styled-system/jsx'
+import { slider } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
+import type { UiComponent } from './style-props'
 
-export const Slider = styled(RacSlider, slider)
+const ctx = createStyleContext(slider)
 
-export const SliderTrack = styled(RacSliderTrack, sliderTrack)
+export const Slider = ctx.withProvider(RacSlider, 'root') as UiComponent<
+  typeof RacSlider
+>
 
-export const SliderThumb = styled(RacSliderThumb, sliderThumb)
+export const SliderTrack = ctx.withContext(
+  RacSliderTrack,
+  'track',
+) as UiComponent<typeof RacSliderTrack>
 
-export const SliderOutput = styled(RacSliderOutput, sliderOutput)
+export const SliderThumb = ctx.withContext(
+  RacSliderThumb,
+  'thumb',
+) as UiComponent<typeof RacSliderThumb>
+
+export const SliderOutput = ctx.withContext(
+  RacSliderOutput,
+  'output',
+) as UiComponent<typeof RacSliderOutput>
 
 export type SliderProps = ComponentProps<typeof Slider>

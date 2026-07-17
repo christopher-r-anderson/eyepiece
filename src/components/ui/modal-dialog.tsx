@@ -69,7 +69,7 @@ export function ModalDialog({
         <Dialog aria-labelledby={titleId} className={slots.dialog}>
           <div className={slots.header}>
             <Heading
-              headingLevel={3}
+              level={3}
               id={titleId}
               css={css.raw({
                 flex: '1 1 auto',

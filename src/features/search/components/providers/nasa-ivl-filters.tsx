@@ -80,7 +80,6 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
         value={mediaType}
         getItemId={getIdProp}
         getItemText={getLabelProp}
-        buttonVariant="secondary"
         onChange={(value) => {
           if (onChange) {
             const newMediaType = value as MediaTypes

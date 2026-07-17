@@ -68,7 +68,7 @@ function SuccessRedirectMessage({
   const isHome = next === '/'
   return (
     <section className={css(formStatusPanelCss)}>
-      <Heading headingLevel={1} css={css.raw({ marginBlockEnd: 0 })}>
+      <Heading level={1} css={css.raw({ marginBlockEnd: 0 })}>
         Profile created!
       </Heading>
       <p>
@@ -83,7 +83,7 @@ function SuccessRedirectMessage({
 function SuccessStandardMessage() {
   return (
     <section className={css(formStatusPanelCss)}>
-      <Heading headingLevel={1} css={css.raw({ marginBlockEnd: 0 })}>
+      <Heading level={1} css={css.raw({ marginBlockEnd: 0 })}>
         Profile created!
       </Heading>
       <p>

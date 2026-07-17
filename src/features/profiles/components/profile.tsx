@@ -17,7 +17,7 @@ export function Profile({ profile }: { profile: Profile }) {
         boxShadow: 'sm',
       })}
     >
-      <Heading headingLevel={2} css={css.raw({ marginBlockEnd: 0 })}>
+      <Heading level={2} css={css.raw({ marginBlockEnd: 0 })}>
         {profile.displayName}
       </Heading>
       <p>Location: Milky Way</p>

@@ -10,12 +10,12 @@ import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-props'
 
 const listBoxClass = listBox()
 const listBoxItemClass = listBoxItem()
 
-export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
+export type ListBoxProps<T extends object> = UiProps<RacListBoxProps<T>>
 
 export function ListBox<T extends object>({
   css: cssProp,
@@ -30,7 +30,7 @@ export function ListBox<T extends object>({
   )
 }
 
-export type ListBoxItemProps = RacListBoxItemProps & StyleProps
+export type ListBoxItemProps = UiProps<RacListBoxItemProps>
 
 export function ListBoxItem({
   css: cssProp,

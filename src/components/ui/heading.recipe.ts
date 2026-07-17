@@ -2,7 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const headingRecipe = defineRecipe({
   className: 'heading',
-  // typed variants are forwardable at runtime, invisible to jsx tracking
+  // level is drilled and even computed (PrettyException renders level + 1),
+  // which no jit tracking can see
   staticCss: [{ level: ['*'] }],
   base: {
     margin: 0,

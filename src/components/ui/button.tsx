@@ -4,13 +4,13 @@ import { button } from 'styled-system/recipes'
 import type { Ref } from 'react'
 import type { ButtonProps as RacButtonProps } from 'react-aria-components'
 import type { ButtonVariantProps } from 'styled-system/recipes'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-props'
 
-export type ButtonProps = RacButtonProps & {
+export type ButtonProps = {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
 } & ButtonVariantProps &
-  StyleProps
+  UiProps<RacButtonProps>
 
 export function Button({
   children,

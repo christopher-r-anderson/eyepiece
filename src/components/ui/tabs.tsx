@@ -7,7 +7,7 @@ import {
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-props'
 
 export const tabListStyles = css.raw({
   display: 'flex',
@@ -49,15 +49,15 @@ export const tabPanelStyles = css.raw({
   padding: '4',
 })
 
-export type TabsProps = ComponentProps<typeof RacTabs> & StyleProps
+export type TabsProps = UiProps<ComponentProps<typeof RacTabs>>
 
-export type TabListProps = ComponentProps<typeof RacTabList> & StyleProps
+export type TabListProps = UiProps<ComponentProps<typeof RacTabList>>
 
-export type TabProps = ComponentProps<typeof RacTab> & StyleProps
+export type TabProps = UiProps<ComponentProps<typeof RacTab>>
 
-export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & StyleProps
+export type TabPanelsProps = UiProps<ComponentProps<typeof RacTabPanels>>
 
-export type TabPanelProps = ComponentProps<typeof RacTabPanel> & StyleProps
+export type TabPanelProps = UiProps<ComponentProps<typeof RacTabPanel>>
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (

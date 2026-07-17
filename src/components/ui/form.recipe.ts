@@ -2,7 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const formRecipe = defineRecipe({
   className: 'form',
-  // typed variants are forwardable at runtime, invisible to jsx tracking
+  // surface is prop-drilled through the feature form components, so jit
+  // tracking never sees a literal value
   staticCss: [{ surface: ['*'] }],
   base: {
     width: '100%',

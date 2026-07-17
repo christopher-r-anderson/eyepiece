@@ -1,5 +1,5 @@
 import { ToggleButton as RacToggleButton } from 'react-aria-components'
-import { styled } from 'styled-system/jsx'
 import { toggleButton } from 'styled-system/recipes'
+import { uiStyled } from './style-props'
 
-export const ToggleButton = styled(RacToggleButton, toggleButton)
+export const ToggleButton = uiStyled(RacToggleButton, toggleButton)

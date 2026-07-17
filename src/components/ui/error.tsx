@@ -60,7 +60,7 @@ const PrettyError = ({
 
   return (
     <>
-      <Heading headingLevel={headingLevel}>{display.title}</Heading>
+      <Heading level={headingLevel}>{display.title}</Heading>
       <dl>
         {display.name && (
           <>
@@ -114,7 +114,7 @@ export function PrettyException({
 
   return (
     <div>
-      <Heading headingLevel={headingLevel}>{display.title}</Heading>
+      <Heading level={headingLevel}>{display.title}</Heading>
       <p>{display.message}</p>
     </div>
   )
