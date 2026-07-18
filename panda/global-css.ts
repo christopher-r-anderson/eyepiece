@@ -26,9 +26,6 @@ export const globalCss = defineGlobalStyles({
     textDecorationThickness: '0.08em',
     textUnderlineOffset: '0.18em',
   },
-  'p:not(:first-child)': {
-    marginBlockStart: '3',
-  },
   // preflight unstyles lists; content lists get browser markers back and
   // component lists opt back out locally
   'ul, ol': {

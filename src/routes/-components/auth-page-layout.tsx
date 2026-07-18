@@ -1,5 +1,6 @@
 import { Outlet } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 
 export function AuthPageLayout() {
   return (
@@ -15,7 +16,8 @@ export function AuthPageLayout() {
       })}
     >
       <div
-        className={css({
+        className={grid({
+          gap: '4',
           width: '100%',
           maxWidth: '32rem',
           margin: '0 auto',

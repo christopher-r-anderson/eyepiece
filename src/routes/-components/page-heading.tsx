@@ -11,11 +11,6 @@ const pageHeadingStyles = css.raw({
   fontSize: 'clamp(token(fontSizes.2xl), 4vw, 2.5rem)',
   fontWeight: 'bold',
   lineHeight: 'tight',
-  marginTop: '4',
-  marginInline: 0,
-  marginBlockEnd: '6',
-  padding: 0,
-  alignSelf: 'flex-start',
 })
 
 export function PageHeading({ css: styles, ...props }: PageHeadingProps) {

@@ -87,9 +87,7 @@ export function DevPageIntro({
       </div>
 
       <div className={css(devTextStackCss)}>
-        <PageHeading css={css.raw({ marginTop: 0, marginBlockEnd: 0 })}>
-          {title}
-        </PageHeading>
+        <PageHeading>{title}</PageHeading>
         <p
           className={css(
             { maxWidth: 'readingMax' },

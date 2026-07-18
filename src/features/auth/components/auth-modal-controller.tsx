@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
+import { grid } from 'styled-system/patterns'
 import type { AuthModalState } from '@/features/auth/auth.schema'
 import { stripAuthSearchParams } from '@/features/auth/auth.utils'
 import { LoginForm } from '@/features/auth/forms/login-form'
@@ -102,7 +103,7 @@ function LoginSection({
   onSuccess: () => void
 }) {
   return (
-    <>
+    <div className={grid({ gap: '4' })}>
       <LoginForm
         headingLevel={3}
         onSuccess={onSuccess}
@@ -122,7 +123,7 @@ function LoginSection({
           Visit the full log in page
         </Link>
       </p>
-    </>
+    </div>
   )
 }
 
