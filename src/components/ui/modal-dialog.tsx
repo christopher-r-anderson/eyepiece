@@ -73,7 +73,6 @@ export function ModalDialog({
               id={titleId}
               css={css.raw({
                 flex: '1 1 auto',
-                marginBlockEnd: 0,
                 minWidth: 0,
               })}
             >

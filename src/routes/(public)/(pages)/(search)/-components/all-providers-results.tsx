@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
-import { css } from 'styled-system/css'
 import { grid, wrap } from 'styled-system/patterns'
 import { AssetResultsGrid } from './asset-results-grid'
 import type { ProviderId } from '@/domain/provider/provider.schema'
@@ -53,7 +52,7 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           marginBottom: '4',
         })}
       >
-        <Heading level={2} id={headingId} css={css.raw({ marginBlockEnd: 0 })}>
+        <Heading level={2} id={headingId}>
           {display.displayName}
         </Heading>
         <Link

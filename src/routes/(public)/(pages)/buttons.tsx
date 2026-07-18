@@ -18,9 +18,7 @@ function RouteComponent() {
         gap: '4',
       })}
     >
-      <Heading level={1} css={css.raw({ marginBlockEnd: 0 })}>
-        Buttons
-      </Heading>
+      <Heading level={1}>Buttons</Heading>
       <p>This page is for testing button styles.</p>
       <p>
         <Button>Secondary Button</Button>

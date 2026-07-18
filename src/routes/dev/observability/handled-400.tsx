@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import { DevBackLink } from '../-components'
 import { createDevObservabilityValidationResponse } from './-helpers'
@@ -15,11 +14,7 @@ export const Route = createFileRoute('/dev/observability/handled-400')({
     <div className={grid({ gap: '4' })}>
       <RouteError
         error={error}
-        heading={
-          <Heading level={2} css={css.raw({ marginBlockEnd: 0 })}>
-            Handled 400 Scenario
-          </Heading>
-        }
+        heading={<Heading level={2}>Handled 400 Scenario</Heading>}
         message="This route intentionally returns a handled 400 response and should stay low-noise in Sentry."
         captureContext={{
           boundaryKind: 'route',

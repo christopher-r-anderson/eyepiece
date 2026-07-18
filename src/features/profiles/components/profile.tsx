@@ -1,4 +1,3 @@
-import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { Heading } from '@/components/ui/heading'
@@ -17,9 +16,7 @@ export function Profile({ profile }: { profile: Profile }) {
         boxShadow: 'sm',
       })}
     >
-      <Heading level={2} css={css.raw({ marginBlockEnd: 0 })}>
-        {profile.displayName}
-      </Heading>
+      <Heading level={2}>{profile.displayName}</Heading>
       <p>Location: Milky Way</p>
     </section>
   )

@@ -135,9 +135,7 @@ export function DevTitleBlock({
 }) {
   return (
     <div className={css(devTextStackCss)}>
-      <Heading level={headingLevel} css={css.raw({ marginBlockEnd: 0 })}>
-        {title}
-      </Heading>
+      <Heading level={headingLevel}>{title}</Heading>
       {description ? <p>{description}</p> : null}
     </div>
   )
