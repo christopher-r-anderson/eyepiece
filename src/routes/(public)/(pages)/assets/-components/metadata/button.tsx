@@ -37,12 +37,9 @@ export function MetadataButton({
         onFocus={prefetch}
         onPressStart={prefetch}
         variant="secondary"
+        size="icon"
         css={css.raw(
           {
-            minWidth: 'controlHeightSm',
-            minHeight: 'controlHeightSm',
-            padding: '2',
-            margin: 0,
             color: 'text.muted',
             _hovered: {
               color: 'text',
