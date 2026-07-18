@@ -4,15 +4,15 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
+import type { FormProps } from '@/components/ui/forms'
 import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,
+  FormActions,
   InputGroup,
   TextField,
-  formActionButtonCss,
-  formActionsCss,
   formStatusPanelCss,
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,7 @@ export function RegistrationForm({
   headingLevel: HeadingLevel
   next?: string
   onSuccess: () => void
-  surface?: 'plain' | 'panel'
+  surface?: FormProps['surface']
 }) {
   const id = useId()
   const redirectTo = useEmailRedirectTo(next)
@@ -65,16 +65,11 @@ export function RegistrationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div className={css(formActionsCss)}>
-          <Button
-            variant="primary"
-            type="submit"
-            isDisabled={isPending}
-            css={formActionButtonCss}
-          >
+        <FormActions>
+          <Button variant="primary" type="submit" isDisabled={isPending}>
             Register
           </Button>
-        </div>
+        </FormActions>
       }
     >
       <Heading id={id} level={headingLevel}>

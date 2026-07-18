@@ -10,7 +10,7 @@ import {
   devPageSectionCss,
 } from '../-components'
 import { Button } from '@/components/ui/button'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { SearchInput } from '@/features/search/components/search-bar/search-input'
 import { YearRangeSlider } from '@/features/search/components/providers/nasa-ivl-filters/year-range-slider'
 import { ToggleButton } from '@/components/ui/toggle-button'
@@ -123,10 +123,11 @@ function DevUiControlsPage() {
           headingLevel={3}
         />
         <Form
+          layout="page"
           controls={
-            <Button type="submit" css={css.raw({ justifySelf: 'start' })}>
-              Submit
-            </Button>
+            <FormActions>
+              <Button type="submit">Submit</Button>
+            </FormActions>
           }
         >
           <InputGroup>

@@ -39,6 +39,7 @@ function ProfilePage() {
         initialData={maybeProfile}
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
+        layout="page"
       />
       {showSuccessMessage && <p>Profile Updated.</p>}
     </>
