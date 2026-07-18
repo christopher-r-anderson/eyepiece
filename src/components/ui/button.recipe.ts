@@ -41,8 +41,7 @@ export const buttonRecipe = defineRecipe({
         _disabled: { color: 'primary.textMuted' },
       },
       secondary: {
-        border:
-          '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+        border: 'control',
         backgroundColor: 'secondary.bg',
         color: 'secondary.text',
         _hovered: {

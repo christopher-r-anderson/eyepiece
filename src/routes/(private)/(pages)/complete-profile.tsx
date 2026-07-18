@@ -50,7 +50,7 @@ function CompleteProfilePage() {
       <div
         className={css({
           width: '100%',
-          maxWidth: '32rem',
+          maxWidth: 'formMax',
           marginInline: 'auto',
         })}
       >

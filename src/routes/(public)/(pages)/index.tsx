@@ -14,7 +14,7 @@ function HomePage() {
         display: 'grid',
         gap: '6',
         width: '100%',
-        maxWidth: '45rem',
+        maxWidth: 'pageColMax',
         marginInline: 'auto',
       })}
     >

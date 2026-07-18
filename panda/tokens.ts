@@ -26,6 +26,8 @@ export const tokens = defineTokens({
   sizes: {
     contentMax: { value: '72rem' },
     readingMax: { value: '65ch' },
+    formMax: { value: '32rem' },
+    pageColMax: { value: '40rem' },
     touchTargetMin: { value: '44px' },
     controlHeight: { value: 'clamp(2.25rem, 2.1rem + 0.5vw, 2.75rem)' },
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
@@ -52,6 +54,10 @@ export const tokens = defineTokens({
   },
   borders: {
     default: { value: '1px solid {colors.border}' },
+    control: {
+      value:
+        '1px solid color-mix(in oklab, {colors.border} 88%, {colors.text} 12%)',
+    },
     separator: { value: '1px solid {colors.separator}' },
     // the app's single focus ring, applied as outline: 'focusRing'
     focusRing: { value: '1px solid {colors.outline}' },

@@ -71,8 +71,7 @@ export function Select<T extends object>({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          border:
-            '1px solid color-mix(in oklab, token(colors.border) 80%, token(colors.text) 20%)',
+          border: 'control',
           backgroundColor:
             'color-mix(in oklab, token(colors.secondary.bg) 78%, token(colors.background) 22%)',
           _hovered: {

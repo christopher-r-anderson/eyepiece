@@ -7,7 +7,7 @@ export function Profile({ profile }: { profile: Profile }) {
     <section
       className={grid({
         width: '100%',
-        maxWidth: '40rem',
+        maxWidth: 'pageColMax',
         gap: '3',
         padding: '5',
         border: 'default',

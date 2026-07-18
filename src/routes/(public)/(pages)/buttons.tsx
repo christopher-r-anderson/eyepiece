@@ -14,7 +14,7 @@ function RouteComponent() {
     <div
       className={grid({
         width: '100%',
-        maxWidth: '40rem',
+        maxWidth: 'pageColMax',
         gap: '4',
       })}
     >
@@ -28,7 +28,7 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          css={css.raw({ width: 'min(100%, 37.5rem)' })}
+          css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}
           icon={MagnifyingGlassIcon}
         >
           Secondary Button
@@ -36,7 +36,7 @@ function RouteComponent() {
       </p>
       <p>
         <Button
-          css={css.raw({ width: 'min(100%, 37.5rem)' })}
+          css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}
           icon={MagnifyingGlassIcon}
         >
           <span className={css({ flex: 1, minWidth: 0 })}>
@@ -45,7 +45,7 @@ function RouteComponent() {
         </Button>
       </p>
       <p>
-        <Button css={css.raw({ width: 'min(100%, 37.5rem)' })}>
+        <Button css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}>
           {() => (
             <>
               <span className={css({ flex: 1, minWidth: 0 })}>
