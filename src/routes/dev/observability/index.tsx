@@ -145,6 +145,16 @@ function DevObservabilityPage() {
             </Link>
           }
         />
+
+        <DevLinkCard
+          title="Root Boundary Render"
+          description="Renders the root route error boundary directly, including a nested cause chain."
+          action={
+            <Link to="/dev/observability/root-boundary">
+              Open root boundary route
+            </Link>
+          }
+        />
       </div>
     </div>
   )

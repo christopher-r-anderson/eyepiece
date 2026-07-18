@@ -71,10 +71,10 @@ function EmailOtpError() {
       </p>
       <FormStatusSwitcher
         showStatus={successfulResend}
-        status={<ResendConfirmationSuccessMessage headingLevel={1} />}
+        status={<ResendConfirmationSuccessMessage headingLevel={2} />}
       >
         <ResendConfirmationForm
-          headingLevel={1}
+          headingLevel={2}
           onSuccess={() => setSuccessfulResend(true)}
         />
       </FormStatusSwitcher>
@@ -89,14 +89,16 @@ function UnknownError() {
       <p>
         Sorry, something went wrong. If you were trying to register or reset
         your password, these links can help:
-        <ul>
-          <li>
-            <Link to="/register">Registration Page</Link>
-          </li>
-          <li>
-            <Link to="/auth/forgot-password">Forgot Password Page</Link>
-          </li>
-        </ul>
+      </p>
+      <ul>
+        <li>
+          <Link to="/register">Registration Page</Link>
+        </li>
+        <li>
+          <Link to="/auth/forgot-password">Forgot Password Page</Link>
+        </li>
+      </ul>
+      <p>
         Or you can visit our <Link to="/">Homepage</Link>.
       </p>
     </>

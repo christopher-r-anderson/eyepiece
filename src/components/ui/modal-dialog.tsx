@@ -6,6 +6,7 @@ import { css } from 'styled-system/css'
 import { modalDialog } from 'styled-system/recipes'
 import { Button } from './button'
 import { Heading } from './heading'
+import type { HeadingLevel } from './heading'
 import type { ReactNode } from 'react'
 
 const slots = modalDialog()
@@ -32,6 +33,8 @@ export type ModalDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   title: string
+  // the dialog is its own overlay outline, rooted at the title
+  titleLevel?: HeadingLevel
 }
 
 export function ModalDialog({
@@ -40,6 +43,7 @@ export function ModalDialog({
   isOpen,
   onOpenChange,
   title,
+  titleLevel = 2,
 }: ModalDialogProps) {
   const titleId = useId()
 
@@ -69,7 +73,7 @@ export function ModalDialog({
         <Dialog aria-labelledby={titleId} className={slots.dialog}>
           <div className={slots.header}>
             <Heading
-              level={3}
+              level={titleLevel}
               id={titleId}
               css={css.raw({
                 flex: '1 1 auto',

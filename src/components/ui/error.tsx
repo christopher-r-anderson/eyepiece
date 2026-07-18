@@ -2,7 +2,10 @@ import { grid } from 'styled-system/patterns'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Heading } from '@/components/ui/heading'
 
-const exceptionStackCss = grid({ gap: '2' })
+const exceptionStackCss = grid({
+  gap: '2',
+  '& dd': { paddingInlineStart: '3' },
+})
 
 const SHOW_EXCEPTION_DETAILS = import.meta.env.DEV
 
@@ -52,53 +55,46 @@ export function getPrettyExceptionDisplay(
   }
 }
 
-const PrettyError = ({
-  error,
-  headingLevel,
-}: {
-  error: Error
-  headingLevel: HeadingLevel
-}) => {
+// the cause chain is nested data, not a document hierarchy - each cause
+// nests its own list under a Cause row instead of adding deeper headings
+function PrettyErrorDetails({ error }: { error: unknown }) {
   const display = getPrettyExceptionDisplay(error)
 
   return (
-    <div className={exceptionStackCss}>
-      <Heading level={headingLevel}>{display.title}</Heading>
-      <dl>
-        {display.name && (
-          <>
-            <dt>Name</dt>
-            <dd>
-              <pre>{display.name}</pre>
-            </dd>
-          </>
-        )}
-        {display.code && (
-          <>
-            <dt>Code</dt>
-            <dd>
-              <pre>{display.code}</pre>
-            </dd>
-          </>
-        )}
-        {display.message && (
-          <>
-            <dt>Message</dt>
-            <dd>
-              <pre>{display.message}</pre>
-            </dd>
-          </>
-        )}
-      </dl>
-      {display.cause != null && (
-        <PrettyException
-          error={display.cause}
-          headingLevel={
-            (headingLevel < 6 ? headingLevel + 1 : 6) as HeadingLevel
-          }
-        />
+    <dl>
+      {display.name && (
+        <>
+          <dt>Name</dt>
+          <dd>
+            <pre>{display.name}</pre>
+          </dd>
+        </>
       )}
-    </div>
+      {display.code && (
+        <>
+          <dt>Code</dt>
+          <dd>
+            <pre>{display.code}</pre>
+          </dd>
+        </>
+      )}
+      {display.message && (
+        <>
+          <dt>Message</dt>
+          <dd>
+            <pre>{display.message}</pre>
+          </dd>
+        </>
+      )}
+      {display.cause != null && (
+        <>
+          <dt>Cause</dt>
+          <dd>
+            <PrettyErrorDetails error={display.cause} />
+          </dd>
+        </>
+      )}
+    </dl>
   )
 }
 
@@ -111,14 +107,14 @@ export function PrettyException({
 }) {
   const display = getPrettyExceptionDisplay(error)
 
-  if (error instanceof Error) {
-    return <PrettyError error={error} headingLevel={headingLevel} />
-  }
-
   return (
     <div className={exceptionStackCss}>
       <Heading level={headingLevel}>{display.title}</Heading>
-      <p>{display.message}</p>
+      {error instanceof Error ? (
+        <PrettyErrorDetails error={error} />
+      ) : (
+        <p>{display.message}</p>
+      )}
     </div>
   )
 }
