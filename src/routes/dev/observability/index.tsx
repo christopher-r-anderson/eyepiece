@@ -10,7 +10,7 @@ import {
   devCardGridCss,
 } from '../-components'
 import { Button } from '@/components/ui/button'
-import { Form, InputGroup, TextField } from '@/components/ui/forms'
+import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { CapturedPrettyError } from '@/app/layout/route-error'
 import { Link } from '@/components/ui/link'
@@ -167,14 +167,11 @@ function HandledObservabilityForm() {
       formError={state.error}
       aria-busy={isPending || undefined}
       controls={
-        <Button
-          variant="primary"
-          type="submit"
-          isDisabled={isPending}
-          css={css.raw({ justifySelf: 'start' })}
-        >
-          Submit handled scenario
-        </Button>
+        <FormActions>
+          <Button variant="primary" type="submit" isDisabled={isPending}>
+            Submit handled scenario
+          </Button>
+        </FormActions>
       }
     >
       <InputGroup>

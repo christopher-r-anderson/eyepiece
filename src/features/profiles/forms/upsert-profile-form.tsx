@@ -1,17 +1,10 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
-import { css } from 'styled-system/css'
 import { useProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
 import { Heading } from '@/components/ui/heading'
-import {
-  Form,
-  InputGroup,
-  TextField,
-  formActionButtonCss,
-  formActionsCss,
-} from '@/components/ui/forms'
+import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -26,6 +19,7 @@ export function UpsertProfileForm({
   isDisabled,
   onSuccess,
   surface,
+  layout,
 }: {
   actionType: ActionType
   headingLevel: HeadingLevel
@@ -33,6 +27,7 @@ export function UpsertProfileForm({
   isDisabled?: boolean
   onSuccess: () => void
   surface?: 'plain' | 'panel'
+  layout?: 'action' | 'page'
 }) {
   const headingId = useId()
   const profilesCommands = useProfilesCommands()
@@ -59,19 +54,19 @@ export function UpsertProfileForm({
       validationErrors={state.fieldErrors}
       formError={state.error}
       surface={surface}
+      layout={layout}
       aria-labelledby={headingId}
       aria-busy={isPending || undefined}
       controls={
-        <div className={css(formActionsCss)}>
+        <FormActions>
           <Button
             variant="primary"
             type="submit"
             isDisabled={isDisabled || isPending}
-            css={formActionButtonCss}
           >
             {isUpdating ? 'Update' : 'Create'}
           </Button>
-        </div>
+        </FormActions>
       }
     >
       <Heading id={headingId} level={headingLevel}>

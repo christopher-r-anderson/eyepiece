@@ -7,12 +7,7 @@ import type { HeadingLevel } from '@/components/ui/heading'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
-import {
-  Form,
-  InputGroup,
-  formActionButtonCss,
-  formActionsCss,
-} from '@/components/ui/forms'
+import { Form, FormActions, InputGroup } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -57,16 +52,11 @@ export function UpdatePasswordForm({
       surface={surface}
       aria-busy={isPending || undefined}
       controls={
-        <div className={css(formActionsCss)}>
-          <Button
-            variant="primary"
-            type="submit"
-            isDisabled={isPending}
-            css={formActionButtonCss}
-          >
+        <FormActions>
+          <Button variant="primary" type="submit" isDisabled={isPending}>
             Update
           </Button>
-        </div>
+        </FormActions>
       }
     >
       <Heading id={id} level={headingLevel}>

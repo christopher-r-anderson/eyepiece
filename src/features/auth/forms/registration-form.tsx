@@ -9,10 +9,9 @@ import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,
+  FormActions,
   InputGroup,
   TextField,
-  formActionButtonCss,
-  formActionsCss,
   formStatusPanelCss,
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -65,16 +64,11 @@ export function RegistrationForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div className={css(formActionsCss)}>
-          <Button
-            variant="primary"
-            type="submit"
-            isDisabled={isPending}
-            css={formActionButtonCss}
-          >
+        <FormActions>
+          <Button variant="primary" type="submit" isDisabled={isPending}>
             Register
           </Button>
-        </div>
+        </FormActions>
       }
     >
       <Heading id={id} level={headingLevel}>

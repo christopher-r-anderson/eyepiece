@@ -47,13 +47,21 @@ function CompleteProfilePage() {
         )
       }
     >
-      <UpsertProfileForm
-        actionType="create"
-        onSuccess={onUpdateSuccess}
-        headingLevel={1}
-        surface="panel"
-        initialData={{ id: user.id }}
-      />
+      <div
+        className={css({
+          width: '100%',
+          maxWidth: '32rem',
+          marginInline: 'auto',
+        })}
+      >
+        <UpsertProfileForm
+          actionType="create"
+          onSuccess={onUpdateSuccess}
+          headingLevel={1}
+          surface="panel"
+          initialData={{ id: user.id }}
+        />
+      </div>
     </FormStatusSwitcher>
   )
 }

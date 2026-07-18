@@ -2,17 +2,11 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
-import {
-  Form,
-  InputGroup,
-  TextField,
-  formActionButtonCss,
-} from '@/components/ui/forms'
+import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
@@ -60,23 +54,12 @@ export function LoginForm({
       aria-labelledby={id}
       aria-busy={isPending || undefined}
       controls={
-        <div
-          className={grid({
-            gridTemplateColumns: 'minmax(0, 1fr)',
-            gap: '3',
-            alignItems: 'center',
-          })}
-        >
+        <FormActions>
           <div className={css({ minWidth: 0 })}>{forgotPasswordLink}</div>
-          <Button
-            variant="primary"
-            type="submit"
-            isDisabled={isPending}
-            css={formActionButtonCss}
-          >
+          <Button variant="primary" type="submit" isDisabled={isPending}>
             Log In
           </Button>
-        </div>
+        </FormActions>
       }
     >
       <Heading id={id} level={headingLevel}>
