@@ -54,7 +54,7 @@ export function AssetDetail({ asset }: { asset: Asset }) {
       <figcaption>
         <div
           className={css({
-            maxWidth: 'calc(clamp(45ch, 90%, 75ch) + 1rem)',
+            maxWidth: 'calc(clamp(45ch, 90%, token(sizes.readingMax)) + 1rem)',
             margin: 0,
             lineHeight: 'base',
             whiteSpace: 'pre-line',

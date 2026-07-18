@@ -25,8 +25,7 @@ export const textFieldRecipe = defineSlotRecipe({
       paddingInline: '3',
       gap: '2',
       borderRadius: 'md',
-      border:
-        '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+      border: 'control',
       backgroundColor: 'secondary.bg',
       color: 'secondary.text',
       boxShadow: 'sm',

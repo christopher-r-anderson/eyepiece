@@ -19,7 +19,7 @@ export function AuthPageLayout() {
         className={grid({
           gap: '4',
           width: '100%',
-          maxWidth: '32rem',
+          maxWidth: 'formMax',
           margin: '0 auto',
           backgroundColor: 'tertiary.bg',
           border: 'default',

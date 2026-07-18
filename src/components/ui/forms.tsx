@@ -44,7 +44,7 @@ export type FormProps = {
 
 export const formStatusPanelCss = css.raw({
   width: '100%',
-  maxWidth: '32rem',
+  maxWidth: 'formMax',
   display: 'grid',
   gap: '3',
 })

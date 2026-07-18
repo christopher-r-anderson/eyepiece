@@ -155,7 +155,7 @@ function SearchPage() {
       <div
         className={css({
           width: '100%',
-          maxWidth: '40rem',
+          maxWidth: 'pageColMax',
           marginInline: 'auto',
           paddingInline: '4',
         })}

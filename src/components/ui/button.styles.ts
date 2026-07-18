@@ -11,8 +11,7 @@ export const ghostVisualStyles = defineStyles({
   color: 'primary.textMuted',
   _hovered: {
     color: 'text',
-    border:
-      '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
+    border: 'control',
     backgroundColor:
       'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
   },
