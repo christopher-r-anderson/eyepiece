@@ -24,11 +24,6 @@ import {
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
 
-const fullPageLinkCss = css.raw({
-  color: 'link',
-  textDecoration: 'underline',
-})
-
 function showForgotPasswordSearch<T extends Record<string, unknown>>(prev: T) {
   return {
     ...stripAuthSearchParams(prev),
@@ -114,12 +109,7 @@ function LoginSection({
         }
       />
       <p>
-        <Link
-          to="/login"
-          search={{ next }}
-          css={fullPageLinkCss}
-          viewTransition={false}
-        >
+        <Link to="/login" search={{ next }} underline viewTransition={false}>
           Visit the full log in page
         </Link>
       </p>
@@ -144,7 +134,7 @@ function ForgotPasswordSection({ next }: { next: string }) {
         <Link
           to="/auth/forgot-password"
           search={{ next }}
-          css={fullPageLinkCss}
+          underline
           viewTransition={false}
         >
           Visit the full forgot password page
@@ -167,12 +157,7 @@ function RegistrationSection({ next }: { next: string }) {
         next={next}
       />
       <p>
-        <Link
-          to="/register"
-          search={{ next }}
-          css={fullPageLinkCss}
-          viewTransition={false}
-        >
+        <Link to="/register" search={{ next }} underline viewTransition={false}>
           Visit the full register page
         </Link>
       </p>

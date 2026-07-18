@@ -5,10 +5,7 @@ import {
   RegistrationSuccessMessage,
 } from '@/features/auth/forms/registration-form'
 import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
-import {
-  AuthAltAction,
-  authAltActionLinkCss,
-} from '@/features/auth/components/auth-alt-action'
+import { AuthAltAction } from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
 import { FormStatusSwitcher } from '@/components/ui/forms'
@@ -41,7 +38,7 @@ function RegisterPage() {
         />
         <AuthAltAction>
           Already have an account?{' '}
-          <Link to="/login" css={authAltActionLinkCss}>
+          <Link to="/login" underline>
             Log in
           </Link>
         </AuthAltAction>

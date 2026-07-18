@@ -279,3 +279,20 @@ test('provider scope server-renders the media type select and hydrates cleanly',
 
   expect(consoleErrors).toEqual([])
 })
+
+test('exactly one scope tab is marked current in provider scope', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+
+  await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
+
+  const scopeNav = page.getByRole('navigation', { name: 'Search scope' })
+  await expect(scopeNav.getByText('NASA')).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+  await expect(scopeNav.locator('[aria-current="page"]')).toHaveCount(1)
+})

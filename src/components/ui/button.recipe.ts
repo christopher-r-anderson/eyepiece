@@ -1,4 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
+import { ghostVisualStyles } from './button.styles'
 
 export const buttonRecipe = defineRecipe({
   className: 'button',
@@ -50,18 +51,7 @@ export const buttonRecipe = defineRecipe({
         },
         _disabled: { color: 'primary.textMuted' },
       },
-      ghost: {
-        border: '1px solid transparent',
-        backgroundColor: 'transparent',
-        color: 'primary.textMuted',
-        _hovered: {
-          color: 'text',
-          border:
-            '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-          backgroundColor:
-            'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
-        },
-      },
+      ghost: ghostVisualStyles,
       bare: {
         backgroundColor: 'transparent',
         minHeight: 'auto',

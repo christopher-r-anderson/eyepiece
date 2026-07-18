@@ -3,28 +3,8 @@ import { grid } from 'styled-system/patterns'
 import { toCanonicalUrlParams, toSearchPageParams } from '../search-page-params'
 import type { SearchPageParams, SearchScope } from '../search-page-params'
 import { Link } from '@/components/ui/link'
-import { tabListStyles, tabPanelStyles, tabStyles } from '@/components/ui/tabs'
+import { tabListStyles, tabPanelStyles } from '@/components/ui/tab.styles'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
-
-// Links styled as tabs (shared visuals from @/components/ui/tabs), on
-// purpose not ARIA tabs: scope changes are navigations. See docs/Search.md.
-// the selected state duplicates tabStyles._selected under [aria-current]
-// because links get aria-current, not react aria's data-selected
-const tabLinkCss = css.raw(tabStyles, {
-  textDecoration: 'none',
-  _hovered: {
-    textDecoration: 'none',
-  },
-  '&[aria-current="page"]': {
-    fontWeight: 'bold',
-    backgroundColor: 'tertiary.bg',
-    position: 'relative',
-    zIndex: 1,
-  },
-  _focusVisible: {
-    outlineOffset: 0,
-  },
-})
 
 const ALL_SCOPE_KEY = 'all'
 
@@ -59,6 +39,12 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
             <Link
               key={tab.key}
               to="/search"
+              // links, not ARIA tabs, on purpose: scope changes are
+              // navigations (see docs/Search.md). exact keeps the router
+              // from also marking the All tab active on provider scopes
+              // (its search params are a subset of theirs)
+              variant="tab"
+              activeOptions={{ exact: true }}
               // current tab keeps its filters, switching resets them;
               // cast: canonical params may omit an empty q
               search={
@@ -67,7 +53,6 @@ export function SearchScopeTabs({ q, scope, children }: SearchScopeTabsProps) {
                 ) as SearchPageParams
               }
               aria-current={isCurrent ? 'page' : undefined}
-              css={tabLinkCss}
             >
               {tab.label}
             </Link>

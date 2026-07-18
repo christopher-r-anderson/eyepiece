@@ -6,6 +6,12 @@ import {
   Tabs as RacTabs,
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
+import {
+  tabListStyles,
+  tabPanelStyles,
+  tabSelectedStyles,
+  tabVisualStyles,
+} from './tab.styles'
 import type {
   TabListProps as RacTabListProps,
   TabPanelProps as RacTabPanelProps,
@@ -15,44 +21,12 @@ import type {
 } from 'react-aria-components'
 import type { UiProps } from './style-contract'
 
-export const tabListStyles = css.raw({
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '2',
-  alignItems: 'end',
-  marginBottom: '-1px',
-})
-
-export const tabStyles = css.raw({
-  minHeight: 'controlHeight',
-  paddingBlock: '2',
-  paddingInline: '4',
-  border: 'default',
-  borderBottomWidth: 0,
-  borderTopRadius: 'md',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
-  display: 'inline-flex',
-  alignItems: 'center',
-  cursor: 'pointer',
-  outline: 'none',
-  transitionFast: 'background-color, color',
-  _selected: {
-    fontWeight: 'bold',
-    backgroundColor: 'tertiary.bg',
-    position: 'relative',
-    zIndex: 1,
-  },
+const tabStyles = css.raw({
+  ...tabVisualStyles,
+  _selected: tabSelectedStyles,
   _focusVisible: {
     outline: 'focusRing',
   },
-})
-
-export const tabPanelStyles = css.raw({
-  backgroundColor: 'tertiary.bg',
-  border: 'default',
-  borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
-  padding: '4',
 })
 
 export type TabsProps = UiProps<RacTabsProps>

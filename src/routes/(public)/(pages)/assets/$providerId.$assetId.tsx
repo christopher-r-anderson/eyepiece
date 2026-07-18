@@ -33,38 +33,10 @@ function AssetHeading({ name = 'Asset' }: { name?: string }) {
   )
 }
 
-// mirrors the button recipe's ghost variant - a Link can't be a RAC Button,
-// and recipe classes lose to the ui Link's own utility styles by layer order
-const assetHeaderBackCss = css.raw(
-  {
-    border: '1px solid transparent',
-    backgroundColor: 'transparent',
-    color: 'primary.textMuted',
-    _hovered: {
-      color: 'text',
-      border:
-        '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-      backgroundColor:
-        'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
-    },
-  },
-  {
-    gridArea: 'back',
-    justifySelf: 'start',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '2',
-    minHeight: 'controlHeightSm',
-    paddingBlock: '2',
-    paddingInline: '3',
-    borderRadius: 'md',
-    fontWeight: 600,
-    lineHeight: 'tight',
-    _hovered: {
-      textDecoration: 'none',
-    },
-  },
-)
+const assetHeaderBackCss = css.raw({
+  gridArea: 'back',
+  justifySelf: 'start',
+})
 
 export const Route = createFileRoute(
   '/(public)/(pages)/assets/$providerId/$assetId',
@@ -158,6 +130,7 @@ function AssetPage() {
           <Link
             to={returnUrl}
             aria-label="Back to search results"
+            variant="ghost"
             css={assetHeaderBackCss}
           >
             <ArrowLeftIcon aria-hidden="true" size={18} />

@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LoginForm } from '@/features/auth/forms/login-form'
 import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
-import {
-  AuthAltAction,
-  authAltActionLinkCss,
-} from '@/features/auth/components/auth-alt-action'
+import { AuthAltAction } from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
 
@@ -37,7 +34,7 @@ function LoginPage() {
       />
       <AuthAltAction>
         Don't have an account yet?{' '}
-        <Link to="/register" css={authAltActionLinkCss}>
+        <Link to="/register" underline>
           Register
         </Link>
       </AuthAltAction>
