@@ -156,7 +156,6 @@ function SearchPage() {
         className={css({
           width: '100%',
           maxWidth: '40rem',
-          marginBlock: '7',
           marginInline: 'auto',
           paddingInline: '4',
         })}

@@ -7,16 +7,5 @@ export const authAltActionLinkCss = css.raw({
 })
 
 export function AuthAltAction({ children }: { children: ReactNode }) {
-  return (
-    <p
-      className={css({
-        marginTop: '4',
-        marginInline: '0',
-        marginBottom: '0',
-        lineHeight: 'base',
-      })}
-    >
-      {children}
-    </p>
-  )
+  return <p className={css({ lineHeight: 'base' })}>{children}</p>
 }

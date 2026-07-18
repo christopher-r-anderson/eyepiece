@@ -96,7 +96,7 @@ export function FormStatusSwitcher({
 }) {
   return (
     <StableVisibilityStack activeKey={showStatus ? 'status' : 'form'}>
-      <StableVisibilityStackItem itemKey="form">
+      <StableVisibilityStackItem itemKey="form" className={grid({ gap: '4' })}>
         {children}
       </StableVisibilityStackItem>
       <StableVisibilityStackItem

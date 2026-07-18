@@ -6,10 +6,11 @@ export const pageMainCss = css.raw({
   maxWidth: 'contentMax',
   flexGrow: 1,
   margin: '0 auto',
-  paddingTop: 0,
+  paddingTop: '4',
   paddingInline: '4',
   paddingBottom: '7',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
+  gap: '6',
 })

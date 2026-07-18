@@ -16,7 +16,6 @@ function HomePage() {
         width: '100%',
         maxWidth: '45rem',
         marginInline: 'auto',
-        marginBlockStart: '4',
       })}
     >
       <Heading
