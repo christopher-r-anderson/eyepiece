@@ -21,7 +21,7 @@ type LoginProps = {
   headingLevel: HeadingLevel
   onSuccess: () => void
   forgotPasswordLink: ReactNode
-} & FormProps
+} & Pick<FormProps, 'surface'>
 
 export function LoginForm({
   headingLevel,

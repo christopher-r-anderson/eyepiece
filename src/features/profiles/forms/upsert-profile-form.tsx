@@ -3,6 +3,7 @@ import { useId } from 'react-aria'
 import { useProfilesCommands } from '../profiles.commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
+import type { FormProps } from '@/components/ui/forms'
 import { Heading } from '@/components/ui/heading'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
@@ -26,8 +27,8 @@ export function UpsertProfileForm({
   initialData?: FormDataObject
   isDisabled?: boolean
   onSuccess: () => void
-  surface?: 'plain' | 'panel'
-  layout?: 'action' | 'page'
+  surface?: FormProps['surface']
+  layout?: FormProps['layout']
 }) {
   const headingId = useId()
   const profilesCommands = useProfilesCommands()

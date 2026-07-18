@@ -4,6 +4,7 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
+import type { FormProps } from '@/components/ui/forms'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
@@ -24,7 +25,7 @@ export function UpdatePasswordForm({
 }: {
   headingLevel: HeadingLevel
   onSuccess: () => void
-  surface?: 'plain' | 'panel'
+  surface?: FormProps['surface']
 }) {
   const id = useId()
   const userQuery = useCurrentUserQuery()
