@@ -123,7 +123,7 @@ function ScopedSearchResults({
       errorComponent={({ error }) => (
         <CapturedPrettyError
           error={error}
-          headingLevel={1}
+          headingLevel={2}
           captureContext={{
             boundaryKind: 'catch',
             feature: 'search',

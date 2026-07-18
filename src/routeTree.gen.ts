@@ -26,6 +26,7 @@ import { Route as publicpagesIndexRouteImport } from './routes/(public)/(pages)/
 import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
 import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
+import { Route as DevObservabilityRootBoundaryRouteImport } from './routes/dev/observability/root-boundary'
 import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
 import { Route as tokenCallbacksAuthConfirmRouteImport } from './routes/(token-callbacks)/auth/confirm'
 import { Route as publicpagesButtonsRouteImport } from './routes/(public)/(pages)/buttons'
@@ -125,6 +126,12 @@ const DevObservabilityServerErrorRoute =
   DevObservabilityServerErrorRouteImport.update({
     id: '/server-error',
     path: '/server-error',
+    getParentRoute: () => DevObservabilityRouteRoute,
+  } as any)
+const DevObservabilityRootBoundaryRoute =
+  DevObservabilityRootBoundaryRouteImport.update({
+    id: '/root-boundary',
+    path: '/root-boundary',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
 const DevObservabilityHandled400Route =
@@ -255,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/buttons': typeof publicpagesButtonsRoute
   '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
+  '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
@@ -285,6 +293,7 @@ export interface FileRoutesByTo {
   '/buttons': typeof publicpagesButtonsRoute
   '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
+  '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/(public)/(pages)/buttons': typeof publicpagesButtonsRoute
   '/(token-callbacks)/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
+  '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
   '/dev/ui/controls': typeof DevUiControlsRoute
   '/dev/ui/feedback': typeof DevUiFeedbackRoute
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/buttons'
     | '/auth/confirm'
     | '/dev/observability/handled-400'
+    | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/buttons'
     | '/auth/confirm'
     | '/dev/observability/handled-400'
+    | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
@@ -429,6 +441,7 @@ export interface FileRouteTypes {
     | '/(public)/(pages)/buttons'
     | '/(token-callbacks)/auth/confirm'
     | '/dev/observability/handled-400'
+    | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
     | '/dev/ui/controls'
     | '/dev/ui/feedback'
@@ -576,6 +589,13 @@ declare module '@tanstack/react-router' {
       path: '/server-error'
       fullPath: '/dev/observability/server-error'
       preLoaderRoute: typeof DevObservabilityServerErrorRouteImport
+      parentRoute: typeof DevObservabilityRouteRoute
+    }
+    '/dev/observability/root-boundary': {
+      id: '/dev/observability/root-boundary'
+      path: '/root-boundary'
+      fullPath: '/dev/observability/root-boundary'
+      preLoaderRoute: typeof DevObservabilityRootBoundaryRouteImport
       parentRoute: typeof DevObservabilityRouteRoute
     }
     '/dev/observability/handled-400': {
@@ -843,12 +863,14 @@ const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
 
 interface DevObservabilityRouteRouteChildren {
   DevObservabilityHandled400Route: typeof DevObservabilityHandled400Route
+  DevObservabilityRootBoundaryRoute: typeof DevObservabilityRootBoundaryRoute
   DevObservabilityServerErrorRoute: typeof DevObservabilityServerErrorRoute
   DevObservabilityIndexRoute: typeof DevObservabilityIndexRoute
 }
 
 const DevObservabilityRouteRouteChildren: DevObservabilityRouteRouteChildren = {
   DevObservabilityHandled400Route: DevObservabilityHandled400Route,
+  DevObservabilityRootBoundaryRoute: DevObservabilityRootBoundaryRoute,
   DevObservabilityServerErrorRoute: DevObservabilityServerErrorRoute,
   DevObservabilityIndexRoute: DevObservabilityIndexRoute,
 }

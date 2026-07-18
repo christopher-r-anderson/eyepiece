@@ -68,6 +68,7 @@ const config = defineConfig(({ mode }) => {
             name: 'unit',
             environment: 'jsdom',
             include: ['**/*unit.test.{ts,tsx}'],
+            setupFiles: ['./vitest.setup.unit.ts'],
           },
         },
         {

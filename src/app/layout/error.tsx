@@ -8,7 +8,11 @@ import { useCaptureRouteError } from '@/app/layout/route-error'
 
 // the root boundary sticks to presentational ui components - nothing that
 // depends on app providers, which could rethrow inside a broken tree
-export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
+export function RouteErrorBoundary({
+  error,
+  reset,
+  headingLevel = 1,
+}: ErrorComponentProps & { headingLevel?: 1 | 2 }) {
   useCaptureRouteError(error, {
     boundaryKind: 'root-route',
     feature: 'app',
@@ -17,9 +21,12 @@ export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
 
   return (
     <div className={grid({ gap: '4' })}>
-      <Heading level={1}>Something went wrong</Heading>
+      <Heading level={headingLevel}>Something went wrong</Heading>
 
-      <PrettyException error={error} headingLevel={2} />
+      <PrettyException
+        error={error}
+        headingLevel={headingLevel === 1 ? 2 : 3}
+      />
 
       <Button
         variant="secondary"

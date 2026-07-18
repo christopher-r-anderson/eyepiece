@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
+import { grid, wrap } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -53,13 +53,9 @@ export function DevPageIntro({
   return (
     <header className={grid({ gap: '4' })}>
       <div
-        className={css({
-          // css() rather than wrap(): conditional values in pattern args
-          // make the extractor fall back to the pattern's defaults
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: backLink ? 'space-between' : 'flex-end',
+        className={wrap({
+          align: 'center',
+          justify: backLink ? 'space-between' : 'flex-end',
           rowGap: '2',
           columnGap: '4',
         })}
