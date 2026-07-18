@@ -3,8 +3,6 @@ import { grid } from 'styled-system/patterns'
 import { DevBackLink, DevTitleBlock } from '../-components'
 import { RouteErrorBoundary } from '@/app/layout/error'
 
-// a cause chain deep enough to exercise the nested Cause rendering,
-// ending in a non-Error value
 const scenarioError = new Error('Dev observability: root boundary failure', {
   cause: new Error('Dev observability: nested cause', {
     cause: 'a string cause at the end of the chain',

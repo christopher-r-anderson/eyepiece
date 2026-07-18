@@ -11,8 +11,6 @@ import { useCaptureRouteError } from '@/app/layout/route-error'
 export function RouteErrorBoundary({
   error,
   reset,
-  // at the root the boundary is the whole page; previews under a page
-  // that already owns its h1 pass 2
   headingLevel = 1,
 }: ErrorComponentProps & { headingLevel?: 1 | 2 }) {
   useCaptureRouteError(error, {

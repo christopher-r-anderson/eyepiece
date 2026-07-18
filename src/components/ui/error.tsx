@@ -55,8 +55,6 @@ export function getPrettyExceptionDisplay(
   }
 }
 
-// the cause chain is nested data, not a document hierarchy - each cause
-// nests its own list under a Cause row instead of adding deeper headings
 function PrettyErrorDetails({ error }: { error: unknown }) {
   const display = getPrettyExceptionDisplay(error)
 

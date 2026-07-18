@@ -33,7 +33,6 @@ export type ModalDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   title: string
-  // the dialog is its own overlay outline, rooted at the title
   titleLevel?: HeadingLevel
 }
 

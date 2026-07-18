@@ -61,7 +61,6 @@ describe('PrettyException', () => {
     expect(headings.length).toBe(1)
     expect(headings[0]?.tagName).toBe('H2')
 
-    // both causes stay represented, one Cause row per depth
     expect(view.getAllByText('Cause').length).toBe(2)
     expect(view.queryByText('outer failure')).not.toBeNull()
     expect(view.queryByText('inner failure')).not.toBeNull()
