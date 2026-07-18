@@ -2,7 +2,6 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const toggleButtonRecipe = defineRecipe({
   className: 'toggle-button',
-  staticCss: ['*'],
   base: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -37,13 +36,6 @@ export const toggleButtonRecipe = defineRecipe({
   variants: {
     variant: {
       default: {},
-      subtle: {
-        _selected: {
-          backgroundColor: 'transparent',
-          color: 'text.accent',
-          borderColor: 'transparent',
-        },
-      },
       // the --toggle-icon-* custom properties are the per-instance theming
       // channel; consumers set them through the css prop
       icon: {

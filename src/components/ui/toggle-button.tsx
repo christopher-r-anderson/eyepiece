@@ -1,24 +1,5 @@
 import { ToggleButton as RacToggleButton } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
 import { toggleButton } from 'styled-system/recipes'
-import type { ComponentProps } from 'react'
-import type { ToggleButtonVariantProps } from 'styled-system/recipes'
-import type { StyleProps } from './style-props'
+import { uiStyled } from './style-contract'
 
-export type ToggleButtonProps = ComponentProps<typeof RacToggleButton> &
-  ToggleButtonVariantProps &
-  StyleProps
-
-export function ToggleButton({
-  variant,
-  css: cssProp,
-  className,
-  ...props
-}: ToggleButtonProps) {
-  return (
-    <RacToggleButton
-      className={cx(toggleButton({ variant }), css(cssProp), className)}
-      {...props}
-    />
-  )
-}
+export const ToggleButton = uiStyled(RacToggleButton, toggleButton)

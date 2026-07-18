@@ -6,8 +6,14 @@ import {
   Tabs as RacTabs,
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
-import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
+import type {
+  TabListProps as RacTabListProps,
+  TabPanelProps as RacTabPanelProps,
+  TabPanelsProps as RacTabPanelsProps,
+  TabProps as RacTabProps,
+  TabsProps as RacTabsProps,
+} from 'react-aria-components'
+import type { UiProps } from './style-contract'
 
 export const tabListStyles = css.raw({
   display: 'flex',
@@ -49,15 +55,15 @@ export const tabPanelStyles = css.raw({
   padding: '4',
 })
 
-export type TabsProps = ComponentProps<typeof RacTabs> & StyleProps
+export type TabsProps = UiProps<RacTabsProps>
 
-export type TabListProps = ComponentProps<typeof RacTabList> & StyleProps
+export type TabListProps<T extends object> = UiProps<RacTabListProps<T>>
 
-export type TabProps = ComponentProps<typeof RacTab> & StyleProps
+export type TabProps = UiProps<RacTabProps>
 
-export type TabPanelsProps = ComponentProps<typeof RacTabPanels> & StyleProps
+export type TabPanelsProps<T extends object> = UiProps<RacTabPanelsProps<T>>
 
-export type TabPanelProps = ComponentProps<typeof RacTabPanel> & StyleProps
+export type TabPanelProps = UiProps<RacTabPanelProps>
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
@@ -78,30 +84,34 @@ export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   )
 }
 
-export function TabList({ css: cssProp, className, ...props }: TabListProps) {
+export function TabList<T extends object>({
+  css: cssProp,
+  className,
+  ...props
+}: TabListProps<T>) {
   return (
     <RacTabList
-      className={cx(css(tabListStyles, cssProp), className)}
       {...props}
+      className={cx(css(tabListStyles, cssProp), className)}
     />
   )
 }
 
 export function Tab({ css: cssProp, className, ...props }: TabProps) {
   return (
-    <RacTab className={cx(css(tabStyles, cssProp), className)} {...props} />
+    <RacTab {...props} className={cx(css(tabStyles, cssProp), className)} />
   )
 }
 
-export function TabPanels({
+export function TabPanels<T extends object>({
   css: cssProp,
   className,
   ...props
-}: TabPanelsProps) {
+}: TabPanelsProps<T>) {
   return (
     <RacTabPanels
-      className={cx(css({ display: 'grid' }, cssProp), className)}
       {...props}
+      className={cx(css({ display: 'grid' }, cssProp), className)}
     />
   )
 }

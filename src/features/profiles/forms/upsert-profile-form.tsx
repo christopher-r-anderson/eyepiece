@@ -74,7 +74,7 @@ export function UpsertProfileForm({
         </div>
       }
     >
-      <Heading id={headingId} headingLevel={headingLevel}>
+      <Heading id={headingId} level={headingLevel}>
         {isUpdating ? 'Update Profile' : 'Create Profile'}
       </Heading>
       <InputGroup>

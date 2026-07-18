@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { VisuallyHidden } from 'react-aria'
+import { VisuallyHidden } from 'styled-system/jsx'
 import { UserMenu } from './user-menu'
 import { LoginLink } from './login-link'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'

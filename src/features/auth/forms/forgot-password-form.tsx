@@ -72,7 +72,7 @@ export function ForgotPasswordForm({
         </div>
       }
     >
-      <Heading id={id} headingLevel={headingLevel}>
+      <Heading id={id} level={headingLevel}>
         Reset Password
       </Heading>
       <InputGroup>
@@ -98,7 +98,7 @@ export function ForgotPasswordSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading headingLevel={headingLevel}>Password reset sent!</Heading>
+      <Heading level={headingLevel}>Password reset sent!</Heading>
       <p>Please check your email to reset your password.</p>
     </div>
   )

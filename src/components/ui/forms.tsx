@@ -10,8 +10,8 @@ import { useId } from 'react-aria'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
-import { grid, hstack } from 'styled-system/patterns'
-import { form } from 'styled-system/recipes'
+import { grid } from 'styled-system/patterns'
+import { form, textField } from 'styled-system/recipes'
 import {
   StableVisibilityStack,
   StableVisibilityStackItem,
@@ -19,11 +19,13 @@ import {
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import type { FormVariantProps } from 'styled-system/recipes'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-contract'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
 } from 'react-aria-components'
+
+const textFieldSlots = textField()
 
 export { FieldError, Input, Label }
 
@@ -38,8 +40,7 @@ export type FormProps = {
   formError?: string
   controls?: React.ReactNode
 } & FormVariantProps &
-  StyleProps &
-  RacFormProps
+  UiProps<RacFormProps>
 
 export const formActionsCss = css.raw({
   display: 'flex',
@@ -138,14 +139,14 @@ export type TextFieldProps = {
   description?: string
   label: string
   placeholder?: string
-  className?: string
-} & RacTextFieldProps
+} & UiProps<RacTextFieldProps>
 
 export function TextField({
   description,
   label,
   placeholder,
   type,
+  css: cssProp,
   className,
   ...props
 }: TextFieldProps) {
@@ -161,59 +162,14 @@ export function TextField({
     <RacTextField
       id={inputId}
       type={actualType}
-      className={cx(
-        css({
-          gridColumn: '1 / -1',
-          display: 'grid',
-          gridTemplateColumns: 'subgrid',
-          minWidth: 0,
-        }),
-        className,
-      )}
       {...props}
+      className={cx(textFieldSlots.root, css(cssProp), className)}
     >
-      <Label className={css({ textAlign: 'left' })}>{label}</Label>
-      <div
-        className={hstack({
-          width: '100%',
-          minWidth: 0,
-          minHeight: 'controlHeight',
-          paddingInline: '3',
-          gap: '2',
-          borderRadius: 'md',
-          border:
-            '1px solid color-mix(in oklab, token(colors.border) 88%, token(colors.text) 12%)',
-          backgroundColor: 'secondary.bg',
-          color: 'secondary.text',
-          boxShadow: 'sm',
-          transitionFast: 'border-color, outline-color',
-          _focusWithin: {
-            outline: 'focusRing',
-            outlineOffset: '1px',
-          },
-        })}
-      >
+      <Label className={textFieldSlots.label}>{label}</Label>
+      <div className={textFieldSlots.control}>
         <Input
           placeholder={placeholder}
-          className={css({
-            width: '100%',
-            maxWidth: '100%',
-            minWidth: 0,
-            minHeight: 'calc(token(sizes.controlHeight) - 2px)',
-            paddingBlock: '2',
-            border: 0,
-            outline: 'none',
-            backgroundColor: 'transparent',
-            color: 'inherit',
-            caretColor: 'currentColor',
-            '&:focus': {
-              outline: 'none',
-            },
-            _autofill: {
-              boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
-              WebkitTextFillColor: 'token(colors.secondary.text)',
-            },
-          })}
+          className={textFieldSlots.input}
           style={isPasswordField ? {} : undefined}
         />
         {isPasswordField && (
@@ -237,25 +193,11 @@ export function TextField({
         )}
       </div>
       {description && (
-        <Text
-          slot="description"
-          className={css({
-            fontSize: 'xs',
-            marginTop: '2',
-            gridColumn: '1 / -1',
-          })}
-        >
+        <Text slot="description" className={textFieldSlots.description}>
           {description}
         </Text>
       )}
-      <FieldError
-        className={css({
-          color: 'danger.text',
-          fontSize: 'sm',
-          gridColumn: '1 / -1',
-          paddingBlockStart: '2',
-        })}
-      />
+      <FieldError className={textFieldSlots.error} />
     </RacTextField>
   )
 }

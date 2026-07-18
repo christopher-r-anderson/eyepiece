@@ -10,9 +10,12 @@ import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
-import type { StyleProps } from './style-props'
+import type { UiProps } from './style-contract'
 
-export type ListBoxProps<T extends object> = RacListBoxProps<T> & StyleProps
+const listBoxClass = listBox()
+const listBoxItemClass = listBoxItem()
+
+export type ListBoxProps<T extends object> = UiProps<RacListBoxProps<T>>
 
 export function ListBox<T extends object>({
   css: cssProp,
@@ -20,11 +23,14 @@ export function ListBox<T extends object>({
   ...props
 }: ListBoxProps<T>) {
   return (
-    <RacListBox {...props} className={cx(listBox(), css(cssProp), className)} />
+    <RacListBox
+      {...props}
+      className={cx(listBoxClass, css(cssProp), className)}
+    />
   )
 }
 
-export type ListBoxItemProps = RacListBoxItemProps & StyleProps
+export type ListBoxItemProps = UiProps<RacListBoxItemProps>
 
 export function ListBoxItem({
   css: cssProp,
@@ -35,7 +41,7 @@ export function ListBoxItem({
   return (
     <RacListBoxItem
       {...props}
-      className={cx(listBoxItem(), css(cssProp), className)}
+      className={cx(listBoxItemClass, css(cssProp), className)}
       render={
         render
           ? (domProps, renderProps) => {

@@ -1,15 +1,17 @@
 import { Select as RacSelect, SelectValue } from 'react-aria-components'
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
+import { select } from 'styled-system/recipes'
 import { Button } from './button'
-import type { ButtonProps } from './button'
 import type {
   ListBoxItemRenderProps,
   SelectProps as RacSelectProps,
 } from 'react-aria-components'
-import type { StyleProps } from './style-props'
+import type { StyleProps } from './style-contract'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
+
+const slots = select()
 
 type SelectProps<T extends object> = {
   items: Array<T>
@@ -17,7 +19,6 @@ type SelectProps<T extends object> = {
   // explicit getItemText keeps react aria from extracting text from complex children
   getItemText: (item: T) => string
   renderItem?: (item: T, itemProps?: ListBoxItemRenderProps) => React.ReactNode
-  buttonVariant?: ButtonProps['variant']
 } & StyleProps &
   Pick<
     RacSelectProps<T>,
@@ -28,14 +29,6 @@ type SelectProps<T extends object> = {
     | 'style'
     | 'aria-label'
   >
-
-const itemStyles = css.raw({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '2',
-  cursor: 'pointer',
-  lineHeight: 'tight',
-})
 
 // react aria includes an `href` key in domProps even when it is `undefined`
 // which keeps typescript from being able to narrow the type appropriately on its own
@@ -49,13 +42,7 @@ function hasRenderableHref(
 
 function Caret() {
   return (
-    <span
-      aria-hidden="true"
-      className={css({
-        display: 'inline-flex',
-        alignItems: 'center',
-      })}
-    >
+    <span aria-hidden="true" className={slots.caret}>
       <CaretDownIcon />
     </span>
   )
@@ -66,7 +53,6 @@ export function Select<T extends object>({
   getItemId,
   getItemText,
   renderItem,
-  buttonVariant,
   css: cssProp,
   className,
   // defaulted internally so callers always have placeholder text (address when i18n lands)
@@ -75,21 +61,11 @@ export function Select<T extends object>({
 }: SelectProps<T>) {
   return (
     <RacSelect
-      className={cx(
-        css(
-          {
-            display: 'inline-flex',
-            alignItems: 'center',
-          },
-          cssProp,
-        ),
-        className,
-      )}
       placeholder={placeholder}
       {...props}
+      className={cx(slots.root, css(cssProp), className)}
     >
       <Button
-        variant={buttonVariant}
         css={css.raw({
           width: '100%',
           display: 'flex',
@@ -108,7 +84,7 @@ export function Select<T extends object>({
           },
         })}
       >
-        <SelectValue className={css(itemStyles)}>
+        <SelectValue className={slots.item}>
           {({ selectedText }) => (selectedText ? selectedText : undefined)}
         </SelectValue>
         <Caret />
@@ -120,27 +96,22 @@ export function Select<T extends object>({
               id={getItemId(item)}
               textValue={getItemText(item)}
               render={(domProps, itemProps) => {
+                const content = renderItem
+                  ? renderItem(item, itemProps)
+                  : getItemText(item)
+                const itemClass = cx(slots.item, domProps.className)
+
                 if (hasRenderableHref(domProps)) {
                   return (
-                    <a
-                      {...domProps}
-                      className={cx(css(itemStyles), domProps.className)}
-                    >
-                      {renderItem
-                        ? renderItem(item, itemProps)
-                        : getItemText(item)}
+                    <a {...domProps} className={itemClass}>
+                      {content}
                     </a>
                   )
                 }
 
                 return (
-                  <div
-                    {...domProps}
-                    className={cx(css(itemStyles), domProps.className)}
-                  >
-                    {renderItem
-                      ? renderItem(item, itemProps)
-                      : getItemText(item)}
+                  <div {...domProps} className={itemClass}>
+                    {content}
                   </div>
                 )
               }}

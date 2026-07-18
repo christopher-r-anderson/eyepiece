@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { VisuallyHidden } from 'react-aria'
+import { VisuallyHidden } from 'styled-system/jsx'
 import { css } from 'styled-system/css'
 import type { Metadata } from '@/domain/asset/asset.schema'
 

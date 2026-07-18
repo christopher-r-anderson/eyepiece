@@ -77,7 +77,7 @@ export function RegistrationForm({
         </div>
       }
     >
-      <Heading id={id} headingLevel={headingLevel}>
+      <Heading id={id} level={headingLevel}>
         Register
       </Heading>
       <InputGroup>
@@ -112,7 +112,7 @@ export function RegistrationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading headingLevel={headingLevel}>Registration successful!</Heading>
+      <Heading level={headingLevel}>Registration successful!</Heading>
       <p>Please check your email to verify your account.</p>
     </div>
   )

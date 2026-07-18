@@ -1,20 +1,5 @@
 import { Separator as RacSeparator } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
 import { separator } from 'styled-system/recipes'
-import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
+import { uiStyled } from './style-contract'
 
-export type SeparatorProps = ComponentProps<typeof RacSeparator> & StyleProps
-
-export function Separator({
-  css: cssProp,
-  className,
-  ...props
-}: SeparatorProps) {
-  return (
-    <RacSeparator
-      className={cx(separator(), css(cssProp), className)}
-      {...props}
-    />
-  )
-}
+export const Separator = uiStyled(RacSeparator, separator)

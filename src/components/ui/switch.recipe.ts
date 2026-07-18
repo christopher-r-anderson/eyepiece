@@ -2,7 +2,8 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const switchRecipe = defineRecipe({
   className: 'switch',
-  staticCss: ['*'],
+  // jit tracking: the component name does not match the recipe name
+  jsx: ['Switch'],
   base: {
     display: 'inline-flex',
     alignItems: 'center',

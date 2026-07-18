@@ -53,11 +53,7 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           marginBottom: '4',
         })}
       >
-        <Heading
-          headingLevel={2}
-          id={headingId}
-          css={css.raw({ marginBlockEnd: 0 })}
-        >
+        <Heading level={2} id={headingId} css={css.raw({ marginBlockEnd: 0 })}>
           {display.displayName}
         </Heading>
         <Link

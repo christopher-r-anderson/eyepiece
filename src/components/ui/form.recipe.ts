@@ -2,7 +2,9 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const formRecipe = defineRecipe({
   className: 'form',
-  staticCss: ['*'],
+  // surface is prop-drilled through the feature form components, so jit
+  // tracking never sees a literal value
+  staticCss: [{ surface: ['*'] }],
   base: {
     width: '100%',
     padding: '4',

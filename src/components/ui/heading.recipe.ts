@@ -2,7 +2,9 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const headingRecipe = defineRecipe({
   className: 'heading',
-  staticCss: ['*'],
+  // level is drilled and even computed (PrettyException renders level + 1),
+  // which no jit tracking can see
+  staticCss: [{ level: ['*'] }],
   base: {
     margin: 0,
     color: 'inherit',

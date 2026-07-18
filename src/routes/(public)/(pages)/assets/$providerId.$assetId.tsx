@@ -22,7 +22,7 @@ import {
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
     <Heading
-      headingLevel={1}
+      level={1}
       css={css.raw({
         marginBlockEnd: 0,
         minWidth: 0,

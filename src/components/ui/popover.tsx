@@ -1,13 +1,5 @@
 import { Popover as RacPopover } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
 import { popover } from 'styled-system/recipes'
-import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
+import { uiStyled } from './style-contract'
 
-export type PopoverProps = ComponentProps<typeof RacPopover> & StyleProps
-
-export function Popover({ css: cssProp, className, ...props }: PopoverProps) {
-  return (
-    <RacPopover className={cx(popover(), css(cssProp), className)} {...props} />
-  )
-}
+export const Popover = uiStyled(RacPopover, popover)

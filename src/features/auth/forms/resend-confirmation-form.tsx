@@ -69,7 +69,7 @@ export function ResendConfirmationForm({
         </div>
       }
     >
-      <Heading id={id} headingLevel={headingLevel}>
+      <Heading id={id} level={headingLevel}>
         Resend Confirmation Email
       </Heading>
       <InputGroup>
@@ -95,7 +95,7 @@ export function ResendConfirmationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading headingLevel={headingLevel}>Confirmation Email Sent!</Heading>
+      <Heading level={headingLevel}>Confirmation Email Sent!</Heading>
       <p>Please check your email to confirm your account.</p>
     </div>
   )

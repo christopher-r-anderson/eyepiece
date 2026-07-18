@@ -1,31 +1,25 @@
 import { Menu as RacMenu, MenuItem as RacMenuItem } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import { menu, menuItem } from 'styled-system/recipes'
-import type {
-  MenuItemProps as RacMenuItemProps,
-  MenuProps as RacMenuProps,
-} from 'react-aria-components'
-import type { StyleProps } from './style-props'
+import { uiStyled } from './style-contract'
+import type { MenuProps as RacMenuProps } from 'react-aria-components'
+import type { UiProps } from './style-contract'
 
-export type MenuProps<T extends object> = RacMenuProps<T> & StyleProps
+const menuClass = menu()
 
-export type MenuItemProps = RacMenuItemProps & StyleProps
+export type MenuProps<T extends object> = UiProps<RacMenuProps<T>>
 
+// hand-written: styled() cannot carry RacMenu's generic item type
 export function Menu<T extends object>({
   css: styles,
   className,
   ...props
 }: MenuProps<T>) {
-  return <RacMenu {...props} className={cx(menu(), css(styles), className)} />
-}
-
-export function MenuItem({ css: styles, className, ...props }: MenuItemProps) {
   return (
-    <RacMenuItem
-      {...props}
-      className={cx(menuItem(), css(styles), className)}
-    />
+    <RacMenu {...props} className={cx(menuClass, css(styles), className)} />
   )
 }
+
+export const MenuItem = uiStyled(RacMenuItem, menuItem)
 
 export { MenuTrigger } from 'react-aria-components'

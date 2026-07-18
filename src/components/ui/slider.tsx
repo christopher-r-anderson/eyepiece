@@ -4,120 +4,30 @@ import {
   SliderThumb as RacSliderThumb,
   SliderTrack as RacSliderTrack,
 } from 'react-aria-components'
-import { css, cx } from 'styled-system/css'
+import { createStyleContext } from 'styled-system/jsx'
+import { slider } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
-import type { StyleProps } from './style-props'
+import type { UiComponent } from './style-contract'
 
-export type SliderProps = ComponentProps<typeof RacSlider> & StyleProps
+const ctx = createStyleContext(slider)
 
-export type SliderTrackProps = ComponentProps<typeof RacSliderTrack> &
-  StyleProps
+export const Slider = ctx.withProvider(RacSlider, 'root') as UiComponent<
+  typeof RacSlider
+>
 
-export type SliderThumbProps = ComponentProps<typeof RacSliderThumb> &
-  StyleProps
+export const SliderTrack = ctx.withContext(
+  RacSliderTrack,
+  'track',
+) as UiComponent<typeof RacSliderTrack>
 
-export type SliderOutputProps = ComponentProps<typeof RacSliderOutput> &
-  StyleProps
+export const SliderThumb = ctx.withContext(
+  RacSliderThumb,
+  'thumb',
+) as UiComponent<typeof RacSliderThumb>
 
-export function Slider({ css: cssProp, className, ...props }: SliderProps) {
-  return (
-    <RacSlider
-      className={cx(
-        css(
-          {
-            display: 'grid',
-            gap: '3',
-            width: '100%',
-            paddingTop: '1',
-            paddingInline: '5',
-            paddingBottom: '3',
-            borderRadius: 'lg',
-            backgroundColor: 'secondary.bg',
-            color: 'secondary.text',
-          },
-          cssProp,
-        ),
-        className,
-      )}
-      {...props}
-    />
-  )
-}
+export const SliderOutput = ctx.withContext(
+  RacSliderOutput,
+  'output',
+) as UiComponent<typeof RacSliderOutput>
 
-export function SliderTrack({
-  css: cssProp,
-  className,
-  ...props
-}: SliderTrackProps) {
-  return (
-    <RacSliderTrack
-      className={cx(
-        css(
-          {
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            minHeight: 'controlHeight',
-          },
-          cssProp,
-        ),
-        className,
-      )}
-      {...props}
-    />
-  )
-}
-
-export function SliderThumb({
-  css: cssProp,
-  className,
-  ...props
-}: SliderThumbProps) {
-  return (
-    <RacSliderThumb
-      className={cx(
-        css(
-          {
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 'controlHeight',
-            minHeight: 'controlHeight',
-            color: 'inherit',
-            cursor: 'pointer',
-            outline: 'none',
-            _focusVisible: {
-              outline: 'focusRing',
-            },
-          },
-          cssProp,
-        ),
-        className,
-      )}
-      {...props}
-    />
-  )
-}
-
-export function SliderOutput({
-  css: cssProp,
-  className,
-  ...props
-}: SliderOutputProps) {
-  return (
-    <RacSliderOutput
-      className={cx(
-        css(
-          {
-            fontSize: 'sm',
-            color: 'inherit',
-            padding: '3',
-          },
-          cssProp,
-        ),
-        className,
-      )}
-      {...props}
-    />
-  )
-}
+export type SliderProps = ComponentProps<typeof Slider>
