@@ -16,7 +16,7 @@ export const devPageSectionCss = css.raw({
 export const devCardGridCss = css.raw({
   display: 'grid',
   alignItems: 'start',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))',
   gap: '4',
 })
 

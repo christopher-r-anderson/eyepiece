@@ -67,11 +67,7 @@ function DevObservabilityPage() {
         </ol>
       </DevPanel>
 
-      <div
-        className={css(devCardGridCss, {
-          gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))',
-        })}
-      >
+      <div className={css(devCardGridCss)}>
         <DevPanel as="article">
           <DevTitleBlock
             title="Client Render Error"

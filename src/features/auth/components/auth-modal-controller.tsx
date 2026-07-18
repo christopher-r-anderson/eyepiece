@@ -58,7 +58,7 @@ export function AuthModalController({
       <Tabs
         selectedKey={authMode ?? 'login'}
         aria-label="Authentication options"
-        css={css.raw({ maxWidth: 500 })}
+        css={css.raw({ maxWidth: 'formMax' })}
       >
         <TabList>
           <Tab id="login" onClick={() => showAuthModal('login')}>
