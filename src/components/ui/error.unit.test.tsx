@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { PrettyException, getPrettyExceptionDisplay } from './error'
 
@@ -45,5 +45,28 @@ describe('PrettyException', () => {
 
     expect(screen.queryByText('Stack')).toBeNull()
     expect(screen.queryByText('server stack should not render')).toBeNull()
+  })
+
+  it('renders one heading and the cause chain as nested data', () => {
+    const error = new Error('outer failure', {
+      cause: new Error('inner failure', { cause: 'plain string cause' }),
+    })
+
+    const { container } = render(
+      createElement(PrettyException, { error, headingLevel: 2 }),
+    )
+    const view = within(container)
+
+    const headings = view.getAllByRole('heading')
+    expect(headings.length).toBe(1)
+    expect(headings[0]?.tagName).toBe('H2')
+
+    // both causes stay represented, one Cause row per depth
+    expect(view.getAllByText('Cause').length).toBe(2)
+    expect(view.queryByText('outer failure')).not.toBeNull()
+    expect(view.queryByText('inner failure')).not.toBeNull()
+    // non-Error causes render the generic message, never the raw value
+    expect(view.queryByText('plain string cause')).toBeNull()
+    expect(view.queryByText('An unexpected error occurred.')).not.toBeNull()
   })
 })

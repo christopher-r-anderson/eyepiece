@@ -18,7 +18,11 @@ export const Route = createFileRoute('/dev/observability/root-boundary')({
         title="Root Boundary Scenario"
         description="Renders the root route error boundary directly with a synthetic error. Try again is a no-op here."
       />
-      <RouteErrorBoundary error={scenarioError} reset={() => {}} />
+      <RouteErrorBoundary
+        error={scenarioError}
+        reset={() => {}}
+        headingLevel={2}
+      />
       <DevBackLink to="/dev/observability">
         Back to observability workbench
       </DevBackLink>
