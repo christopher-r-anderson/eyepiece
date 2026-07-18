@@ -11,18 +11,18 @@ function HomePage() {
   return (
     <section
       className={css({
+        display: 'grid',
+        gap: '6',
         width: '100%',
         maxWidth: '45rem',
-        margin: '0 auto',
+        marginInline: 'auto',
+        marginBlockStart: '4',
       })}
     >
       <Heading
         level={1}
         css={css.raw({
           fontSize: 'clamp(token(fontSizes.2xl), 5vw, 3rem)',
-          marginTop: '4',
-          marginInline: 0,
-          marginBlockEnd: '6',
         })}
       >
         Search Public Space Image Libraries

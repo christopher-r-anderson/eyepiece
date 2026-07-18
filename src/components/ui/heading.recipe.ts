@@ -6,7 +6,6 @@ export const headingRecipe = defineRecipe({
   // which no jit tracking can see
   staticCss: [{ level: ['*'] }],
   base: {
-    margin: 0,
     color: 'inherit',
     fontFamily: 'inherit',
     fontWeight: 700,
@@ -14,12 +13,12 @@ export const headingRecipe = defineRecipe({
   },
   variants: {
     level: {
-      1: { fontSize: '2xl', marginBlockEnd: '5' },
-      2: { fontSize: 'xl', marginBlockEnd: '4' },
-      3: { fontSize: 'lg', marginBlockEnd: '3' },
-      4: { fontSize: 'base', marginBlockEnd: '3' },
-      5: { fontSize: 'sm', marginBlockEnd: '2' },
-      6: { fontSize: 'xs', marginBlockEnd: '2' },
+      1: { fontSize: '2xl' },
+      2: { fontSize: 'xl' },
+      3: { fontSize: 'lg' },
+      4: { fontSize: 'base' },
+      5: { fontSize: 'sm' },
+      6: { fontSize: 'xs' },
     },
   },
 })

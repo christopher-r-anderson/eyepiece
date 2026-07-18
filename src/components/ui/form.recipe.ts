@@ -6,6 +6,8 @@ export const formRecipe = defineRecipe({
   // tracking never sees a literal value
   staticCss: [{ surface: ['*'] }],
   base: {
+    display: 'grid',
+    gap: '4',
     width: '100%',
     padding: '4',
     margin: '0 auto',

@@ -122,7 +122,13 @@ function DevUiControlsPage() {
           description="Current shared text field patterns."
           headingLevel={3}
         />
-        <Form controls={<Button type="submit">Submit</Button>}>
+        <Form
+          controls={
+            <Button type="submit" css={css.raw({ justifySelf: 'start' })}>
+              Submit
+            </Button>
+          }
+        >
           <InputGroup>
             <TextField
               label="Email"

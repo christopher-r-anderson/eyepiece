@@ -48,7 +48,6 @@ export const formActionsCss = css.raw({
   justifyContent: 'flex-end',
   alignItems: 'center',
   gap: '3',
-  marginBlockStart: '4',
 })
 
 export const formActionButtonCss = css.raw({

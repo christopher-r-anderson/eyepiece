@@ -1,5 +1,8 @@
+import { grid } from 'styled-system/patterns'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Heading } from '@/components/ui/heading'
+
+const exceptionStackCss = grid({ gap: '2' })
 
 const SHOW_EXCEPTION_DETAILS = import.meta.env.DEV
 
@@ -59,7 +62,7 @@ const PrettyError = ({
   const display = getPrettyExceptionDisplay(error)
 
   return (
-    <>
+    <div className={exceptionStackCss}>
       <Heading level={headingLevel}>{display.title}</Heading>
       <dl>
         {display.name && (
@@ -87,7 +90,7 @@ const PrettyError = ({
           </>
         )}
       </dl>
-      {display.cause && (
+      {display.cause != null && (
         <PrettyException
           error={display.cause}
           headingLevel={
@@ -95,7 +98,7 @@ const PrettyError = ({
           }
         />
       )}
-    </>
+    </div>
   )
 }
 
@@ -113,7 +116,7 @@ export function PrettyException({
   }
 
   return (
-    <div>
+    <div className={exceptionStackCss}>
       <Heading level={headingLevel}>{display.title}</Heading>
       <p>{display.message}</p>
     </div>

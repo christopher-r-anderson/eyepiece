@@ -129,7 +129,6 @@ function FiltersPanel({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={css({
-        marginTop: '2',
         padding: '4',
         background: 'secondary.bg',
         color: 'secondary.text',

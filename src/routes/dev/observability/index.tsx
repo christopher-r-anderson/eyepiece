@@ -167,7 +167,12 @@ function HandledObservabilityForm() {
       formError={state.error}
       aria-busy={isPending || undefined}
       controls={
-        <Button variant="primary" type="submit" isDisabled={isPending}>
+        <Button
+          variant="primary"
+          type="submit"
+          isDisabled={isPending}
+          css={css.raw({ justifySelf: 'start' })}
+        >
           Submit handled scenario
         </Button>
       }
