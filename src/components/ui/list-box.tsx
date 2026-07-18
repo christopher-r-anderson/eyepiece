@@ -10,7 +10,7 @@ import type {
   ListBoxItemProps as RacListBoxItemProps,
   ListBoxProps as RacListBoxProps,
 } from 'react-aria-components'
-import type { UiProps } from './style-props'
+import type { UiProps } from './style-contract'
 
 const listBoxClass = listBox()
 const listBoxItemClass = listBoxItem()

@@ -1,9 +1,10 @@
 import { css } from 'styled-system/css'
-import type { HeadingProps } from '@/components/ui/heading'
+import type { HeadingLevel, HeadingProps } from '@/components/ui/heading'
 import { Heading } from '@/components/ui/heading'
 
-type PageHeadingProps = Omit<HeadingProps, 'level'> &
-  Partial<Pick<HeadingProps, 'level'>>
+type PageHeadingProps = Omit<HeadingProps, 'level'> & {
+  level?: HeadingLevel
+}
 
 const pageHeadingStyles = css.raw({
   color: 'text.accent',

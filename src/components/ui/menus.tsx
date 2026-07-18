@@ -1,9 +1,9 @@
 import { Menu as RacMenu, MenuItem as RacMenuItem } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
 import { menu, menuItem } from 'styled-system/recipes'
-import { uiStyled } from './style-props'
+import { uiStyled } from './style-contract'
 import type { MenuProps as RacMenuProps } from 'react-aria-components'
-import type { UiProps } from './style-props'
+import type { UiProps } from './style-contract'
 
 const menuClass = menu()
 

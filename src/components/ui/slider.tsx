@@ -7,7 +7,7 @@ import {
 import { createStyleContext } from 'styled-system/jsx'
 import { slider } from 'styled-system/recipes'
 import type { ComponentProps } from 'react'
-import type { UiComponent } from './style-props'
+import type { UiComponent } from './style-contract'
 
 const ctx = createStyleContext(slider)
 

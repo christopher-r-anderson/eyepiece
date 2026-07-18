@@ -1,7 +1,7 @@
 import { css, cx } from 'styled-system/css'
 import { heading } from 'styled-system/recipes'
 import type { ComponentPropsWithoutRef } from 'react'
-import type { UiProps } from './style-props'
+import type { UiProps } from './style-contract'
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -22,7 +22,12 @@ export function Heading({
   return (
     <Hn
       {...props}
-      className={cx(heading({ level: `${level}` }), css(cssProp), className)}
+      className={cx(
+        // the recipe's variant keys are strings
+        heading({ level: `${level}` }),
+        css(cssProp),
+        className,
+      )}
     />
   )
 }

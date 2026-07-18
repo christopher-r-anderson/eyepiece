@@ -6,8 +6,14 @@ import {
   Tabs as RacTabs,
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
-import type { ComponentProps } from 'react'
-import type { UiProps } from './style-props'
+import type {
+  TabListProps as RacTabListProps,
+  TabPanelProps as RacTabPanelProps,
+  TabPanelsProps as RacTabPanelsProps,
+  TabProps as RacTabProps,
+  TabsProps as RacTabsProps,
+} from 'react-aria-components'
+import type { UiProps } from './style-contract'
 
 export const tabListStyles = css.raw({
   display: 'flex',
@@ -49,15 +55,15 @@ export const tabPanelStyles = css.raw({
   padding: '4',
 })
 
-export type TabsProps = UiProps<ComponentProps<typeof RacTabs>>
+export type TabsProps = UiProps<RacTabsProps>
 
-export type TabListProps = UiProps<ComponentProps<typeof RacTabList>>
+export type TabListProps<T extends object> = UiProps<RacTabListProps<T>>
 
-export type TabProps = UiProps<ComponentProps<typeof RacTab>>
+export type TabProps = UiProps<RacTabProps>
 
-export type TabPanelsProps = UiProps<ComponentProps<typeof RacTabPanels>>
+export type TabPanelsProps<T extends object> = UiProps<RacTabPanelsProps<T>>
 
-export type TabPanelProps = UiProps<ComponentProps<typeof RacTabPanel>>
+export type TabPanelProps = UiProps<RacTabPanelProps>
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
@@ -78,7 +84,11 @@ export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   )
 }
 
-export function TabList({ css: cssProp, className, ...props }: TabListProps) {
+export function TabList<T extends object>({
+  css: cssProp,
+  className,
+  ...props
+}: TabListProps<T>) {
   return (
     <RacTabList
       {...props}
@@ -93,11 +103,11 @@ export function Tab({ css: cssProp, className, ...props }: TabProps) {
   )
 }
 
-export function TabPanels({
+export function TabPanels<T extends object>({
   css: cssProp,
   className,
   ...props
-}: TabPanelsProps) {
+}: TabPanelsProps<T>) {
   return (
     <RacTabPanels
       {...props}

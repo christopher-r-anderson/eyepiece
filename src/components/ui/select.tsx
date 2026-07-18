@@ -7,7 +7,7 @@ import type {
   ListBoxItemRenderProps,
   SelectProps as RacSelectProps,
 } from 'react-aria-components'
-import type { StyleProps } from './style-props'
+import type { StyleProps } from './style-contract'
 import { ListBox, ListBoxItem } from '@/components/ui/list-box'
 import { Popover } from '@/components/ui/popover'
 

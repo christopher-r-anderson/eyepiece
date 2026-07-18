@@ -1,6 +1,6 @@
 import { SearchField as RacSearchField } from 'react-aria-components'
 import { searchField } from 'styled-system/recipes'
-import { uiStyled } from './style-props'
+import { uiStyled } from './style-contract'
 import type { ComponentProps } from 'react'
 
 export const SearchField = uiStyled(RacSearchField, searchField)

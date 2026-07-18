@@ -19,7 +19,7 @@ import {
 import { ToggleButton } from './toggle-button'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import type { FormVariantProps } from 'styled-system/recipes'
-import type { UiProps } from './style-props'
+import type { UiProps } from './style-contract'
 import type {
   FormProps as RacFormProps,
   TextFieldProps as RacTextFieldProps,
