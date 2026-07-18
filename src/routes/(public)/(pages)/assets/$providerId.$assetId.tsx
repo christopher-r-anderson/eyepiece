@@ -183,15 +183,7 @@ function AssetPage() {
           })}
         >
           <FavoriteButton assetKey={assetKey} />
-          {canViewMetadata ? (
-            <MetadataButton
-              assetKey={assetKey}
-              css={css.raw({
-                minWidth: 'controlHeightSm',
-                minHeight: 'controlHeightSm',
-              })}
-            />
-          ) : null}
+          {canViewMetadata ? <MetadataButton assetKey={assetKey} /> : null}
         </div>
       </div>
       <AssetDetail asset={data} />

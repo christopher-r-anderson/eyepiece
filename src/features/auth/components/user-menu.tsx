@@ -18,15 +18,7 @@ export function UserMenu() {
   const { data: user } = useCurrentUserQuery()
   return (
     <MenuTrigger>
-      <Button
-        aria-label="User Menu"
-        variant="ghost"
-        css={css.raw({
-          minWidth: 'controlHeightSm',
-          minHeight: 'controlHeightSm',
-          padding: '2',
-        })}
-      >
+      <Button aria-label="User Menu" variant="ghost" size="icon">
         <UserCircleIcon size={24} />
       </Button>
       <Popover

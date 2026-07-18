@@ -69,6 +69,14 @@ export const buttonRecipe = defineRecipe({
         fontSize: '1em',
       },
     },
+    size: {
+      // square hit area for icon-only content; composes with any variant
+      icon: {
+        minWidth: 'controlHeightSm',
+        minHeight: 'controlHeightSm',
+        padding: '2',
+      },
+    },
   },
   defaultVariants: {
     variant: 'secondary',
