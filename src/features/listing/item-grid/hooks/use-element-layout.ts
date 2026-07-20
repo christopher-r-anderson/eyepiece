@@ -14,17 +14,30 @@ export function useElementLayout<T extends HTMLElement>(
   } | null>(null)
 
   useIsomorphicLayoutEffect(() => {
-    const element = ref.current
-    if (!element) return
+    // the ref moves between elements when the grid swaps its
+    // static/virtualized implementation, so every callback re-reads it and
+    // re-observes; observing document.body catches the swap itself, since a
+    // disconnected element no longer reports resizes
+    let observedElement: HTMLElement | null = null
 
     const observer = new ResizeObserver(() => {
+      const element = ref.current
+      if (!element) return
+      if (element !== observedElement) {
+        if (observedElement) observer.unobserve(observedElement)
+        observedElement = element
+        observer.observe(element)
+      }
       if (element.offsetWidth > 0) {
         setLayout({ offsetTop: element.offsetTop, width: element.offsetWidth })
       }
     })
 
-    observer.observe(element)
     observer.observe(document.body)
+    if (ref.current) {
+      observedElement = ref.current
+      observer.observe(ref.current)
+    }
     return () => observer.disconnect()
   }, [ref])
 
