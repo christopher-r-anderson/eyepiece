@@ -38,6 +38,13 @@ export function SearchBar({
   const navigate = useNavigate()
   const isValid = query.trim().length > 0
 
+  // before hydration the form submits natively: action + these hidden fields
+  // reproduce the client navigation for the initial scope. yearStart/yearEnd
+  // are excluded because the NASA filters panel renders its own named inputs.
+  const nativeScopeFields = Object.entries(
+    toSearchPageParams(initialQuery, scope),
+  ).filter(([name]) => !['q', 'yearStart', 'yearEnd'].includes(name))
+
   function updateQuery(nextQuery: string) {
     setQuery(nextQuery)
 
@@ -58,6 +65,7 @@ export function SearchBar({
 
   return (
     <Form
+      action="/search"
       aria-describedby={showValidationMessage ? validationMessageId : undefined}
       css={css.raw({ width: '100%' }, styles)}
       onSubmit={(event) => {
@@ -75,6 +83,9 @@ export function SearchBar({
       }}
       {...props}
     >
+      {nativeScopeFields.map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={String(value)} />
+      ))}
       <div
         className={grid({
           background: 'secondary.bg',

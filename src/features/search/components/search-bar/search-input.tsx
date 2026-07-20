@@ -17,6 +17,7 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
       )}
     >
       <Input
+        name="q"
         placeholder="e.g. Crab Nebula"
         className={css({
           background: 'transparent',

@@ -164,6 +164,52 @@ test('home submits to the all scope with the query preserved', async ({
   ).toHaveAttribute('aria-current', 'page')
 })
 
+// with scripts blocked nothing hydrates, so these exercise the form's
+// native GET fallback (action plus named/hidden fields)
+async function blockScripts(page: Page) {
+  await page.route('**/*', (route) =>
+    route.request().resourceType() === 'script'
+      ? route.abort()
+      : route.continue(),
+  )
+}
+
+test('home search submits before hydration', async ({ page }) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('moon')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'moon' &&
+      !url.searchParams.has('providerId')
+    )
+  })
+  await expect(
+    page.getByRole('heading', { name: 'Search for "moon"' }),
+  ).toBeVisible()
+})
+
+test('provider scope survives a pre-hydration submit', async ({ page }) => {
+  await blockScripts(page)
+  await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await searchbox.fill('mars')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'mars' &&
+      url.searchParams.get('providerId') === NASA_PROVIDER_ID
+    )
+  })
+})
+
 test('all-view sections load once and "See all" reuses the cache', async ({
   page,
 }) => {
