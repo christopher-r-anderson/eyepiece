@@ -205,14 +205,13 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
   await searchbox.fill('mars')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
+  // exact match: the native serialization must use the same key-sorted
+  // spelling as the router so both produce one CDN cache key
   await page.waitForURL((url) => {
     return (
       url.pathname === '/search' &&
-      url.searchParams.get('q') === 'mars' &&
-      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
-      url.searchParams.get('mediaType') === 'image' &&
-      url.searchParams.get('yearStart') === '1960' &&
-      url.searchParams.get('yearEnd') === '2000'
+      url.search ===
+        `?mediaType=image&providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1960`
     )
   })
 })
@@ -230,16 +229,12 @@ test('default filter values stay out of a pre-hydration submit', async ({
   await page.waitForURL((url) => {
     return (
       url.pathname === '/search' &&
-      url.searchParams.get('q') === 'mars' &&
-      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
-      !url.searchParams.has('mediaType') &&
-      !url.searchParams.has('yearStart') &&
-      !url.searchParams.has('yearEnd')
+      url.search === `?providerId=${NASA_PROVIDER_ID}&q=mars`
     )
   })
 })
 
-test('an empty pre-hydration submit is blocked by native validation', async ({
+test('empty and whitespace-only pre-hydration submits are blocked natively', async ({
   page,
 }) => {
   await blockScripts(page)
@@ -247,7 +242,11 @@ test('an empty pre-hydration submit is blocked by native validation', async ({
 
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.waitForTimeout(500)
+  expect(new URL(page.url()).pathname).toBe('/')
 
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('   ')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForTimeout(500)
   expect(new URL(page.url()).pathname).toBe('/')
 })
 

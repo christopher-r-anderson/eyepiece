@@ -54,7 +54,7 @@ describe('search bar', () => {
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it('shows the validation alert on a whitespace-only submit', () => {
+  it('shows the field error on a whitespace-only submit', () => {
     render(
       createElement(SearchBar, { initialQuery: '', scope: { scope: 'all' } }),
     )
@@ -62,9 +62,7 @@ describe('search bar', () => {
     typeQuery('   ')
     submit()
 
-    expect(screen.getByRole('alert').textContent).toContain(
-      'Enter search keywords before searching.',
-    )
+    expect(screen.getByText('Please enter valid search keywords.')).toBeTruthy()
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

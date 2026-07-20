@@ -10,16 +10,13 @@ import {
 } from '@/components/ui/slider'
 
 const Thumb = ({
-  name,
   index,
   children,
 }: {
-  name?: string
   index: number
   children: React.ReactNode
 }) => (
   <SliderThumb
-    name={name}
     index={index}
     css={css.raw({
       display: 'flex',
@@ -43,13 +40,7 @@ const Thumb = ({
   </SliderThumb>
 )
 
-type ThumbNames = { start?: string; end?: string }
-
-export function YearRangeSlider({
-  css: styles,
-  thumbNames,
-  ...props
-}: SliderProps & { thumbNames?: ThumbNames }) {
+export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
   return (
     <Slider
       {...props}
@@ -74,12 +65,8 @@ export function YearRangeSlider({
               borderTop: '1px solid token(colors.text.muted)',
             })}
           >
-            <Thumb name={thumbNames?.start} index={0}>
-              {state.getThumbValue(0)}
-            </Thumb>
-            <Thumb name={thumbNames?.end} index={1}>
-              {state.getThumbValue(1)}
-            </Thumb>
+            <Thumb index={0}>{state.getThumbValue(0)}</Thumb>
+            <Thumb index={1}>{state.getThumbValue(1)}</Thumb>
           </div>
         )}
       </SliderTrack>
