@@ -16,6 +16,7 @@ import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { App } from '@/app/shell'
 import { RouteErrorBoundary } from '@/app/layout/error'
+import { getTitleText } from '@/lib/utils'
 import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
 // The user-scoped Supabase client is deliberately absent: it is accessed via
@@ -33,6 +34,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: getTitleText(undefined) },
     ],
     links: [{ rel: 'stylesheet', href: pandaCss }],
   }),
