@@ -50,7 +50,6 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
           position: 'relative',
           width: '100%',
           height: '100%',
-          margin: 0,
           overflow: 'hidden',
         })}
       >
@@ -87,7 +86,6 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         >
           <p
             className={css({
-              margin: 0,
               color: 'assetTile.captionText',
               height: '2.2em',
               lineHeight: '1.1em',
@@ -135,7 +133,6 @@ export function AssetTile({
             position: 'absolute',
             top: '2',
             left: '2',
-            margin: 0,
             paddingBlock: '1',
             paddingInline: '2',
             border: '1px solid token(colors.assetTile.badgeBorder)',
