@@ -94,6 +94,10 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
         value={years}
         minValue={YEAR_MIN}
         maxValue={YEAR_MAX}
+        thumbNames={{
+          start: filters?.yearStart !== undefined ? 'yearStart' : undefined,
+          end: filters?.yearEnd !== undefined ? 'yearEnd' : undefined,
+        }}
         onChange={(newYears) => {
           if (Array.isArray(newYears) && newYears.length === 2) {
             const [start, end] = newYears

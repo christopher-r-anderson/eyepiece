@@ -193,7 +193,33 @@ test('home search submits before hydration', async ({ page }) => {
   ).toBeVisible()
 })
 
-test('provider scope survives a pre-hydration submit', async ({ page }) => {
+test('provider scope and explicit filters survive a pre-hydration submit', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto(
+    `/search?q=moon&providerId=${NASA_PROVIDER_ID}&mediaType=image&yearStart=1960&yearEnd=2000`,
+  )
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await searchbox.fill('mars')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'mars' &&
+      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
+      url.searchParams.get('mediaType') === 'image' &&
+      url.searchParams.get('yearStart') === '1960' &&
+      url.searchParams.get('yearEnd') === '2000'
+    )
+  })
+})
+
+test('default filter values stay out of a pre-hydration submit', async ({
+  page,
+}) => {
   await blockScripts(page)
   await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
 
@@ -205,9 +231,24 @@ test('provider scope survives a pre-hydration submit', async ({ page }) => {
     return (
       url.pathname === '/search' &&
       url.searchParams.get('q') === 'mars' &&
-      url.searchParams.get('providerId') === NASA_PROVIDER_ID
+      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
+      !url.searchParams.has('mediaType') &&
+      !url.searchParams.has('yearStart') &&
+      !url.searchParams.has('yearEnd')
     )
   })
+})
+
+test('an empty pre-hydration submit is blocked by native validation', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForTimeout(500)
+
+  expect(new URL(page.url()).pathname).toBe('/')
 })
 
 test('all-view sections load once and "See all" reuses the cache', async ({

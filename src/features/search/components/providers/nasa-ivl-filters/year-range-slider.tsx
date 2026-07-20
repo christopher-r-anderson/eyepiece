@@ -14,7 +14,7 @@ const Thumb = ({
   index,
   children,
 }: {
-  name: string
+  name?: string
   index: number
   children: React.ReactNode
 }) => (
@@ -43,7 +43,16 @@ const Thumb = ({
   </SliderThumb>
 )
 
-export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
+// a thumb with no name is not a successful form control; callers name a
+// thumb only when its bound is an explicit filter, keeping default bounds
+// out of native (pre-hydration) submissions
+type ThumbNames = { start?: string; end?: string }
+
+export function YearRangeSlider({
+  css: styles,
+  thumbNames,
+  ...props
+}: SliderProps & { thumbNames?: ThumbNames }) {
   return (
     <Slider
       {...props}
@@ -68,10 +77,10 @@ export function YearRangeSlider({ css: styles, ...props }: SliderProps) {
               borderTop: '1px solid token(colors.text.muted)',
             })}
           >
-            <Thumb name="yearStart" index={0}>
+            <Thumb name={thumbNames?.start} index={0}>
               {state.getThumbValue(0)}
             </Thumb>
-            <Thumb name="yearEnd" index={1}>
+            <Thumb name={thumbNames?.end} index={1}>
               {state.getThumbValue(1)}
             </Thumb>
           </div>

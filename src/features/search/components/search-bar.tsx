@@ -40,7 +40,8 @@ export function SearchBar({
 
   // before hydration the form submits natively: action + these hidden fields
   // reproduce the client navigation for the initial scope. yearStart/yearEnd
-  // are excluded because the NASA filters panel renders its own named inputs.
+  // are excluded because the slider names its thumbs when (and only when)
+  // those bounds are explicit filters.
   const nativeScopeFields = Object.entries(
     toSearchPageParams(initialQuery, scope),
   ).filter(([name]) => !['q', 'yearStart', 'yearEnd'].includes(name))
