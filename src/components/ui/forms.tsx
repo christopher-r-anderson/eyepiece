@@ -177,11 +177,7 @@ export function TextField({
     >
       <Label className={textFieldSlots.label}>{label}</Label>
       <div className={textFieldSlots.control}>
-        <Input
-          placeholder={placeholder}
-          className={textFieldSlots.input}
-          style={isPasswordField ? {} : undefined}
-        />
+        <Input placeholder={placeholder} className={textFieldSlots.input} />
         {isPasswordField && (
           <ToggleButton
             aria-label="Toggle password visibility"

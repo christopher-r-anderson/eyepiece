@@ -22,8 +22,6 @@ const ThemeSwitch = (props: SwitchProps) => {
         width: 'fit-content',
         flex: 'none',
         fontSize: 'base',
-        padding: 0,
-        margin: 0,
       })}
     >
       <div

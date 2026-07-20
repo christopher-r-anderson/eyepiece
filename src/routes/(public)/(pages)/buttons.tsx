@@ -27,25 +27,19 @@ function RouteComponent() {
         <Button icon={MagnifyingGlassIcon}>Secondary Button</Button>
       </p>
       <p>
-        <Button
-          css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}
-          icon={MagnifyingGlassIcon}
-        >
+        <Button css={css.raw({ width: '100%' })} icon={MagnifyingGlassIcon}>
           Secondary Button
         </Button>
       </p>
       <p>
-        <Button
-          css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}
-          icon={MagnifyingGlassIcon}
-        >
+        <Button css={css.raw({ width: '100%' })} icon={MagnifyingGlassIcon}>
           <span className={css({ flex: 1, minWidth: 0 })}>
             Secondary Button
           </span>
         </Button>
       </p>
       <p>
-        <Button css={css.raw({ width: 'min(100%, token(sizes.pageColMax))' })}>
+        <Button css={css.raw({ width: '100%' })}>
           {() => (
             <>
               <span className={css({ flex: 1, minWidth: 0 })}>

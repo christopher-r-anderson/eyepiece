@@ -55,7 +55,6 @@ export function AssetDetail({ asset }: { asset: Asset }) {
         <div
           className={css({
             maxWidth: 'calc(clamp(45ch, 90%, token(sizes.readingMax)) + 1rem)',
-            margin: 0,
             lineHeight: 'base',
             whiteSpace: 'pre-line',
           })}

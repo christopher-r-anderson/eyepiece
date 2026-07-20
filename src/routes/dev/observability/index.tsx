@@ -52,7 +52,7 @@ function DevObservabilityPage() {
           title="Verification Checklist"
           description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."
         />
-        <ol className={css({ margin: 0, paddingInlineStart: '1.25rem' })}>
+        <ol>
           <li>
             Client render error should be captured with boundary metadata.
           </li>
