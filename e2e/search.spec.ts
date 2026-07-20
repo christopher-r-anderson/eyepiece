@@ -164,6 +164,113 @@ test('home submits to the all scope with the query preserved', async ({
   ).toHaveAttribute('aria-current', 'page')
 })
 
+// with scripts blocked nothing hydrates, so these exercise the form's
+// native GET fallback (action plus named/hidden fields)
+async function blockScripts(page: Page) {
+  await page.route('**/*', (route) =>
+    route.request().resourceType() === 'script'
+      ? route.abort()
+      : route.continue(),
+  )
+}
+
+test('home search submits before hydration', async ({ page }) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('moon')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'moon' &&
+      !url.searchParams.has('providerId')
+    )
+  })
+  await expect(
+    page.getByRole('heading', { name: 'Search for "moon"' }),
+  ).toBeVisible()
+})
+
+test('provider scope and explicit filters survive a pre-hydration submit', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto(
+    `/search?q=moon&providerId=${NASA_PROVIDER_ID}&mediaType=image&yearStart=1960&yearEnd=2000`,
+  )
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await searchbox.fill('mars')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  // exact match: the native serialization must use the same key-sorted
+  // spelling as the router so both produce one CDN cache key
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.search ===
+        `?mediaType=image&providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1960`
+    )
+  })
+})
+
+test('default filter values stay out of a pre-hydration submit', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await searchbox.fill('mars')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.search === `?providerId=${NASA_PROVIDER_ID}&q=mars`
+    )
+  })
+})
+
+test('a multi-word padded query canonicalizes from a pre-hydration submit', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page
+    .getByRole('searchbox', { name: 'Search keywords' })
+    .fill('  crab nebula  ')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  // the browser form-encodes this as q=++crab+nebula++; the server parses
+  // the spaces, trims, and redirects to the canonical spelling
+  await page.waitForURL(
+    (url) => url.pathname === '/search' && url.search === '?q=crab+nebula',
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Search for "crab nebula"' }),
+  ).toBeVisible()
+})
+
+test('empty and whitespace-only pre-hydration submits are blocked natively', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForTimeout(500)
+  expect(new URL(page.url()).pathname).toBe('/')
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('   ')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForTimeout(500)
+  expect(new URL(page.url()).pathname).toBe('/')
+})
+
 test('all-view sections load once and "See all" reuses the cache', async ({
   page,
 }) => {

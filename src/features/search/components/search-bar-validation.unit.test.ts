@@ -35,7 +35,7 @@ describe('search bar', () => {
     cleanup()
   })
 
-  it('shows a validation alert on empty submit and keeps the submit button enabled', () => {
+  it('shows the field error on empty submit and keeps the submit button enabled', () => {
     render(
       createElement(SearchBar, { initialQuery: '', scope: { scope: 'all' } }),
     )
@@ -45,9 +45,24 @@ describe('search bar', () => {
 
     submit()
 
-    expect(screen.getByRole('alert').textContent).toContain(
-      'Enter search keywords before searching.',
+    expect(screen.getByText('Please enter valid search keywords.')).toBeTruthy()
+    expect(
+      screen
+        .getByRole('searchbox', { name: 'Search keywords' })
+        .getAttribute('aria-invalid'),
+    ).toBe('true')
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('shows the field error on a whitespace-only submit', () => {
+    render(
+      createElement(SearchBar, { initialQuery: '', scope: { scope: 'all' } }),
     )
+
+    typeQuery('   ')
+    submit()
+
+    expect(screen.getByText('Please enter valid search keywords.')).toBeTruthy()
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

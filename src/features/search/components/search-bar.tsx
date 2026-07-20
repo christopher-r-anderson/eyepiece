@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import { toSearchPageParams } from '../search-page-params'
@@ -13,11 +12,15 @@ import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-fi
 import { Form } from '@/components/ui/forms'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
-const SEARCH_VALIDATION_MESSAGE = 'Enter search keywords before searching.'
-
 interface SearchBarProps extends FormProps {
   initialQuery: string
   scope: SearchScope
+}
+
+function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
+  return fields.map(([name, value]) => (
+    <input key={name} type="hidden" name={name} value={String(value)} />
+  ))
 }
 
 export function SearchBar({
@@ -26,7 +29,6 @@ export function SearchBar({
   css: styles,
   ...props
 }: SearchBarProps) {
-  const validationMessageId = useId()
   const [query, setQuery] = useState(initialQuery)
   const isNasaScope =
     scope.scope === 'provider' &&
@@ -34,17 +36,18 @@ export function SearchBar({
   const [nasaFilters, setNasaFilters] = useState<NasaIvlSearchFilters>(
     isNasaScope ? scope.filters.filters : {},
   )
-  const [showValidationMessage, setShowValidationMessage] = useState(false)
   const navigate = useNavigate()
-  const isValid = query.trim().length > 0
 
-  function updateQuery(nextQuery: string) {
-    setQuery(nextQuery)
-
-    if (nextQuery.trim().length > 0) {
-      setShowValidationMessage(false)
-    }
-  }
+  // before hydration the form submits natively and serializes in document
+  // order, so the initial scope rides along as hidden fields sorted and
+  // split around the q input to produce the router's key-sorted spelling
+  const nativeScopeFields = Object.entries(
+    toSearchPageParams(initialQuery, scope),
+  )
+    .filter(([name]) => name !== 'q')
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+  const fieldsBeforeQuery = nativeScopeFields.filter(([name]) => name < 'q')
+  const fieldsAfterQuery = nativeScopeFields.filter(([name]) => name > 'q')
 
   function submitScope(): SearchScope {
     if (isNasaScope) {
@@ -58,16 +61,10 @@ export function SearchBar({
 
   return (
     <Form
-      aria-describedby={showValidationMessage ? validationMessageId : undefined}
+      action="/search"
       css={css.raw({ width: '100%' }, styles)}
       onSubmit={(event) => {
         event.preventDefault()
-        if (!isValid) {
-          setShowValidationMessage(true)
-          return
-        }
-
-        setShowValidationMessage(false)
         void navigate({
           to: '/search',
           search: toSearchPageParams(query, submitScope()),
@@ -75,6 +72,7 @@ export function SearchBar({
       }}
       {...props}
     >
+      <HiddenScopeFields fields={fieldsBeforeQuery} />
       <div
         className={grid({
           background: 'secondary.bg',
@@ -95,27 +93,12 @@ export function SearchBar({
       >
         <SearchInput
           aria-label="Search keywords"
-          aria-describedby={
-            showValidationMessage ? validationMessageId : undefined
-          }
-          aria-invalid={showValidationMessage || undefined}
           value={query}
-          onChange={updateQuery}
+          onChange={setQuery}
         />
         <SubmitButton />
       </div>
-      {showValidationMessage && (
-        <p
-          id={validationMessageId}
-          role="alert"
-          className={css({
-            color: 'danger.text',
-            fontSize: 'sm',
-          })}
-        >
-          {SEARCH_VALIDATION_MESSAGE}
-        </p>
-      )}
+      <HiddenScopeFields fields={fieldsAfterQuery} />
       {isNasaScope && (
         <FiltersPanel>
           <NasaIvlFilters filters={nasaFilters} onChange={setNasaFilters} />

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
   return (
     <SearchField
+      isRequired
       {...props}
       css={css.raw(
         {
@@ -17,6 +18,8 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
       )}
     >
       <Input
+        name="q"
+        pattern=".*\S.*"
         placeholder="e.g. Crab Nebula"
         className={css({
           background: 'transparent',
