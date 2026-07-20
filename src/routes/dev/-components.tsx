@@ -32,9 +32,6 @@ const devSurfaceCss = css.raw({
 const devTextStackCss = css.raw({
   display: 'grid',
   gap: '2',
-  '& > p': {
-    margin: 0,
-  },
 })
 
 type DevPageIntroProps = {
@@ -65,7 +62,6 @@ export function DevPageIntro({
         ) : null}
         <p
           className={css({
-            margin: 0,
             color: 'text.muted',
             fontSize: 'xs',
             fontWeight: 600,

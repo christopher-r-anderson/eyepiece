@@ -1,6 +1,5 @@
 import { UserCircleIcon } from '@phosphor-icons/react/dist/ssr'
 import { useRouter } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { Menu, MenuItem, MenuTrigger } from '@/components/ui/menus'
@@ -21,11 +20,7 @@ export function UserMenu() {
       <Button aria-label="User Menu" variant="ghost" size="icon">
         <UserCircleIcon size={24} />
       </Button>
-      <Popover
-        placement="bottom end"
-        containerPadding={20}
-        css={css.raw({ backgroundColor: 'secondary.bg' })}
-      >
+      <Popover placement="bottom end" containerPadding={20}>
         <Menu>
           <MenuItem
             href={{

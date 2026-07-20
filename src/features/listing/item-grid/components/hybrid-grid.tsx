@@ -85,10 +85,7 @@ export function ItemGridSkeleton({
       className={cx(
         css({
           display: 'grid',
-          listStyleType: 'none',
-          padding: 0,
           justifyContent: 'center',
-          margin: 0,
           width: '100%',
         }),
         props.className,

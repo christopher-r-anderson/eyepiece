@@ -67,17 +67,15 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
           still labeled for accessibility via `aria-label` but without a loading error fallback
         */}
           <svg
-            width="100%"
             height="46"
-            role="image"
+            role="img"
             aria-label="eyepiece logo"
-            style={{
+            className={css({
               display: 'block',
               width: '100%',
               height: 'auto',
-              maxWidth: '100%',
               overflow: 'visible',
-            }}
+            })}
           >
             <use href={`${logo}#group`} />
           </svg>

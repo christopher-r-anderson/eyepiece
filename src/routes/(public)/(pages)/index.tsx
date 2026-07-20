@@ -26,11 +26,7 @@ function HomePage() {
       >
         Search Public Space Image Libraries
       </Heading>
-      <SearchBar
-        css={css.raw({ width: '100%' })}
-        initialQuery=""
-        scope={{ scope: 'all' }}
-      />
+      <SearchBar initialQuery="" scope={{ scope: 'all' }} />
     </section>
   )
 }

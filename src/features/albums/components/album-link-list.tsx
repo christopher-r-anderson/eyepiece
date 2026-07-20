@@ -8,7 +8,6 @@ export function AlbumLinkList({ albums }: { albums: Array<AlbumKey> }) {
     <ul
       className={css({
         listStyleType: 'none',
-        margin: 0,
         padding: 0,
       })}
     >
