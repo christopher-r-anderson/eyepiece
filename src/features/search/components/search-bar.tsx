@@ -38,10 +38,8 @@ export function SearchBar({
   const navigate = useNavigate()
   const isValid = query.trim().length > 0
 
-  // before hydration the form submits natively: action + these hidden fields
-  // reproduce the client navigation for the initial scope. yearStart/yearEnd
-  // are excluded because the slider names its thumbs when (and only when)
-  // those bounds are explicit filters.
+  // before hydration the form submits natively; these hidden fields carry
+  // the initial scope. q and the year bounds have their own named inputs.
   const nativeScopeFields = Object.entries(
     toSearchPageParams(initialQuery, scope),
   ).filter(([name]) => !['q', 'yearStart', 'yearEnd'].includes(name))

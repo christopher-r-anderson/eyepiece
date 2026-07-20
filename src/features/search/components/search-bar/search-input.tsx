@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button'
 export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
   return (
     <SearchField
-      // blocks empty submissions: natively before hydration, via the
-      // FieldError below once react aria's form validation is attached
       isRequired
       {...props}
       css={css.raw(

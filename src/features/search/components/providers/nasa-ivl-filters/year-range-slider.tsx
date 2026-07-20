@@ -43,9 +43,6 @@ const Thumb = ({
   </SliderThumb>
 )
 
-// a thumb with no name is not a successful form control; callers name a
-// thumb only when its bound is an explicit filter, keeping default bounds
-// out of native (pre-hydration) submissions
 type ThumbNames = { start?: string; end?: string }
 
 export function YearRangeSlider({
