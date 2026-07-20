@@ -234,6 +234,27 @@ test('default filter values stay out of a pre-hydration submit', async ({
   })
 })
 
+test('a multi-word padded query canonicalizes from a pre-hydration submit', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto('/')
+
+  await page
+    .getByRole('searchbox', { name: 'Search keywords' })
+    .fill('  crab nebula  ')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  // the browser form-encodes this as q=++crab+nebula++; the server parses
+  // the spaces, trims, and redirects to the canonical spelling
+  await page.waitForURL(
+    (url) => url.pathname === '/search' && url.search === '?q=crab+nebula',
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Search for "crab nebula"' }),
+  ).toBeVisible()
+})
+
 test('empty and whitespace-only pre-hydration submits are blocked natively', async ({
   page,
 }) => {
