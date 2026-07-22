@@ -288,6 +288,34 @@ describe('GET /api/v1/search handler', () => {
     expect(next).not.toHaveBeenCalled()
   })
 
+  it('returns a 400 response from middleware when the year range is inverted', async () => {
+    const next = vi.fn()
+
+    await expectBadRequest(
+      searchParamsMiddleware({
+        request: new Request(
+          'https://example.com/api/v1/search?q=apollo&providerId=nasa_ivl&page=1&pageSize=24&yearStart=2001&yearEnd=2000',
+        ),
+        next,
+      }),
+      {
+        error: {
+          code: 'INVALID_QUERY_PARAMS',
+          message: 'One or more query parameters are invalid.',
+          issues: [
+            {
+              code: 'custom',
+              message: 'yearStart must not be greater than yearEnd',
+              path: 'yearStart',
+            },
+          ],
+        },
+      },
+    )
+
+    expect(next).not.toHaveBeenCalled()
+  })
+
   it('rethrows handled provider failures with route context', async () => {
     mockService.searchAssets.mockRejectedValue(
       new AppException({
