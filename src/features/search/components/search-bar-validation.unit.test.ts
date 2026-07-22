@@ -106,6 +106,57 @@ describe('search bar', () => {
     })
   })
 
+  it('renders the year filters as named inputs with cross-wired bounds', () => {
+    render(
+      createElement(SearchBar, {
+        initialQuery: 'apollo',
+        scope: {
+          scope: 'provider',
+          filters: {
+            providerId: NASA_IVL_PROVIDER_ID,
+            filters: { yearStart: 1990, yearEnd: 2000 },
+          },
+        },
+      }),
+    )
+
+    const from = screen.getByLabelText<HTMLInputElement>('From')
+    expect(from.name).toBe('yearStart')
+    expect(from.value).toBe('1990')
+    expect(from.getAttribute('max')).toBe('2000')
+
+    const to = screen.getByLabelText<HTMLInputElement>('To')
+    expect(to.name).toBe('yearEnd')
+    expect(to.value).toBe('2000')
+    expect(to.getAttribute('min')).toBe('1990')
+  })
+
+  it('submits an edited year input through the router navigate', () => {
+    render(
+      createElement(SearchBar, {
+        initialQuery: 'apollo',
+        scope: {
+          scope: 'provider',
+          filters: { providerId: NASA_IVL_PROVIDER_ID, filters: {} },
+        },
+      }),
+    )
+
+    fireEvent.change(screen.getByLabelText('From'), {
+      target: { value: '1995' },
+    })
+    submit()
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/search',
+      search: {
+        q: 'apollo',
+        providerId: NASA_IVL_PROVIDER_ID,
+        yearStart: 1995,
+      },
+    })
+  })
+
   it('renders the filters panel only for the NASA scope', () => {
     const { unmount } = render(
       createElement(SearchBar, {

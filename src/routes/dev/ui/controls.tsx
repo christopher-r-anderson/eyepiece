@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { SearchInput } from '@/features/search/components/search-bar/search-input'
-import { YearRangeSlider } from '@/features/search/components/providers/nasa-ivl-filters/year-range-slider'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
@@ -25,7 +24,6 @@ function DevUiControlsPage() {
   const [searchValue, setSearchValue] = useState('Crab Nebula')
   const [switchSelected, setSwitchSelected] = useState(false)
   const [toggleSelected, setToggleSelected] = useState(true)
-  const [years, setYears] = useState<[number, number]>([1995, 2024])
 
   return (
     <div className={css(devPageSectionCss)}>
@@ -90,8 +88,8 @@ function DevUiControlsPage() {
 
       <DevPanel css={css.raw({ padding: '4' })}>
         <DevTitleBlock
-          title="Search and Range Inputs"
-          description="Search fields and sliders."
+          title="Search Inputs"
+          description="Search fields."
           headingLevel={3}
         />
 
@@ -100,18 +98,6 @@ function DevUiControlsPage() {
             aria-label="Search examples"
             value={searchValue}
             onChange={setSearchValue}
-          />
-
-          <YearRangeSlider
-            aria-label="Example year range"
-            value={years}
-            minValue={1900}
-            maxValue={2025}
-            onChange={(newYears) => {
-              if (Array.isArray(newYears) && newYears.length === 2) {
-                setYears([newYears[0], newYears[1]])
-              }
-            }}
           />
         </div>
       </DevPanel>

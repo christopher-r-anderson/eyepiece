@@ -61,6 +61,24 @@ describe('searchFiltersSchema', () => {
     ).toThrow()
   })
 
+  it('rejects an inverted year range', () => {
+    expect(() =>
+      searchFiltersSchema.parse({
+        providerId: NASA_IVL_PROVIDER_ID,
+        filters: { yearStart: 2001, yearEnd: 2000 },
+      }),
+    ).toThrow()
+  })
+
+  it('accepts an equal year range', () => {
+    expect(() =>
+      searchFiltersSchema.parse({
+        providerId: NASA_IVL_PROVIDER_ID,
+        filters: { yearStart: 2000, yearEnd: 2000 },
+      }),
+    ).not.toThrow()
+  })
+
   it('rejects unknown filter keys for NASA in strict mode', () => {
     expect(() =>
       searchFiltersSchema.parse({

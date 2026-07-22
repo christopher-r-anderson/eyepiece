@@ -11,7 +11,6 @@ import { modalDialogRecipe } from '@/components/ui/modal-dialog.recipe'
 import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
-import { sliderRecipe } from '@/components/ui/slider.recipe'
 import { switchRecipe } from '@/components/ui/switch.recipe'
 import { textFieldRecipe } from '@/components/ui/text-field.recipe'
 import { toastRecipe } from '@/components/ui/toast.recipe'
@@ -106,7 +105,6 @@ export default defineConfig({
     },
     slotRecipes: {
       modalDialog: modalDialogRecipe,
-      slider: sliderRecipe,
       textField: textFieldRecipe,
       toast: toastRecipe,
     },

@@ -40,11 +40,15 @@ export function SearchBar({
 
   // before hydration the form submits natively and serializes in document
   // order, so the initial scope rides along as hidden fields sorted and
-  // split around the q input to produce the router's key-sorted spelling
+  // split around the q input to produce the router's key-sorted spelling.
+  // the year filters are real named inputs in the panel below, not hidden
+  // fields; a native submit carrying them serializes non-canonical and
+  // relies on the canonicalization redirect
+  const nativeInputNames = ['q', 'yearStart', 'yearEnd']
   const nativeScopeFields = Object.entries(
     toSearchPageParams(initialQuery, scope),
   )
-    .filter(([name]) => name !== 'q')
+    .filter(([name]) => !nativeInputNames.includes(name))
     .sort(([a], [b]) => (a < b ? -1 : 1))
   const fieldsBeforeQuery = nativeScopeFields.filter(([name]) => name < 'q')
   const fieldsAfterQuery = nativeScopeFields.filter(([name]) => name > 'q')

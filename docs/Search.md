@@ -44,6 +44,9 @@ The failure taxonomy the parse must satisfy:
 | P5   | missing or empty `q`                         | prompt state, never an error         |
 | P6   | JSON-mangled values (`?q=123` parses number) | coerce                               |
 
+P4 also applies across fields: an inverted year range (`yearStart` >
+`yearEnd`) drops as a pair.
+
 The API route (`/api/v1/search`) stays strict and returns 400s: bad params
 from an API caller are a programming error; a mangled URL from a person is
 not.

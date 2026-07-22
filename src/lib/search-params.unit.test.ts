@@ -33,6 +33,11 @@ describe('stringifySearchParams', () => {
     expect(stringifySearchParams({})).toBe('')
   })
 
+  it('omits empty-string values', () => {
+    expect(stringifySearchParams({ q: 'moon', yearStart: '' })).toBe('?q=moon')
+    expect(stringifySearchParams({ q: '' })).toBe('')
+  })
+
   it('spells spaces as plus signs, matching native form encoding', () => {
     expect(stringifySearchParams({ q: 'crab nebula' })).toBe('?q=crab+nebula')
   })
