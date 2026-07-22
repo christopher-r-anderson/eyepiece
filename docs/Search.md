@@ -53,17 +53,42 @@ not.
 
 ## Canonicalization
 
-Non-canonical /search URLs render normally (the lenient parse guarantees
-it), then `useCanonicalSearchReplace` rewrites them once, client-side, to a
-single spelling per document so the CDN caches one key per document.
-Covered: junk values, stripped defaults (empty or whitespace-only `q`, no
-`providerId` on the All scope), and param-order/encoding variants.
-Auth-modal params (`auth`, `next`, `fp`) survive. The router serializes all
-search params key-sorted (`stringifySearchParams` in
-`src/lib/search-params.ts` is its `stringifySearch`), so app-generated URLs
-are already canonical.
+Equal searches resolve to a single spelling per document so the CDN caches
+one key per document. URLs the app generates are already canonical: the
+router serializes all search params through `stringifySearchParams`
+(`src/lib/search-params.ts`), which sorts keys and omits empty-string
+values. URLs from outside - shared links, hand edits, native form submits -
+converge in two tiers.
 
-Constraints the implementation depends on:
+Spelling variants are redirected (307) by the server: key order, encoding
+(`+` for spaces), empty-valued params, and values the validator rewrites (a
+padded `q` lands trimmed). The redirect carries no cache headers, so the
+CDN never caches it; it works without JavaScript and costs one origin round
+trip.
+
+Keys the validator drops rather than rewrites - junk params, invalid or
+inverted year values, unknown `providerId` - survive the redirect tier.
+Those spellings serve the content directly, under their own CDN key, and
+`useCanonicalSearchReplace` rewrites the address bar once, client-side.
+Auth-modal params (`auth`, `next`, `fp`) survive both tiers.
+
+| Spelling                                   | Fixed by       | CDN                   |
+| ------------------------------------------ | -------------- | --------------------- |
+| order, encoding, empties, rewritten values | server 307     | redirect never cached |
+| dropped keys (junk, invalid years)         | client replace | one key per spelling  |
+| canonical                                  | -              | the one key           |
+
+Native (pre-hydration) form submits ride the server tier. A GET form
+serializes every named field in document order, so the search bar pre-sorts
+its hidden scope fields around the `q` input and scope-only submits spell
+canonically with no redirect. The named year inputs sit in visual order
+(From before To, against the key-sorted `yearEnd`-first spelling) and
+submit even when empty, so a NASA-scope submit takes the one 307:
+
+    /search?providerId=nasa_ivl&q=mars&yearStart=1970&yearEnd=
+    -> 307 -> /search?providerId=nasa_ivl&q=mars&yearStart=1970
+
+Constraints the client tier depends on:
 
 - compares raw URL strings, not parsed objects: variants that parse equal
   are still distinct cache keys, and the router drops order-only object
@@ -73,8 +98,9 @@ Constraints the implementation depends on:
   cancels in-flight navigations
 - the parse is idempotent (unit-tested), so the canonical string is a fixed
   point and the replace cannot loop
-- no `beforeLoad` redirect: a `publicBoundary()` route must never CDN-cache
-  a redirect response; every spelling serves the content directly
+- no app-level `beforeLoad` redirect: `publicBoundary()` responses carry
+  public cache headers, and a CDN-cached redirect would outlive its cause;
+  the framework's 307 is safe because it sends none
 
 ## The All View
 
