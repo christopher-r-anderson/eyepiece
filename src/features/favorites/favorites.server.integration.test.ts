@@ -80,7 +80,7 @@ async function getFavoritesCount(
   return count ?? 0
 }
 
-async function cleanupAssetSummaries(
+async function cleanupAssetPreviewSnapshots(
   ids: Array<AssetPreviewSnapshotId>,
 ): Promise<void> {
   if (ids.length === 0) return
@@ -99,7 +99,7 @@ describe('toggleFavoriteForUser', () => {
   const snapshotIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
-    await cleanupAssetSummaries(snapshotIds)
+    await cleanupAssetPreviewSnapshots(snapshotIds)
     snapshotIds.length = 0
   })
 
@@ -180,7 +180,7 @@ describe('toggleFavoriteForUser', () => {
     client,
     user,
   }) => {
-    // This UUID doesn't correspond to any asset_summary row
+    // This UUID doesn't correspond to any asset_preview_snapshots row
     const nonExistentId =
       'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' as AssetPreviewSnapshotId
 

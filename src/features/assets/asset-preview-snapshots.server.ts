@@ -140,10 +140,7 @@ async function _ensureAssetPreviewSnapshotForKey(
       }),
     }
 
-    logErrorWithObservability(
-      'Asset preview snapshot id missing',
-      errorResult,
-    )
+    logErrorWithObservability('Asset preview snapshot id missing', errorResult)
 
     return Err(errorResult)
   }

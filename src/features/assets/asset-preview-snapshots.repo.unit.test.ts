@@ -5,7 +5,7 @@ import { resultIsError, resultIsSuccess } from '@/lib/result'
 // ---------------------------------------------------------------------------
 // Supabase query builder mock
 //
-// The asset-summaries query chain is: .from().select().in()
+// The asset-preview-snapshots query chain is: .from().select().in()
 // .in() is the terminal call that resolves the promise.
 // ---------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ const pgError = { message: 'relation does not exist', code: 'PGRST200' }
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('makeAssetSummariesRepo / getAssetSummaries', () => {
+describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
   describe('querying', () => {
     it('queries the asset_preview_snapshots table', async () => {
       const { client } = makeClientStub({ data: [], error: null })
@@ -139,7 +139,7 @@ describe('makeAssetSummariesRepo / getAssetSummaries', () => {
       }
     })
 
-    it('returns Ok with multiple mapped summaries', async () => {
+    it('returns Ok with multiple mapped snapshots', async () => {
       const rows = [
         makeDbRow({ id: UUID_1, external_id: 'asset-001' }),
         makeDbRow({ id: UUID_2, external_id: 'asset-002' }),

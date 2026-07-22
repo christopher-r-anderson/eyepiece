@@ -33,16 +33,14 @@ async function seedFavorite(
   ownerId: string,
   assetPreviewSnapshotId: AssetPreviewSnapshotId,
 ): Promise<void> {
-  const { error } = await admin
-    .from('favorites')
-    .insert({
-      owner_id: ownerId,
-      asset_preview_snapshot_id: assetPreviewSnapshotId,
-    })
+  const { error } = await admin.from('favorites').insert({
+    owner_id: ownerId,
+    asset_preview_snapshot_id: assetPreviewSnapshotId,
+  })
   if (error) throw new Error(`seedFavorite: ${error.message}`)
 }
 
-async function cleanupAssetSummaries(
+async function cleanupAssetPreviewSnapshots(
   ids: Array<AssetPreviewSnapshotId>,
 ): Promise<void> {
   if (ids.length === 0) return
@@ -63,7 +61,7 @@ describe('getUserFavoritesEdges', () => {
   // asset_preview_snapshots are not user-owned so they don't cascade when the test
   // user is deleted so clean them up explicitly.
   afterEach(async () => {
-    await cleanupAssetSummaries(snapshotIds)
+    await cleanupAssetPreviewSnapshots(snapshotIds)
     snapshotIds.length = 0
   })
 
@@ -222,7 +220,7 @@ describe('getUserFavoritesIndex', () => {
   const snapshotIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
-    await cleanupAssetSummaries(snapshotIds)
+    await cleanupAssetPreviewSnapshots(snapshotIds)
     snapshotIds.length = 0
   })
 
