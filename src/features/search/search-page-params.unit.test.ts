@@ -94,6 +94,17 @@ describe('searchPageParamsSchema', () => {
     })
   })
 
+  it('P4: an inverted year range is dropped as a pair', () => {
+    expect(
+      searchPageParamsSchema.parse({
+        q: 'moon',
+        providerId: NASA_IVL_PROVIDER_ID,
+        yearStart: 2001,
+        yearEnd: 2000,
+      }),
+    ).toEqual({ q: 'moon', providerId: NASA_IVL_PROVIDER_ID })
+  })
+
   it('P4: junk params are dropped', () => {
     expect(
       searchPageParamsSchema.parse({
@@ -169,6 +180,12 @@ describe('searchPageParamsSchema', () => {
       utm_source: 'x',
     },
     { q: 'moon', providerId: SI_OA_PROVIDER_ID, mediaType: 'image' },
+    {
+      q: 'moon',
+      providerId: NASA_IVL_PROVIDER_ID,
+      yearStart: 2001,
+      yearEnd: 2000,
+    },
   ]
 
   it.each(idempotenceInputs)(

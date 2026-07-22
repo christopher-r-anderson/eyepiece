@@ -203,15 +203,63 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
   await searchbox.fill('mars')
+  // both year edits land outside the initial 1960-2000 range
+  await page.getByLabel('From', { exact: true }).fill('2005')
+  await page.getByLabel('To', { exact: true }).fill('2015')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
-  // exact match: the native serialization must use the same key-sorted
-  // spelling as the router so both produce one CDN cache key
+  // the year inputs serialize in document order after q, so the native
+  // spelling is non-canonical; the canonicalization redirect lands on the
+  // router's key-sorted spelling
   await page.waitForURL((url) => {
     return (
       url.pathname === '/search' &&
       url.search ===
-        `?providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1960`
+        `?providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2015&yearStart=2005`
+    )
+  })
+})
+
+test('an inverted year range is blocked natively after hydration', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(
+    `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=2000&yearStart=1960`,
+  )
+
+  // a fill that lands before hydration is wiped by the controlled input;
+  // retry until the value sticks
+  const from = page.getByLabel('From', { exact: true })
+  await expect(async () => {
+    await from.fill('2010')
+    await page.waitForTimeout(150)
+    await expect(from).toHaveValue('2010')
+  }).toPass()
+
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForTimeout(500)
+  expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1960')
+})
+
+test('an inverted year range in the URL is dropped as a pair', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+
+  const response = await page.goto(
+    `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=1990&yearStart=2000`,
+  )
+  expect(response?.status()).toBe(200)
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.search === `?providerId=${NASA_PROVIDER_ID}&q=moon`
     )
   })
 })
@@ -226,6 +274,8 @@ test('default filter values stay out of a pre-hydration submit', async ({
   await searchbox.fill('mars')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
+  // the untouched year inputs submit as yearStart=&yearEnd=; the
+  // canonicalization redirect serializes empty params as absent
   await page.waitForURL((url) => {
     return (
       url.pathname === '/search' &&

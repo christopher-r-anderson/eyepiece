@@ -18,7 +18,8 @@ export const searchQueryParamSchema = z.object({
 })
 
 export const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
-  nasaIvlSearchFiltersSchema.extend({
+  // safeExtend: the NASA schema's cross-field refinement must survive
+  nasaIvlSearchFiltersSchema.safeExtend({
     providerId: z.literal(NASA_IVL_PROVIDER_ID),
   }),
   sioaSearchFiltersSchema.extend({ providerId: z.literal(SI_OA_PROVIDER_ID) }),

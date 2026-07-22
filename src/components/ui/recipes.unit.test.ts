@@ -12,7 +12,6 @@ import { modalDialogRecipe } from './modal-dialog.recipe'
 import { popoverRecipe } from './popover.recipe'
 import { searchFieldRecipe } from './search-field.recipe'
 import { separatorRecipe } from './separator.recipe'
-import { sliderRecipe } from './slider.recipe'
 import { switchRecipe } from './switch.recipe'
 import { textFieldRecipe } from './text-field.recipe'
 import { toastRecipe } from './toast.recipe'
@@ -32,12 +31,7 @@ const recipes = [
   toggleButtonRecipe,
 ]
 
-const slotRecipes = [
-  modalDialogRecipe,
-  sliderRecipe,
-  textFieldRecipe,
-  toastRecipe,
-]
+const slotRecipes = [modalDialogRecipe, textFieldRecipe, toastRecipe]
 
 let sheet = ''
 

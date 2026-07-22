@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { parseSearchParams, stringifySearchParams } from './search-params'
+import {
+  parseSearchParams,
+  stringifyCanonicalSearchParams,
+  stringifySearchParams,
+} from './search-params'
 
 describe('parseSearchParams', () => {
   it('decodes form-encoded plus signs as spaces', () => {
@@ -33,7 +37,26 @@ describe('stringifySearchParams', () => {
     expect(stringifySearchParams({})).toBe('')
   })
 
+  it('preserves empty-string values for API request params', () => {
+    expect(stringifySearchParams({ q: '', page: 1 })).toBe('?page=1&q=')
+  })
+
   it('spells spaces as plus signs, matching native form encoding', () => {
     expect(stringifySearchParams({ q: 'crab nebula' })).toBe('?q=crab+nebula')
+  })
+})
+
+describe('stringifyCanonicalSearchParams', () => {
+  it('omits empty-string values', () => {
+    expect(stringifyCanonicalSearchParams({ q: 'moon', yearStart: '' })).toBe(
+      '?q=moon',
+    )
+    expect(stringifyCanonicalSearchParams({ q: '' })).toBe('')
+  })
+
+  it('sorts keys like the base serializer', () => {
+    expect(stringifyCanonicalSearchParams({ q: 'moon', auth: 'login' })).toBe(
+      '?auth=login&q=moon',
+    )
   })
 })
