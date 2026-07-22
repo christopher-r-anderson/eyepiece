@@ -45,10 +45,9 @@ export const buttonRecipe = defineRecipe({
         backgroundColor: 'secondary.bg',
         color: 'secondary.text',
         _hovered: {
-          backgroundColor:
-            'color-mix(in oklab, token(colors.secondary.bg) 72%, token(colors.tertiary.bg) 28%)',
+          backgroundColor: 'secondary.bgHover',
         },
-        _disabled: { color: 'primary.textMuted' },
+        _disabled: { color: 'text.muted' },
       },
       ghost: ghostVisualStyles,
       bare: {

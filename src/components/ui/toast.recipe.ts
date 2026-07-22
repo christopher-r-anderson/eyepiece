@@ -21,7 +21,7 @@ export const toastRecipe = defineSlotRecipe({
       backgroundColor: 'secondary.bg',
       color: 'secondary.text',
       // decorative surface outline, deliberately not the focusRing border token
-      outline: '1px solid token(colors.outline)',
+      outline: '1px solid token(colors.separator)',
       padding: '4',
     },
     content: {

@@ -57,13 +57,10 @@ export const tokens = defineTokens({
   },
   borders: {
     default: { value: '1px solid {colors.border}' },
-    control: {
-      value:
-        '1px solid color-mix(in oklab, {colors.border} 88%, {colors.text} 12%)',
-    },
+    control: { value: '1px solid {colors.control.border}' },
     separator: { value: '1px solid {colors.separator}' },
     // the app's single focus ring, applied as outline: 'focusRing'
-    focusRing: { value: '1px solid {colors.outline}' },
+    focusRing: { value: '2px solid {colors.outline}' },
   },
   shadows: {
     sm: { value: '0 1px 2px rgba(0, 0, 0, 0.08)' },
