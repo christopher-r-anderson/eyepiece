@@ -38,5 +38,13 @@
     "file": "switzer-400-italic.woff2",
     "url": "https://cdn.fontshare.com/wf/XVUY2PHYBA6KMN4RMEMJPHQSTKCQ267G/UICOQA6KCSHFOSCPYDVVDNNCDKYFXHJB/O34WRFYO7JNWEBBA2LRV2XYRUSYXYDKH.woff2",
     "sha256": "bd2269f50517a24d4e7e3611197054e7e3efbbcf71cd9b3c4d066e66aa4119c2"
+  },
+  {
+    "family": "Switzer",
+    "weight": 700,
+    "style": "normal",
+    "file": "switzer-700.woff2",
+    "url": "https://cdn.fontshare.com/wf/HBNTRIISA5MEXGL5WPYI7CV2HIWTDV3Q/YDPDINVT673XLXNSTMLG4JNCZZMVVNPN/Y7SCNZJOT2MW5ADSGOFLDGH4TNL4JCQY.woff2",
+    "sha256": "7aecbe035c1e311eabe7cac089f565c917558c365f809d5a9684881782370e1f"
   }
 ]
