@@ -5,8 +5,9 @@ import { defineGlobalFontface } from '@pandacss/dev'
 //
 // The "* Fallback" faces are local system fonts metric-matched to the webfonts
 // (size-adjust/ascent/descent/line-gap computed with @capsizecss/unpack from
-// the pinned files), so text laid out pre-swap holds its geometry and the swap
-// itself causes no layout shift. Recompute if the pinned fonts ever change.
+// the pinned files). This aligns line heights and vertical metrics so the swap
+// minimises layout shift; glyph advance widths may still differ, so text can
+// rewrap. Recompute if the pinned fonts ever change.
 export const globalFontface = defineGlobalFontface({
   Zodiak: {
     src: "url('/fonts/zodiak-400.woff2') format('woff2')",
