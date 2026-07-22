@@ -1,10 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { startTransition } from 'react'
 import { css } from 'styled-system/css'
-import { AssetTile } from '@/features/assets/components/asset-tile'
-import { HybridGrid } from '@/features/listing/item-grid/components/hybrid-grid'
-import { HybridGridItem } from '@/features/listing/item-grid/components/hybrid-grid-item'
+import { AssetGrid } from '@/features/assets/components/asset-grid'
 import {
   ensureInfiniteUserFavoritesEdges,
   useSuspenseInfiniteUserFavoriteAssetIds,
@@ -18,7 +16,6 @@ import {
 import { RouteError } from '@/app/layout/route-error'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
@@ -55,7 +52,6 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
 })
 
 function FavoritesPage() {
-  const navigate = useNavigate()
   const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
   const assetSummariesResult = useAssetPreviewSnapshotsBatch(
     favoritesResult.data,
@@ -88,30 +84,7 @@ function FavoritesPage() {
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
-        <HybridGrid
-          className={css({ width: '100%' })}
-          items={assetSummariesResult.data ?? []}
-          getItemKey={(item) => toAssetKeyString(item.key)}
-          getItemTextValue={(item) => item.title}
-        >
-          {(item, itemProps) => (
-            <HybridGridItem
-              item={item}
-              onRowAction={() => {
-                navigate({
-                  to: `/assets/$providerId/$assetId`,
-                  params: {
-                    providerId: item.key.providerId,
-                    assetId: item.key.externalId,
-                  },
-                })
-              }}
-              {...itemProps}
-            >
-              <AssetTile assetPreview={item} />
-            </HybridGridItem>
-          )}
-        </HybridGrid>
+        <AssetGrid items={assetSummariesResult.data ?? []} />
       </InfiniteLoader>
     </>
   )
