@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { ensurePublicAssetSummaryAndToggleUserFavorite } from './favorites.server'
+import { ensureSnapshotAndToggleUserFavorite } from './favorites.server'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { assetKeySchema } from '@/domain/asset/asset.schema'
@@ -12,6 +12,6 @@ export const toggleFavorite = createServerFn({ method: 'POST' })
     }: {
       data: AssetKey
     }): Promise<ToggleFavoriteResult> => {
-      return ensurePublicAssetSummaryAndToggleUserFavorite(assetKey)
+      return ensureSnapshotAndToggleUserFavorite(assetKey)
     },
   )

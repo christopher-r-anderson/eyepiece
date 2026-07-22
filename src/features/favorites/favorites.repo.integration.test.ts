@@ -8,7 +8,7 @@ import { resultIsSuccess } from '@/lib/result'
 // Seed helpers
 // ---------------------------------------------------------------------------
 
-async function seedAssetSummary(
+async function seedAssetPreviewSnapshot(
   admin: ReturnType<typeof createAdminClient>,
   externalId: string,
 ): Promise<AssetPreviewSnapshotId> {
@@ -24,18 +24,21 @@ async function seedAssetSummary(
     })
     .select('id')
     .single()
-  if (error) throw new Error(`seedAssetSummary: ${error.message}`)
+  if (error) throw new Error(`seedAssetPreviewSnapshot: ${error.message}`)
   return data.id
 }
 
 async function seedFavorite(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
-  assetSummaryId: AssetPreviewSnapshotId,
+  assetPreviewSnapshotId: AssetPreviewSnapshotId,
 ): Promise<void> {
   const { error } = await admin
     .from('favorites')
-    .insert({ owner_id: ownerId, asset_preview_snapshot_id: assetSummaryId })
+    .insert({
+      owner_id: ownerId,
+      asset_preview_snapshot_id: assetPreviewSnapshotId,
+    })
   if (error) throw new Error(`seedFavorite: ${error.message}`)
 }
 
@@ -55,13 +58,13 @@ async function cleanupAssetSummaries(
 // ---------------------------------------------------------------------------
 
 describe('getUserFavoritesEdges', () => {
-  const summaryIds: Array<AssetPreviewSnapshotId> = []
+  const snapshotIds: Array<AssetPreviewSnapshotId> = []
 
   // asset_preview_snapshots are not user-owned so they don't cascade when the test
   // user is deleted so clean them up explicitly.
   afterEach(async () => {
-    await cleanupAssetSummaries(summaryIds)
-    summaryIds.length = 0
+    await cleanupAssetSummaries(snapshotIds)
+    snapshotIds.length = 0
   })
 
   it('returns empty edges when the user has no favorites', async ({
@@ -84,9 +87,9 @@ describe('getUserFavoritesEdges', () => {
     adminClient,
   }) => {
     const externalId = `INTEG-EDGE-${Date.now()}`
-    const summaryId = await seedAssetSummary(adminClient, externalId)
-    summaryIds.push(summaryId)
-    await seedFavorite(adminClient, user.id, summaryId)
+    const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
+    snapshotIds.push(snapshotId)
+    await seedFavorite(adminClient, user.id, snapshotId)
 
     const repo = makeUserFavoritesRepo(client)
     const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
@@ -95,7 +98,7 @@ describe('getUserFavoritesEdges', () => {
     if (resultIsSuccess(result)) {
       const { items, pagination } = result.data
       expect(items).toHaveLength(1)
-      expect(items[0].assetSummaryId).toBe(summaryId)
+      expect(items[0].assetPreviewSnapshotId).toBe(snapshotId)
       expect(items[0].assetKey).toEqual({ providerId: 'nasa_ivl', externalId })
       expect(typeof items[0].createdAt).toBe('string')
       expect(pagination.next).toBeNull()
@@ -107,17 +110,17 @@ describe('getUserFavoritesEdges', () => {
     user,
     adminClient,
   }) => {
-    const id1 = await seedAssetSummary(
+    const id1 = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-ORDER-A-${Date.now()}`,
     )
     // Small delay so the DB timestamps differ
     await new Promise((r) => setTimeout(r, 10))
-    const id2 = await seedAssetSummary(
+    const id2 = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-ORDER-B-${Date.now()}`,
     )
-    summaryIds.push(id1, id2)
+    snapshotIds.push(id1, id2)
     await seedFavorite(adminClient, user.id, id1)
     await seedFavorite(adminClient, user.id, id2)
 
@@ -129,8 +132,8 @@ describe('getUserFavoritesEdges', () => {
       const { items } = result.data
       expect(items).toHaveLength(2)
       // most recently created favorite first
-      expect(items[0].assetSummaryId).toBe(id2)
-      expect(items[1].assetSummaryId).toBe(id1)
+      expect(items[0].assetPreviewSnapshotId).toBe(id2)
+      expect(items[1].assetPreviewSnapshotId).toBe(id1)
     }
   })
 
@@ -139,16 +142,16 @@ describe('getUserFavoritesEdges', () => {
     user,
     adminClient,
   }) => {
-    const id1 = await seedAssetSummary(
+    const id1 = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-PAGE-A-${Date.now()}`,
     )
     await new Promise((r) => setTimeout(r, 10))
-    const id2 = await seedAssetSummary(
+    const id2 = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-PAGE-B-${Date.now()}`,
     )
-    summaryIds.push(id1, id2)
+    snapshotIds.push(id1, id2)
     await seedFavorite(adminClient, user.id, id1)
     await seedFavorite(adminClient, user.id, id2)
 
@@ -184,16 +187,16 @@ describe('getUserFavoritesEdges', () => {
     if (otherErr) throw new Error(otherErr.message)
     const otherId = otherData.user.id
 
-    const myId = await seedAssetSummary(
+    const myId = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-RLS-MINE-${Date.now()}`,
     )
     await new Promise((r) => setTimeout(r, 10))
-    const othId = await seedAssetSummary(
+    const othId = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-RLS-OTHER-${Date.now()}`,
     )
-    summaryIds.push(myId, othId)
+    snapshotIds.push(myId, othId)
     await seedFavorite(adminClient, user.id, myId)
     await seedFavorite(adminClient, otherId, othId)
 
@@ -206,7 +209,7 @@ describe('getUserFavoritesEdges', () => {
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data.items).toHaveLength(1)
-      expect(result.data.items[0].assetSummaryId).toBe(myId)
+      expect(result.data.items[0].assetPreviewSnapshotId).toBe(myId)
     }
   })
 })
@@ -216,11 +219,11 @@ describe('getUserFavoritesEdges', () => {
 // ---------------------------------------------------------------------------
 
 describe('getUserFavoritesIndex', () => {
-  const summaryIds: Array<AssetPreviewSnapshotId> = []
+  const snapshotIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
-    await cleanupAssetSummaries(summaryIds)
-    summaryIds.length = 0
+    await cleanupAssetSummaries(snapshotIds)
+    snapshotIds.length = 0
   })
 
   it('returns an empty array when the user has no favorites', async ({
@@ -243,9 +246,9 @@ describe('getUserFavoritesIndex', () => {
   }) => {
     const extA = `INTEG-IDX-A-${Date.now()}`
     const extB = `INTEG-IDX-B-${Date.now()}`
-    const idA = await seedAssetSummary(adminClient, extA)
-    const idB = await seedAssetSummary(adminClient, extB)
-    summaryIds.push(idA, idB)
+    const idA = await seedAssetPreviewSnapshot(adminClient, extA)
+    const idB = await seedAssetPreviewSnapshot(adminClient, extB)
+    snapshotIds.push(idA, idB)
     await seedFavorite(adminClient, user.id, idA)
     await seedFavorite(adminClient, user.id, idB)
 

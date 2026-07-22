@@ -57,7 +57,7 @@ function mapUserFavoritesEdges(
 ): FavoriteEdge {
   return {
     createdAt: favoriteEdge.created_at,
-    assetSummaryId: favoriteEdge.asset_preview_snapshots.id,
+    assetPreviewSnapshotId: favoriteEdge.asset_preview_snapshots.id,
     assetKey: {
       providerId: favoriteEdge.asset_preview_snapshots.provider_id,
       externalId: favoriteEdge.asset_preview_snapshots.external_id,

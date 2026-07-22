@@ -87,7 +87,7 @@ describe('makeAssetSummariesRepo / getAssetSummaries', () => {
   })
 
   describe('success mapping', () => {
-    it('returns Ok with a correctly mapped AssetSummary', async () => {
+    it('returns Ok with a correctly mapped AssetPreviewSnapshot', async () => {
       const row = makeDbRow()
       const { client } = makeClientStub({ data: [row], error: null })
       const repo = makeAssetPreviewSnapshotsRepo(client as any)

@@ -1,8 +1,5 @@
 import { createServerOnlyFn } from '@tanstack/react-start'
-import {
-  ASSET_PREVIEW_SNAPSHOT_STALE_TIME,
-  ToggleFavoriteErrorCodes,
-} from './favorites.const'
+import { ToggleFavoriteErrorCodes } from './favorites.const'
 import type { ToggleFavoriteErrorCode } from './favorites.const'
 import type { ToggleFavoriteResult } from './favorites.schema'
 import type {
@@ -11,9 +8,6 @@ import type {
 } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
-import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
-import { createServiceSupabaseClient } from '@/integrations/supabase/service'
-import { createEyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { getUser } from '@/features/auth/get-user'
 import {
@@ -22,19 +16,19 @@ import {
 } from '@/lib/error-observability'
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, unwrapOrThrow } from '@/lib/result'
-import { getOrigin } from '@/lib/utils'
+import { ensureAssetPreviewSnapshot } from '@/features/assets/asset-preview-snapshots.server'
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleFavoriteForUser(
   client: SupabaseClient,
   userId: string,
-  assetSummaryId: AssetPreviewSnapshotId,
+  assetPreviewSnapshotId: AssetPreviewSnapshotId,
 ): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const { count, error: deleteError } = await client
     .from('favorites')
     .delete({ count: 'exact' })
     .eq('owner_id', userId)
-    .eq('asset_preview_snapshot_id', assetSummaryId)
+    .eq('asset_preview_snapshot_id', assetPreviewSnapshotId)
 
   if (deleteError) {
     const errorResult = {
@@ -55,13 +49,13 @@ async function toggleFavoriteForUser(
   }
 
   if (count === 1) {
-    return Ok({ assetSummaryId, isFavorited: false })
+    return Ok({ assetPreviewSnapshotId, isFavorited: false })
   }
 
   // if nothing was deleted, insert
   const { error: insertError } = await client.from('favorites').insert({
     owner_id: userId,
-    asset_preview_snapshot_id: assetSummaryId,
+    asset_preview_snapshot_id: assetPreviewSnapshotId,
   })
 
   // 23505 uniqueness violation, likely a double click race condition and not a practical issue
@@ -83,12 +77,12 @@ async function toggleFavoriteForUser(
     return Err(errorResult)
   }
 
-  return Ok({ assetSummaryId, isFavorited: true })
+  return Ok({ assetPreviewSnapshotId, isFavorited: true })
 }
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleUserFavorite(
-  assetSummaryId: AssetPreviewSnapshotId,
+  assetPreviewSnapshotId: AssetPreviewSnapshotId,
 ): Promise<Result<ToggleFavoriteResult, ToggleFavoriteErrorCode>> {
   const user = await getUser()
   if (!user) {
@@ -105,158 +99,20 @@ async function toggleUserFavorite(
     })
   }
   const userClient = createUserSupabaseClient()
-  return toggleFavoriteForUser(userClient, user.id, assetSummaryId)
+  return toggleFavoriteForUser(userClient, user.id, assetPreviewSnapshotId)
 }
-
-// Internal implementation extracted for unit testing only because it uses a service client
-// **do NOT call directly**, instead use `ensurePublicAssetSummary` which is guarded
-async function _ensurePublicAssetSummaryForKey(
-  serviceClient: SupabaseClient,
-  eyepieceClient: EyepieceClient,
-  assetKey: AssetKey,
-): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> {
-  let assetSummaryId
-
-  const { data: currentAssetSummary, error: currentAssetSummaryError } =
-    await serviceClient
-      .from('asset_preview_snapshots')
-      .select('id, updated_at')
-      .eq('provider_id', assetKey.providerId)
-      .eq('external_id', assetKey.externalId)
-      .maybeSingle()
-
-  if (currentAssetSummaryError) {
-    const errorResult = {
-      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      cause: currentAssetSummaryError,
-      observability: operationalErrorObservability({
-        tags: {
-          feature: 'favorites',
-          operation: 'asset-summary.lookup',
-          'provider.id': assetKey.providerId,
-        },
-      }),
-    }
-
-    logErrorWithObservability(
-      'Favorite asset summary lookup failed',
-      errorResult,
-    )
-
-    return Err(errorResult)
-  }
-  if (currentAssetSummary) {
-    const assetUpdatedAt = new Date(currentAssetSummary.updated_at)
-    if (
-      Date.now() - assetUpdatedAt.getTime() <
-      ASSET_PREVIEW_SNAPSHOT_STALE_TIME
-    ) {
-      assetSummaryId = currentAssetSummary.id
-    }
-  }
-
-  if (!assetSummaryId) {
-    let asset
-    try {
-      asset = await eyepieceClient.getAsset(assetKey)
-    } catch (error) {
-      const errorResult = {
-        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: error,
-        observability: operationalErrorObservability({
-          tags: {
-            feature: 'favorites',
-            operation: 'asset-summary.fetch-asset',
-            'provider.id': assetKey.providerId,
-          },
-        }),
-      }
-
-      logErrorWithObservability('Favorite asset fetch failed', errorResult)
-
-      return Err(errorResult)
-    }
-    const { data: ensuredAssetSummaryId, error: ensureImageRefError } =
-      await serviceClient.rpc('ensure_asset_preview_snapshot', {
-        p_provider_id: assetKey.providerId,
-        p_external_id: assetKey.externalId,
-        p_title: asset.title,
-        p_thumb_href: asset.thumbnail.href,
-        p_thumb_width: asset.thumbnail.width,
-        p_thumb_height: asset.thumbnail.height,
-      })
-    if (ensureImageRefError) {
-      const errorResult = {
-        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: ensureImageRefError,
-        observability: operationalErrorObservability({
-          tags: {
-            feature: 'favorites',
-            operation: 'asset-summary.ensure-snapshot',
-            'provider.id': assetKey.providerId,
-          },
-        }),
-      }
-
-      logErrorWithObservability(
-        'Favorite asset summary ensure failed',
-        errorResult,
-      )
-
-      return Err(errorResult)
-    }
-    assetSummaryId = ensuredAssetSummaryId
-  }
-
-  if (!assetSummaryId) {
-    const errorResult = {
-      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      observability: operationalErrorObservability({
-        tags: {
-          feature: 'favorites',
-          operation: 'asset-summary.missing-id',
-          'provider.id': assetKey.providerId,
-        },
-      }),
-    }
-
-    logErrorWithObservability('Favorite asset summary id missing', errorResult)
-
-    return Err(errorResult)
-  }
-  return Ok(assetSummaryId)
-}
-
-const ensurePublicAssetSummary = createServerOnlyFn(
-  async (
-    assetKey: AssetKey,
-  ): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> => {
-    const serviceClient = createServiceSupabaseClient()
-    const eyepieceClient = createEyepieceClient({ origin: getOrigin() })
-    return _ensurePublicAssetSummaryForKey(
-      serviceClient,
-      eyepieceClient,
-      assetKey,
-    )
-  },
-)
 
 // Exported for testing only
 export const _internals = {
   toggleFavoriteForUser,
   toggleUserFavorite,
-  ensurePublicAssetSummaryForKey: _ensurePublicAssetSummaryForKey,
 }
 
-export const ensurePublicAssetSummaryAndToggleUserFavorite = createServerOnlyFn(
+export const ensureSnapshotAndToggleUserFavorite = createServerOnlyFn(
   async (assetKey: AssetKey): Promise<ToggleFavoriteResult> => {
-    const assetSummaryId = unwrapOrThrow(
-      await ensurePublicAssetSummary(assetKey),
+    const assetPreviewSnapshotId = unwrapOrThrow(
+      await ensureAssetPreviewSnapshot(assetKey),
     )
-    return unwrapOrThrow(await toggleUserFavorite(assetSummaryId))
+    return unwrapOrThrow(await toggleUserFavorite(assetPreviewSnapshotId))
   },
 )

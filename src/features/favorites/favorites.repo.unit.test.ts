@@ -134,7 +134,7 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
         expect(result.data.items).toHaveLength(1)
         expect(result.data.items[0]).toEqual({
           createdAt: '2024-01-15T10:00:00+00:00',
-          assetSummaryId: VALID_UUID,
+          assetPreviewSnapshotId: VALID_UUID,
           assetKey: {
             providerId: 'nasa_ivl',
             externalId: 'asset-001',
