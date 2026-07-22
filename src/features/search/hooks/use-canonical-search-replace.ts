@@ -5,7 +5,7 @@ import {
   toCanonicalUrlParams,
 } from '../search-page-params'
 import { pickAuthSearchParams } from '@/features/auth/auth.utils'
-import { stringifySearchParams } from '@/lib/search-params'
+import { stringifyCanonicalSearchParams } from '@/lib/search-params'
 
 // Replace-navigates non-canonical /search URLs (junk params, invalid values,
 // param order/encoding variants) to a single spelling per document for CDN
@@ -30,7 +30,7 @@ export function useCanonicalSearchReplace() {
       ...toCanonicalUrlParams(searchPageParamsSchema.parse(location.search)),
       ...pickAuthSearchParams(location.search),
     }
-    const targetSearchStr = stringifySearchParams(target)
+    const targetSearchStr = stringifyCanonicalSearchParams(target)
     if (location.searchStr === targetSearchStr) {
       return
     }

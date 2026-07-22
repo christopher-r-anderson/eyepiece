@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { flex, stack } from 'styled-system/patterns'
@@ -38,6 +39,11 @@ const yearInputCss = css.raw({
 
 export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
   const yearsLabelId = useId()
+  // bounds cross-wire only after an edit: server-rendered attributes
+  // cannot track the other input, and stale bounds would block valid
+  // pre-hydration edits (an inverted no-JS submit drops as a pair at the
+  // URL boundary instead)
+  const [edited, setEdited] = useState(false)
 
   return (
     <div
@@ -47,8 +53,6 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
       })}
     >
       <Label id={yearsLabelId}>Year Range</Label>
-      {/* each input bounds the other so native constraint validation
-          enforces min <= max without JavaScript */}
       <div
         role="group"
         aria-labelledby={yearsLabelId}
@@ -60,10 +64,11 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
             type="number"
             name="yearStart"
             min={YEAR_MIN}
-            max={filters?.yearEnd ?? YEAR_MAX}
+            max={edited ? (filters?.yearEnd ?? YEAR_MAX) : YEAR_MAX}
             placeholder={String(YEAR_MIN)}
             value={filters?.yearStart ?? ''}
             onChange={(event) => {
+              setEdited(true)
               onChange?.({
                 yearEnd: filters?.yearEnd,
                 yearStart: toYearValue(event.target.value),
@@ -77,11 +82,12 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
           <input
             type="number"
             name="yearEnd"
-            min={filters?.yearStart ?? YEAR_MIN}
+            min={edited ? (filters?.yearStart ?? YEAR_MIN) : YEAR_MIN}
             max={YEAR_MAX}
             placeholder={String(YEAR_MAX)}
             value={filters?.yearEnd ?? ''}
             onChange={(event) => {
+              setEdited(true)
               onChange?.({
                 yearStart: filters?.yearStart,
                 yearEnd: toYearValue(event.target.value),

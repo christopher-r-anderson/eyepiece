@@ -203,7 +203,9 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
   await searchbox.fill('mars')
-  await page.getByLabel('From').fill('1970')
+  // both year edits land outside the initial 1960-2000 range
+  await page.getByLabel('From', { exact: true }).fill('2005')
+  await page.getByLabel('To', { exact: true }).fill('2015')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
   // the year inputs serialize in document order after q, so the native
@@ -213,22 +215,30 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
     return (
       url.pathname === '/search' &&
       url.search ===
-        `?providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1970`
+        `?providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2015&yearStart=2005`
     )
   })
 })
 
-test('an inverted year range is blocked natively before hydration', async ({
+test('an inverted year range is blocked natively after hydration', async ({
   page,
 }) => {
-  await blockScripts(page)
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
   await page.goto(
-    `/search?q=moon&providerId=${NASA_PROVIDER_ID}&yearStart=1960&yearEnd=2000`,
+    `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=2000&yearStart=1960`,
   )
 
-  // the From input's max is the current yearEnd, so constraint validation
-  // rejects the submit without JavaScript
-  await page.getByLabel('From').fill('2010')
+  // a fill that lands before hydration is wiped by the controlled input;
+  // retry until the value sticks
+  const from = page.getByLabel('From', { exact: true })
+  await expect(async () => {
+    await from.fill('2010')
+    await page.waitForTimeout(150)
+    await expect(from).toHaveValue('2010')
+  }).toPass()
+
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.waitForTimeout(500)
   expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1960')

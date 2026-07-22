@@ -55,7 +55,7 @@ not.
 
 Equal searches resolve to a single spelling per document so the CDN caches
 one key per document. URLs the app generates are already canonical: the
-router serializes all search params through `stringifySearchParams`
+router serializes all search params through `stringifyCanonicalSearchParams`
 (`src/lib/search-params.ts`), which sorts keys and omits empty-string
 values. URLs from outside - shared links, hand edits, native form submits -
 converge in two tiers.

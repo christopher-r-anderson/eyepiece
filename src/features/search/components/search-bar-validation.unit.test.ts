@@ -6,6 +6,7 @@ import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
+import { YEAR_MAX, YEAR_MIN } from '@/domain/search/providers/nasa-ivl-filters'
 
 const mockNavigate = vi.fn()
 
@@ -106,7 +107,7 @@ describe('search bar', () => {
     })
   })
 
-  it('renders the year filters as named inputs with cross-wired bounds', () => {
+  it('renders the year filters as named inputs with full-range bounds', () => {
     render(
       createElement(SearchBar, {
         initialQuery: 'apollo',
@@ -123,12 +124,38 @@ describe('search bar', () => {
     const from = screen.getByLabelText<HTMLInputElement>('From')
     expect(from.name).toBe('yearStart')
     expect(from.value).toBe('1990')
-    expect(from.getAttribute('max')).toBe('2000')
+    expect(from.getAttribute('max')).toBe(String(YEAR_MAX))
 
     const to = screen.getByLabelText<HTMLInputElement>('To')
     expect(to.name).toBe('yearEnd')
     expect(to.value).toBe('2000')
-    expect(to.getAttribute('min')).toBe('1990')
+    expect(to.getAttribute('min')).toBe(String(YEAR_MIN))
+  })
+
+  it('cross-wires the year bounds after an edit', () => {
+    render(
+      createElement(SearchBar, {
+        initialQuery: 'apollo',
+        scope: {
+          scope: 'provider',
+          filters: {
+            providerId: NASA_IVL_PROVIDER_ID,
+            filters: { yearStart: 1990, yearEnd: 2000 },
+          },
+        },
+      }),
+    )
+
+    fireEvent.change(screen.getByLabelText('From'), {
+      target: { value: '1995' },
+    })
+
+    expect(
+      screen.getByLabelText<HTMLInputElement>('From').getAttribute('max'),
+    ).toBe('2000')
+    expect(
+      screen.getByLabelText<HTMLInputElement>('To').getAttribute('min'),
+    ).toBe('1995')
   })
 
   it('submits an edited year input through the router navigate', () => {
