@@ -70,7 +70,7 @@ const validNasaParams = {
   page: 1,
   pageSize: 24,
   providerId: NASA_IVL_PROVIDER_ID,
-  mediaType: 'image',
+  yearStart: 2000,
 }
 
 const validSioaParams = {
@@ -153,7 +153,6 @@ const sioaSearchResults = {
         width: 6575,
         height: 5260,
       },
-      mediaType: 'image',
     },
   ],
   pagination: { next: 2, total: 37 },
@@ -174,7 +173,7 @@ describe('GET /api/v1/search handler', () => {
 
     expect(mockService.searchAssets).toHaveBeenCalledWith(
       'apollo',
-      { providerId: NASA_IVL_PROVIDER_ID, filters: { mediaType: 'image' } },
+      { providerId: NASA_IVL_PROVIDER_ID, filters: { yearStart: 2000 } },
       { page: 1, pageSize: 24 },
     )
   })
@@ -207,7 +206,7 @@ describe('GET /api/v1/search handler', () => {
 
     expect(mockService.searchAssets).toHaveBeenCalledWith(
       'apollo',
-      { providerId: NASA_IVL_PROVIDER_ID, filters: { mediaType: 'image' } },
+      { providerId: NASA_IVL_PROVIDER_ID, filters: { yearStart: 2000 } },
       { page: 1, pageSize: 24 },
     )
     expect(body).toEqual(nasaSearchResults)
@@ -241,7 +240,7 @@ describe('GET /api/v1/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/v1/search?providerId=nasa_ivl&page=1&pageSize=24&mediaType=image',
+          'https://example.com/api/v1/search?providerId=nasa_ivl&page=1&pageSize=24&yearStart=2000',
         ),
         next: vi.fn(),
       }),
@@ -267,7 +266,7 @@ describe('GET /api/v1/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/v1/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&mediaType=image',
+          'https://example.com/api/v1/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&yearStart=2000',
         ),
         next,
       }),

@@ -16,11 +16,10 @@ export function buildNasaIvlSearchParams(
   filters: NasaIvlSearchFilters,
   pagination: Pagination,
 ): NasaSearchParams {
-  const { mediaType, yearStart, yearEnd } = filters
+  const { yearStart, yearEnd } = filters
   const { page, pageSize } = pagination
   return {
     q: query,
-    media_type: mediaType ? [mediaType] : undefined,
     year_start: yearStart,
     year_end: yearEnd,
     page,
@@ -76,7 +75,7 @@ export function mapMediaItem({
   links: Array<NasaMediaLink>
 }) {
   // Note data is an array but is always .length === 1
-  const { album, title, description, nasa_id, media_type } = data[0]
+  const { album, title, description, nasa_id } = data[0]
   const thumbnail = getThumbnail(links)
   const original = getOriginal(links)
   const image = getLargestAltImage(links)
@@ -98,7 +97,6 @@ export function mapMediaItem({
     thumbnail: ensureImage(thumbnail),
     image: ensureImage(image),
     original: ensureImage(original),
-    mediaType: media_type,
   }
 }
 

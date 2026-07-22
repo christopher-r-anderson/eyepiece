@@ -198,7 +198,7 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
 }) => {
   await blockScripts(page)
   await page.goto(
-    `/search?q=moon&providerId=${NASA_PROVIDER_ID}&mediaType=image&yearStart=1960&yearEnd=2000`,
+    `/search?q=moon&providerId=${NASA_PROVIDER_ID}&yearStart=1960&yearEnd=2000`,
   )
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
@@ -211,7 +211,7 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
     return (
       url.pathname === '/search' &&
       url.search ===
-        `?mediaType=image&providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1960`
+        `?providerId=${NASA_PROVIDER_ID}&q=mars&yearEnd=2000&yearStart=1960`
     )
   })
 })
@@ -352,7 +352,7 @@ test('a failing provider only takes down its own section', async ({ page }) => {
   )
 })
 
-test('provider scope server-renders the media type select and hydrates cleanly', async ({
+test('a legacy mediaType URL loads and canonicalizes without the key', async ({
   page,
 }) => {
   const consoleErrors = collectConsoleErrors(page)
@@ -361,27 +361,18 @@ test('provider scope server-renders the media type select and hydrates cleanly',
   )
 
   const response = await page.goto(
-    `/search?q=moon&providerId=${NASA_PROVIDER_ID}`,
+    `/search?mediaType=image&providerId=${NASA_PROVIDER_ID}&q=moon&yearStart=1990`,
   )
   expect(response?.status()).toBe(200)
 
-  // the real select (including its hidden <select>) ships in the server
-  // HTML; there is no client-only placeholder swap after hydration
-  const serverHtml = (await response?.text()) ?? ''
-  expect(serverHtml).toContain('<select')
-
-  // a click that lands before hydration is a no-op; retry until the
-  // listbox actually opens
-  const mediaTypeSelect = page.getByRole('button', { name: 'All Media Type' })
-  await expect(async () => {
-    await mediaTypeSelect.click()
-    await expect(page.getByRole('option', { name: 'Video' })).toBeVisible({
-      timeout: 1000,
-    })
-  }).toPass()
-  await page.getByRole('option', { name: 'Video' }).click()
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.search === `?providerId=${NASA_PROVIDER_ID}&q=moon&yearStart=1990`
+    )
+  })
   await expect(
-    page.getByRole('button', { name: 'Video Media Type' }),
+    page.getByRole('heading', { name: 'Search for "moon"' }),
   ).toBeVisible()
 
   expect(consoleErrors).toEqual([])

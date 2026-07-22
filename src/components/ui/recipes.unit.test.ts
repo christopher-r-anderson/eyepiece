@@ -7,12 +7,10 @@ import { buttonRecipe } from './button.recipe'
 import { formRecipe } from './form.recipe'
 import { headingRecipe } from './heading.recipe'
 import { linkRecipe } from './link.recipe'
-import { listBoxItemRecipe, listBoxRecipe } from './list-box.recipe'
 import { menuItemRecipe, menuRecipe } from './menus.recipe'
 import { modalDialogRecipe } from './modal-dialog.recipe'
 import { popoverRecipe } from './popover.recipe'
 import { searchFieldRecipe } from './search-field.recipe'
-import { selectRecipe } from './select.recipe'
 import { separatorRecipe } from './separator.recipe'
 import { sliderRecipe } from './slider.recipe'
 import { switchRecipe } from './switch.recipe'
@@ -25,8 +23,6 @@ const recipes = [
   formRecipe,
   headingRecipe,
   linkRecipe,
-  listBoxRecipe,
-  listBoxItemRecipe,
   menuRecipe,
   menuItemRecipe,
   popoverRecipe,
@@ -38,7 +34,6 @@ const recipes = [
 
 const slotRecipes = [
   modalDialogRecipe,
-  selectRecipe,
   sliderRecipe,
   textFieldRecipe,
   toastRecipe,

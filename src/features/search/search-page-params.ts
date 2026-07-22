@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import type { ProviderId } from '@/domain/provider/provider.schema'
-import type { NasaIvlMediaType } from '@/domain/search/providers/nasa-ivl-filters'
 import type { SearchFilters } from '@/domain/search/search.schema'
 import {
   NASA_IVL_PROVIDER_ID,
@@ -17,7 +16,6 @@ import { nasaIvlSearchFiltersLenientSchema } from '@/domain/search/providers/nas
 export type SearchPageParams = {
   q: string
   providerId?: ProviderId
-  mediaType?: NasaIvlMediaType
   yearStart?: number
   yearEnd?: number
 }
@@ -75,7 +73,6 @@ export function toSearchPageState(params: SearchPageParams): SearchPageState {
         filters: {
           providerId: params.providerId,
           filters: compactDefined({
-            mediaType: params.mediaType,
             yearStart: params.yearStart,
             yearEnd: params.yearEnd,
           }),

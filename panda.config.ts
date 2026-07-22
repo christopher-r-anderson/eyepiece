@@ -6,15 +6,10 @@ import { buttonRecipe } from '@/components/ui/button.recipe'
 import { formRecipe } from '@/components/ui/form.recipe'
 import { headingRecipe } from '@/components/ui/heading.recipe'
 import { linkRecipe } from '@/components/ui/link.recipe'
-import {
-  listBoxItemRecipe,
-  listBoxRecipe,
-} from '@/components/ui/list-box.recipe'
 import { menuItemRecipe, menuRecipe } from '@/components/ui/menus.recipe'
 import { modalDialogRecipe } from '@/components/ui/modal-dialog.recipe'
 import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
-import { selectRecipe } from '@/components/ui/select.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
 import { sliderRecipe } from '@/components/ui/slider.recipe'
 import { switchRecipe } from '@/components/ui/switch.recipe'
@@ -100,8 +95,6 @@ export default defineConfig({
       form: formRecipe,
       heading: headingRecipe,
       link: linkRecipe,
-      listBox: listBoxRecipe,
-      listBoxItem: listBoxItemRecipe,
       menu: menuRecipe,
       menuItem: menuItemRecipe,
       popover: popoverRecipe,
@@ -113,7 +106,6 @@ export default defineConfig({
     },
     slotRecipes: {
       modalDialog: modalDialogRecipe,
-      select: selectRecipe,
       slider: sliderRecipe,
       textField: textFieldRecipe,
       toast: toastRecipe,

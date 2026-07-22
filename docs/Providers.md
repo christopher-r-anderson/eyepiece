@@ -9,10 +9,10 @@ This document covers the current provider model, where the main integration poin
 - [NASA API portal](https://api.nasa.gov/) NASA Image and Video Library
 - [The Smithsonian Institution Open Access API](https://edan.si.edu/openaccess/apidocs/)
 
-| Provider                                               | ID         | Upstream integration        | Supported operations                         | Search filters         | Runtime config  |
-| ------------------------------------------------------ | ---------- | --------------------------- | -------------------------------------------- | ---------------------- | --------------- |
-| NASA Image and Video Library                           | `nasa_ivl` | `src/integrations/nasa-ivl` | Search, asset detail, album detail, metadata | Media type, year range | None            |
-| Smithsonian Open Access, National Air and Space Museum | `si_oa`    | `src/integrations/si-oa`    | Search, asset detail                         | None today             | `SI_OA_API_KEY` |
+| Provider                                               | ID         | Upstream integration        | Supported operations                         | Search filters | Runtime config  |
+| ------------------------------------------------------ | ---------- | --------------------------- | -------------------------------------------- | -------------- | --------------- |
+| NASA Image and Video Library                           | `nasa_ivl` | `src/integrations/nasa-ivl` | Search, asset detail, album detail, metadata | Year range     | None            |
+| Smithsonian Open Access, National Air and Space Museum | `si_oa`    | `src/integrations/si-oa`    | Search, asset detail                         | None today     | `SI_OA_API_KEY` |
 
 ## Architecture
 

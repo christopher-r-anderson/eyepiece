@@ -74,7 +74,6 @@ export function mapAssetItem(assetItem: SioaAssetItem) {
       externalId: assetItem.id,
       providerId: SI_OA_PROVIDER_ID,
     },
-    mediaType: 'image' as const,
     ...getImages(
       assetItem.content.descriptiveNonRepeating.online_media?.media[0]
         ?.resources,

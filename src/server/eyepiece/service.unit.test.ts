@@ -228,7 +228,7 @@ describe('makeEyepieceProviderService', () => {
     const service = makeEyepieceProviderService()
     const filters = {
       providerId: NASA_IVL_PROVIDER_ID,
-      filters: { mediaType: 'image' as const, yearStart: 2000 },
+      filters: { yearStart: 2000 },
     }
 
     const result = await service.searchAssets('apollo', filters, pagination)

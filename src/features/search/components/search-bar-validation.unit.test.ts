@@ -88,7 +88,7 @@ describe('search bar', () => {
           scope: 'provider',
           filters: {
             providerId: NASA_IVL_PROVIDER_ID,
-            filters: { mediaType: 'image', yearStart: 1990 },
+            filters: { yearStart: 1990 },
           },
         },
       }),
@@ -101,7 +101,6 @@ describe('search bar', () => {
       search: {
         q: 'apollo',
         providerId: NASA_IVL_PROVIDER_ID,
-        mediaType: 'image',
         yearStart: 1990,
       },
     })
@@ -118,7 +117,7 @@ describe('search bar', () => {
       }),
     )
 
-    expect(screen.getByText('Media Type')).toBeTruthy()
+    expect(screen.getByText('Year Range')).toBeTruthy()
     unmount()
 
     render(
@@ -131,6 +130,6 @@ describe('search bar', () => {
       }),
     )
 
-    expect(screen.queryByText('Media Type')).toBeNull()
+    expect(screen.queryByText('Year Range')).toBeNull()
   })
 })

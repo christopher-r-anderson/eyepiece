@@ -107,7 +107,7 @@ describe('search scope tabs', () => {
           scope: 'provider',
           filters: {
             providerId: NASA_IVL_PROVIDER_ID,
-            filters: { mediaType: 'image' },
+            filters: { yearStart: 1990 },
           },
         }}
       >
@@ -117,7 +117,7 @@ describe('search scope tabs', () => {
 
     expect(
       scopeNav().getByRole('link', { name: 'NASA' }).getAttribute('href'),
-    ).toBe(`/search?mediaType=image&providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
+    ).toBe(`/search?providerId=${NASA_IVL_PROVIDER_ID}&q=moon&yearStart=1990`)
   })
 
   it('omits an empty query from tab links', () => {

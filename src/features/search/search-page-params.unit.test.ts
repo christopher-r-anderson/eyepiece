@@ -36,13 +36,13 @@ describe('searchPageParamsSchema', () => {
       searchPageParamsSchema.parse({
         q: 'moon',
         providerId: NASA_IVL_PROVIDER_ID,
-        mediaType: 'hologram',
-        yearStart: 1990,
+        yearStart: 'apollo',
+        yearEnd: 1990,
       }),
     ).toEqual({
       q: 'moon',
       providerId: NASA_IVL_PROVIDER_ID,
-      yearStart: 1990,
+      yearEnd: 1990,
     })
   })
 
@@ -74,9 +74,24 @@ describe('searchPageParamsSchema', () => {
       searchPageParamsSchema.parse({
         q: 'moon',
         providerId: SI_OA_PROVIDER_ID,
-        mediaType: 'image',
+        yearStart: 1990,
       }),
     ).toEqual({ q: 'moon', providerId: SI_OA_PROVIDER_ID })
+  })
+
+  it('a legacy mediaType param is dropped silently', () => {
+    expect(
+      searchPageParamsSchema.parse({
+        q: 'moon',
+        providerId: NASA_IVL_PROVIDER_ID,
+        mediaType: 'image',
+        yearStart: 1990,
+      }),
+    ).toEqual({
+      q: 'moon',
+      providerId: NASA_IVL_PROVIDER_ID,
+      yearStart: 1990,
+    })
   })
 
   it('P4: junk params are dropped', () => {
@@ -95,7 +110,7 @@ describe('searchPageParamsSchema', () => {
       searchPageParamsSchema.parse({
         q: 'moon',
         providerId: NASA_IVL_PROVIDER_ID,
-        filters: { mediaType: 'image' },
+        filters: { yearStart: 1990 },
       }),
     ).toEqual({ q: 'moon', providerId: NASA_IVL_PROVIDER_ID })
   })
@@ -149,7 +164,7 @@ describe('searchPageParamsSchema', () => {
     {
       q: 'moon',
       providerId: NASA_IVL_PROVIDER_ID,
-      mediaType: 'hologram',
+      mediaType: 'image',
       yearStart: 1990,
       utm_source: 'x',
     },
@@ -188,7 +203,6 @@ describe('toSearchPageState', () => {
       toSearchPageState({
         q: 'moon',
         providerId: NASA_IVL_PROVIDER_ID,
-        mediaType: 'image',
         yearStart: 1990,
       }),
     ).toEqual({
@@ -197,7 +211,7 @@ describe('toSearchPageState', () => {
         scope: 'provider',
         filters: {
           providerId: NASA_IVL_PROVIDER_ID,
-          filters: { mediaType: 'image', yearStart: 1990 },
+          filters: { yearStart: 1990 },
         },
       },
     })
@@ -230,7 +244,7 @@ describe('toSearchPageParams', () => {
       {
         q: 'moon',
         providerId: NASA_IVL_PROVIDER_ID,
-        mediaType: 'video',
+        yearStart: 1990,
         yearEnd: 2001,
       },
     ] as const

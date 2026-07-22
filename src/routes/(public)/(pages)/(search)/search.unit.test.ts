@@ -93,7 +93,6 @@ describe('search page route', () => {
       deps: {
         q: 'apollo',
         providerId: NASA_IVL_PROVIDER_ID,
-        mediaType: 'video',
         yearStart: 2000,
       },
     })
@@ -102,7 +101,7 @@ describe('search page route', () => {
       query: 'apollo',
       filters: {
         providerId: NASA_IVL_PROVIDER_ID,
-        filters: { mediaType: 'video', yearStart: 2000 },
+        filters: { yearStart: 2000 },
       },
       eyepieceClient: context.eyepieceClient,
       queryClient: context.queryClient,
