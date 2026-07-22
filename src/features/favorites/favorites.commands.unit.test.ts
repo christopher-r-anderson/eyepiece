@@ -23,7 +23,7 @@ const ASSET_KEY: AssetKey = {
 }
 
 const TOGGLE_RESULT = {
-  assetSummaryId: '550e8400-e29b-41d4-a716-446655440001' as const,
+  assetPreviewSnapshotId: '550e8400-e29b-41d4-a716-446655440001' as const,
   isFavorited: true,
 }
 

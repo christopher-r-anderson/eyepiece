@@ -13,7 +13,7 @@ import { resultIsError, resultIsSuccess } from '@/lib/result'
 // each setup gets a fresh module with controlled dependencies.
 // ---------------------------------------------------------------------------
 
-const ASSET_SUMMARY_ID = '550e8400-e29b-41d4-a716-446655440001'
+const ASSET_PREVIEW_SNAPSHOT_ID = '550e8400-e29b-41d4-a716-446655440001'
 const USER_ID = '550e8400-e29b-41d4-a716-446655440099'
 
 function mockReactStart() {
@@ -120,13 +120,13 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(
       client as any,
       USER_ID,
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data).toEqual({
-        assetSummaryId: ASSET_SUMMARY_ID,
+        assetPreviewSnapshotId: ASSET_PREVIEW_SNAPSHOT_ID,
         isFavorited: false,
       })
     }
@@ -142,13 +142,13 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(
       client as any,
       USER_ID,
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data).toEqual({
-        assetSummaryId: ASSET_SUMMARY_ID,
+        assetPreviewSnapshotId: ASSET_PREVIEW_SNAPSHOT_ID,
         isFavorited: true,
       })
     }
@@ -166,7 +166,7 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(
       client as any,
       USER_ID,
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
 
     expect(resultIsSuccess(result)).toBe(true)
@@ -188,7 +188,7 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(
       client as any,
       USER_ID,
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
 
     expect(resultIsError(result)).toBe(true)
@@ -232,7 +232,7 @@ describe('toggleFavoriteForUser', () => {
     const result = await toggleFavoriteForUser(
       client as any,
       USER_ID,
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
 
     expect(resultIsError(result)).toBe(true)
@@ -249,13 +249,17 @@ describe('toggleFavoriteForUser', () => {
     const deleteBuilder = makeDeleteBuilder({ count: 1, error: null })
     const from = vi.fn().mockReturnValue(deleteBuilder)
 
-    await toggleFavoriteForUser({ from } as any, USER_ID, ASSET_SUMMARY_ID)
+    await toggleFavoriteForUser(
+      { from } as any,
+      USER_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
+    )
 
     expect(deleteBuilder.delete).toHaveBeenCalledWith({ count: 'exact' })
     expect(deleteBuilder.eq).toHaveBeenCalledWith('owner_id', USER_ID)
     expect(deleteBuilder.eq).toHaveBeenCalledWith(
       'asset_preview_snapshot_id',
-      ASSET_SUMMARY_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
     )
   })
 
@@ -268,7 +272,11 @@ describe('toggleFavoriteForUser', () => {
       .mockReturnValueOnce(deleteBuilder)
       .mockReturnValueOnce(insertBuilder)
 
-    await toggleFavoriteForUser({ from } as any, USER_ID, ASSET_SUMMARY_ID)
+    await toggleFavoriteForUser(
+      { from } as any,
+      USER_ID,
+      ASSET_PREVIEW_SNAPSHOT_ID,
+    )
 
     expect(insertBuilder.insert).not.toHaveBeenCalled()
   })
@@ -312,7 +320,7 @@ describe('toggleUserFavorite', () => {
   it('returns Err with AUTH_REQUIRED when there is no authenticated user', async () => {
     const { toggleUserFavorite } = await setupToggleUserFavorite(null)
 
-    const result = await toggleUserFavorite(ASSET_SUMMARY_ID)
+    const result = await toggleUserFavorite(ASSET_PREVIEW_SNAPSHOT_ID)
 
     expect(resultIsError(result)).toBe(true)
     if (resultIsError(result)) {
@@ -327,13 +335,13 @@ describe('toggleUserFavorite', () => {
       id: USER_ID,
     })
 
-    const result = await toggleUserFavorite(ASSET_SUMMARY_ID)
+    const result = await toggleUserFavorite(ASSET_PREVIEW_SNAPSHOT_ID)
 
     // The mock client deletes with count=1, so the result should be unfavorited
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data).toEqual({
-        assetSummaryId: ASSET_SUMMARY_ID,
+        assetPreviewSnapshotId: ASSET_PREVIEW_SNAPSHOT_ID,
         isFavorited: false,
       })
     }

@@ -46,7 +46,7 @@ const { toggleFavoriteForUser } = _internals
 // Seed helpers
 // ---------------------------------------------------------------------------
 
-async function seedAssetSummary(
+async function seedAssetPreviewSnapshot(
   admin: ReturnType<typeof createAdminClient>,
   externalId: string,
 ): Promise<AssetPreviewSnapshotId> {
@@ -62,25 +62,25 @@ async function seedAssetSummary(
     })
     .select('id')
     .single()
-  if (error) throw new Error(`seedAssetSummary: ${error.message}`)
+  if (error) throw new Error(`seedAssetPreviewSnapshot: ${error.message}`)
   return data.id
 }
 
 async function getFavoritesCount(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
-  assetSummaryId: AssetPreviewSnapshotId,
+  assetPreviewSnapshotId: AssetPreviewSnapshotId,
 ): Promise<number> {
   const { count, error } = await admin
     .from('favorites')
     .select('*', { count: 'exact', head: true })
     .eq('owner_id', ownerId)
-    .eq('asset_preview_snapshot_id', assetSummaryId)
+    .eq('asset_preview_snapshot_id', assetPreviewSnapshotId)
   if (error) throw new Error(`getFavoritesCount: ${error.message}`)
   return count ?? 0
 }
 
-async function cleanupAssetSummaries(
+async function cleanupAssetPreviewSnapshots(
   ids: Array<AssetPreviewSnapshotId>,
 ): Promise<void> {
   if (ids.length === 0) return
@@ -96,11 +96,11 @@ async function cleanupAssetSummaries(
 // ---------------------------------------------------------------------------
 
 describe('toggleFavoriteForUser', () => {
-  const summaryIds: Array<AssetPreviewSnapshotId> = []
+  const snapshotIds: Array<AssetPreviewSnapshotId> = []
 
   afterEach(async () => {
-    await cleanupAssetSummaries(summaryIds)
-    summaryIds.length = 0
+    await cleanupAssetPreviewSnapshots(snapshotIds)
+    snapshotIds.length = 0
   })
 
   it('inserts a favorites row and returns isFavorited: true when no row exists', async ({
@@ -108,23 +108,23 @@ describe('toggleFavoriteForUser', () => {
     user,
     adminClient,
   }) => {
-    const summaryId = await seedAssetSummary(
+    const snapshotId = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-SRV-ADD-${Date.now()}`,
     )
-    summaryIds.push(summaryId)
+    snapshotIds.push(snapshotId)
 
-    const result = await toggleFavoriteForUser(client, user.id, summaryId)
+    const result = await toggleFavoriteForUser(client, user.id, snapshotId)
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data).toEqual({
-        assetSummaryId: summaryId,
+        assetPreviewSnapshotId: snapshotId,
         isFavorited: true,
       })
     }
     // Verify the row actually exists in the DB
-    expect(await getFavoritesCount(adminClient, user.id, summaryId)).toBe(1)
+    expect(await getFavoritesCount(adminClient, user.id, snapshotId)).toBe(1)
   })
 
   it('deletes the favorites row and returns isFavorited: false when a row exists', async ({
@@ -132,27 +132,27 @@ describe('toggleFavoriteForUser', () => {
     user,
     adminClient,
   }) => {
-    const summaryId = await seedAssetSummary(
+    const snapshotId = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-SRV-DEL-${Date.now()}`,
     )
-    summaryIds.push(summaryId)
+    snapshotIds.push(snapshotId)
     // Seed the pre-existing favorite
     await adminClient
       .from('favorites')
-      .insert({ owner_id: user.id, asset_preview_snapshot_id: summaryId })
+      .insert({ owner_id: user.id, asset_preview_snapshot_id: snapshotId })
 
-    const result = await toggleFavoriteForUser(client, user.id, summaryId)
+    const result = await toggleFavoriteForUser(client, user.id, snapshotId)
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data).toEqual({
-        assetSummaryId: summaryId,
+        assetPreviewSnapshotId: snapshotId,
         isFavorited: false,
       })
     }
     // Verify the row is gone from the DB
-    expect(await getFavoritesCount(adminClient, user.id, summaryId)).toBe(0)
+    expect(await getFavoritesCount(adminClient, user.id, snapshotId)).toBe(0)
   })
 
   it('toggling twice restores the original state', async ({
@@ -160,27 +160,27 @@ describe('toggleFavoriteForUser', () => {
     user,
     adminClient,
   }) => {
-    const summaryId = await seedAssetSummary(
+    const snapshotId = await seedAssetPreviewSnapshot(
       adminClient,
       `INTEG-SRV-TWICE-${Date.now()}`,
     )
-    summaryIds.push(summaryId)
+    snapshotIds.push(snapshotId)
 
-    const add = await toggleFavoriteForUser(client, user.id, summaryId)
-    const remove = await toggleFavoriteForUser(client, user.id, summaryId)
+    const add = await toggleFavoriteForUser(client, user.id, snapshotId)
+    const remove = await toggleFavoriteForUser(client, user.id, snapshotId)
 
     expect(resultIsSuccess(add)).toBe(true)
     if (resultIsSuccess(add)) expect(add.data.isFavorited).toBe(true)
     expect(resultIsSuccess(remove)).toBe(true)
     if (resultIsSuccess(remove)) expect(remove.data.isFavorited).toBe(false)
-    expect(await getFavoritesCount(adminClient, user.id, summaryId)).toBe(0)
+    expect(await getFavoritesCount(adminClient, user.id, snapshotId)).toBe(0)
   })
 
   it('returns Err when the asset_preview_snapshot_id does not exist (FK violation)', async ({
     client,
     user,
   }) => {
-    // This UUID doesn't correspond to any asset_summary row
+    // This UUID doesn't correspond to any asset_preview_snapshots row
     const nonExistentId =
       'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' as AssetPreviewSnapshotId
 

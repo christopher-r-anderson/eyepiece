@@ -114,7 +114,9 @@ export async function ensureInfiniteUserFavoritesEdges({
 export function userFavoritesPagesToAssetIds({
   pages,
 }: UserFavoritesEdgesInfinite) {
-  return pages.flatMap((page) => page.items.map((edge) => edge.assetSummaryId))
+  return pages.flatMap((page) =>
+    page.items.map((edge) => edge.assetPreviewSnapshotId),
+  )
 }
 
 export function useSuspenseInfiniteUserFavoriteAssetIds() {

@@ -53,7 +53,7 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
 
 function FavoritesPage() {
   const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
-  const assetSummariesResult = useAssetPreviewSnapshotsBatch(
+  const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
     favoritesResult.data,
   )
 
@@ -72,7 +72,8 @@ function FavoritesPage() {
       <FavoritesHeading />
       <InfiniteLoader
         isFetchingNextPage={
-          favoritesResult.isFetchingNextPage || assetSummariesResult.isLoading
+          favoritesResult.isFetchingNextPage ||
+          assetPreviewSnapshotsResult.isLoading
         }
         fetchNextPage={() => {
           startTransition(async () => {
@@ -80,11 +81,11 @@ function FavoritesPage() {
           })
         }}
         hasNextPage={favoritesResult.hasNextPage}
-        loadedCount={assetSummariesResult.data?.length ?? 0}
+        loadedCount={assetPreviewSnapshotsResult.data?.length ?? 0}
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
-        <AssetGrid items={assetSummariesResult.data ?? []} />
+        <AssetGrid items={assetPreviewSnapshotsResult.data ?? []} />
       </InfiniteLoader>
     </>
   )
