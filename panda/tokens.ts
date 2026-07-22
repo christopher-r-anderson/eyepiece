@@ -2,13 +2,16 @@ import { defineTokens } from '@pandacss/dev'
 
 export const tokens = defineTokens({
   fonts: {
+    display: {
+      value: "'Zodiak', 'Zodiak Fallback', Georgia, serif",
+    },
     sans: {
       value:
-        "'Atkinson Hyperlegible', 'Segoe UI', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', sans-serif",
+        "'Switzer', 'Switzer Fallback', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
     },
     mono: {
       value:
-        "'Iosevka', 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+        "'Spline Sans Mono', 'Spline Sans Mono Fallback', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace",
     },
   },
   fontSizes: {

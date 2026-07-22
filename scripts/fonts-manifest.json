@@ -1,0 +1,50 @@
+[
+  {
+    "family": "Zodiak",
+    "weight": 400,
+    "style": "normal",
+    "file": "zodiak-400.woff2",
+    "url": "https://cdn.fontshare.com/wf/ECUEQQ5BLZLFJS3PPLWOEEVS7SQONQMH/WNTXEMDDVWUVWDURRKDXCJC6G7TMP277/TBWKTFSYABV4KN4GNIJMAOQUOTYBUWB3.woff2",
+    "sha256": "81bf124d17416df8fb656393c46fb34bb74e5d472f07cec9ab295269f372098a"
+  },
+  {
+    "family": "Switzer",
+    "weight": 400,
+    "style": "normal",
+    "file": "switzer-400.woff2",
+    "url": "https://cdn.fontshare.com/wf/BLNB4FAQFNK56DWWNF7PMGTCOTZHOEII/ST3WKSSDMBK2MIQQO3MAVYWLF4FTOLFV/6IN5WOLRCYP4G4MOCOHOMXNON6Q7MDAR.woff2",
+    "sha256": "ddd9595560c35725e00d01667ce9bee519d245620e610844f0dd149df10b5d5f"
+  },
+  {
+    "family": "Switzer",
+    "weight": 500,
+    "style": "normal",
+    "file": "switzer-500.woff2",
+    "url": "https://cdn.fontshare.com/wf/OYB4CXKJQXKTNSLJMTDQOIVUL2V5EL7S/WYO2P7DQVV5RNXGMCUO2HL4RJP4VFUAS/6XPIMU23OJVRY676OG5YVJMWEHWICATX.woff2",
+    "sha256": "7393d1abac009ede0da9f95d6c83479a08d798e28d3509575e02fb1d2346866f"
+  },
+  {
+    "family": "Switzer",
+    "weight": 600,
+    "style": "normal",
+    "file": "switzer-600.woff2",
+    "url": "https://cdn.fontshare.com/wf/5SZVFDB7V52TI6ULVC6J3WQZQCIZVDV5/ODYPSTCUDMKSTYIPTV4CLQ7URIK7XYBJ/YS3VPNVO4B3TOJMEXDGFZQ4TLZGGSRZC.woff2",
+    "sha256": "d6497c264dbf70ae51add5103b6c7553dadff334b5853d09adf8c9f1c63ad36b"
+  },
+  {
+    "family": "Switzer",
+    "weight": 400,
+    "style": "italic",
+    "file": "switzer-400-italic.woff2",
+    "url": "https://cdn.fontshare.com/wf/XVUY2PHYBA6KMN4RMEMJPHQSTKCQ267G/UICOQA6KCSHFOSCPYDVVDNNCDKYFXHJB/O34WRFYO7JNWEBBA2LRV2XYRUSYXYDKH.woff2",
+    "sha256": "bd2269f50517a24d4e7e3611197054e7e3efbbcf71cd9b3c4d066e66aa4119c2"
+  },
+  {
+    "family": "Switzer",
+    "weight": 700,
+    "style": "normal",
+    "file": "switzer-700.woff2",
+    "url": "https://cdn.fontshare.com/wf/HBNTRIISA5MEXGL5WPYI7CV2HIWTDV3Q/YDPDINVT673XLXNSTMLG4JNCZZMVVNPN/Y7SCNZJOT2MW5ADSGOFLDGH4TNL4JCQY.woff2",
+    "sha256": "7aecbe035c1e311eabe7cac089f565c917558c365f809d5a9684881782370e1f"
+  }
+]

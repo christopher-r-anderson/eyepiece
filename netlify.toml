@@ -4,3 +4,10 @@
   publish = "dist/client"
 [build.environment]
   NODE_VERSION = "24"
+
+# safe with immutable because font files are pinned (scripts/fonts-manifest.json);
+# an updated font must ship under a new filename
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
