@@ -36,7 +36,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: getTitleText(undefined) },
     ],
-    links: [{ rel: 'stylesheet', href: pandaCss }],
+    links: [
+      // the body face is needed at first paint; other faces load on demand
+      // (preload zodiak-400 here once display type ships on real surfaces)
+      {
+        rel: 'preload',
+        href: '/fonts/switzer-400.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      { rel: 'stylesheet', href: pandaCss },
+    ],
   }),
 
   component: RootComponent,

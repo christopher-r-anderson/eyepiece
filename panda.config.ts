@@ -1,4 +1,5 @@
 import { defineConfig } from '@pandacss/dev'
+import { globalFontface } from './panda/font-face'
 import { globalCss } from './panda/global-css'
 import { semanticTokens } from './panda/semantic-tokens'
 import { tokens } from './panda/tokens'
@@ -25,6 +26,7 @@ export default defineConfig({
   // styled components take only the css prop; no utility shorthand props
   jsxStyleProps: 'minimal',
   globalCss,
+  globalFontface,
   // the icon toggle-button's per-instance theming channel, set by consumers
   // through the css prop; registered for typing and autocomplete only
   // (universal syntax + no initial value keeps the variant fallbacks active)
