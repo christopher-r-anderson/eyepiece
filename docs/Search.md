@@ -7,7 +7,7 @@ pre-search choice:
 
 - `/search?q=moon` - the default "All libraries" scope
 - `/search?providerId=nasa_ivl&q=moon` - a provider scope
-- `/search?mediaType=image&providerId=nasa_ivl&q=moon&yearStart=1990` -
+- `/search?providerId=nasa_ivl&q=moon&yearStart=1990` -
   provider filters, flat in the query string (params always key-sorted)
 
 ### Why this shape

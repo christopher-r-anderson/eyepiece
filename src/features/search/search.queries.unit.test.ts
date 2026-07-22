@@ -17,7 +17,7 @@ import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 const query = 'apollo'
 const filters = {
   providerId: NASA_IVL_PROVIDER_ID,
-  filters: { mediaType: 'image' as const },
+  filters: { yearStart: 2000 },
 } as const
 
 describe('getInfiniteSearchImagesOptions', () => {

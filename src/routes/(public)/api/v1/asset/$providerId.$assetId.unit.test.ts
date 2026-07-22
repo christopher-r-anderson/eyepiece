@@ -97,7 +97,6 @@ const sioaAsset = {
     width: 5760,
     height: 3840,
   },
-  mediaType: 'image',
 }
 
 const mockMetadata = { photographer: 'Neil Armstrong', date: '1969-07-20' }

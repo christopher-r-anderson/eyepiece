@@ -11,7 +11,6 @@ describe('searchFiltersSchema', () => {
     const parsed = searchFiltersSchema.parse({
       providerId: NASA_IVL_PROVIDER_ID,
       filters: {
-        mediaType: 'image',
         yearStart: '2001',
         yearEnd: '2012',
       },
@@ -20,7 +19,6 @@ describe('searchFiltersSchema', () => {
     expect(parsed).toEqual({
       providerId: NASA_IVL_PROVIDER_ID,
       filters: {
-        mediaType: 'image',
         yearStart: 2001,
         yearEnd: 2012,
       },
@@ -40,7 +38,7 @@ describe('searchFiltersSchema', () => {
     expect(() =>
       searchFiltersSchema.parse({
         providerId: SI_OA_PROVIDER_ID,
-        filters: { mediaType: 'image' },
+        filters: { yearStart: 2000 },
       }),
     ).toThrow()
   })

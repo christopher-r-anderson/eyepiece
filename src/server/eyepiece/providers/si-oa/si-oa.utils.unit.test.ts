@@ -148,7 +148,6 @@ describe('mapAssetItem', () => {
         externalId: 'asset-123',
         providerId: SI_OA_PROVIDER_ID,
       },
-      mediaType: 'image',
       thumbnail: {
         href: 'https://example.com/thumb.jpg',
         width: 160,
