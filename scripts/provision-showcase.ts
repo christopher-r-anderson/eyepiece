@@ -1,15 +1,14 @@
 // Reconciles the showcase user and curated collections against the database
 // in SHOWCASE_CURATION. Targets whatever VITE_SUPABASE_URL /
-// SUPABASE_SECRET_KEY point at (falling back to .env.local), so the same
-// command provisions local Supabase after a db reset and production from CI.
-// SHOWCASE_USER_EMAIL sets the account's email; it must be an address the
-// deployment owner controls.
+// SUPABASE_SECRET_KEY point at (the pnpm script loads .env.local when
+// present; explicit env always wins), so the same command provisions local
+// Supabase after a db reset and production from CI. SHOWCASE_USER_EMAIL sets
+// the account's email; it must be an address the deployment owner controls.
 //
 //   pnpm provision-showcase [--phase=apply|prune]
 //
 // CI splits the run around the Netlify publish: --phase=apply before it,
 // --phase=prune after it succeeds. Without the flag both phases run.
-import { existsSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import type {
   FetchShowcaseAsset,
@@ -26,17 +25,6 @@ import {
 } from '@/server/eyepiece/providers/si-oa/si-oa.provider'
 import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
 import { provisionShowcaseContent } from '@/features/collections/collections.showcase-provisioning'
-
-function loadEnvFallback() {
-  if (process.env.VITE_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY) return
-  if (!existsSync('.env.local')) return
-  for (const line of readFileSync('.env.local', 'utf8').split('\n')) {
-    const match = /^([A-Z0-9_]+)=("?)(.*)\2$/.exec(line.trim())
-    if (match && process.env[match[1]] === undefined) {
-      process.env[match[1]] = match[3]
-    }
-  }
-}
 
 function requireEnv(name: string): string {
   const value = process.env[name]
@@ -87,7 +75,6 @@ function parsePhase(): ProvisionShowcasePhase {
 }
 
 const phase = parsePhase()
-loadEnvFallback()
 const url = requireEnv('VITE_SUPABASE_URL')
 const adminClient = createClient<Database>(
   url,
