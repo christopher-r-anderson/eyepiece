@@ -108,4 +108,25 @@ describe('validateShowcaseCuration', () => {
       ),
     ).toThrow()
   })
+
+  // the schemas trim before checking bounds but the reconcile persists the
+  // curation verbatim, so padded values must fail validation, not the upsert
+  it('rejects a collection name with surrounding whitespace', () => {
+    const collection = curationWith().collections[0]
+    expect(() =>
+      validateShowcaseCuration(
+        curationWith({ collections: [{ ...collection, name: ' padded ' }] }),
+      ),
+    ).toThrow(/surrounding whitespace/)
+  })
+
+  it('rejects a display name with surrounding whitespace', () => {
+    const curation = curationWith()
+    expect(() =>
+      validateShowcaseCuration({
+        ...curation,
+        user: { ...curation.user, displayName: ' padded ' },
+      }),
+    ).toThrow(/surrounding whitespace/)
+  })
 })

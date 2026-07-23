@@ -41,8 +41,18 @@ function assetKeyId(assetKey: AssetKey): string {
   return `${assetKey.providerId}:${assetKey.externalId}`
 }
 
+// the name schemas trim before checking bounds, but the reconcile persists
+// the curation values verbatim, so padded input must be rejected outright or
+// a name passing validation could still violate the untrimmed DB checks
+function assertTrimmed(value: string, label: string): void {
+  if (value !== value.trim()) {
+    throw new Error(`${label} has surrounding whitespace: "${value}"`)
+  }
+}
+
 export function validateShowcaseCuration(curation: ShowcaseCuration): void {
   z.uuid().parse(curation.user.id)
+  assertTrimmed(curation.user.displayName, 'showcase display name')
   profileSchema.shape.displayName.parse(curation.user.displayName)
 
   const collectionIds = new Set<string>()
@@ -52,6 +62,7 @@ export function validateShowcaseCuration(curation: ShowcaseCuration): void {
       throw new Error(`duplicate showcase collection id: ${collection.id}`)
     }
     collectionIds.add(collection.id)
+    assertTrimmed(collection.name, 'showcase collection name')
     collectionNameSchema.parse(collection.name)
 
     if (collection.items.length === 0) {
@@ -125,6 +136,7 @@ async function assertCurationIdsNotForeign(
   adminClient: SupabaseClient,
   curation: ShowcaseCuration,
 ): Promise<void> {
+  if (curation.collections.length === 0) return
   const { data, error } = await adminClient
     .from('collections')
     .select('id, owner_id')
@@ -217,6 +229,9 @@ async function upsertCollections(
     visibility: collection.visibility,
     position: index + 1,
   }))
+  if (rows.length === 0) {
+    return { collectionsWritten: 0 }
+  }
   const { error } = await adminClient
     .from('collections')
     .upsert(rows, { onConflict: 'id' })
@@ -231,11 +246,15 @@ async function pruneRemovedCollections(
   curation: ShowcaseCuration,
 ): Promise<{ collectionsDeleted: number; itemsRemoved: number }> {
   const keepIds = curation.collections.map((collection) => collection.id)
-  const { data: stale, error: staleError } = await adminClient
+  // an empty keep list means delete everything; PostgREST rejects `not.in.()`
+  let staleQuery = adminClient
     .from('collections')
     .select('id')
     .eq('owner_id', curation.user.id)
-    .not('id', 'in', `(${keepIds.join(',')})`)
+  if (keepIds.length > 0) {
+    staleQuery = staleQuery.not('id', 'in', `(${keepIds.join(',')})`)
+  }
+  const { data: stale, error: staleError } = await staleQuery
   if (staleError) {
     throw new Error(`collections prune lookup failed: ${staleError.message}`)
   }

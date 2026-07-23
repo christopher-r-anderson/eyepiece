@@ -249,6 +249,37 @@ describe('provisionShowcaseContent', () => {
     ).toEqual([first.items[2].externalId, first.items[1].externalId])
   })
 
+  it('reconciles an emptied curation by removing every collection', async ({
+    adminClient,
+  }) => {
+    const curation = trackCuration(makeCuration())
+    const email = uniqueEmail()
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email,
+    })
+
+    const summary = await provisionShowcaseContent(
+      adminClient,
+      stubFetchAsset,
+      { ...curation, collections: [] },
+      { email },
+    )
+    expect(summary).toEqual({
+      userCreated: false,
+      snapshotsFetched: 0,
+      collectionsWritten: 0,
+      collectionsDeleted: 2,
+      itemsWritten: 0,
+      itemsRemoved: 4,
+    })
+
+    const { count } = await adminClient
+      .from('collections')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', curation.user.id)
+    expect(count).toBe(0)
+  })
+
   it('defers collection deletion to the prune phase', async ({
     adminClient,
   }) => {
