@@ -70,6 +70,72 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_items: {
+        Row: {
+          asset_preview_snapshot_id: string
+          collection_id: string
+          created_at: string
+          position: number
+        }
+        Insert: {
+          asset_preview_snapshot_id: string
+          collection_id: string
+          created_at?: string
+          position: number
+        }
+        Update: {
+          asset_preview_snapshot_id?: string
+          collection_id?: string
+          created_at?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_items_asset_preview_snapshot_id_fkey"
+            columns: ["asset_preview_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "asset_preview_snapshots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          position: number
+          updated_at: string
+          visibility: Database["public"]["Enums"]["collection_visibility"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          position: number
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["collection_visibility"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          position?: number
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["collection_visibility"]
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           asset_preview_snapshot_id: string
@@ -122,6 +188,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_orphaned_asset_preview_snapshots: { Args: never; Returns: number }
       ensure_asset_preview_snapshot: {
         Args: {
           p_external_id: string
@@ -135,6 +202,7 @@ export type Database = {
       }
     }
     Enums: {
+      collection_visibility: "public" | "private"
       provider_id: "nasa_ivl" | "si_oa"
     }
     CompositeTypes: {
@@ -266,6 +334,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      collection_visibility: ["public", "private"],
       provider_id: ["nasa_ivl", "si_oa"],
     },
   },
