@@ -93,6 +93,17 @@ const containerCss = css.raw({
   '&:is(:hover, :focus-within) [data-tile-controls]': {
     pointerEvents: 'auto',
   },
+  // no hover means no reveal path, so coarse-pointer devices keep the
+  // veil and its controls present; phase 3 owns the real mobile design
+  '@media (hover: none)': {
+    '& [data-tile-reveal]': {
+      opacity: 1,
+      translate: '0 0',
+    },
+    '& [data-tile-controls]': {
+      pointerEvents: 'auto',
+    },
+  },
 })
 
 export function AssetTile({

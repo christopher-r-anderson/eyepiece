@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { css } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
 import { useSearchTotal } from '../search.queries'
@@ -160,11 +160,17 @@ function YearRangeFields({
   // pre-hydration edits (an inverted no-JS submit drops as a pair at the
   // URL boundary instead)
   const [edited, setEdited] = useState(false)
+  const yearStartRef = useRef<HTMLInputElement>(null)
+  const yearEndRef = useRef<HTMLInputElement>(null)
 
-  // an invalid value (out of bounds, inverted pair) never commits; the
-  // user sees native validation when they submit instead
-  function commitIfValid(event: React.FocusEvent<HTMLInputElement>) {
-    if (!event.currentTarget.validity.valid) {
+  // both fields must hold valid values (bounds, inversion) before a
+  // commit - blurring the valid field must not apply the invalid one;
+  // the user sees native validation when they submit instead
+  function commitIfValid() {
+    if (
+      !yearStartRef.current?.validity.valid ||
+      !yearEndRef.current?.validity.valid
+    ) {
       return
     }
     onCommit()
@@ -175,6 +181,7 @@ function YearRangeFields({
       {leadingDot && <span aria-hidden="true">·</span>}
       <span>years</span>
       <input
+        ref={yearStartRef}
         type="number"
         form={formId}
         name="yearStart"
@@ -195,6 +202,7 @@ function YearRangeFields({
       />
       <span aria-hidden="true">–</span>
       <input
+        ref={yearEndRef}
         type="number"
         form={formId}
         name="yearEnd"

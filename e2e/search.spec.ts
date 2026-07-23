@@ -291,6 +291,26 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
   })
 })
 
+test('a blur never commits while the other year field is invalid', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+
+  await expect(page.getByText(/results ·/)).toBeVisible()
+  // 1910 is below the 1920 floor, so the earliest field is invalid
+  await page.getByLabel('Earliest year').fill('1910')
+  await page.keyboard.press('Tab')
+  await page.getByLabel('Latest year').fill('2001')
+  await page.keyboard.press('Tab')
+  await page.waitForTimeout(600)
+
+  expect(new URL(page.url()).searchParams.has('yearStart')).toBe(false)
+  expect(new URL(page.url()).searchParams.has('yearEnd')).toBe(false)
+})
+
 test('an inverted year range in the URL is dropped as a pair', async ({
   page,
 }) => {
