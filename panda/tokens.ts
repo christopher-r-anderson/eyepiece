@@ -60,14 +60,14 @@ export const tokens = defineTokens({
     control: { value: '1px solid {colors.control.border}' },
     separator: { value: '1px solid {colors.separator}' },
     // the app's single focus ring, applied as outline: 'focusRing'
-    focusRing: { value: '2px solid {colors.outline}' },
+    focusRing: { value: '2px solid {colors.star}' },
   },
   shadows: {
     sm: { value: '0 1px 2px rgba(0, 0, 0, 0.08)' },
     md: { value: '0 2px 8px rgba(0, 0, 0, 0.14)' },
     overlay: { value: '0 12px 28px rgba(0, 0, 0, 0.25)' },
     // contrasting layer under the focus ring when it draws over imagery
-    focusHalo: { value: 'inset 0 0 0 4px {colors.background}' },
+    focusHalo: { value: 'inset 0 0 0 4px {colors.bg.canvas}' },
   },
   zIndex: {
     base: { value: 0 },

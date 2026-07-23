@@ -40,8 +40,8 @@ function DevUiLayout() {
                 borderRadius: 'md',
                 textDecoration: 'none',
                 '&[aria-current=page]': {
-                  backgroundColor: 'secondary.bg',
-                  color: 'secondary.text',
+                  backgroundColor: 'bg.surface.2',
+                  color: 'text',
                 },
               })}
             >

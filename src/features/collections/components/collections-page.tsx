@@ -11,7 +11,7 @@ export function CollectionsPage() {
         padding: '6',
       })}
     >
-      <Heading level={1} css={css.raw({ color: 'text.accent' })}>
+      <Heading level={1} css={css.raw({ color: 'accent.emphasis' })}>
         Collections
       </Heading>
     </div>

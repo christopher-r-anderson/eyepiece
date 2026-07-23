@@ -3,7 +3,7 @@ import { defineRecipe } from '@pandacss/dev'
 export const menuRecipe = defineRecipe({
   className: 'menu',
   base: {
-    backgroundColor: 'secondary.bg',
+    backgroundColor: 'bg.surface.2',
     display: 'flex',
     flexDirection: 'column',
     minWidth: '12rem',
@@ -19,14 +19,14 @@ export const menuRecipe = defineRecipe({
 export const menuItemRecipe = defineRecipe({
   className: 'menu-item',
   base: {
-    color: 'secondary.text',
+    color: 'text',
     paddingBlock: '2',
     paddingInline: '4',
     borderRadius: 'sm',
     cursor: 'pointer',
     _hovered: {
-      backgroundColor: 'tertiary.bg',
-      color: 'tertiary.text',
+      backgroundColor: 'bg.surface.3',
+      color: 'text',
     },
     outline: 'none',
     _focused: {

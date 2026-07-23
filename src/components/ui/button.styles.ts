@@ -12,6 +12,6 @@ export const ghostVisualStyles = defineStyles({
   _hovered: {
     color: 'text',
     border: 'control',
-    backgroundColor: 'secondary.bg',
+    backgroundColor: 'bg.surface.2',
   },
 })

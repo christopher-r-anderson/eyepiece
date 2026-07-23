@@ -79,8 +79,8 @@ export function SearchBar({
       <HiddenScopeFields fields={fieldsBeforeQuery} />
       <div
         className={grid({
-          background: 'secondary.bg',
-          color: 'secondary.text',
+          background: 'bg.surface.2',
+          color: 'text',
           gridTemplateColumns: 'minmax(0, 1fr)',
           gap: '2',
           alignItems: 'stretch',
@@ -117,8 +117,8 @@ function FiltersPanel({ children }: { children: React.ReactNode }) {
     <div
       className={css({
         padding: '4',
-        background: 'secondary.bg',
-        color: 'secondary.text',
+        background: 'bg.surface.2',
+        color: 'text',
         borderRadius: 'md',
         border: 'default',
         boxShadow: 'sm',

@@ -11,15 +11,12 @@ import { defineSemanticTokens } from '@pandacss/dev'
 // table lives in the phase-2 palette PR).
 export const semanticTokens = defineSemanticTokens({
   colors: {
-    background: {
-      value: {
-        base: 'oklch(0.962 0.008 293)',
-        _dark: 'oklch(0.1896 0.0202 293.5)',
-      },
-    },
     bg: {
       canvas: {
-        value: '{colors.background}',
+        value: {
+          base: 'oklch(0.962 0.008 293)',
+          _dark: 'oklch(0.1896 0.0202 293.5)',
+        },
       },
       surface: {
         '1': {
@@ -61,9 +58,6 @@ export const semanticTokens = defineSemanticTokens({
           _dark: 'oklch(0.6814 0.0488 296.2)',
         },
       },
-      accent: {
-        value: '{colors.accent.emphasis}',
-      },
     },
     accent: {
       DEFAULT: {
@@ -80,9 +74,18 @@ export const semanticTokens = defineSemanticTokens({
         },
       },
       fg: {
-        value: {
-          base: 'oklch(0.985 0.005 293)',
-          _dark: 'oklch(0.1896 0.0202 293.5)',
+        DEFAULT: {
+          value: {
+            base: 'oklch(0.985 0.005 293)',
+            _dark: 'oklch(0.1896 0.0202 293.5)',
+          },
+        },
+        // disabled text on the accent fill
+        muted: {
+          value: {
+            base: 'oklch(0.88 0.03 293)',
+            _dark: 'oklch(0.34 0.035 293)',
+          },
         },
       },
     },
@@ -91,9 +94,6 @@ export const semanticTokens = defineSemanticTokens({
         base: 'oklch(0.46 0.095 80)',
         _dark: 'oklch(0.8243 0.0879 80.9)',
       },
-    },
-    link: {
-      value: '{colors.text.accent}',
     },
     border: {
       value: {
@@ -115,45 +115,6 @@ export const semanticTokens = defineSemanticTokens({
           base: 'oklch(0.57 0.03 293)',
           _dark: 'oklch(0.55 0.05 293)',
         },
-      },
-    },
-    outline: {
-      value: '{colors.star}',
-    },
-    primary: {
-      bg: {
-        value: '{colors.accent}',
-      },
-      text: {
-        value: '{colors.accent.fg}',
-      },
-      textMuted: {
-        value: {
-          base: 'oklch(0.88 0.03 293)',
-          _dark: 'oklch(0.34 0.035 293)',
-        },
-      },
-    },
-    secondary: {
-      bg: {
-        value: '{colors.bg.surface.2}',
-      },
-      bgHover: {
-        value: '{colors.bg.surface.3}',
-      },
-      text: {
-        value: '{colors.text}',
-      },
-    },
-    tertiary: {
-      bg: {
-        value: '{colors.bg.surface.3}',
-      },
-      bgHover: {
-        value: '{colors.bg.surface.4}',
-      },
-      text: {
-        value: '{colors.text}',
       },
     },
     success: {
@@ -257,20 +218,6 @@ export const semanticTokens = defineSemanticTokens({
           base: 'rgba(37, 33, 52, 0.1)',
           _dark: 'rgba(237, 234, 246, 0.08)',
         },
-      },
-    },
-    favoriteToggle: {
-      idle: {
-        value: '{colors.text.muted}',
-      },
-      hover: {
-        value: '{colors.star}',
-      },
-      selected: {
-        value: '{colors.star}',
-      },
-      glow: {
-        value: 'rgba(0, 0, 0, 0)',
       },
     },
   },

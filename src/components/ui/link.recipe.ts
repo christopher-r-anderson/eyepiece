@@ -5,7 +5,7 @@ import { tabSelectedStyles, tabVisualStyles } from './tab.styles'
 export const linkRecipe = defineRecipe({
   className: 'link',
   base: {
-    color: 'link',
+    color: 'accent.emphasis',
     textDecoration: 'none',
     transitionFast: 'color',
     _hovered: { textDecoration: 'underline' },
