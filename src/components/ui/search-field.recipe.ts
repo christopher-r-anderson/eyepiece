@@ -10,9 +10,14 @@ export const searchFieldRecipe = defineRecipe({
     paddingInline: '3',
     gap: '2',
     borderRadius: 'full',
-    border: 'default',
+    border: 'control',
     backgroundColor: 'tertiary.bg',
     color: 'text',
     boxShadow: 'sm',
+    transitionFast: 'border-color, outline-color',
+    _focusWithin: {
+      outline: 'focusRing',
+      outlineOffset: '1px',
+    },
   },
 })
