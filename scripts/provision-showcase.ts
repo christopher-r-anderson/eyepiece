@@ -2,11 +2,19 @@
 // in SHOWCASE_CURATION. Targets whatever VITE_SUPABASE_URL /
 // SUPABASE_SECRET_KEY point at (falling back to .env.local), so the same
 // command provisions local Supabase after a db reset and production from CI.
+// SHOWCASE_USER_EMAIL sets the account's email; it must be an address the
+// deployment owner controls.
 //
-//   pnpm provision-showcase
+//   pnpm provision-showcase [--phase=apply|prune]
+//
+// CI splits the run around the Netlify publish: --phase=apply before it,
+// --phase=prune after it succeeds. Without the flag both phases run.
 import { existsSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
-import type { FetchShowcaseAsset } from '@/features/collections/collections.showcase-provisioning'
+import type {
+  FetchShowcaseAsset,
+  ProvisionShowcasePhase,
+} from '@/features/collections/collections.showcase-provisioning'
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { Database } from '@/integrations/supabase/database.types'
@@ -68,6 +76,17 @@ const fetchAsset: FetchShowcaseAsset = async (assetKey) => {
   return { title: asset.title, thumbnail: asset.thumbnail }
 }
 
+function parsePhase(): ProvisionShowcasePhase {
+  const flag = process.argv.find((arg) => arg.startsWith('--phase='))
+  if (!flag) return 'full'
+  const phase = flag.slice('--phase='.length)
+  if (phase !== 'apply' && phase !== 'prune') {
+    throw new Error(`invalid --phase value: ${phase} (use apply or prune)`)
+  }
+  return phase
+}
+
+const phase = parsePhase()
 loadEnvFallback()
 const url = requireEnv('VITE_SUPABASE_URL')
 const adminClient = createClient<Database>(
@@ -82,17 +101,26 @@ const adminClient = createClient<Database>(
   },
 )
 
-console.log(`Provisioning showcase content on ${new URL(url).host}`)
+console.log(`Provisioning showcase content on ${new URL(url).host} (${phase})`)
 const summary = await provisionShowcaseContent(
   adminClient,
   fetchAsset,
   SHOWCASE_CURATION,
+  { email: requireEnv('SHOWCASE_USER_EMAIL'), phase },
 )
 console.log(
   [
-    `user ${summary.userCreated ? 'created' : 'already provisioned'}`,
-    `${summary.collectionsWritten} collections written (${summary.collectionsDeleted} pruned)`,
-    `${summary.itemsWritten} items written (${summary.itemsRemoved} pruned)`,
-    `${summary.snapshotsFetched} snapshots fetched from providers`,
+    ...(phase !== 'prune'
+      ? [
+          `user ${summary.userCreated ? 'created' : 'already provisioned'}`,
+          `${summary.collectionsWritten} collections written`,
+          `${summary.itemsWritten} items written`,
+          `${summary.snapshotsFetched} snapshots fetched from providers`,
+        ]
+      : []),
+    ...(phase !== 'apply'
+      ? [`${summary.collectionsDeleted} collections pruned`]
+      : []),
+    `${summary.itemsRemoved} items pruned`,
   ].join('\n'),
 )

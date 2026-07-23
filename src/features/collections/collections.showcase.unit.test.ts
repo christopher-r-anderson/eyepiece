@@ -9,7 +9,6 @@ function curationWith(
   return {
     user: {
       id: 'c081d76d-0949-4dd0-8041-475fad3f8d7c',
-      email: 'showcase@example.com',
       displayName: 'showcase',
     },
     collections: [
@@ -71,6 +70,18 @@ describe('validateShowcaseCuration', () => {
         curationWith({ collections: [{ ...collection, items: [] }] }),
       ),
     ).toThrow(/no items/)
+  })
+
+  // profiles enforce a 60-character display name; catching it here keeps a
+  // bad curation from failing midway through provisioning
+  it('rejects a display name past the profile limit', () => {
+    const curation = curationWith()
+    expect(() =>
+      validateShowcaseCuration({
+        ...curation,
+        user: { ...curation.user, displayName: 'a'.repeat(61) },
+      }),
+    ).toThrow()
   })
 
   it('rejects an empty item external id', () => {

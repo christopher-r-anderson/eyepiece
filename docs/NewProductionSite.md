@@ -104,13 +104,14 @@ In your GitHub repository, go to `Settings -> Secrets and variables -> Actions`.
 
 You can use repository-level secrets and variables, or use an environment if you have one set up. Repository-level configuration is sufficient for the current setup.
 
-Add the following five secrets under `Secrets -> Repository secrets -> New repository secret`:
+Add the following six secrets under `Secrets -> Repository secrets -> New repository secret`:
 
 - `SI_OA_API_KEY`: your Smithsonian Institution Open Access or `api.data.gov` API key.
 - `NETLIFY_AUTH_TOKEN`: the Netlify Personal Access Token.
 - `SUPABASE_ACCESS_TOKEN`: the Supabase access token.
 - `SUPABASE_DB_PASSWORD`: the database password created during Supabase project setup. If you reset it later in Supabase, any other systems using that password will also need to be updated.
 - `SUPABASE_SECRET_KEY`: the Supabase secret key, the same value used in Netlify. The publish workflow uses it to provision showcase content after database migrations are deployed.
+- `SHOWCASE_USER_EMAIL`: an email address you control, used as the provisioned showcase account's address. Whoever controls this mailbox can access the showcase account through password reset, so it must not belong to anyone outside your deployment. Changing the value updates the account's email on the next publish.
 
 Add the following two repository variables under `Variables -> Repository variables -> New repository variable`:
 

@@ -231,13 +231,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # before the Netlify publish so a homepage that links new showcase
-      # content never goes live before that content exists
+      # content never goes live before that content exists; removed
+      # collections are pruned only after the publish succeeds
       - name: Provision showcase content (prod)
         env:
           VITE_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOWCASE_USER_EMAIL: ${{ secrets.SHOWCASE_USER_EMAIL }}
           SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
-        run: pnpm provision-showcase
+        run: pnpm provision-showcase --phase=apply
 
       - name: Trigger Netlify publish hook
         env:
@@ -288,3 +290,12 @@ jobs:
             "${api}/sites/${NETLIFY_SITE_ID}/deploys/${deploy_id}/restore" >/dev/null
 
           echo "✅ Published ${deploy_id}"
+
+      # after the publish so a failed publish never leaves the live homepage
+      # linking a collection that has already been deleted
+      - name: Prune removed showcase content (prod)
+        env:
+          VITE_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOWCASE_USER_EMAIL: ${{ secrets.SHOWCASE_USER_EMAIL }}
+        run: pnpm provision-showcase --phase=prune

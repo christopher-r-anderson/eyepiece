@@ -7,6 +7,7 @@ import type {
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { assetKeySchema } from '@/domain/asset/asset.schema'
+import { profileSchema } from '@/domain/profile/profile.schema'
 import { ASSET_PREVIEW_SNAPSHOT_STALE_TIME } from '@/features/assets/asset-preview-snapshots.const'
 
 // Declarative reconcile run by scripts/provision-showcase.ts with service-role
@@ -42,8 +43,7 @@ function assetKeyId(assetKey: AssetKey): string {
 
 export function validateShowcaseCuration(curation: ShowcaseCuration): void {
   z.uuid().parse(curation.user.id)
-  z.email().parse(curation.user.email)
-  z.string().trim().min(1).parse(curation.user.displayName)
+  profileSchema.shape.displayName.parse(curation.user.displayName)
 
   const collectionIds = new Set<string>()
   for (const collection of curation.collections) {
@@ -74,6 +74,7 @@ export function validateShowcaseCuration(curation: ShowcaseCuration): void {
 async function ensureShowcaseUser(
   adminClient: SupabaseClient,
   user: ShowcaseCuration['user'],
+  email: string,
 ): Promise<{ userCreated: boolean }> {
   const { data, error } = await adminClient.auth.admin.getUserById(user.id)
   if (error && error.status !== 404) {
@@ -85,8 +86,8 @@ async function ensureShowcaseUser(
       email_confirm?: boolean
       user_metadata?: { display_name: string }
     } = {}
-    if (data.user.email !== user.email) {
-      changes.email = user.email
+    if (data.user.email !== email) {
+      changes.email = email
       changes.email_confirm = true
     }
     if (data.user.user_metadata.display_name !== user.displayName) {
@@ -107,7 +108,7 @@ async function ensureShowcaseUser(
   // one uuid, not more - gotrue rejects passwords past bcrypt's 72-byte limit
   const { error: createError } = await adminClient.auth.admin.createUser({
     id: user.id,
-    email: user.email,
+    email,
     password: crypto.randomUUID(),
     email_confirm: true,
     user_metadata: { display_name: user.displayName },
@@ -306,57 +307,88 @@ async function reconcileItems(
   return { itemsWritten: rows.length, itemsRemoved: count ?? 0 }
 }
 
+// The phases exist because a deploy publishes the site separately from
+// reconciling the database, and either half can fail: 'apply' runs before the
+// publish (a newly published homepage must never link content that does not
+// exist yet) and 'prune' runs after a successful publish (a failed publish
+// must never leave the still-live homepage linking a deleted collection).
+// 'full' does both for single-environment runs like local seeding. A failure
+// between the phases leaves at most stale extras, which the next successful
+// prune removes.
+export type ProvisionShowcasePhase = 'full' | 'apply' | 'prune'
+
+export interface ProvisionShowcaseOptions {
+  // deployment configuration, not curation content: the mailbox owner can
+  // reach the account through the normal password-reset flow
+  email: string
+  phase?: ProvisionShowcasePhase
+}
+
 export async function provisionShowcaseContent(
   adminClient: SupabaseClient,
   fetchAsset: FetchShowcaseAsset,
   curation: ShowcaseCuration,
+  options: ProvisionShowcaseOptions,
 ): Promise<ProvisionShowcaseSummary> {
+  const { email, phase = 'full' } = options
+  z.email().parse(email)
   validateShowcaseCuration(curation)
 
-  const { userCreated } = await ensureShowcaseUser(adminClient, curation.user)
-
-  const { error: profileError } = await adminClient.from('profiles').upsert(
-    {
-      id: curation.user.id,
-      display_name: curation.user.displayName,
-    },
-    { onConflict: 'id' },
-  )
-  if (profileError) {
-    throw new Error(`showcase profile upsert failed: ${profileError.message}`)
+  const summary: ProvisionShowcaseSummary = {
+    userCreated: false,
+    snapshotsFetched: 0,
+    collectionsWritten: 0,
+    collectionsDeleted: 0,
+    itemsWritten: 0,
+    itemsRemoved: 0,
   }
 
-  await assertCurationIdsNotForeign(adminClient, curation)
+  if (phase !== 'prune') {
+    const { userCreated } = await ensureShowcaseUser(
+      adminClient,
+      curation.user,
+      email,
+    )
+    summary.userCreated = userCreated
 
-  const { snapshotIds, snapshotsFetched } = await ensureSnapshots(
-    adminClient,
-    fetchAsset,
-    curation,
-  )
+    const { error: profileError } = await adminClient.from('profiles').upsert(
+      {
+        id: curation.user.id,
+        display_name: curation.user.displayName,
+      },
+      { onConflict: 'id' },
+    )
+    if (profileError) {
+      throw new Error(`showcase profile upsert failed: ${profileError.message}`)
+    }
 
-  // collection deletion runs last: statements are individually atomic but the
-  // run is not a transaction, so an interrupted run (a cancelled deploy) must
-  // never have deleted a collection the still-published homepage links. an
-  // interruption leaves at most stale extras; the next successful run prunes
-  // them
-  const { collectionsWritten } = await upsertCollections(adminClient, curation)
+    await assertCurationIdsNotForeign(adminClient, curation)
 
-  let itemsWritten = 0
-  let itemsRemoved = 0
-  for (const collection of curation.collections) {
-    const result = await reconcileItems(adminClient, collection, snapshotIds)
-    itemsWritten += result.itemsWritten
-    itemsRemoved += result.itemsRemoved
+    const { snapshotIds, snapshotsFetched } = await ensureSnapshots(
+      adminClient,
+      fetchAsset,
+      curation,
+    )
+    summary.snapshotsFetched = snapshotsFetched
+
+    const { collectionsWritten } = await upsertCollections(
+      adminClient,
+      curation,
+    )
+    summary.collectionsWritten = collectionsWritten
+
+    for (const collection of curation.collections) {
+      const result = await reconcileItems(adminClient, collection, snapshotIds)
+      summary.itemsWritten += result.itemsWritten
+      summary.itemsRemoved += result.itemsRemoved
+    }
   }
 
-  const pruned = await pruneRemovedCollections(adminClient, curation)
-
-  return {
-    userCreated,
-    snapshotsFetched,
-    collectionsWritten,
-    collectionsDeleted: pruned.collectionsDeleted,
-    itemsWritten,
-    itemsRemoved: itemsRemoved + pruned.itemsRemoved,
+  if (phase !== 'apply') {
+    const pruned = await pruneRemovedCollections(adminClient, curation)
+    summary.collectionsDeleted = pruned.collectionsDeleted
+    summary.itemsRemoved += pruned.itemsRemoved
   }
+
+  return summary
 }

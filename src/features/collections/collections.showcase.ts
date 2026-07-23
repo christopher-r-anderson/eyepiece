@@ -11,7 +11,6 @@ export interface ShowcaseCollection {
 export interface ShowcaseCuration {
   user: {
     id: string
-    email: string
     displayName: string
   }
   collections: Array<ShowcaseCollection>
@@ -23,11 +22,13 @@ export interface ShowcaseCuration {
 // agree on every URL the homepage links.
 //
 // The account is created with a discarded random password; access is minted
-// on demand with project-admin rights.
+// on demand with project-admin rights. Its email is deployment configuration
+// (SHOWCASE_USER_EMAIL), not content: whoever controls that mailbox can reach
+// the account through the normal password-reset flow, so it must belong to
+// the deployment owner and stays out of the repo.
 export const SHOWCASE_CURATION: ShowcaseCuration = {
   user: {
     id: 'c081d76d-0949-4dd0-8041-475fad3f8d7c',
-    email: 'christopher.r.anderson+eyepiece-showcase@gmail.com',
     displayName: 'eyepiece',
   },
   collections: [

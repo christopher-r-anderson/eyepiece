@@ -8,12 +8,15 @@ function uniqueSuffix(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
+function uniqueEmail(): string {
+  return `showcase-test-${uniqueSuffix()}@example.com`
+}
+
 function makeCuration(): ShowcaseCuration {
   const suffix = uniqueSuffix()
   return {
     user: {
       id: crypto.randomUUID(),
-      email: `showcase-test-${suffix}@example.com`,
       displayName: 'showcase test',
     },
     collections: [
@@ -80,10 +83,12 @@ describe('provisionShowcaseContent', () => {
     adminClient,
   }) => {
     const curation = trackCuration(makeCuration())
+    const email = uniqueEmail()
     const summary = await provisionShowcaseContent(
       adminClient,
       stubFetchAsset,
       curation,
+      { email },
     )
 
     expect(summary).toEqual({
@@ -98,7 +103,7 @@ describe('provisionShowcaseContent', () => {
     const { data: authUser } = await adminClient.auth.admin.getUserById(
       curation.user.id,
     )
-    expect(authUser.user?.email).toBe(curation.user.email)
+    expect(authUser.user?.email).toBe(email)
 
     const { data: profile } = await adminClient
       .from('profiles')
@@ -141,13 +146,17 @@ describe('provisionShowcaseContent', () => {
     adminClient,
   }) => {
     const curation = trackCuration(makeCuration())
-    await provisionShowcaseContent(adminClient, stubFetchAsset, curation)
+    const email = uniqueEmail()
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email,
+    })
 
     const countingFetch = vi.fn(stubFetchAsset)
     const summary = await provisionShowcaseContent(
       adminClient,
       countingFetch,
       curation,
+      { email },
     )
 
     expect(countingFetch).not.toHaveBeenCalled()
@@ -171,13 +180,16 @@ describe('provisionShowcaseContent', () => {
     adminClient,
   }) => {
     const curation = trackCuration(makeCuration())
-    await provisionShowcaseContent(adminClient, stubFetchAsset, curation)
+    const email = uniqueEmail()
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email,
+    })
 
     const [first] = curation.collections
+    const editedEmail = `renamed-${email}`
     const edited: ShowcaseCuration = {
       user: {
         ...curation.user,
-        email: `renamed-${curation.user.email}`,
         displayName: 'renamed curator',
       },
       collections: [
@@ -195,6 +207,7 @@ describe('provisionShowcaseContent', () => {
       adminClient,
       stubFetchAsset,
       edited,
+      { email: editedEmail },
     )
     expect(summary).toEqual({
       userCreated: false,
@@ -209,7 +222,7 @@ describe('provisionShowcaseContent', () => {
     const { data: authUser } = await adminClient.auth.admin.getUserById(
       curation.user.id,
     )
-    expect(authUser.user?.email).toBe(edited.user.email)
+    expect(authUser.user?.email).toBe(editedEmail)
     expect(authUser.user?.email_confirmed_at).toBeTruthy()
     expect(authUser.user?.user_metadata.display_name).toBe('renamed curator')
 
@@ -236,6 +249,55 @@ describe('provisionShowcaseContent', () => {
     ).toEqual([first.items[2].externalId, first.items[1].externalId])
   })
 
+  it('defers collection deletion to the prune phase', async ({
+    adminClient,
+  }) => {
+    const curation = trackCuration(makeCuration())
+    const email = uniqueEmail()
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email,
+    })
+
+    const edited: ShowcaseCuration = {
+      ...curation,
+      collections: [curation.collections[0]],
+    }
+    const applySummary = await provisionShowcaseContent(
+      adminClient,
+      stubFetchAsset,
+      edited,
+      { email, phase: 'apply' },
+    )
+    expect(applySummary.collectionsDeleted).toBe(0)
+
+    const { count: afterApply } = await adminClient
+      .from('collections')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', curation.user.id)
+    expect(afterApply).toBe(2)
+
+    const pruneSummary = await provisionShowcaseContent(
+      adminClient,
+      stubFetchAsset,
+      edited,
+      { email, phase: 'prune' },
+    )
+    expect(pruneSummary).toEqual({
+      userCreated: false,
+      snapshotsFetched: 0,
+      collectionsWritten: 0,
+      collectionsDeleted: 1,
+      itemsWritten: 0,
+      itemsRemoved: 1,
+    })
+
+    const { count: afterPrune } = await adminClient
+      .from('collections')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', curation.user.id)
+    expect(afterPrune).toBe(1)
+  })
+
   it('never touches collections owned by other users', async ({
     adminClient,
     user,
@@ -253,7 +315,9 @@ describe('provisionShowcaseContent', () => {
       .single()
 
     const curation = trackCuration(makeCuration())
-    await provisionShowcaseContent(adminClient, stubFetchAsset, curation)
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email: uniqueEmail(),
+    })
 
     const { data: still } = await adminClient
       .from('collections')
@@ -283,7 +347,9 @@ describe('provisionShowcaseContent', () => {
     curation.collections[0].id = theirCollection!.id
 
     await expect(
-      provisionShowcaseContent(adminClient, stubFetchAsset, curation),
+      provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+        email: uniqueEmail(),
+      }),
     ).rejects.toThrow(/owned by another user/)
 
     const { data: still } = await adminClient
