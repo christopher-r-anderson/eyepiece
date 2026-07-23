@@ -181,6 +181,10 @@ describe('all providers results', () => {
       }),
     )
     expect(siSection.getByRole('link', { name: 'See all 214' })).toBeTruthy()
+    const nasaSection = within(
+      screen.getByRole('region', { name: 'NASA Image and Video Library' }),
+    )
+    expect(nasaSection.queryByRole('link', { name: /^See all/ })).toBeNull()
     const crossLink = screen.getByRole('link', {
       name: 'see the 214 results from Smithsonian',
     })

@@ -1,7 +1,8 @@
-import { Suspense, useId, useState } from 'react'
+import { Suspense, useEffect, useId, useRef, useState } from 'react'
 import {
   CatchBoundary,
   createFileRoute,
+  useNavigate,
   useRouterState,
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
@@ -25,6 +26,7 @@ import { SearchConditions } from '@/features/search/components/search-conditions
 import { SearchScopeTabs } from '@/features/search/components/search-scope-tabs'
 import {
   searchPageParamsSchema,
+  toSearchPageParams,
   toSearchPageState,
 } from '@/features/search/search-page-params'
 import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
@@ -152,15 +154,10 @@ function SearchPage() {
   const params = searchPageParamsSchema.parse(search)
   const state = toSearchPageState(params)
   useCanonicalSearchReplace()
-  const formResetKey = hashKey(['search-form', state.q, state.scope])
-
-  return <SearchView key={formResetKey} state={state} />
-}
-
-function SearchView({ state }: { state: SearchPageState }) {
   const { q, scope } = state
   const hasQuery = q.trim().length > 0
   const formId = useId()
+  const navigate = useNavigate()
   const isNasaScope =
     scope.scope === 'provider' &&
     scope.filters.providerId === NASA_IVL_PROVIDER_ID
@@ -168,15 +165,63 @@ function SearchView({ state }: { state: SearchPageState }) {
     isNasaScope ? scope.filters.filters : {},
   )
 
+  // a navigation that changes the URL filters (scope switch, back button,
+  // canonical drops) resets the year inputs without remounting them, so
+  // focus survives blur commits. Runs as an effect so interrupted renders
+  // (the search-state tearing gotcha) never act, and a change matching our
+  // own in-flight commit skips the reset - the user may already be typing
+  // in the other field
+  const lastCommittedScopeKeyRef = useRef<string | null>(null)
+  const scopeFiltersKey = hashKey(['scope-filters', scope])
+  const lastSyncedScopeKeyRef = useRef(scopeFiltersKey)
+  useEffect(() => {
+    if (lastSyncedScopeKeyRef.current === scopeFiltersKey) {
+      return
+    }
+    lastSyncedScopeKeyRef.current = scopeFiltersKey
+    if (lastCommittedScopeKeyRef.current === scopeFiltersKey) {
+      lastCommittedScopeKeyRef.current = null
+      return
+    }
+    lastCommittedScopeKeyRef.current = null
+    setNasaFilters(isNasaScope ? scope.filters.filters : {})
+  }, [scopeFiltersKey, isNasaScope, scope])
+
+  // blur commits apply the URL's query, not in-progress typing in the
+  // search box; Enter still submits the whole form
+  function commitNasaFilters() {
+    if (!isNasaScope) {
+      return
+    }
+    if (hashKey([nasaFilters]) === hashKey([scope.filters.filters])) {
+      return
+    }
+    const committedScope = {
+      scope: 'provider' as const,
+      filters: { providerId: NASA_IVL_PROVIDER_ID, filters: nasaFilters },
+    }
+    lastCommittedScopeKeyRef.current = hashKey([
+      'scope-filters',
+      committedScope,
+    ])
+    void navigate({
+      to: '/search',
+      search: toSearchPageParams(q, committedScope),
+    })
+  }
+
   return (
     <div className={css({ width: '100%' })}>
       <SearchBar
+        key={hashKey(['search-form', q, scope])}
         id={formId}
         initialQuery={q}
         scope={scope}
         nasaFilters={nasaFilters}
       />
       {hasQuery && (
+        // not keyed by the search state: the entrance plays on page
+        // arrival, not on every scope or filter navigation
         <div className={css({ marginTop: '6' })}>
           <QueryHeadline query={q} />
         </div>
@@ -184,7 +229,7 @@ function SearchView({ state }: { state: SearchPageState }) {
       <div className={css({ marginTop: '5' })}>
         <SearchScopeTabs q={q} scope={scope} />
       </div>
-      {hasQuery && (
+      {(hasQuery || isNasaScope) && (
         <div className={css({ marginTop: '2' })}>
           <SearchConditions
             q={q}
@@ -192,6 +237,7 @@ function SearchView({ state }: { state: SearchPageState }) {
             formId={formId}
             nasaFilters={nasaFilters}
             onNasaFiltersChange={setNasaFilters}
+            onNasaFiltersCommit={commitNasaFilters}
           />
         </div>
       )}

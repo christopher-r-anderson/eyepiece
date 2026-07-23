@@ -82,9 +82,16 @@ const containerCss = css.raw({
   backgroundColor: 'assetTile.bg',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
-  '&:is(:hover, :focus-within) [data-tile-veil]': {
+  '&:is(:hover, :focus-within) [data-tile-reveal]': {
     opacity: 1,
     translate: '0 0',
+  },
+  // hidden controls must not be hit-testable: pointer-events re-enables
+  // per element, so a tap on an unrevealed tile would hit the invisible
+  // star instead of the link. Keyboard focus is unaffected, and focusing
+  // a control reveals it through :focus-within
+  '&:is(:hover, :focus-within) [data-tile-controls]': {
+    pointerEvents: 'auto',
   },
 })
 
@@ -98,10 +105,37 @@ export function AssetTile({
   return (
     <div className={cx(css(containerCss), className)} {...props}>
       <Thumbnail assetPreview={assetPreview} />
+      {relatedLinks && (
+        <div
+          data-tile-reveal
+          data-tile-controls
+          className={css({
+            position: 'absolute',
+            top: '2',
+            left: '2',
+            maxWidth: 'calc(100% - (2 * token(spacing.2)))',
+            paddingBlock: '1',
+            paddingInline: '2',
+            backgroundColor: 'assetTile.captionBg',
+            color: 'assetTile.captionText',
+            fontSize: 'xs',
+            opacity: 0,
+            translate: '0 -4px',
+            pointerEvents: 'none',
+            transitionFast: 'opacity, translate',
+            _motionReduce: {
+              transition: 'none',
+              translate: '0 0',
+            },
+          })}
+        >
+          {relatedLinks}
+        </div>
+      )}
       <div
-        data-tile-veil
-        // clicks over the veil fall through to the link; only its
-        // controls take the pointer back
+        data-tile-reveal
+        // clicks over the veil fall through to the link; only the action
+        // cluster takes the pointer back, and only while revealed
         className={flex({
           position: 'absolute',
           insetInline: 0,
@@ -122,35 +156,25 @@ export function AssetTile({
           },
         })}
       >
-        <div className={css({ flex: 1, minWidth: 0 })}>
-          <p
-            className={css({
-              fontSize: 'sm',
-              lineHeight: 1.3,
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-            })}
-          >
-            {assetPreview.title}
-          </p>
-          {relatedLinks && (
-            <div
-              className={css({
-                fontSize: 'xs',
-                pointerEvents: 'auto',
-                display: 'inline-block',
-              })}
-            >
-              {relatedLinks}
-            </div>
-          )}
-        </div>
+        <p
+          className={css({
+            flex: 1,
+            minWidth: 0,
+            fontSize: 'sm',
+            lineHeight: 1.3,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
+          })}
+        >
+          {assetPreview.title}
+        </p>
         {actions && (
           <div
+            data-tile-controls
             className={flex({
-              pointerEvents: 'auto',
+              pointerEvents: 'none',
               flexShrink: 0,
               alignItems: 'center',
             })}

@@ -244,6 +244,53 @@ test('an inverted year range is blocked natively after hydration', async ({
   expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1960')
 })
 
+test('year filters survive a pre-hydration submit from an empty-query NASA page', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&yearStart=1990`)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('moon')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
+      url.searchParams.get('yearStart') === '1990'
+    )
+  })
+})
+
+test('a year edit applies on blur and keeps focus for the next field', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+
+  // the count renders only after hydration, and blur commits need the
+  // hydrated handlers - a pre-hydration fill would commit nothing
+  await expect(page.getByText(/results ·/)).toBeVisible()
+  const from = page.getByLabel('Earliest year')
+  await from.fill('1980')
+  await page.keyboard.press('Tab')
+
+  await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
+  await expect(page.getByLabel('Latest year')).toBeFocused()
+
+  await page.getByLabel('Latest year').fill('2001')
+  await page.keyboard.press('Tab')
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('yearStart') === '1980' &&
+      url.searchParams.get('yearEnd') === '2001'
+    )
+  })
+})
+
 test('an inverted year range in the URL is dropped as a pair', async ({
   page,
 }) => {

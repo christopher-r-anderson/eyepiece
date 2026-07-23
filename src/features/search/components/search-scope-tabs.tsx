@@ -58,6 +58,10 @@ export function SearchScopeTabs({ q, scope }: SearchScopeTabsProps) {
         gap: '5',
         overflowX: 'auto',
         whiteSpace: 'nowrap',
+        // the scroll container clips focus rings; pad the scrollport and
+        // pull the box back so the layout position holds
+        padding: '1',
+        margin: '-1',
       })}
     >
       {scopeTabs.map((tab) => {

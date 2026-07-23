@@ -54,6 +54,7 @@ function SearchHarness({
       formId: 'search-form',
       nasaFilters,
       onNasaFiltersChange: setNasaFilters,
+      onNasaFiltersCommit: () => {},
     }),
   )
 }

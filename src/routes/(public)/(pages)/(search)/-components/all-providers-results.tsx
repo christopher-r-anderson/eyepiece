@@ -63,9 +63,11 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
         >
           {display.displayName}
         </Heading>
-        <Link to="/search" search={{ q: query, providerId }}>
-          {total ? `See all ${total}` : `See all from ${display.shortLabel}`}
-        </Link>
+        {total !== 0 && (
+          <Link to="/search" search={{ q: query, providerId }}>
+            {total ? `See all ${total}` : `See all from ${display.shortLabel}`}
+          </Link>
+        )}
       </div>
       <CatchBoundary
         getResetKey={() => hashKey(['search-section', providerId, query])}

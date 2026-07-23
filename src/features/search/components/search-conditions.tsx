@@ -18,6 +18,7 @@ interface SearchConditionsProps {
   formId: string
   nasaFilters: NasaIvlSearchFilters
   onNasaFiltersChange: (filters: NasaIvlSearchFilters) => void
+  onNasaFiltersCommit: () => void
 }
 
 // D16: one conditions line on every scope, constant height, left-aligned;
@@ -28,10 +29,12 @@ export function SearchConditions({
   formId,
   nasaFilters,
   onNasaFiltersChange,
+  onNasaFiltersCommit,
 }: SearchConditionsProps) {
   const isNasaScope =
     scope.scope === 'provider' &&
     scope.filters.providerId === NASA_IVL_PROVIDER_ID
+  const hasQuery = q.trim().length > 0
 
   return (
     <div
@@ -55,17 +58,20 @@ export function SearchConditions({
           flexShrink: 1,
         })}
       >
-        {scope.scope === 'provider' ? (
-          <ProviderCount q={q} scope={scope} />
-        ) : (
-          <AllLibrariesCount q={q} />
-        )}
+        {hasQuery &&
+          (scope.scope === 'provider' ? (
+            <ProviderCount q={q} scope={scope} />
+          ) : (
+            <AllLibrariesCount q={q} />
+          ))}
       </span>
       {isNasaScope && (
         <YearRangeFields
           formId={formId}
           filters={nasaFilters}
           onChange={onNasaFiltersChange}
+          onCommit={onNasaFiltersCommit}
+          leadingDot={hasQuery}
         />
       )}
     </div>
@@ -120,6 +126,12 @@ const yearInputCss = css.raw({
   backgroundColor: 'bg.surface.2',
   color: 'text',
   font: 'inherit',
+  // native spin buttons read as foreign chrome (worst on firefox); the
+  // number semantics, arrow keys, and min/max validation all remain
+  appearance: 'textfield',
+  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+    display: 'none',
+  },
   transitionFast: 'background-color, border-color, outline-color',
   _hovered: {
     backgroundColor: 'bg.surface.3',
@@ -134,10 +146,14 @@ function YearRangeFields({
   formId,
   filters,
   onChange,
+  onCommit,
+  leadingDot,
 }: {
   formId: string
   filters: NasaIvlSearchFilters
   onChange: (filters: NasaIvlSearchFilters) => void
+  onCommit: () => void
+  leadingDot: boolean
 }) {
   // bounds cross-wire only after an edit: server-rendered attributes
   // cannot track the other input, and stale bounds would block valid
@@ -145,9 +161,18 @@ function YearRangeFields({
   // URL boundary instead)
   const [edited, setEdited] = useState(false)
 
+  // an invalid value (out of bounds, inverted pair) never commits; the
+  // user sees native validation when they submit instead
+  function commitIfValid(event: React.FocusEvent<HTMLInputElement>) {
+    if (!event.currentTarget.validity.valid) {
+      return
+    }
+    onCommit()
+  }
+
   return (
     <span className={flex({ alignItems: 'center', gap: '2', flexShrink: 0 })}>
-      <span aria-hidden="true">·</span>
+      {leadingDot && <span aria-hidden="true">·</span>}
       <span>years</span>
       <input
         type="number"
@@ -165,6 +190,7 @@ function YearRangeFields({
             yearStart: toYearValue(event.target.value),
           })
         }}
+        onBlur={commitIfValid}
         className={css(yearInputCss)}
       />
       <span aria-hidden="true">–</span>
@@ -184,6 +210,7 @@ function YearRangeFields({
             yearEnd: toYearValue(event.target.value),
           })
         }}
+        onBlur={commitIfValid}
         className={css(yearInputCss)}
       />
     </span>

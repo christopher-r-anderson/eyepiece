@@ -18,9 +18,17 @@ export const searchFieldRecipe = defineRecipe({
     _focusWithin: {
       borderColor: 'accent',
     },
-    '&:has(input:focus-visible)': {
+    // react aria's modality tracking, not css :focus-visible - text inputs
+    // match the pseudo-class on mouse focus too, and mouse users already
+    // get the accent underline
+    '&:has([data-focus-visible])': {
       outline: 'focusRing',
       outlineOffset: '2px',
+    },
+    // hidden, not removed: the geometry stays reserved so text never
+    // shifts when the button appears
+    '&[data-empty] [data-clear-button]': {
+      visibility: 'hidden',
     },
   },
 })

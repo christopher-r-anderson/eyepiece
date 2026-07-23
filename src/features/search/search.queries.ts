@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useHydrated } from '@tanstack/react-router'
 import {
   infiniteQueryOptions,
   useInfiniteQuery,
@@ -73,10 +74,14 @@ export function useSuspenseInfiniteSearch(
   )
 }
 
-// non-suspending read of the same query the results panel renders; the
-// shared key means this never adds a request
+// non-suspending read of a search total. Callers sharing a rendered
+// panel's key read its cache; a cold key fetches the first page.
+// Undefined until hydration: the all-scope loader streams without
+// awaiting, so a server render can catch the cache mid-flight while the
+// client hydrates it settled - totals must not enter server HTML
 export function useSearchTotal(query: SearchQuery, filters: SearchFilters) {
   const repo = useSearchRepo()
+  const isHydrated = useHydrated()
   const { data } = useInfiniteQuery({
     ...getInfiniteSearchImagesOptions({
       repo,
@@ -85,7 +90,7 @@ export function useSearchTotal(query: SearchQuery, filters: SearchFilters) {
       select: flattenSearchSelector,
     }),
   })
-  return data?.total
+  return isHydrated ? data?.total : undefined
 }
 
 export const ALL_SCOPE_SECTION_SIZE = 6
