@@ -36,13 +36,22 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         width: '100%',
         height: '100%',
         display: 'block',
+        position: 'relative',
         color: 'inherit',
         borderRadius: 'calc(token(radii.lg) - token(spacing.2))',
         overflow: 'hidden',
+        // the halo must paint above the thumbnail, so it lives on a pseudo
+        // element; an inset shadow on the link would be covered by the image
         _focusVisible: {
           outline: 'focusRing',
           outlineOffset: '-2px',
-          boxShadow: 'focusHalo',
+          _after: {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            boxShadow: 'focusHalo',
+          },
         },
       })}
     >

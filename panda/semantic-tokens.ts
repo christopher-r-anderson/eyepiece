@@ -88,7 +88,7 @@ export const semanticTokens = defineSemanticTokens({
     },
     star: {
       value: {
-        base: 'oklch(0.48 0.095 80)',
+        base: 'oklch(0.46 0.095 80)',
         _dark: 'oklch(0.8243 0.0879 80.9)',
       },
     },
