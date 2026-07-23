@@ -42,6 +42,7 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         _focusVisible: {
           outline: 'focusRing',
           outlineOffset: '-2px',
+          boxShadow: 'focusHalo',
         },
       })}
     >

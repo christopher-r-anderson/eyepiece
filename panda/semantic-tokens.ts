@@ -2,9 +2,9 @@ import { defineSemanticTokens } from '@pandacss/dev'
 
 // The "violet atlas" palette (#129 decision record; visual spec in the phase-1
 // baselines dir). Dark is the design-primary theme; light is a provisional
-// translation refined before tokens freeze. Elevation is expressed by
-// lightening surfaces, never shadows. The warm "star" accent is reserved for
-// favorite stars and focus rings.
+// translation refined before tokens freeze. The surface ladder expresses
+// elevation by lightening. The warm "star" accent is reserved for favorite
+// stars and focus rings.
 //
 // State colors are explicit tokens - no mixing math in token values or
 // component styles. Every text/background pair here is contrast-checked (the
@@ -108,10 +108,12 @@ export const semanticTokens = defineSemanticTokens({
       },
     },
     control: {
+      // >=3:1 against both the control fill (surface 2) and the canvas, so
+      // the input boundary stays visible (WCAG 1.4.11)
       border: {
         value: {
-          base: 'oklch(0.78 0.025 293)',
-          _dark: 'oklch(0.38 0.05 293)',
+          base: 'oklch(0.57 0.03 293)',
+          _dark: 'oklch(0.55 0.05 293)',
         },
       },
     },
