@@ -187,6 +187,32 @@ function SearchPage() {
     setNasaFilters(isNasaScope ? scope.filters.filters : {})
   }, [scopeFiltersKey, isNasaScope, scope])
 
+  // a pointer press on a link or submit control supersedes a year commit:
+  // that control's own navigation should win, so blurring a year field to
+  // click it must not fire a competing navigation. pointerdown lands before
+  // the blur it causes, and stays set until the release, so the blur handler
+  // reads it deterministically - no timing window
+  const supersedingPointerRef = useRef(false)
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      supersedingPointerRef.current = Boolean(
+        target?.closest('a[href], button[type="submit"]'),
+      )
+    }
+    const clear = () => {
+      supersedingPointerRef.current = false
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('pointerup', clear, true)
+    document.addEventListener('pointercancel', clear, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('pointerup', clear, true)
+      document.removeEventListener('pointercancel', clear, true)
+    }
+  }, [])
+
   // blur commits apply the URL's query, not in-progress typing in the
   // search box; Enter still submits the whole form
   function commitNasaFilters() {
@@ -194,6 +220,9 @@ function SearchPage() {
       return
     }
     if (hashKey([nasaFilters]) === hashKey([scope.filters.filters])) {
+      return
+    }
+    if (supersedingPointerRef.current) {
       return
     }
     const committedScope = {

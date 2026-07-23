@@ -37,6 +37,13 @@ function collectConsoleErrors(page: Page) {
   return errors
 }
 
+// the favorite star is disabled until the client hydrates and its
+// favorites index settles, so an enabled star is a deterministic signal
+// that the hydrated year-commit handlers are live
+async function waitForHydratedResults(page: Page) {
+  await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
+}
+
 function trackSearchApiRequests(page: Page) {
   const requests: Array<string> = []
   page.on('request', (request) => {
@@ -270,12 +277,9 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
     route.fulfill({ json: stubSearchResponse }),
   )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
 
-  // the count renders only after hydration, and blur commits need the
-  // hydrated handlers - a pre-hydration fill would commit nothing
-  await expect(page.getByText(/results ·/)).toBeVisible()
-  const from = page.getByLabel('Earliest year')
-  await from.fill('1980')
+  await page.getByLabel('Earliest year').fill('1980')
   await page.keyboard.press('Tab')
 
   await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
@@ -291,6 +295,32 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
   })
 })
 
+test('a submit click supersedes a year commit blurred by the same click', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  // the click blurs the focused year input first; only the submit
+  // navigation may land
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForURL((url) => url.searchParams.get('q') === 'mars')
+  expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1980')
+
+  // no intermediate entry from a superseded blur commit
+  await page.goBack()
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'moon' && !url.searchParams.has('yearStart')
+    )
+  })
+})
+
 test('a year commit keeps an unsent draft query in the search box', async ({
   page,
 }) => {
@@ -298,13 +328,13 @@ test('a year commit keeps an unsent draft query in the search box', async ({
     route.fulfill({ json: stubSearchResponse }),
   )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
 
-  await expect(page.getByText(/results ·/)).toBeVisible()
   await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
   await page.getByLabel('Earliest year').fill('1980')
   await page.keyboard.press('Tab')
 
-  // the commit applies the URL query, not the draft
+  // the commit applies the URL query, not the draft; the draft stays put
   await page.waitForURL((url) => {
     return (
       url.searchParams.get('q') === 'moon' &&
@@ -323,17 +353,25 @@ test('a blur never commits while the other year field is invalid', async ({
     route.fulfill({ json: stubSearchResponse }),
   )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
 
-  await expect(page.getByText(/results ·/)).toBeVisible()
-  // 1910 is below the 1920 floor, so the earliest field is invalid
-  await page.getByLabel('Earliest year').fill('1910')
+  // a valid committed edit sets the baseline
+  const from = page.getByLabel('Earliest year')
+  await from.fill('1980')
+  await page.keyboard.press('Tab')
+  await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
+
+  // 1910 is below the 1920 floor, so the earliest field is invalid; no
+  // commit may fire - not even when the valid latest field blurs. The
+  // commit is synchronous or never, so the URL cannot have moved off the
+  // baseline
+  await from.fill('1910')
   await page.keyboard.press('Tab')
   await page.getByLabel('Latest year').fill('2001')
   await page.keyboard.press('Tab')
-  await page.waitForTimeout(600)
-
-  expect(new URL(page.url()).searchParams.has('yearStart')).toBe(false)
+  await expect(page).toHaveURL(/yearStart=1980/)
   expect(new URL(page.url()).searchParams.has('yearEnd')).toBe(false)
+  expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1980')
 })
 
 test('an inverted year range in the URL is dropped as a pair', async ({

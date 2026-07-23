@@ -12,7 +12,7 @@ import {
 import { YEAR_MAX, YEAR_MIN } from '@/domain/search/providers/nasa-ivl-filters'
 
 vi.mock('../search.queries', () => ({
-  useSearchTotal: () => undefined,
+  useSuspenseSearchTotal: () => 0,
 }))
 
 const mockNavigate = vi.fn()

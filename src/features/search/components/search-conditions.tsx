@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
+import { CatchBoundary } from '@tanstack/react-router'
+import { hashKey } from '@tanstack/react-query'
 import { css } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
-import { useSearchTotal } from '../search.queries'
+import { useSuspenseSearchTotal } from '../search.queries'
 import type { SearchScope } from '../search-page-params'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import { YEAR_MAX, YEAR_MIN } from '@/domain/search/providers/nasa-ivl-filters'
@@ -21,8 +23,9 @@ interface SearchConditionsProps {
   onNasaFiltersCommit: () => void
 }
 
-// D16: one conditions line on every scope, constant height, left-aligned;
-// the count arrives async into the reserved space
+// D16: one conditions line on every scope, constant height, left-aligned.
+// The count's width is unknowable up front, so the year cluster anchors to
+// the line end and never moves while the count streams in
 export function SearchConditions({
   q,
   scope,
@@ -58,12 +61,20 @@ export function SearchConditions({
           flexShrink: 1,
         })}
       >
-        {hasQuery &&
-          (scope.scope === 'provider' ? (
-            <ProviderCount q={q} scope={scope} />
-          ) : (
-            <AllLibrariesCount q={q} />
-          ))}
+        {hasQuery && (
+          <CatchBoundary
+            getResetKey={() => hashKey(['conditions-count', q, scope])}
+            errorComponent={() => null}
+          >
+            <Suspense fallback={null}>
+              {scope.scope === 'provider' ? (
+                <ProviderCount q={q} scope={scope} />
+              ) : (
+                <AllLibrariesCount q={q} />
+              )}
+            </Suspense>
+          </CatchBoundary>
+        )}
       </span>
       {isNasaScope && (
         <YearRangeFields
@@ -71,7 +82,6 @@ export function SearchConditions({
           filters={nasaFilters}
           onChange={onNasaFiltersChange}
           onCommit={onNasaFiltersCommit}
-          leadingDot={hasQuery}
         />
       )}
     </div>
@@ -89,22 +99,16 @@ function ProviderCount({
   q: string
   scope: Extract<SearchScope, { scope: 'provider' }>
 }) {
-  const total = useSearchTotal(q, scope.filters)
-  if (total === undefined) {
-    return null
-  }
+  const total = useSuspenseSearchTotal(q, scope.filters)
   return `${formatCount(total)} · ${PROVIDER_DISPLAY[scope.filters.providerId].displayName}`
 }
 
 function AllLibrariesCount({ q }: { q: string }) {
   const totals = [
-    useSearchTotal(q, defaultSearchFilters(PROVIDERS[0])),
-    useSearchTotal(q, defaultSearchFilters(PROVIDERS[1])),
+    useSuspenseSearchTotal(q, defaultSearchFilters(PROVIDERS[0])),
+    useSuspenseSearchTotal(q, defaultSearchFilters(PROVIDERS[1])),
   ]
-  if (totals.some((total) => total === undefined)) {
-    return null
-  }
-  const sum = totals.reduce((acc: number, total) => acc + (total ?? 0), 0)
+  const sum = totals.reduce((acc: number, total) => acc + total, 0)
   return `${formatCount(sum)} across ${PROVIDERS.length} libraries`
 }
 
@@ -147,13 +151,11 @@ function YearRangeFields({
   filters,
   onChange,
   onCommit,
-  leadingDot,
 }: {
   formId: string
   filters: NasaIvlSearchFilters
   onChange: (filters: NasaIvlSearchFilters) => void
   onCommit: () => void
-  leadingDot: boolean
 }) {
   // bounds cross-wire only after an edit: server-rendered attributes
   // cannot track the other input, and stale bounds would block valid
@@ -177,8 +179,14 @@ function YearRangeFields({
   }
 
   return (
-    <span className={flex({ alignItems: 'center', gap: '2', flexShrink: 0 })}>
-      {leadingDot && <span aria-hidden="true">·</span>}
+    <span
+      className={flex({
+        alignItems: 'center',
+        gap: '2',
+        flexShrink: 0,
+        marginInlineStart: 'auto',
+      })}
+    >
       <span>years</span>
       <input
         ref={yearStartRef}

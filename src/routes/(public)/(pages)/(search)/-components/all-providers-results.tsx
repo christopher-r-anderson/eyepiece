@@ -16,8 +16,8 @@ import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
 import {
   ALL_SCOPE_SECTION_SIZE,
-  useSearchTotal,
   useSuspenseSearchSection,
+  useSuspenseSearchTotal,
 } from '@/features/search/search.queries'
 
 // Sections own sibling Suspense/error boundaries so one provider failing
@@ -44,7 +44,6 @@ interface ProviderSectionProps {
 function ProviderSection({ query, providerId }: ProviderSectionProps) {
   const headingId = useId()
   const display = PROVIDER_DISPLAY[providerId]
-  const total = useSearchTotal(query, defaultSearchFilters(providerId))
 
   return (
     <section aria-labelledby={headingId}>
@@ -63,11 +62,20 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
         >
           {display.displayName}
         </Heading>
-        {total !== 0 && (
-          <Link to="/search" search={{ q: query, providerId }}>
-            {total ? `See all ${total}` : `See all from ${display.shortLabel}`}
-          </Link>
-        )}
+        <CatchBoundary
+          getResetKey={() => hashKey(['see-all', query, providerId])}
+          errorComponent={() => null}
+        >
+          <Suspense
+            fallback={
+              <Link to="/search" search={{ q: query, providerId }}>
+                {`See all from ${display.shortLabel}`}
+              </Link>
+            }
+          >
+            <SeeAllLink query={query} providerId={providerId} />
+          </Suspense>
+        </CatchBoundary>
       </div>
       <CatchBoundary
         getResetKey={() => hashKey(['search-section', providerId, query])}
@@ -91,6 +99,18 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
         </Suspense>
       </CatchBoundary>
     </section>
+  )
+}
+
+function SeeAllLink({ query, providerId }: ProviderSectionProps) {
+  const total = useSuspenseSearchTotal(query, defaultSearchFilters(providerId))
+  if (total === 0) {
+    return null
+  }
+  return (
+    <Link to="/search" search={{ q: query, providerId }}>
+      {`See all ${total}`}
+    </Link>
   )
 }
 

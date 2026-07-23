@@ -47,12 +47,15 @@ vi.mock('./asset-results-grid', () => ({
 
 const mockUseSuspenseSearchSection = vi.fn()
 const mockUseSearchTotal = vi.fn()
+const mockUseSuspenseSearchTotal = vi.fn()
 vi.mock('@/features/search/search.queries', () => ({
   ALL_SCOPE_SECTION_SIZE: 6,
   useSuspenseSearchSection: (query: string, filters: SearchFilters) =>
     mockUseSuspenseSearchSection(query, filters),
   useSearchTotal: (query: string, filters: SearchFilters) =>
     mockUseSearchTotal(query, filters),
+  useSuspenseSearchTotal: (query: string, filters: SearchFilters) =>
+    mockUseSuspenseSearchTotal(query, filters),
 }))
 
 const { AllProvidersResults } = await import('./all-providers-results')
@@ -73,6 +76,8 @@ describe('all providers results', () => {
     mockUseSuspenseSearchSection.mockReset()
     mockUseSearchTotal.mockReset()
     mockUseSearchTotal.mockReturnValue(undefined)
+    mockUseSuspenseSearchTotal.mockReset()
+    mockUseSuspenseSearchTotal.mockReturnValue(2)
     capturedAlertContexts.length = 0
   })
 
@@ -94,14 +99,10 @@ describe('all providers results', () => {
       }),
     )
     expect(
-      nasaSection
-        .getByRole('link', { name: 'See all from NASA' })
-        .getAttribute('href'),
+      nasaSection.getByRole('link', { name: 'See all 2' }).getAttribute('href'),
     ).toBe(`/search?providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
     expect(
-      siSection
-        .getByRole('link', { name: 'See all from Smithsonian' })
-        .getAttribute('href'),
+      siSection.getByRole('link', { name: 'See all 2' }).getAttribute('href'),
     ).toBe(`/search?providerId=${SI_OA_PROVIDER_ID}&q=moon`)
     expect(mockUseSuspenseSearchSection).toHaveBeenCalledWith('moon', {
       providerId: NASA_IVL_PROVIDER_ID,
@@ -167,6 +168,10 @@ describe('all providers results', () => {
         filters.providerId === NASA_IVL_PROVIDER_ID
           ? sectionData(0)
           : sectionData(1),
+    )
+    mockUseSuspenseSearchTotal.mockImplementation(
+      (_query: string, filters: SearchFilters) =>
+        filters.providerId === NASA_IVL_PROVIDER_ID ? 0 : 214,
     )
     mockUseSearchTotal.mockImplementation(
       (_query: string, filters: SearchFilters) =>

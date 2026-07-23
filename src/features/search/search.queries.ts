@@ -74,11 +74,28 @@ export function useSuspenseInfiniteSearch(
   )
 }
 
+// suspense read of a search total for server-renderable counts; wrap in
+// a boundary sized to what may vanish while the query is in flight
+export function useSuspenseSearchTotal(
+  query: SearchQuery,
+  filters: SearchFilters,
+) {
+  const repo = useSearchRepo()
+  const { data } = useSuspenseInfiniteQuery(
+    getInfiniteSearchImagesOptions({
+      repo,
+      query,
+      filters,
+      select: flattenSearchSelector,
+    }),
+  )
+  return data.total
+}
+
 // non-suspending read of a search total. Callers sharing a rendered
 // panel's key read its cache; a cold key fetches the first page.
-// Undefined until hydration: the all-scope loader streams without
-// awaiting, so a server render can catch the cache mid-flight while the
-// client hydrates it settled - totals must not enter server HTML
+// Undefined until hydration: outside a suspense boundary a server render
+// can snapshot the cache mid-flight while the client hydrates it settled
 export function useSearchTotal(query: SearchQuery, filters: SearchFilters) {
   const repo = useSearchRepo()
   const isHydrated = useHydrated()
