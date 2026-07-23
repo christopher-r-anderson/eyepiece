@@ -268,3 +268,18 @@ ON FUNCTION public.ensure_asset_preview_snapshot(
   INTEGER
 )
 TO service_role;
+
+-- schedule: run the orphan sweep nightly via pg_cron
+
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- cron.schedule upserts by job name (pg_cron >= 1.4), so replaying this
+-- migration re-points the one job rather than stacking duplicates. The job
+-- runs as the scheduling role (postgres), which owns the function and can
+-- execute it regardless of the service-role-only grant above.
+SELECT
+  cron.schedule(
+    'snapshot-orphan-sweep',
+    '30 3 * * *',
+    'SELECT public.delete_orphaned_asset_preview_snapshots()'
+  );

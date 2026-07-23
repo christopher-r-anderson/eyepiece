@@ -397,6 +397,49 @@ describe('collection items', () => {
     ).toBe(false)
   })
 
+  it("blocks a second user from removing another user's item", async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    // public so the second user can read it - proves the DELETE policy blocks
+    // the removal independent of read visibility
+    const collection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Guarded items',
+        visibility: 'public',
+      }),
+    )
+    const externalId = `INTEG-COLL-DEL-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
+    snapshotIds.push(snapshotId)
+    const input = {
+      collectionId: collection.id,
+      assetKey: { providerId: 'nasa_ivl', externalId },
+    } as const
+    unwrapOrThrow(await addCollectionItemForUser(client, input, snapshotId))
+
+    const other = await createSecondSignedInUser(adminClient)
+    try {
+      // RLS filters the delete to zero rows, so removed is false and the
+      // item survives; a permissive DELETE-policy regression would flip this
+      expect(
+        unwrapOrThrow(await removeCollectionItemForUser(other.client, input))
+          .removed,
+      ).toBe(false)
+    } finally {
+      await adminClient.auth.admin.deleteUser(other.id)
+    }
+
+    const ownerEdges = unwrapOrThrow(
+      await makeCollectionsRepo(client).getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 10,
+      }),
+    )
+    expect(ownerEdges.items).toHaveLength(1)
+  })
+
   it('anon can read items of public collections but not private ones', async ({
     client,
     user,
