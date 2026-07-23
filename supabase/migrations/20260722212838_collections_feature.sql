@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.collections (
     ON DELETE CASCADE,
   name text NOT NULL,
   visibility public.collection_visibility NOT NULL DEFAULT 'private',
-  position NUMERIC NOT NULL,
+  position INTEGER NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT collections_name_nonempty_chk CHECK (length(btrim(name)) > 0),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.collection_items (
     id
   )
     ON DELETE RESTRICT,
-  position NUMERIC NOT NULL,
+  position INTEGER NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (collection_id, asset_preview_snapshot_id)
 );
@@ -66,6 +66,12 @@ CREATE INDEX collection_items_collection_id_position_idx ON public.collection_it
 );
 CREATE INDEX collection_items_asset_preview_snapshot_id_idx ON public.collection_items (
   asset_preview_snapshot_id
+);
+
+-- the orphan sweep filters snapshots by updated_at; index it so the nightly
+-- job scans the aged candidates rather than the whole table
+CREATE INDEX asset_preview_snapshots_updated_at_idx ON public.asset_preview_snapshots (
+  updated_at
 );
 
 -- triggers
