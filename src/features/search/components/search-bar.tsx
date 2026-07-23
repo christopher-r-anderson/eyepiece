@@ -85,9 +85,8 @@ export function SearchBar({
           gap: '2',
           alignItems: 'stretch',
           padding: '2',
-          borderRadius: 'md',
+          borderRadius: 'sm',
           border: 'default',
-          boxShadow: 'sm',
           '@/xl': {
             gridTemplateColumns: 'minmax(0, 1fr) auto',
             gap: '4',
@@ -119,9 +118,8 @@ function FiltersPanel({ children }: { children: React.ReactNode }) {
         padding: '4',
         background: 'bg.surface.2',
         color: 'text',
-        borderRadius: 'md',
+        borderRadius: 'sm',
         border: 'default',
-        boxShadow: 'sm',
         overflowX: 'auto',
       })}
     >

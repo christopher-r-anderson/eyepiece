@@ -34,7 +34,7 @@ export const linkRecipe = defineRecipe({
         minHeight: 'controlHeightSm',
         paddingBlock: '2',
         paddingInline: '3',
-        borderRadius: 'md',
+        borderRadius: 'sm',
         fontWeight: 600,
         lineHeight: 'tight',
         _hovered: {

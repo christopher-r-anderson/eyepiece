@@ -18,6 +18,7 @@ export const globalCss = defineGlobalStyles({
   },
   body: {
     fontSize: 'base',
+    lineHeight: 'base',
   },
   a: {
     color: 'accent.emphasis',

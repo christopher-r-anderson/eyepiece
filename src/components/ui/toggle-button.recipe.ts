@@ -9,7 +9,7 @@ export const toggleButtonRecipe = defineRecipe({
     minHeight: 'controlHeight',
     minWidth: 'controlHeight',
     padding: '2',
-    borderRadius: 'md',
+    borderRadius: 'sm',
     border: '1px solid transparent',
     backgroundColor: 'transparent',
     color: 'text.muted',
@@ -27,6 +27,7 @@ export const toggleButtonRecipe = defineRecipe({
     },
     _focusVisible: {
       outline: 'focusRing',
+      outlineOffset: '2px',
     },
     _disabled: {
       opacity: 0.6,

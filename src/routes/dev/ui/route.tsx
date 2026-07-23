@@ -37,7 +37,7 @@ function DevUiLayout() {
                 paddingBlock: '2',
                 paddingInline: '3',
                 border: 'default',
-                borderRadius: 'md',
+                borderRadius: 'sm',
                 textDecoration: 'none',
                 '&[aria-current=page]': {
                   backgroundColor: 'bg.surface.2',

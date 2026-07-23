@@ -11,7 +11,7 @@ export const tabVisualStyles = defineStyles({
   paddingInline: '4',
   border: 'default',
   borderBottomWidth: 0,
-  borderTopRadius: 'md',
+  borderTopRadius: 'sm',
   backgroundColor: 'bg.surface.2',
   color: 'text',
   display: 'inline-flex',
@@ -39,6 +39,6 @@ export const tabListStyles = defineStyles({
 export const tabPanelStyles = defineStyles({
   backgroundColor: 'bg.surface.3',
   border: 'default',
-  borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
+  borderRadius: '0 token(radii.sm) token(radii.sm) token(radii.sm)',
   padding: '4',
 })

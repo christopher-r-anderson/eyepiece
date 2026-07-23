@@ -7,7 +7,7 @@ export const buttonRecipe = defineRecipe({
     border: 'none',
     minHeight: 'controlHeight',
     padding: 'token(spacing.2) token(spacing.4)',
-    borderRadius: 'md',
+    borderRadius: 'sm',
     fontSize: 'base',
     fontWeight: 600,
     lineHeight: 'tight',
@@ -24,6 +24,7 @@ export const buttonRecipe = defineRecipe({
     },
     _focusVisible: {
       outline: 'focusRing',
+      outlineOffset: '2px',
     },
     _pressed: {
       transform: 'translateY(1px)',

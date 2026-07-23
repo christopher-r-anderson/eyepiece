@@ -11,9 +11,8 @@ export function Profile({ profile }: { profile: Profile }) {
         gap: '3',
         padding: '5',
         border: 'default',
-        borderRadius: 'lg',
+        borderRadius: 'sm',
         backgroundColor: 'bg.surface.2',
-        boxShadow: 'sm',
       })}
     >
       <Heading level={2}>{profile.displayName}</Heading>
