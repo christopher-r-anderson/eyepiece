@@ -128,6 +128,54 @@ describe('collections CRUD (owner)', () => {
     expect(collections.map((c) => c.id)).toEqual([first.id, second.id])
   })
 
+  // force a real position tie (createCollectionForUser only ever appends, so
+  // ties come from concurrent appends) and assert the created_at-then-id
+  // fallback fixes the order. A's id sorts last but its created_at is oldest,
+  // so dropping the created_at key would reorder it; B and C share created_at,
+  // so dropping the id key would leave them nondeterministic
+  it('breaks tied positions by created_at then id', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    // valid v4-format uuids (version/variant nibbles set) that sort by their
+    // last byte: b0 < c0 < fa
+    const idA = '00000000-0000-4000-8000-0000000000fa'
+    const idB = '00000000-0000-4000-8000-0000000000b0'
+    const idC = '00000000-0000-4000-8000-0000000000c0'
+    // B and C share created_at exactly, so only the id key can order them
+    const tiedCreatedAt = daysAgoIso(1)
+    const { error } = await adminClient.from('collections').insert([
+      {
+        id: idA,
+        owner_id: user.id,
+        name: 'A',
+        position: 1,
+        created_at: daysAgoIso(2),
+      },
+      {
+        id: idB,
+        owner_id: user.id,
+        name: 'B',
+        position: 1,
+        created_at: tiedCreatedAt,
+      },
+      {
+        id: idC,
+        owner_id: user.id,
+        name: 'C',
+        position: 1,
+        created_at: tiedCreatedAt,
+      },
+    ])
+    expect(error).toBeNull()
+
+    const collections = unwrapOrThrow(
+      await makeCollectionsRepo(client).getUserCollections(user.id),
+    )
+    expect(collections.map((c) => c.id)).toEqual([idA, idB, idC])
+  })
+
   // insert omitting visibility so the DB column default is what's tested, not
   // a value the caller passed (the createCollection core always supplies one)
   it('defaults visibility to private at the column level', async ({
@@ -207,6 +255,24 @@ describe('collections CRUD (owner)', () => {
 })
 
 describe('collections RLS (non-owner and anon)', () => {
+  it('blocks creating a collection under another user (INSERT WITH CHECK)', async ({
+    user,
+    adminClient,
+  }) => {
+    const other = await createSecondSignedInUser(adminClient)
+    try {
+      // owner_id is the fixture user, not the authenticated caller
+      const { error } = await other.client.from('collections').insert({
+        owner_id: user.id,
+        name: 'Hijack',
+        position: 1,
+      })
+      expect(error?.code).toBe('42501')
+    } finally {
+      await adminClient.auth.admin.deleteUser(other.id)
+    }
+  })
+
   it('hides private collections from anon and shows public ones', async ({
     client,
     user,
@@ -278,6 +344,60 @@ describe('collection items', () => {
   afterEach(async () => {
     await cleanupAssetPreviewSnapshots(snapshotIds)
     snapshotIds.length = 0
+  })
+
+  // tie every item on position AND created_at so only the snapshot-id key
+  // orders them; paging in twos must yield each item once, in id order, with
+  // no drift (a dropped tiebreaker would duplicate or skip across pages)
+  it('breaks item position ties by snapshot id so pages do not drift', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const collection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Tied items',
+        visibility: 'private',
+      }),
+    )
+    const stamp = `${Date.now()}`
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (let i = 0; i < 3; i++) {
+      ids.push(
+        await seedAssetPreviewSnapshot(adminClient, `INTEG-TIE-${stamp}-${i}`),
+      )
+    }
+    snapshotIds.push(...ids)
+    const created = daysAgoIso(1)
+    const { error } = await adminClient.from('collection_items').insert(
+      ids.map((sid) => ({
+        collection_id: collection.id,
+        asset_preview_snapshot_id: sid,
+        position: 1,
+        created_at: created,
+      })),
+    )
+    expect(error).toBeNull()
+
+    const repo = makeCollectionsRepo(client)
+    const page1 = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 2,
+      }),
+    )
+    const page2 = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 2,
+        pageSize: 2,
+      }),
+    )
+    const seen = [...page1.items, ...page2.items].map(
+      (edge) => edge.assetPreviewSnapshotId,
+    )
+    expect(seen).toEqual([...ids].sort())
+    expect(new Set(seen).size).toBe(3)
+    expect(page1.pagination.total).toBe(3)
   })
 
   it('adds items in position order, idempotently', async ({
