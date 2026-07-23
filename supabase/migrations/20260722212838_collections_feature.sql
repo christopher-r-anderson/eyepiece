@@ -141,18 +141,15 @@ USING (
   )
 );
 
--- function: ensure snapshot (refresh updated_at unconditionally)
+-- function: ensure snapshot
 
--- The prior definition only ran the ON CONFLICT update when content changed,
--- so re-ensuring an unchanged asset left updated_at untouched. That breaks two
--- things the sweep below depends on: (1) an aged unreferenced snapshot that a
--- consumer just re-ensured would still match the sweep predicate, so a sweep
--- landing between ensure and the reference insert could delete it and FK-fail
--- the insert; (2) an unchanging asset would refetch from the provider on every
--- access past the 7-day stale window forever. Bumping updated_at on every
--- ensure (moddatetime fires on the now-unconditional update) fixes both:
--- re-ensuring means "verified against the provider just now", which is exactly
--- what updated_at should record.
+-- ensure must refresh updated_at on every call: the sweep treats an old
+-- updated_at as collectable and the staleness cache uses it to decide when to
+-- refetch, so a snapshot just verified against the provider has to look fresh.
+-- Keep the ON CONFLICT update unconditional (COALESCE guards content,
+-- moddatetime bumps the timestamp) - gating it on content changing would leave
+-- a re-verified row looking stale, letting the sweep delete a snapshot a
+-- consumer is about to reference and refetching unchanged assets forever.
 CREATE OR REPLACE FUNCTION public.ensure_asset_preview_snapshot(
   p_provider_id public.provider_id,
   p_external_id text,
@@ -187,8 +184,8 @@ BEGIN
   )
   ON CONFLICT (provider_id, external_id) DO UPDATE
   SET
-    -- keep each field when the caller passes null; updated_at is bumped by
-    -- the moddatetime trigger on every update (the update is unconditional)
+    -- keep each field when the caller passes null; the moddatetime trigger
+    -- bumps updated_at on the update
     title = COALESCE(excluded.title, asset_preview_snapshots.title),
     thumb_href = COALESCE(
       excluded.thumb_href, asset_preview_snapshots.thumb_href
@@ -208,8 +205,8 @@ $$;
 -- function: orphan snapshot sweep
 
 -- The grace window stays comfortably above the 7-day snapshot stale window,
--- and ensure now refreshes updated_at, so a just-ensured snapshot is never
--- inside the deletion window and the ensure-then-reference two-step is safe.
+-- and ensure refreshes updated_at, so a just-ensured snapshot is never inside
+-- the deletion window and the ensure-then-reference two-step is safe.
 CREATE OR REPLACE FUNCTION public.delete_orphaned_asset_preview_snapshots()
 RETURNS INTEGER
 LANGUAGE plpgsql
@@ -246,8 +243,7 @@ GRANT EXECUTE
 ON FUNCTION public.delete_orphaned_asset_preview_snapshots()
 TO service_role;
 
--- close the same hole on the existing snapshot upsert RPC: its migration
--- revoked PUBLIC only, leaving it callable by anon
+-- the snapshot upsert RPC needs the same revoke (it is service-role only)
 REVOKE ALL
 ON FUNCTION public.ensure_asset_preview_snapshot(
   public.provider_id,

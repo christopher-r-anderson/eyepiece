@@ -9,6 +9,7 @@ import { createAdminClient, it } from '@/test/integration-fixtures'
 import { resultIsError, resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 
 const {
+  assertCollectionOwned,
   createCollectionForUser,
   renameCollectionForUser,
   setCollectionVisibilityForUser,
@@ -108,10 +109,7 @@ async function cleanupAssetPreviewSnapshots(
 }
 
 describe('collections CRUD (owner)', () => {
-  it('creates private by default and lists in position order', async ({
-    client,
-    user,
-  }) => {
+  it('lists collections in position order', async ({ client, user }) => {
     const first = unwrapOrThrow(
       await createCollectionForUser(client, user.id, {
         name: 'Nebulae',
@@ -124,11 +122,25 @@ describe('collections CRUD (owner)', () => {
         visibility: 'private',
       }),
     )
-    expect(first.visibility).toBe('private')
 
     const repo = makeCollectionsRepo(client)
     const collections = unwrapOrThrow(await repo.getUserCollections(user.id))
     expect(collections.map((c) => c.id)).toEqual([first.id, second.id])
+  })
+
+  // insert omitting visibility so the DB column default is what's tested, not
+  // a value the caller passed (the createCollection core always supplies one)
+  it('defaults visibility to private at the column level', async ({
+    client,
+    user,
+  }) => {
+    const { data, error } = await client
+      .from('collections')
+      .insert({ owner_id: user.id, name: 'Defaulted', position: 1 })
+      .select('visibility')
+      .single()
+    expect(error).toBeNull()
+    expect(data?.visibility).toBe('private')
   })
 
   it('rename keeps the id and updates the name', async ({ client, user }) => {
@@ -346,9 +358,9 @@ describe('collection items', () => {
     const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
     snapshotIds.push(snapshotId)
 
-    // a signed-in second user, not just anon: exercises the insert policy's
-    // auth.uid() !== owner_id path (a public collection is readable by them,
-    // so this proves the write is blocked independent of read visibility)
+    // a signed-in non-owner exercises the insert policy's auth.uid() !=
+    // owner_id path; the collection is public so the block is proven
+    // independent of read visibility
     const other = await createSecondSignedInUser(adminClient)
     try {
       const result = await addCollectionItemForUser(
@@ -362,6 +374,48 @@ describe('collection items', () => {
       expect(resultIsError(result)).toBe(true)
       if (resultIsError(result)) {
         expect(result.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
+      }
+    } finally {
+      await adminClient.auth.admin.deleteUser(other.id)
+    }
+  })
+
+  it('assertCollectionOwned gates add-item on ownership before the snapshot is ensured', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const owned = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Owned',
+        visibility: 'public',
+      }),
+    )
+    expect(
+      resultIsSuccess(await assertCollectionOwned(client, user.id, owned.id)),
+    ).toBe(true)
+
+    const missing = await assertCollectionOwned(
+      client,
+      user.id,
+      '00000000-0000-0000-0000-000000000000',
+    )
+    expect(resultIsError(missing)).toBe(true)
+    if (resultIsError(missing)) {
+      expect(missing.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
+    }
+
+    // a public collection the caller can read but does not own
+    const other = await createSecondSignedInUser(adminClient)
+    try {
+      const notOwned = await assertCollectionOwned(
+        other.client,
+        other.id,
+        owned.id,
+      )
+      expect(resultIsError(notOwned)).toBe(true)
+      if (resultIsError(notOwned)) {
+        expect(notOwned.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
       }
     } finally {
       await adminClient.auth.admin.deleteUser(other.id)
@@ -530,8 +584,8 @@ describe('snapshot lifecycle guards', () => {
     expect(error?.code).toBe('23503')
   })
 
-  // the migration flips favorites' snapshot FK from CASCADE to RESTRICT; guard
-  // it directly so a regression can't silently delete a user's favorite
+  // the favorites FK guards separately from collection_items: a permissive
+  // FK there would silently delete a user's favorite
   it('a favorite-referenced snapshot cannot be deleted (ON DELETE RESTRICT)', async ({
     user,
     adminClient,
@@ -552,9 +606,9 @@ describe('snapshot lifecycle guards', () => {
     expect(error?.code).toBe('23503')
   })
 
-  // the race fix: re-ensuring a stale snapshot must refresh updated_at even
-  // when the provider returns identical metadata, so a just-ensured row is
-  // never inside the sweep's deletion window before it gets referenced
+  // re-ensuring a stale snapshot must refresh updated_at even for identical
+  // metadata, so a just-ensured row is never inside the sweep's deletion
+  // window before it gets referenced
   it('re-ensuring a stale snapshot with identical metadata refreshes updated_at', async ({
     adminClient,
   }) => {
@@ -566,8 +620,8 @@ describe('snapshot lifecycle guards', () => {
     )
     snapshotIds.push(snapshotId)
 
-    // identical to the seed values, so the pre-fix conditional update was a
-    // no-op that left updated_at untouched
+    // identical to the seed values, so only an unconditional refresh moves
+    // updated_at
     const { error } = await adminClient.rpc('ensure_asset_preview_snapshot', {
       p_provider_id: 'nasa_ivl',
       p_external_id: externalId,

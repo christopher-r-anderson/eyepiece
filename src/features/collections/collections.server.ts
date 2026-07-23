@@ -180,6 +180,31 @@ async function deleteCollectionForUser(
   return Ok({ collectionId: input.collectionId })
 }
 
+// owner-scoped existence check, run before the snapshot is ensured so a
+// missing or non-owned collection returns NOT_FOUND instead of a provider
+// error, and doesn't create an orphan snapshot for a write RLS will reject.
+// the insert-time RLS check stays as the race guard (owner deletes between
+// this check and the insert)
+async function assertCollectionOwned(
+  client: SupabaseClient,
+  userId: string,
+  collectionId: CollectionId,
+): Promise<Result<void, CollectionsErrorCode>> {
+  const { data, error } = await client
+    .from('collections')
+    .select('id')
+    .eq('id', collectionId)
+    .eq('owner_id', userId)
+    .maybeSingle()
+  if (error) {
+    return Err(unknownError('add-item.owner-check', error))
+  }
+  if (data === null) {
+    return Err(notFoundError('add-item'))
+  }
+  return Ok(undefined)
+}
+
 async function addCollectionItemForUser(
   client: SupabaseClient,
   input: CollectionItemInput,
@@ -253,6 +278,7 @@ async function removeCollectionItemForUser(
 
 // Exported for testing only
 export const _internals = {
+  assertCollectionOwned,
   createCollectionForUser,
   renameCollectionForUser,
   setCollectionVisibilityForUser,
@@ -296,6 +322,9 @@ export const deleteCollection = createServerOnlyFn(
 export const addCollectionItem = createServerOnlyFn(
   async (input: CollectionItemInput) => {
     const auth = unwrapOrThrow(await requireUser('add-item'))
+    unwrapOrThrow(
+      await assertCollectionOwned(auth.client, auth.userId, input.collectionId),
+    )
     const snapshot = await ensureAssetPreviewSnapshot(input.assetKey)
     if (snapshot.error) {
       throwFromErrorResult(
