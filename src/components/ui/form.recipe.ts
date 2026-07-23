@@ -21,7 +21,7 @@ export const formRecipe = defineRecipe({
         padding: '5',
         border: 'default',
         borderRadius: 'lg',
-        backgroundColor: 'secondary.bg',
+        backgroundColor: 'bg.surface.2',
         boxShadow: 'sm',
       },
     },

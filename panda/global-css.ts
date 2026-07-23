@@ -10,7 +10,7 @@ export const globalCss = defineGlobalStyles({
   html: {
     // react aria sets stable (not stable both-edges) which causes a jump in layout when a popover shows
     scrollbarGutter: 'stable both-edges !important',
-    background: 'background',
+    background: 'bg.canvas',
     color: 'text',
   },
   "html[data-modal-open='true']": {
@@ -20,7 +20,7 @@ export const globalCss = defineGlobalStyles({
     fontSize: 'base',
   },
   a: {
-    color: 'link',
+    color: 'accent.emphasis',
     // preflight sets text-decoration: inherit, so the underline is explicit
     textDecorationLine: 'underline',
     textDecorationThickness: '0.08em',

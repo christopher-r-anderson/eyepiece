@@ -11,9 +11,9 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
       variant="bare"
       css={css.raw(
         {
-          color: 'secondary.text',
+          color: 'text',
           _hovered: {
-            color: 'text.accent',
+            color: 'accent.emphasis',
           },
           _disabled: {
             color: 'text.muted',

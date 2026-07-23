@@ -17,12 +17,12 @@ export const toggleButtonRecipe = defineRecipe({
     lineHeight: 1,
     transitionFast: 'background-color, color, border-color',
     _hovered: {
-      backgroundColor: 'tertiary.bg',
-      color: 'tertiary.text',
+      backgroundColor: 'bg.surface.3',
+      color: 'text',
     },
     _selected: {
-      backgroundColor: 'secondary.bg',
-      color: 'text.accent',
+      backgroundColor: 'bg.surface.2',
+      color: 'accent.emphasis',
       borderColor: 'border',
     },
     _focusVisible: {
@@ -46,20 +46,17 @@ export const toggleButtonRecipe = defineRecipe({
         border: 'none',
         backgroundColor: 'transparent',
         color: 'var(--toggle-icon-color, token(colors.text.muted))',
-        transitionFast: 'color, filter, transform, outline-color',
+        transitionFast: 'color, transform, outline-color',
         _hovered: {
           backgroundColor: 'transparent',
           borderColor: 'transparent',
           color: 'var(--toggle-icon-hover-color, token(colors.text))',
-          filter:
-            'drop-shadow(0 0 0.45rem var(--toggle-icon-hover-glow, transparent))',
         },
         _selected: {
           backgroundColor: 'transparent',
           borderColor: 'transparent',
-          color: 'var(--toggle-icon-selected-color, token(colors.text.accent))',
-          filter:
-            'drop-shadow(0 0 0.6rem var(--toggle-icon-selected-glow, transparent))',
+          color:
+            'var(--toggle-icon-selected-color, token(colors.accent.emphasis))',
         },
         _focusVisible: {
           outline: 'focusRing',
@@ -68,7 +65,6 @@ export const toggleButtonRecipe = defineRecipe({
         _disabled: {
           opacity: 0.5,
           cursor: 'default',
-          filter: 'none',
         },
       },
     },

@@ -26,8 +26,8 @@ export const textFieldRecipe = defineSlotRecipe({
       gap: '2',
       borderRadius: 'md',
       border: 'control',
-      backgroundColor: 'secondary.bg',
-      color: 'secondary.text',
+      backgroundColor: 'bg.surface.2',
+      color: 'text',
       boxShadow: 'sm',
       transitionFast: 'border-color, outline-color',
       _focusWithin: {
@@ -50,8 +50,8 @@ export const textFieldRecipe = defineSlotRecipe({
         outline: 'none',
       },
       _autofill: {
-        boxShadow: 'inset 0 0 0 100px token(colors.secondary.bg)',
-        WebkitTextFillColor: 'token(colors.secondary.text)',
+        boxShadow: 'inset 0 0 0 100px token(colors.bg.surface.2)',
+        WebkitTextFillColor: 'token(colors.text)',
       },
     },
     description: {

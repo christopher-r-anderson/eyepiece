@@ -7,7 +7,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className={css({
-        backgroundColor: 'background',
+        backgroundColor: 'bg.canvas',
         color: 'text',
         display: 'flex',
         flexDirection: 'column',

@@ -36,16 +36,16 @@ export const buttonRecipe = defineRecipe({
   variants: {
     variant: {
       primary: {
-        backgroundColor: 'primary.bg',
-        color: 'primary.text',
-        _disabled: { color: 'primary.textMuted' },
+        backgroundColor: 'accent',
+        color: 'accent.fg',
+        _disabled: { color: 'accent.fg.muted' },
       },
       secondary: {
         border: 'control',
-        backgroundColor: 'secondary.bg',
-        color: 'secondary.text',
+        backgroundColor: 'bg.surface.2',
+        color: 'text',
         _hovered: {
-          backgroundColor: 'secondary.bgHover',
+          backgroundColor: 'bg.surface.3',
         },
         _disabled: { color: 'text.muted' },
       },

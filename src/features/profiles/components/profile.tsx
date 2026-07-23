@@ -12,7 +12,7 @@ export function Profile({ profile }: { profile: Profile }) {
         padding: '5',
         border: 'default',
         borderRadius: 'lg',
-        backgroundColor: 'secondary.bg',
+        backgroundColor: 'bg.surface.2',
         boxShadow: 'sm',
       })}
     >

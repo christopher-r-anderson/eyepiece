@@ -21,7 +21,7 @@ export function AuthPageLayout() {
           width: '100%',
           maxWidth: 'formMax',
           margin: '0 auto',
-          backgroundColor: 'tertiary.bg',
+          backgroundColor: 'bg.surface.3',
           border: 'default',
           borderRadius: 'lg',
           boxShadow: 'sm',

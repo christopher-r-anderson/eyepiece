@@ -18,7 +18,7 @@ export const modalDialogRecipe = defineSlotRecipe({
       padding: '6',
     },
     dialog: {
-      backgroundColor: 'background',
+      backgroundColor: 'bg.canvas',
       display: 'flex',
       flexDirection: 'column',
       maxHeight: '90vh',

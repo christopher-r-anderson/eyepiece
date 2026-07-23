@@ -7,7 +7,7 @@ type PageHeadingProps = Omit<HeadingProps, 'level'> & {
 }
 
 const pageHeadingStyles = css.raw({
-  color: 'text.accent',
+  color: 'accent.emphasis',
   fontSize: 'clamp(token(fontSizes.2xl), 4vw, 2.5rem)',
   fontWeight: 'bold',
   lineHeight: 'tight',

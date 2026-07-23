@@ -94,7 +94,7 @@ export function ModalDialog({
                 flexShrink: 0,
                 transitionFast: 'background-color, color, opacity',
                 _hovered: {
-                  backgroundColor: 'tertiary.bg',
+                  backgroundColor: 'bg.surface.3',
                   opacity: 1,
                 },
                 '&[data-focus-visible], &[data-pressed]': {

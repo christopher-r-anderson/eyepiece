@@ -18,8 +18,8 @@ export const toastRecipe = defineSlotRecipe({
       display: 'flex',
       alignItems: 'flex-start',
       gap: '2',
-      backgroundColor: 'secondary.bg',
-      color: 'secondary.text',
+      backgroundColor: 'bg.surface.2',
+      color: 'text',
       // decorative surface outline, deliberately not the focusRing border token
       outline: '1px solid token(colors.separator)',
       padding: '4',

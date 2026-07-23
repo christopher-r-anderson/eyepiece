@@ -27,8 +27,8 @@ const yearInputCss = css.raw({
   paddingInline: '3',
   borderRadius: 'md',
   border: 'control',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
+  backgroundColor: 'bg.surface.2',
+  color: 'text',
   boxShadow: 'sm',
   transitionFast: 'border-color, outline-color',
   _focusVisible: {
@@ -49,7 +49,7 @@ export function NasaIvlFilters({ filters, onChange }: NasaIvlFiltersProps) {
     <div
       className={stack({
         gap: '4',
-        color: 'secondary.text',
+        color: 'text',
       })}
     >
       <Label id={yearsLabelId}>Year Range</Label>

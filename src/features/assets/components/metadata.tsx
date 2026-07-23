@@ -30,8 +30,8 @@ export function MetadataTable({ data }: { data: Metadata }) {
           borderCollapse: 'collapse',
           '& thead': {
             borderBottom: 'default',
-            backgroundColor: 'secondary.bg',
-            color: 'secondary.text',
+            backgroundColor: 'bg.surface.2',
+            color: 'text',
           },
           '& th, & td': {
             padding: '2',
@@ -40,11 +40,11 @@ export function MetadataTable({ data }: { data: Metadata }) {
             borderRight: 'default',
           },
           '& tr': {
-            backgroundColor: 'secondary.bg',
-            color: 'secondary.text',
+            backgroundColor: 'bg.surface.2',
+            color: 'text',
           },
           '& tbody tr:nth-of-type(odd)': {
-            backgroundColor: 'tertiary.bg',
+            backgroundColor: 'bg.surface.3',
           },
         })}
       >

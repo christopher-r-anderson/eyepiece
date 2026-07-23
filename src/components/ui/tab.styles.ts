@@ -12,8 +12,8 @@ export const tabVisualStyles = defineStyles({
   border: 'default',
   borderBottomWidth: 0,
   borderTopRadius: 'md',
-  backgroundColor: 'secondary.bg',
-  color: 'secondary.text',
+  backgroundColor: 'bg.surface.2',
+  color: 'text',
   display: 'inline-flex',
   alignItems: 'center',
   cursor: 'pointer',
@@ -23,7 +23,7 @@ export const tabVisualStyles = defineStyles({
 
 export const tabSelectedStyles = defineStyles({
   fontWeight: 'bold',
-  backgroundColor: 'tertiary.bg',
+  backgroundColor: 'bg.surface.3',
   position: 'relative',
   zIndex: 1,
 })
@@ -37,7 +37,7 @@ export const tabListStyles = defineStyles({
 })
 
 export const tabPanelStyles = defineStyles({
-  backgroundColor: 'tertiary.bg',
+  backgroundColor: 'bg.surface.3',
   border: 'default',
   borderRadius: '0 token(radii.lg) token(radii.lg) token(radii.lg)',
   padding: '4',

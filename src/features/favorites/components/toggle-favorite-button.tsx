@@ -12,11 +12,9 @@ import { ToggleButton } from '@/components/ui/toggle-button'
 import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
 
 export const favoriteToggleCss = css.raw({
-  '--toggle-icon-color': 'token(colors.favoriteToggle.idle)',
-  '--toggle-icon-hover-color': 'token(colors.favoriteToggle.hover)',
-  '--toggle-icon-hover-glow': 'token(colors.favoriteToggle.glow)',
-  '--toggle-icon-selected-color': 'token(colors.favoriteToggle.selected)',
-  '--toggle-icon-selected-glow': 'token(colors.favoriteToggle.glow)',
+  '--toggle-icon-color': 'token(colors.text.muted)',
+  '--toggle-icon-hover-color': 'token(colors.star)',
+  '--toggle-icon-selected-color': 'token(colors.star)',
   _hovered: {
     transform: 'scale(1.06)',
   },

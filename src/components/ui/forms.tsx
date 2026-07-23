@@ -188,8 +188,7 @@ export function TextField({
               alignItems: 'center',
               '--toggle-icon-color': 'token(colors.text.muted)',
               '--toggle-icon-hover-color': 'token(colors.text)',
-              '--toggle-icon-selected-color': 'token(colors.text.accent)',
-              '--toggle-icon-selected-glow': 'transparent',
+              '--toggle-icon-selected-color': 'token(colors.accent.emphasis)',
             })}
             isSelected={showPassword}
             onPress={() => setShowPassword((prev) => !prev)}

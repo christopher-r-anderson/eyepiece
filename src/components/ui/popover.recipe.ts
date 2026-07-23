@@ -5,7 +5,7 @@ export const popoverRecipe = defineRecipe({
   base: {
     border: 'default',
     borderRadius: 'lg',
-    backgroundColor: 'background',
+    backgroundColor: 'bg.canvas',
     boxShadow: 'md',
     overflow: 'hidden',
   },

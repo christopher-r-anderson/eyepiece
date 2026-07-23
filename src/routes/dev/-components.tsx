@@ -26,7 +26,7 @@ const devSurfaceCss = css.raw({
   padding: '5',
   border: 'default',
   borderRadius: 'lg',
-  backgroundColor: 'secondary.bg',
+  backgroundColor: 'bg.surface.2',
 })
 
 const devTextStackCss = css.raw({
@@ -70,7 +70,7 @@ export function DevPageIntro({
             padding: '0.35rem 0.65rem',
             border: 'default',
             borderRadius: 'full',
-            backgroundColor: 'secondary.bg',
+            backgroundColor: 'bg.surface.2',
             textAlign: 'right',
           })}
         >
@@ -157,7 +157,7 @@ export function DevLinkCard({
   action: ReactNode
 }) {
   return (
-    <DevPanel as="article" css={css.raw({ color: 'secondary.text' })}>
+    <DevPanel as="article" css={css.raw({ color: 'text' })}>
       <DevTitleBlock title={title} description={description} />
       {action}
     </DevPanel>

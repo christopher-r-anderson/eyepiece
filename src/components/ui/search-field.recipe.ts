@@ -11,7 +11,7 @@ export const searchFieldRecipe = defineRecipe({
     gap: '2',
     borderRadius: 'full',
     border: 'control',
-    backgroundColor: 'tertiary.bg',
+    backgroundColor: 'bg.surface.3',
     color: 'text',
     boxShadow: 'sm',
     transitionFast: 'border-color, outline-color',
