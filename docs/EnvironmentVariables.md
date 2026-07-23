@@ -114,3 +114,7 @@ Using both `VITE_SENTRY_*` and `SENTRY_*` in Netlify is recommended for producti
 - `SENTRY_*` keeps the server runtime configuration explicit.
 
 The replay sample-rate settings are client-only and do not need `SENTRY_*` runtime equivalents.
+
+## Showcase Provisioning
+
+- `SHOWCASE_USER_EMAIL`: used by `pnpm provision-showcase`; set in `.env.local` for local runs and as a GitHub Actions secret for production publishes. The email address of the provisioned showcase account. Whoever controls this mailbox can access the showcase account through password reset, so it must be an address the deployment owner controls. Any placeholder address works locally.
