@@ -291,6 +291,31 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
   })
 })
 
+test('a year commit keeps an unsent draft query in the search box', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+
+  await expect(page.getByText(/results ·/)).toBeVisible()
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.keyboard.press('Tab')
+
+  // the commit applies the URL query, not the draft
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('yearStart') === '1980'
+    )
+  })
+  await expect(
+    page.getByRole('searchbox', { name: 'Search keywords' }),
+  ).toHaveValue('mars')
+})
+
 test('a blur never commits while the other year field is invalid', async ({
   page,
 }) => {

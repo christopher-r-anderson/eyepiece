@@ -213,7 +213,9 @@ function SearchPage() {
   return (
     <div className={css({ width: '100%' })}>
       <SearchBar
-        key={hashKey(['search-form', q, scope])}
+        // q only: the bar owns just the draft query now, and a scope or
+        // filter navigation must not wipe an unsent draft
+        key={hashKey(['search-form', q])}
         id={formId}
         initialQuery={q}
         scope={scope}
