@@ -34,6 +34,9 @@ function createAnonClient() {
 async function seedAssetPreviewSnapshot(
   admin: ReturnType<typeof createAdminClient>,
   externalId: string,
+  // moddatetime fires only on UPDATE, so an explicit updated_at survives the
+  // insert and lets tests place a row inside or outside the sweep grace window
+  updatedAt?: string,
 ): Promise<AssetPreviewSnapshotId> {
   const { data, error } = await admin
     .from('asset_preview_snapshots')
@@ -44,11 +47,45 @@ async function seedAssetPreviewSnapshot(
       thumb_href: 'https://images.example.com/thumb.jpg',
       thumb_width: 200,
       thumb_height: 150,
+      ...(updatedAt ? { updated_at: updatedAt } : {}),
     })
     .select('id')
     .single()
   if (error) throw new Error(`seedAssetPreviewSnapshot: ${error.message}`)
   return data.id
+}
+
+function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+}
+
+// a second signed-in user distinct from the fixture user, for cross-user
+// RLS cases (auth.uid() !== owner_id, not just anon); caller deletes the id
+async function createSecondSignedInUser(
+  admin: ReturnType<typeof createAdminClient>,
+): Promise<{ id: string; client: ReturnType<typeof createAnonClient> }> {
+  const email = `test-other-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
+  const password = 'test-password-123!'
+  const {
+    data: { user },
+    error: createError,
+  } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  })
+  if (createError || !user) {
+    throw new Error(`failed to create second user: ${createError?.message}`)
+  }
+  const client = createAnonClient()
+  const { error: signInError } = await client.auth.signInWithPassword({
+    email,
+    password,
+  })
+  if (signInError) {
+    throw new Error(`failed to sign in second user: ${signInError.message}`)
+  }
+  return { id: user.id, client }
 }
 
 async function cleanupAssetPreviewSnapshots(
@@ -199,25 +236,10 @@ describe('collections RLS (non-owner and anon)', () => {
       }),
     )
 
-    // second signed-in user
-    const otherEmail = `test-other-${Date.now()}@example.com`
-    const {
-      data: { user: other },
-      error: createError,
-    } = await adminClient.auth.admin.createUser({
-      email: otherEmail,
-      password: 'test-password-123!',
-      email_confirm: true,
-    })
-    if (createError || !other) throw new Error('failed to create other user')
-    const otherClient = createAnonClient()
-    await otherClient.auth.signInWithPassword({
-      email: otherEmail,
-      password: 'test-password-123!',
-    })
+    const other = await createSecondSignedInUser(adminClient)
 
     try {
-      const rename = await renameCollectionForUser(otherClient, {
+      const rename = await renameCollectionForUser(other.client, {
         collectionId: victim.id,
         name: 'Hijacked',
       })
@@ -226,7 +248,7 @@ describe('collections RLS (non-owner and anon)', () => {
         expect(rename.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
       }
 
-      const del = await deleteCollectionForUser(otherClient, {
+      const del = await deleteCollectionForUser(other.client, {
         collectionId: victim.id,
       })
       expect(resultIsError(del)).toBe(true)
@@ -322,18 +344,25 @@ describe('collection items', () => {
     const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
     snapshotIds.push(snapshotId)
 
-    const anonClient = createAnonClient()
-    const result = await addCollectionItemForUser(
-      anonClient,
-      {
-        collectionId: collection.id,
-        assetKey: { providerId: 'nasa_ivl', externalId },
-      },
-      snapshotId,
-    )
-    expect(resultIsError(result)).toBe(true)
-    if (resultIsError(result)) {
-      expect(result.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
+    // a signed-in second user, not just anon: exercises the insert policy's
+    // auth.uid() !== owner_id path (a public collection is readable by them,
+    // so this proves the write is blocked independent of read visibility)
+    const other = await createSecondSignedInUser(adminClient)
+    try {
+      const result = await addCollectionItemForUser(
+        other.client,
+        {
+          collectionId: collection.id,
+          assetKey: { providerId: 'nasa_ivl', externalId },
+        },
+        snapshotId,
+      )
+      expect(resultIsError(result)).toBe(true)
+      if (resultIsError(result)) {
+        expect(result.error.code).toBe(CollectionsErrorCodes.NOT_FOUND)
+      }
+    } finally {
+      await adminClient.auth.admin.deleteUser(other.id)
     }
   })
 
@@ -456,7 +485,7 @@ describe('snapshot lifecycle guards', () => {
     expect(error?.code).toBe('23503')
   })
 
-  it('the orphan sweep spares fresh orphans and referenced snapshots', async ({
+  it('the orphan sweep deletes aged orphans and spares fresh or referenced ones', async ({
     client,
     user,
     adminClient,
@@ -467,17 +496,24 @@ describe('snapshot lifecycle guards', () => {
         visibility: 'private',
       }),
     )
-    const orphanExternalId = `INTEG-SWEEP-ORPHAN-${Date.now()}`
-    const referencedExternalId = `INTEG-SWEEP-REF-${Date.now()}`
-    const orphanId = await seedAssetPreviewSnapshot(
+    const stamp = `${Date.now()}`
+    const agedOrphanId = await seedAssetPreviewSnapshot(
       adminClient,
-      orphanExternalId,
+      `INTEG-SWEEP-AGED-${stamp}`,
+      daysAgoIso(31),
     )
-    const referencedId = await seedAssetPreviewSnapshot(
+    const freshOrphanId = await seedAssetPreviewSnapshot(
       adminClient,
-      referencedExternalId,
+      `INTEG-SWEEP-FRESH-${stamp}`,
     )
-    snapshotIds.push(orphanId, referencedId)
+    // aged AND referenced: proves the reference check, not just age, spares it
+    const agedReferencedExternalId = `INTEG-SWEEP-REF-${stamp}`
+    const agedReferencedId = await seedAssetPreviewSnapshot(
+      adminClient,
+      agedReferencedExternalId,
+      daysAgoIso(31),
+    )
+    snapshotIds.push(agedOrphanId, freshOrphanId, agedReferencedId)
     unwrapOrThrow(
       await addCollectionItemForUser(
         client,
@@ -485,27 +521,29 @@ describe('snapshot lifecycle guards', () => {
           collectionId: collection.id,
           assetKey: {
             providerId: 'nasa_ivl',
-            externalId: referencedExternalId,
+            externalId: agedReferencedExternalId,
           },
         },
-        referencedId,
+        agedReferencedId,
       ),
     )
 
-    // both rows are inside the 30-day grace window, so nothing is swept;
-    // the aged path is not reachable here because moddatetime overwrites
-    // updated_at on every UPDATE
     const { data: swept, error } = await adminClient.rpc(
       'delete_orphaned_asset_preview_snapshots',
     )
     expect(error).toBeNull()
-    expect(swept).toBe(0)
+    // global sweep, so other aged orphans may raise the count; assert it
+    // moved and check the specific rows below
+    expect(swept).toBeGreaterThanOrEqual(1)
 
     const { data: survivors } = await adminClient
       .from('asset_preview_snapshots')
       .select('id')
-      .in('id', [orphanId, referencedId])
-    expect(survivors).toHaveLength(2)
+      .in('id', [agedOrphanId, freshOrphanId, agedReferencedId])
+    const survivorIds = (survivors ?? []).map((row) => row.id)
+    expect(survivorIds).not.toContain(agedOrphanId)
+    expect(survivorIds).toContain(freshOrphanId)
+    expect(survivorIds).toContain(agedReferencedId)
   })
 
   it('the sweep is not executable by anon', async () => {

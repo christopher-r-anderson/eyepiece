@@ -78,6 +78,8 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       .select(COLLECTION_COLUMNS)
       .eq('owner_id', ownerId)
       .order('position', { ascending: true })
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
     if (pgError) {
       return Err({ message: pgError.message, cause: pgError })
     }
@@ -98,6 +100,8 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       .eq('owner_id', ownerId)
       .eq('visibility', 'public')
       .order('position', { ascending: true })
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
     if (pgError) {
       return Err({ message: pgError.message, cause: pgError })
     }
@@ -147,6 +151,10 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       )
       .eq('collection_id', collectionId)
       .order('position', { ascending: true })
+      .order('created_at', { ascending: true })
+      // asset_preview_snapshot_id is unique within a collection (PK), so it
+      // is the stable final key that keeps offset pages from drifting
+      .order('asset_preview_snapshot_id', { ascending: true })
       .range((page - 1) * pageSize, page * pageSize - 1)
     if (pgError) {
       return Err({ message: pgError.message, cause: pgError })
