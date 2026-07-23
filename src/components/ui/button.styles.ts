@@ -8,11 +8,10 @@ import { defineStyles } from '@pandacss/dev'
 export const ghostVisualStyles = defineStyles({
   border: '1px solid transparent',
   backgroundColor: 'transparent',
-  color: 'primary.textMuted',
+  color: 'text.muted',
   _hovered: {
     color: 'text',
     border: 'control',
-    backgroundColor:
-      'color-mix(in oklab, token(colors.tertiary.bg) 72%, token(colors.background) 28%)',
+    backgroundColor: 'secondary.bg',
   },
 })

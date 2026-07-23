@@ -30,9 +30,6 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
           '&:focus': {
             outline: 'none',
           },
-          _focused: {
-            boxShadow: '0 1px 0 0 token(colors.border)',
-          },
           '&::-webkit-search-cancel-button': { display: 'none' },
           _autofill: {
             boxShadow:

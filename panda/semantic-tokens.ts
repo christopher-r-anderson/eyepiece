@@ -1,31 +1,95 @@
 import { defineSemanticTokens } from '@pandacss/dev'
 
+// The "violet atlas" palette (#129 decision record; visual spec in the phase-1
+// baselines dir). Dark is the design-primary theme; light is a provisional
+// translation refined before tokens freeze. The surface ladder expresses
+// elevation by lightening. The warm "star" accent is reserved for favorite
+// stars and focus rings.
+//
+// State colors are explicit tokens - no mixing math in token values or
+// component styles. Every text/background pair here is contrast-checked (the
+// table lives in the phase-2 palette PR).
 export const semanticTokens = defineSemanticTokens({
   colors: {
     background: {
       value: {
-        base: 'oklch(0.958 0.008 286)',
-        _dark: 'oklch(0.1743 0.0227 283.7998)',
+        base: 'oklch(0.962 0.008 293)',
+        _dark: 'oklch(0.1896 0.0202 293.5)',
+      },
+    },
+    bg: {
+      canvas: {
+        value: '{colors.background}',
+      },
+      surface: {
+        '1': {
+          value: {
+            base: 'oklch(0.935 0.012 293)',
+            _dark: 'oklch(0.2243 0.0291 293.1)',
+          },
+        },
+        '2': {
+          value: {
+            base: 'oklch(0.906 0.016 293)',
+            _dark: 'oklch(0.266 0.0371 292.9)',
+          },
+        },
+        '3': {
+          value: {
+            base: 'oklch(0.873 0.02 293)',
+            _dark: 'oklch(0.3061 0.0447 292.7)',
+          },
+        },
+        '4': {
+          value: {
+            base: 'oklch(0.84 0.024 293)',
+            _dark: 'oklch(0.3483 0.0503 293.1)',
+          },
+        },
       },
     },
     text: {
       DEFAULT: {
         value: {
-          base: 'oklch(0.282 0.034 282)',
-          _dark: 'oklch(0.9185 0.0257 285.8834)',
+          base: 'oklch(0.26 0.035 293)',
+          _dark: 'oklch(0.9428 0.0163 297.5)',
         },
       },
       muted: {
         value: {
-          base: 'oklch(0.516 0.02 284)',
-          _dark: 'oklch(0.7166 0.0462 285.1741)',
+          base: 'oklch(0.46 0.03 294)',
+          _dark: 'oklch(0.6814 0.0488 296.2)',
         },
       },
       accent: {
+        value: '{colors.accent.emphasis}',
+      },
+    },
+    accent: {
+      DEFAULT: {
         value: {
-          base: 'oklch(0.532 0.162 288)',
-          _dark: 'oklch(0.7162 0.1597 290.3962)',
+          base: 'oklch(0.45 0.13 293)',
+          _dark: 'oklch(0.6327 0.1058 293.5)',
         },
+      },
+      // holds AA for text on raised surfaces, where plain accent does not
+      emphasis: {
+        value: {
+          base: 'oklch(0.39 0.125 293)',
+          _dark: 'oklch(0.7278 0.0939 293.1)',
+        },
+      },
+      fg: {
+        value: {
+          base: 'oklch(0.985 0.005 293)',
+          _dark: 'oklch(0.1896 0.0202 293.5)',
+        },
+      },
+    },
+    star: {
+      value: {
+        base: 'oklch(0.46 0.095 80)',
+        _dark: 'oklch(0.8243 0.0879 80.9)',
       },
     },
     link: {
@@ -33,59 +97,63 @@ export const semanticTokens = defineSemanticTokens({
     },
     border: {
       value: {
-        base: 'oklch(0.84 0.018 286)',
-        _dark: 'oklch(0.3261 0.0597 282.5832)',
+        base: 'oklch(0.86 0.02 293)',
+        _dark: 'oklch(0.33 0.045 293)',
       },
     },
     separator: {
-      value: 'color-mix(in oklab, {colors.border} 55%, {colors.text} 45%)',
+      value: {
+        base: 'oklch(0.55 0.03 293)',
+        _dark: 'oklch(0.55 0.045 293)',
+      },
+    },
+    control: {
+      // >=3:1 against both the control fill (surface 2) and the canvas, so
+      // the input boundary stays visible (WCAG 1.4.11)
+      border: {
+        value: {
+          base: 'oklch(0.57 0.03 293)',
+          _dark: 'oklch(0.55 0.05 293)',
+        },
+      },
     },
     outline: {
-      value: { base: 'black', _dark: 'white' },
+      value: '{colors.star}',
     },
     primary: {
       bg: {
-        value: {
-          base: 'oklch(0.59 0.168 288)',
-          _dark: 'oklch(0.7162 0.1597 290.3962)',
-        },
+        value: '{colors.accent}',
       },
       text: {
-        value: {
-          base: 'oklch(1 0 0)',
-          _dark: 'oklch(0.1743 0.0227 283.7998)',
-        },
+        value: '{colors.accent.fg}',
       },
       textMuted: {
         value: {
-          base: 'oklch(0.83 0.026 286)',
-          _dark: 'oklch(0.5426 0.0465 284.7435)',
+          base: 'oklch(0.88 0.03 293)',
+          _dark: 'oklch(0.34 0.035 293)',
         },
       },
     },
     secondary: {
       bg: {
-        value: {
-          base: 'oklch(0.985 0.008 286)',
-          _dark: 'oklch(0.3139 0.0736 283.4591)',
-        },
+        value: '{colors.bg.surface.2}',
+      },
+      bgHover: {
+        value: '{colors.bg.surface.3}',
       },
       text: {
-        value: {
-          base: 'oklch(0.35 0.052 286)',
-          _dark: 'oklch(0.8367 0.0849 285.9111)',
-        },
+        value: '{colors.text}',
       },
     },
     tertiary: {
       bg: {
-        value: {
-          base: 'oklch(0.944 0.016 286)',
-          _dark: 'oklch(from {colors.secondary.bg} calc(l + 0.1) c h)',
-        },
+        value: '{colors.bg.surface.3}',
+      },
+      bgHover: {
+        value: '{colors.bg.surface.4}',
       },
       text: {
-        value: '{colors.secondary.text}',
+        value: '{colors.text}',
       },
     },
     success: {
@@ -146,33 +214,27 @@ export const semanticTokens = defineSemanticTokens({
     },
     assetTile: {
       bg: {
-        value: {
-          base: 'oklch(0.988 0.004 286)',
-          _dark: 'oklch(0.25 0.045 283)',
-        },
+        value: '{colors.bg.surface.1}',
       },
       border: {
         value: {
-          base: 'color-mix(in oklab, {colors.border} 72%, {colors.text} 28%)',
-          _dark: 'color-mix(in oklab, {colors.border} 64%, white 12%)',
+          base: 'oklch(0.82 0.022 293)',
+          _dark: 'oklch(0.36 0.048 293)',
         },
       },
       captionBg: {
         value: {
-          base: 'rgba(15, 21, 34, 0.74)',
-          _dark: 'rgba(7, 9, 16, 0.76)',
+          base: 'rgba(18, 15, 28, 0.74)',
+          _dark: 'rgba(12, 10, 20, 0.76)',
         },
       },
       captionText: {
-        value: {
-          base: 'oklch(0.985 0.004 286)',
-          _dark: 'oklch(0.94 0.02 286)',
-        },
+        value: 'oklch(0.9428 0.0163 297.5)',
       },
       badgeBg: {
         value: {
-          base: 'rgba(248, 249, 252, 0.9)',
-          _dark: 'rgba(21, 27, 43, 0.86)',
+          base: 'rgba(242, 241, 247, 0.9)',
+          _dark: 'rgba(28, 25, 40, 0.86)',
         },
       },
       badgeText: {
@@ -180,20 +242,20 @@ export const semanticTokens = defineSemanticTokens({
       },
       badgeBorder: {
         value: {
-          base: 'rgba(16, 22, 36, 0.16)',
-          _dark: 'rgba(245, 247, 255, 0.12)',
+          base: 'rgba(37, 33, 52, 0.16)',
+          _dark: 'rgba(237, 234, 246, 0.12)',
         },
       },
       actionBg: {
         value: {
-          base: 'rgba(248, 249, 252, 0.72)',
-          _dark: 'rgba(21, 27, 43, 0.7)',
+          base: 'rgba(242, 241, 247, 0.72)',
+          _dark: 'rgba(28, 25, 40, 0.7)',
         },
       },
       actionBorder: {
         value: {
-          base: 'rgba(16, 22, 36, 0.1)',
-          _dark: 'rgba(245, 247, 255, 0.08)',
+          base: 'rgba(37, 33, 52, 0.1)',
+          _dark: 'rgba(237, 234, 246, 0.08)',
         },
       },
     },
@@ -202,22 +264,13 @@ export const semanticTokens = defineSemanticTokens({
         value: '{colors.text.muted}',
       },
       hover: {
-        value: {
-          base: 'oklch(0.82 0.16 95)',
-          _dark: 'oklch(0.84 0.16 95)',
-        },
+        value: '{colors.star}',
       },
       selected: {
-        value: {
-          base: 'oklch(0.9 0.18 96)',
-          _dark: 'oklch(0.93 0.19 96)',
-        },
+        value: '{colors.star}',
       },
       glow: {
-        value: {
-          base: 'rgba(255, 214, 51, 0.34)',
-          _dark: 'rgba(255, 219, 76, 0.3)',
-        },
+        value: 'rgba(0, 0, 0, 0)',
       },
     },
   },
