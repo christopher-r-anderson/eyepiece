@@ -25,6 +25,7 @@ export const switchRecipe = defineRecipe({
     },
     _focusVisible: {
       outline: 'focusRing',
+      outlineOffset: '2px',
     },
     _disabled: {
       opacity: 0.6,

@@ -13,11 +13,10 @@ export const searchFieldRecipe = defineRecipe({
     border: 'control',
     backgroundColor: 'bg.surface.3',
     color: 'text',
-    boxShadow: 'sm',
     transitionFast: 'border-color, outline-color',
     _focusWithin: {
       outline: 'focusRing',
-      outlineOffset: '1px',
+      outlineOffset: '2px',
     },
   },
 })

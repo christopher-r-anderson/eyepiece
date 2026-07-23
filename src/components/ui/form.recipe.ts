@@ -20,9 +20,8 @@ export const formRecipe = defineRecipe({
       panel: {
         padding: '5',
         border: 'default',
-        borderRadius: 'lg',
+        borderRadius: 'sm',
         backgroundColor: 'bg.surface.2',
-        boxShadow: 'sm',
       },
     },
     // action forms are always stacked; page forms name their container so

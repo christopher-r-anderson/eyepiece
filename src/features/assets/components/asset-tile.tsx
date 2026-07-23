@@ -38,7 +38,9 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         display: 'block',
         position: 'relative',
         color: 'inherit',
-        borderRadius: 'calc(token(radii.lg) - token(spacing.2))',
+        // nested radius: outer minus padding, floored once the outer
+        // radius is smaller than the inset
+        borderRadius: 'max(0px, calc(token(radii.sm) - token(spacing.2)))',
         overflow: 'hidden',
         // the halo must paint above the thumbnail, so it lives on a pseudo
         // element; an inset shadow on the link would be covered by the image
@@ -117,9 +119,8 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
 const containerCss = css.raw({
   backgroundColor: 'assetTile.bg',
   padding: '2',
-  borderRadius: 'lg',
+  borderRadius: 'sm',
   border: '1px solid token(colors.assetTile.border)',
-  boxShadow: 'sm',
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
@@ -150,7 +151,6 @@ export function AssetTile({
             backgroundColor: 'assetTile.badgeBg',
             color: 'assetTile.badgeText',
             backdropFilter: 'blur(6px)',
-            boxShadow: 'sm',
             fontSize: 'xs',
           })}
         >
@@ -168,7 +168,7 @@ export function AssetTile({
             backgroundColor: 'assetTile.actionBg',
             color: 'assetTile.badgeText',
             border: '1px solid token(colors.assetTile.actionBorder)',
-            borderRadius: 'md',
+            borderRadius: 'sm',
             backdropFilter: 'blur(4px)',
           })}
         >

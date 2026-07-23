@@ -4,9 +4,9 @@ export const popoverRecipe = defineRecipe({
   className: 'popover',
   base: {
     border: 'default',
-    borderRadius: 'lg',
+    borderRadius: 'overlay',
     backgroundColor: 'bg.canvas',
-    boxShadow: 'md',
+    boxShadow: 'overlay',
     overflow: 'hidden',
   },
 })

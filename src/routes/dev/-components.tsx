@@ -25,7 +25,7 @@ const devSurfaceCss = css.raw({
   gap: '4',
   padding: '5',
   border: 'default',
-  borderRadius: 'lg',
+  borderRadius: 'sm',
   backgroundColor: 'bg.surface.2',
 })
 

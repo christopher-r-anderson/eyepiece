@@ -24,7 +24,7 @@ export const modalDialogRecipe = defineSlotRecipe({
       maxHeight: '90vh',
       maxWidth: '90vw',
       border: 'default',
-      borderRadius: 'lg',
+      borderRadius: 'overlay',
       boxShadow: 'overlay',
       overflow: 'hidden',
     },

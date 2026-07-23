@@ -14,17 +14,22 @@ export const tokens = defineTokens({
         "'Spline Sans Mono', 'Spline Sans Mono Fallback', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace",
     },
   },
+  // static UI sizes - only the display text styles are fluid
   fontSizes: {
     xs: { value: '0.75rem' },
-    sm: { value: 'clamp(0.8125rem, 0.8rem + 0.1vw, 0.875rem)' },
-    base: { value: 'clamp(0.9375rem, 0.9rem + 0.25vw, 1rem)' },
-    lg: { value: 'clamp(1rem, 0.95rem + 0.35vw, 1.125rem)' },
-    xl: { value: 'clamp(1.25rem, 1.05rem + 1.1vw, 1.5rem)' },
-    '2xl': { value: 'clamp(1.5rem, 1.15rem + 1.9vw, 2rem)' },
+    sm: { value: '0.8125rem' },
+    // the utility voice (mono captions, metadata, conditions lines)
+    mono: { value: '0.78125rem' },
+    // nav, tabs, and control labels sit just under body text
+    control: { value: '0.9375rem' },
+    base: { value: '1rem' },
+    lg: { value: '1.125rem' },
+    xl: { value: '1.5rem' },
+    '2xl': { value: '1.75rem' },
   },
   lineHeights: {
     tight: { value: '1.15' },
-    base: { value: '1.5' },
+    base: { value: '1.6' },
   },
   sizes: {
     contentMax: { value: '72rem' },
@@ -50,9 +55,10 @@ export const tokens = defineTokens({
     sectionGap: { value: 'clamp(1rem, 3vw, 2rem)' },
   },
   radii: {
-    sm: { value: '0.25rem' },
-    md: { value: '0.5rem' },
-    lg: { value: '0.75rem' },
+    sm: { value: '2px' },
+    // floating layers only (popover, menu, dialog); in-flow surfaces
+    // take sm or none
+    overlay: { value: '6px' },
     full: { value: '9999px' },
   },
   borders: {
@@ -62,9 +68,9 @@ export const tokens = defineTokens({
     // the app's single focus ring, applied as outline: 'focusRing'
     focusRing: { value: '2px solid {colors.star}' },
   },
+  // elevation is expressed by surface lightening; shadows are reserved
+  // for floating layers
   shadows: {
-    sm: { value: '0 1px 2px rgba(0, 0, 0, 0.08)' },
-    md: { value: '0 2px 8px rgba(0, 0, 0, 0.14)' },
     overlay: { value: '0 12px 28px rgba(0, 0, 0, 0.25)' },
     // contrasting layer under the focus ring when it draws over imagery
     focusHalo: { value: 'inset 0 0 0 4px {colors.bg.canvas}' },
@@ -76,10 +82,13 @@ export const tokens = defineTokens({
     overlay: { value: 30 },
   },
   durations: {
-    fast: { value: '120ms' },
-    base: { value: '220ms' },
+    micro: { value: '150ms' },
+    standard: { value: '200ms' },
+    // entrance choreography (load reveals, staged sequences)
+    orchestrated: { value: '450ms' },
   },
   easings: {
-    default: { value: 'ease' },
+    out: { value: 'ease-out' },
+    settle: { value: 'cubic-bezier(0.22, 0.9, 0.3, 1)' },
   },
 })

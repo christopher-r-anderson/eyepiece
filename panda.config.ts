@@ -2,6 +2,7 @@ import { defineConfig } from '@pandacss/dev'
 import { globalFontface } from './panda/font-face'
 import { globalCss } from './panda/global-css'
 import { semanticTokens } from './panda/semantic-tokens'
+import { textStyles } from './panda/text-styles'
 import { tokens } from './panda/tokens'
 import { buttonRecipe } from '@/components/ui/button.recipe'
 import { formRecipe } from '@/components/ui/form.recipe'
@@ -40,16 +41,16 @@ export default defineConfig({
       // CSS properties missing from Panda's generated property set
       viewTransitionClass: { className: 'view-transition-class' },
       WebkitBoxOrient: { className: 'webkit-box-orient' },
-      // expands to the app's standard transition (fast duration, default
-      // easing) over the given property list
+      // expands to the app's standard micro-transition over the given
+      // property list
       transitionFast: {
         className: 'transition-fast',
         values: { type: 'string' },
         transform(value: string, { token }) {
           return {
             transitionProperty: value,
-            transitionDuration: token('durations.fast'),
-            transitionTimingFunction: token('easings.default'),
+            transitionDuration: token('durations.micro'),
+            transitionTimingFunction: token('easings.out'),
           }
         },
       },
@@ -89,6 +90,7 @@ export default defineConfig({
     },
     tokens,
     semanticTokens,
+    textStyles,
     recipes: {
       button: buttonRecipe,
       form: formRecipe,

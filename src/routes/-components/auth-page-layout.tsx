@@ -23,8 +23,7 @@ export function AuthPageLayout() {
           margin: '0 auto',
           backgroundColor: 'bg.surface.3',
           border: 'default',
-          borderRadius: 'lg',
-          boxShadow: 'sm',
+          borderRadius: 'sm',
           padding: '4',
         })}
       >

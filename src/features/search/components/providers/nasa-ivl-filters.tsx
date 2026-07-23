@@ -25,15 +25,14 @@ const yearInputCss = css.raw({
   width: '6rem',
   minHeight: 'controlHeight',
   paddingInline: '3',
-  borderRadius: 'md',
+  borderRadius: 'sm',
   border: 'control',
   backgroundColor: 'bg.surface.2',
   color: 'text',
-  boxShadow: 'sm',
   transitionFast: 'border-color, outline-color',
   _focusVisible: {
     outline: 'focusRing',
-    outlineOffset: '1px',
+    outlineOffset: '2px',
   },
 })
 
