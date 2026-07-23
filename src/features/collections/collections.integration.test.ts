@@ -93,11 +93,13 @@ async function cleanupAssetPreviewSnapshots(
 ): Promise<void> {
   if (ids.length === 0) return
   const admin = createAdminClient()
-  // items reference snapshots with ON DELETE RESTRICT; remove them first
+  // both favorites and collection_items reference snapshots with ON DELETE
+  // RESTRICT, so clear references before deleting the snapshots
   await admin
     .from('collection_items')
     .delete()
     .in('asset_preview_snapshot_id', ids)
+  await admin.from('favorites').delete().in('asset_preview_snapshot_id', ids)
   const { error } = await admin
     .from('asset_preview_snapshots')
     .delete()
@@ -485,6 +487,63 @@ describe('snapshot lifecycle guards', () => {
     expect(error?.code).toBe('23503')
   })
 
+  // the migration flips favorites' snapshot FK from CASCADE to RESTRICT; guard
+  // it directly so a regression can't silently delete a user's favorite
+  it('a favorite-referenced snapshot cannot be deleted (ON DELETE RESTRICT)', async ({
+    user,
+    adminClient,
+  }) => {
+    const externalId = `INTEG-FAV-FK-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
+    snapshotIds.push(snapshotId)
+    const { error: favError } = await adminClient.from('favorites').insert({
+      owner_id: user.id,
+      asset_preview_snapshot_id: snapshotId,
+    })
+    if (favError) throw new Error(`seedFavorite: ${favError.message}`)
+
+    const { error } = await adminClient
+      .from('asset_preview_snapshots')
+      .delete()
+      .eq('id', snapshotId)
+    expect(error?.code).toBe('23503')
+  })
+
+  // the race fix: re-ensuring a stale snapshot must refresh updated_at even
+  // when the provider returns identical metadata, so a just-ensured row is
+  // never inside the sweep's deletion window before it gets referenced
+  it('re-ensuring a stale snapshot with identical metadata refreshes updated_at', async ({
+    adminClient,
+  }) => {
+    const externalId = `INTEG-ENSURE-FRESH-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(
+      adminClient,
+      externalId,
+      daysAgoIso(31),
+    )
+    snapshotIds.push(snapshotId)
+
+    // identical to the seed values, so the pre-fix conditional update was a
+    // no-op that left updated_at untouched
+    const { error } = await adminClient.rpc('ensure_asset_preview_snapshot', {
+      p_provider_id: 'nasa_ivl',
+      p_external_id: externalId,
+      p_title: `Integration test asset ${externalId}`,
+      p_thumb_href: 'https://images.example.com/thumb.jpg',
+      p_thumb_width: 200,
+      p_thumb_height: 150,
+    })
+    expect(error).toBeNull()
+
+    const { data: row } = await adminClient
+      .from('asset_preview_snapshots')
+      .select('updated_at')
+      .eq('id', snapshotId)
+      .single()
+    const ageMs = Date.now() - new Date(row!.updated_at).getTime()
+    expect(ageMs).toBeLessThan(60_000)
+  })
+
   it('the orphan sweep deletes aged orphans and spares fresh or referenced ones', async ({
     client,
     user,
@@ -546,25 +605,32 @@ describe('snapshot lifecycle guards', () => {
     expect(survivorIds).toContain(agedReferencedId)
   })
 
-  it('the sweep is not executable by anon', async () => {
-    const { error } = await createAnonClient().rpc(
-      'delete_orphaned_asset_preview_snapshots',
-    )
-    expect(error).not.toBeNull()
+  // the migration revokes both anon and authenticated, so cover both roles;
+  // `client` is the signed-in fixture user
+  it('the sweep is not executable by anon or authenticated', async ({
+    client,
+  }) => {
+    for (const rpcClient of [createAnonClient(), client]) {
+      const { error } = await rpcClient.rpc(
+        'delete_orphaned_asset_preview_snapshots',
+      )
+      expect(error).not.toBeNull()
+    }
   })
 
-  it('the snapshot upsert RPC is not executable by anon', async () => {
-    const { error } = await createAnonClient().rpc(
-      'ensure_asset_preview_snapshot',
-      {
+  it('the snapshot upsert RPC is not executable by anon or authenticated', async ({
+    client,
+  }) => {
+    for (const rpcClient of [createAnonClient(), client]) {
+      const { error } = await rpcClient.rpc('ensure_asset_preview_snapshot', {
         p_provider_id: 'nasa_ivl',
-        p_external_id: 'ANON-SHOULD-NOT-WRITE',
+        p_external_id: 'NON-SERVICE-SHOULD-NOT-WRITE',
         p_title: 'nope',
         p_thumb_href: 'https://example.com/no.jpg',
         p_thumb_width: 1,
         p_thumb_height: 1,
-      },
-    )
-    expect(error).not.toBeNull()
+      })
+      expect(error).not.toBeNull()
+    }
   })
 })

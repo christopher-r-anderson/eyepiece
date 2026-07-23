@@ -141,10 +141,75 @@ USING (
   )
 );
 
+-- function: ensure snapshot (refresh updated_at unconditionally)
+
+-- The prior definition only ran the ON CONFLICT update when content changed,
+-- so re-ensuring an unchanged asset left updated_at untouched. That breaks two
+-- things the sweep below depends on: (1) an aged unreferenced snapshot that a
+-- consumer just re-ensured would still match the sweep predicate, so a sweep
+-- landing between ensure and the reference insert could delete it and FK-fail
+-- the insert; (2) an unchanging asset would refetch from the provider on every
+-- access past the 7-day stale window forever. Bumping updated_at on every
+-- ensure (moddatetime fires on the now-unconditional update) fixes both:
+-- re-ensuring means "verified against the provider just now", which is exactly
+-- what updated_at should record.
+CREATE OR REPLACE FUNCTION public.ensure_asset_preview_snapshot(
+  p_provider_id public.provider_id,
+  p_external_id text,
+  p_title text,
+  p_thumb_href text,
+  p_thumb_width INT,
+  p_thumb_height INT
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $$
+DECLARE
+  v_id uuid;
+BEGIN
+  INSERT INTO public.asset_preview_snapshots (
+    provider_id,
+    external_id,
+    title,
+    thumb_href,
+    thumb_width,
+    thumb_height
+  )
+  VALUES (
+    p_provider_id,
+    p_external_id,
+    p_title,
+    p_thumb_href,
+    p_thumb_width,
+    p_thumb_height
+  )
+  ON CONFLICT (provider_id, external_id) DO UPDATE
+  SET
+    -- keep each field when the caller passes null; updated_at is bumped by
+    -- the moddatetime trigger on every update (the update is unconditional)
+    title = COALESCE(excluded.title, asset_preview_snapshots.title),
+    thumb_href = COALESCE(
+      excluded.thumb_href, asset_preview_snapshots.thumb_href
+    ),
+    thumb_width = COALESCE(
+      excluded.thumb_width, asset_preview_snapshots.thumb_width
+    ),
+    thumb_height = COALESCE(
+      excluded.thumb_height, asset_preview_snapshots.thumb_height
+    )
+  RETURNING id INTO v_id;
+
+  RETURN v_id;
+END;
+$$;
+
 -- function: orphan snapshot sweep
 
--- The grace window stays comfortably above the 7-day snapshot stale window
--- so the non-atomic ensure-then-reference two-step can never race the sweep.
+-- The grace window stays comfortably above the 7-day snapshot stale window,
+-- and ensure now refreshes updated_at, so a just-ensured snapshot is never
+-- inside the deletion window and the ensure-then-reference two-step is safe.
 CREATE OR REPLACE FUNCTION public.delete_orphaned_asset_preview_snapshots()
 RETURNS INTEGER
 LANGUAGE plpgsql
