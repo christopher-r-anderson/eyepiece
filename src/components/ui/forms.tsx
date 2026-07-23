@@ -134,7 +134,7 @@ export function InputGroup({
           gridTemplateColumns: 'minmax(0, 1fr)',
           rowGap: '4',
           '@form/2xl': {
-            gridTemplateColumns: 'auto minmax(10ch, 30ch)',
+            gridTemplateColumns: 'auto minmax(6rem, 17rem)',
             columnGap: '3',
             rowGap: '5',
           },

@@ -1,5 +1,6 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { SubmitButton } from './submit-button'
 import type { SearchFieldProps } from '@/components/ui/search-field'
 import { FieldError, Input } from '@/components/ui/forms'
 import { SearchField } from '@/components/ui/search-field'
@@ -27,6 +28,7 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
           color: 'inherit',
           fontSize: '1em',
           width: '100%',
+          paddingBlock: '1',
           '&:focus': {
             outline: 'none',
           },
@@ -43,6 +45,7 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
       >
         <XIcon aria-hidden="true" />
       </Button>
+      <SubmitButton />
       <FieldError>Please enter valid search keywords.</FieldError>
     </SearchField>
   )

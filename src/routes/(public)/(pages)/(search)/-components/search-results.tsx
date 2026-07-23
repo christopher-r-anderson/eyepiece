@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { hashKey } from '@tanstack/react-query'
 import { css } from 'styled-system/css'
 import { AssetResultsGrid } from './asset-results-grid'
+import { EmptyResultsNotice } from './empty-results-notice'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { useSuspenseInfiniteSearch } from '@/features/search/search.queries'
 import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
@@ -21,7 +22,7 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
   )
 
   if (data.items.length === 0) {
-    return <p>No results found.</p>
+    return <EmptyResultsNotice query={query} providerId={filters.providerId} />
   }
 
   return (
@@ -30,6 +31,8 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
       fetchNextPage={fetchNextPage}
       hasNextPage={hasNextPage}
       loadedCount={data.items.length}
+      total={data.total}
+      loadMoreVariant="text"
       uiResetKey={uiResetKey}
       className={css({ width: '100%' })}
     >

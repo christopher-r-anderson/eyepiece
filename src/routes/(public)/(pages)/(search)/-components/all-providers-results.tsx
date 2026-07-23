@@ -2,8 +2,10 @@ import { Suspense } from 'react'
 import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
 import { grid, wrap } from 'styled-system/patterns'
 import { AssetResultsGrid } from './asset-results-grid'
+import { EmptyResultsNotice } from './empty-results-notice'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import { Heading } from '@/components/ui/heading'
@@ -14,6 +16,7 @@ import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
 import {
   ALL_SCOPE_SECTION_SIZE,
+  useSearchTotal,
   useSuspenseSearchSection,
 } from '@/features/search/search.queries'
 
@@ -41,6 +44,7 @@ interface ProviderSectionProps {
 function ProviderSection({ query, providerId }: ProviderSectionProps) {
   const headingId = useId()
   const display = PROVIDER_DISPLAY[providerId]
+  const total = useSearchTotal(query, defaultSearchFilters(providerId))
 
   return (
     <section aria-labelledby={headingId}>
@@ -52,13 +56,16 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           marginBottom: '4',
         })}
       >
-        <Heading level={2} id={headingId}>
+        <Heading
+          level={2}
+          id={headingId}
+          css={css.raw({ textStyle: 'title.md' })}
+        >
           {display.displayName}
         </Heading>
-        <Link
-          to="/search"
-          search={{ q: query, providerId }}
-        >{`See all from ${display.shortLabel}`}</Link>
+        <Link to="/search" search={{ q: query, providerId }}>
+          {total ? `See all ${total}` : `See all from ${display.shortLabel}`}
+        </Link>
       </div>
       <CatchBoundary
         getResetKey={() => hashKey(['search-section', providerId, query])}
@@ -92,7 +99,7 @@ function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
   )
 
   if (data.items.length === 0) {
-    return <p>No results from {PROVIDER_DISPLAY[providerId].displayName}.</p>
+    return <EmptyResultsNotice query={query} providerId={providerId} />
   }
 
   return <AssetResultsGrid items={data.items} />

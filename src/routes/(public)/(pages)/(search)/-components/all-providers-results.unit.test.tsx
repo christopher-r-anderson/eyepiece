@@ -46,10 +46,13 @@ vi.mock('./asset-results-grid', () => ({
 }))
 
 const mockUseSuspenseSearchSection = vi.fn()
+const mockUseSearchTotal = vi.fn()
 vi.mock('@/features/search/search.queries', () => ({
   ALL_SCOPE_SECTION_SIZE: 6,
   useSuspenseSearchSection: (query: string, filters: SearchFilters) =>
     mockUseSuspenseSearchSection(query, filters),
+  useSearchTotal: (query: string, filters: SearchFilters) =>
+    mockUseSearchTotal(query, filters),
 }))
 
 const { AllProvidersResults } = await import('./all-providers-results')
@@ -68,6 +71,8 @@ function sectionData(count: number, total = count) {
 describe('all providers results', () => {
   beforeEach(() => {
     mockUseSuspenseSearchSection.mockReset()
+    mockUseSearchTotal.mockReset()
+    mockUseSearchTotal.mockReturnValue(undefined)
     capturedAlertContexts.length = 0
   })
 
@@ -151,8 +156,36 @@ describe('all providers results', () => {
 
     render(<AllProvidersResults query="zzzz" />)
 
-    expect(
-      screen.getByText('No results from NASA Image and Video Library.'),
-    ).toBeTruthy()
+    expect(screen.getByText(/No matches for/).textContent).toBe(
+      'No matches for zzzz in NASA Image and Video Library. Try a broader term.',
+    )
+  })
+
+  it('labels see-all links and the empty-state cross-link with known totals', () => {
+    mockUseSuspenseSearchSection.mockImplementation(
+      (_query: string, filters: SearchFilters) =>
+        filters.providerId === NASA_IVL_PROVIDER_ID
+          ? sectionData(0)
+          : sectionData(1),
+    )
+    mockUseSearchTotal.mockImplementation(
+      (_query: string, filters: SearchFilters) =>
+        filters.providerId === NASA_IVL_PROVIDER_ID ? 0 : 214,
+    )
+
+    render(<AllProvidersResults query="zzzz" />)
+
+    const siSection = within(
+      screen.getByRole('region', {
+        name: 'Smithsonian National Air and Space Museum',
+      }),
+    )
+    expect(siSection.getByRole('link', { name: 'See all 214' })).toBeTruthy()
+    const crossLink = screen.getByRole('link', {
+      name: 'see the 214 results from Smithsonian',
+    })
+    expect(crossLink.getAttribute('href')).toBe(
+      `/search?providerId=${SI_OA_PROVIDER_ID}&q=zzzz`,
+    )
   })
 })

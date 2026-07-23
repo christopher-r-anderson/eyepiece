@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import {
   infiniteQueryOptions,
+  useInfiniteQuery,
   useSuspenseInfiniteQuery,
 } from '@tanstack/react-query'
 import { makeSearchRepo, useSearchRepo } from './search.repo'
@@ -50,6 +51,13 @@ export function getInfiniteSearchImagesOptions<
   })
 }
 
+function flattenSearchSelector(data: SearchImagesInfinite) {
+  return {
+    ...flattenAssetsSelector(data),
+    total: data.pages[0].pagination.total,
+  }
+}
+
 export function useSuspenseInfiniteSearch(
   query: SearchQuery,
   filters: SearchFilters,
@@ -60,9 +68,24 @@ export function useSuspenseInfiniteSearch(
       repo,
       query,
       filters,
-      select: flattenAssetsSelector,
+      select: flattenSearchSelector,
     }),
   )
+}
+
+// non-suspending read of the same query the results panel renders; the
+// shared key means this never adds a request
+export function useSearchTotal(query: SearchQuery, filters: SearchFilters) {
+  const repo = useSearchRepo()
+  const { data } = useInfiniteQuery({
+    ...getInfiniteSearchImagesOptions({
+      repo,
+      query,
+      filters,
+      select: flattenSearchSelector,
+    }),
+  })
+  return data?.total
 }
 
 export const ALL_SCOPE_SECTION_SIZE = 6

@@ -62,7 +62,7 @@ test('all scope renders publicly cacheable with sections and no console errors',
   expect(response?.headers()['cache-control']).toContain('public')
 
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
   const scopeNav = page.getByRole('navigation', { name: 'Search scope' })
   await expect(scopeNav.getByRole('link')).toHaveText([
@@ -189,7 +189,7 @@ test('home search submits before hydration', async ({ page }) => {
     )
   })
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
 })
 
@@ -204,8 +204,8 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
   await searchbox.fill('mars')
   // both year edits land outside the initial 1960-2000 range
-  await page.getByLabel('From', { exact: true }).fill('2005')
-  await page.getByLabel('To', { exact: true }).fill('2015')
+  await page.getByLabel('Earliest year').fill('2005')
+  await page.getByLabel('Latest year').fill('2015')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
   // the year inputs serialize in document order after q, so the native
@@ -232,7 +232,7 @@ test('an inverted year range is blocked natively after hydration', async ({
 
   // a fill that lands before hydration is wiped by the controlled input;
   // retry until the value sticks
-  const from = page.getByLabel('From', { exact: true })
+  const from = page.getByLabel('Earliest year')
   await expect(async () => {
     await from.fill('2010')
     await page.waitForTimeout(150)
@@ -301,7 +301,7 @@ test('a multi-word padded query canonicalizes from a pre-hydration submit', asyn
     (url) => url.pathname === '/search' && url.search === '?q=crab+nebula',
   )
   await expect(
-    page.getByRole('heading', { name: 'Search for "crab nebula"' }),
+    page.getByRole('heading', { level: 1, name: /crab nebula/ }),
   ).toBeVisible()
 })
 
@@ -347,7 +347,7 @@ test('all-view sections load once and "See all" reuses the cache', async ({
   const requestsAfterSections = searchRequests.length
   expect(requestsAfterSections).toBeGreaterThan(0)
 
-  await nasaSection.getByRole('link', { name: 'See all from NASA' }).click()
+  await nasaSection.getByRole('link', { name: /^See all/ }).click()
   await page.waitForURL((url) => {
     return (
       url.searchParams.get('q') === 'moon' &&
@@ -422,7 +422,7 @@ test('a legacy mediaType URL loads and canonicalizes without the key', async ({
     )
   })
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
 
   expect(consoleErrors).toEqual([])

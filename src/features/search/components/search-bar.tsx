@@ -1,11 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
 import { toSearchPageParams } from '../search-page-params'
 import { SearchInput } from './search-bar/search-input'
-import { SubmitButton } from './search-bar/submit-button'
-import { NasaIvlFilters } from './providers/nasa-ivl-filters'
 import type { FormProps } from '@/components/ui/forms'
 import type { SearchScope } from '../search-page-params'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
@@ -15,6 +12,9 @@ import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 interface SearchBarProps extends FormProps {
   initialQuery: string
   scope: SearchScope
+  // the year inputs live in the conditions line and associate through the
+  // form attribute; hydrated submits read this lifted state
+  nasaFilters?: NasaIvlSearchFilters
 }
 
 function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
@@ -26,6 +26,7 @@ function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
 export function SearchBar({
   initialQuery,
   scope,
+  nasaFilters,
   css: styles,
   ...props
 }: SearchBarProps) {
@@ -33,17 +34,14 @@ export function SearchBar({
   const isNasaScope =
     scope.scope === 'provider' &&
     scope.filters.providerId === NASA_IVL_PROVIDER_ID
-  const [nasaFilters, setNasaFilters] = useState<NasaIvlSearchFilters>(
-    isNasaScope ? scope.filters.filters : {},
-  )
   const navigate = useNavigate()
 
   // before hydration the form submits natively and serializes in document
   // order, so the initial scope rides along as hidden fields sorted and
   // split around the q input to produce the router's key-sorted spelling.
-  // the year filters are real named inputs in the panel below, not hidden
-  // fields; a native submit carrying them serializes non-canonical and
-  // relies on the canonicalization redirect
+  // the year filters are real named inputs in the conditions line, not
+  // hidden fields; a native submit carrying them serializes non-canonical
+  // and relies on the canonicalization redirect
   const nativeInputNames = ['q', 'yearStart', 'yearEnd']
   const nativeScopeFields = Object.entries(
     toSearchPageParams(initialQuery, scope),
@@ -57,7 +55,10 @@ export function SearchBar({
     if (isNasaScope) {
       return {
         scope: 'provider',
-        filters: { providerId: NASA_IVL_PROVIDER_ID, filters: nasaFilters },
+        filters: {
+          providerId: NASA_IVL_PROVIDER_ID,
+          filters: nasaFilters ?? {},
+        },
       }
     }
     return scope
@@ -66,7 +67,10 @@ export function SearchBar({
   return (
     <Form
       action="/search"
-      css={css.raw({ width: '100%' }, styles)}
+      css={css.raw(
+        { width: '100%', maxWidth: 'formMax', padding: 0, marginInline: 0 },
+        styles,
+      )}
       onSubmit={(event) => {
         event.preventDefault()
         void navigate({
@@ -77,53 +81,12 @@ export function SearchBar({
       {...props}
     >
       <HiddenScopeFields fields={fieldsBeforeQuery} />
-      <div
-        className={grid({
-          background: 'bg.surface.2',
-          color: 'text',
-          gridTemplateColumns: 'minmax(0, 1fr)',
-          gap: '2',
-          alignItems: 'stretch',
-          padding: '2',
-          borderRadius: 'sm',
-          border: 'default',
-          '@/xl': {
-            gridTemplateColumns: 'minmax(0, 1fr) auto',
-            gap: '4',
-            alignItems: 'center',
-          },
-        })}
-      >
-        <SearchInput
-          aria-label="Search keywords"
-          value={query}
-          onChange={setQuery}
-        />
-        <SubmitButton />
-      </div>
+      <SearchInput
+        aria-label="Search keywords"
+        value={query}
+        onChange={setQuery}
+      />
       <HiddenScopeFields fields={fieldsAfterQuery} />
-      {isNasaScope && (
-        <FiltersPanel>
-          <NasaIvlFilters filters={nasaFilters} onChange={setNasaFilters} />
-        </FiltersPanel>
-      )}
     </Form>
-  )
-}
-
-function FiltersPanel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className={css({
-        padding: '4',
-        background: 'bg.surface.2',
-        color: 'text',
-        borderRadius: 'sm',
-        border: 'default',
-        overflowX: 'auto',
-      })}
-    >
-      {children}
-    </div>
   )
 }

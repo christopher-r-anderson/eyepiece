@@ -37,11 +37,7 @@ describe('search scope tabs', () => {
   })
 
   it('renders a link per scope with the URL-derived current tab', () => {
-    render(
-      <SearchScopeTabs q="moon" scope={{ scope: 'all' }}>
-        panel
-      </SearchScopeTabs>,
-    )
+    render(<SearchScopeTabs q="moon" scope={{ scope: 'all' }} />)
 
     const links = scopeNav().getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
@@ -61,9 +57,7 @@ describe('search scope tabs', () => {
           scope: 'provider',
           filters: { providerId: SI_OA_PROVIDER_ID, filters: {} },
         }}
-      >
-        panel
-      </SearchScopeTabs>,
+      />,
     )
 
     expect(
@@ -84,9 +78,7 @@ describe('search scope tabs', () => {
             filters: {},
           },
         }}
-      >
-        panel
-      </SearchScopeTabs>,
+      />,
     )
 
     expect(
@@ -110,9 +102,7 @@ describe('search scope tabs', () => {
             filters: { yearStart: 1990 },
           },
         }}
-      >
-        panel
-      </SearchScopeTabs>,
+      />,
     )
 
     expect(
@@ -121,11 +111,7 @@ describe('search scope tabs', () => {
   })
 
   it('omits an empty query from tab links', () => {
-    render(
-      <SearchScopeTabs q="" scope={{ scope: 'all' }}>
-        panel
-      </SearchScopeTabs>,
-    )
+    render(<SearchScopeTabs q="" scope={{ scope: 'all' }} />)
 
     expect(
       scopeNav().getByRole('link', { name: 'NASA' }).getAttribute('href'),

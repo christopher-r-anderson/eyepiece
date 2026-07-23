@@ -3,6 +3,9 @@ import { ghostVisualStyles } from './button.styles'
 
 export const buttonRecipe = defineRecipe({
   className: 'button',
+  // the load-more variant is prop-drilled through InfiniteLoader, which
+  // jit tracking cannot see
+  staticCss: [{ variant: ['text'] }],
   base: {
     border: 'none',
     minHeight: 'controlHeight',
@@ -51,6 +54,23 @@ export const buttonRecipe = defineRecipe({
         _disabled: { color: 'text.muted' },
       },
       ghost: ghostVisualStyles,
+      // an inline action set as prose with a hanging rule (the mockups'
+      // text-btn voice)
+      text: {
+        backgroundColor: 'transparent',
+        minHeight: 'auto',
+        padding: 0,
+        borderRadius: 0,
+        fontWeight: 400,
+        fontSize: 'control',
+        color: 'text',
+        borderBottom: '1px solid token(colors.border)',
+        transitionFast: 'border-color, color',
+        _hovered: {
+          borderBottomColor: 'text',
+        },
+        _disabled: { color: 'text.muted' },
+      },
       bare: {
         backgroundColor: 'transparent',
         minHeight: 'auto',

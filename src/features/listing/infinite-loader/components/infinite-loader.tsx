@@ -2,6 +2,7 @@ import { startTransition, useEffect } from 'react'
 import { css } from 'styled-system/css'
 import { VisuallyHidden } from 'styled-system/jsx'
 import type { ComponentPropsWithoutRef } from 'react'
+import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
 import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
@@ -12,6 +13,8 @@ export function InfiniteLoader({
   fetchNextPage,
   hasNextPage,
   loadedCount = 0,
+  total,
+  loadMoreVariant,
   uiResetKey,
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
@@ -19,6 +22,9 @@ export function InfiniteLoader({
   fetchNextPage: () => unknown | Promise<unknown>
   hasNextPage: boolean
   loadedCount?: number
+  // renders a visible "showing n of total" line when provided
+  total?: number
+  loadMoreVariant?: ButtonProps['variant']
   uiResetKey: string
 }) {
   const status = useInfiniteStatus({
@@ -49,19 +55,42 @@ export function InfiniteLoader({
 
       <div ref={sentinelRef} />
 
-      {showLoadMore && (
-        <div className={css({ marginTop: '4', textAlign: 'center' })}>
-          <Button
-            isDisabled={isFetchingNextPage}
-            onPress={async () => {
-              await fetchNextPage()
-              startTransition(() => {
-                resetAuto()
-              })
-            }}
-          >
-            {isFetchingNextPage ? 'Loading…' : 'Load more'}
-          </Button>
+      {(showLoadMore || total !== undefined) && (
+        <div
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2',
+            paddingBlock: '5',
+          })}
+        >
+          {total !== undefined && (
+            <span
+              className={css({
+                fontFamily: 'mono',
+                fontSize: 'mono',
+                textTransform: 'lowercase',
+                color: 'text.muted',
+              })}
+            >
+              showing {loadedCount} of {total}
+            </span>
+          )}
+          {showLoadMore && (
+            <Button
+              variant={loadMoreVariant}
+              isDisabled={isFetchingNextPage}
+              onPress={async () => {
+                await fetchNextPage()
+                startTransition(() => {
+                  resetAuto()
+                })
+              }}
+            >
+              {isFetchingNextPage ? 'Loading…' : 'Load more'}
+            </Button>
+          )}
         </div>
       )}
     </div>

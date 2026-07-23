@@ -91,6 +91,11 @@ export default defineConfig({
     tokens,
     semanticTokens,
     textStyles,
+    keyframes: {
+      settle: {
+        from: { opacity: 0, transform: 'translateY(12px)' },
+      },
+    },
     recipes: {
       button: buttonRecipe,
       form: formRecipe,

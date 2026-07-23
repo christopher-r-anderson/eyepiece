@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, useId, useState } from 'react'
 import {
   CatchBoundary,
   createFileRoute,
@@ -9,23 +9,30 @@ import { css } from 'styled-system/css'
 import { SearchResults } from './-components/search-results'
 import { SearchPrompt } from './-components/search-prompt'
 import { AllProvidersResults } from './-components/all-providers-results'
+import { QueryHeadline } from './-components/query-headline'
 import type {
   SearchPageState,
   SearchScope,
 } from '@/features/search/search-page-params'
+import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import { getTitleText } from '@/lib/utils'
 import { CapturedPrettyError, RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { SearchBar } from '@/features/search/components/search-bar'
+import { SearchConditions } from '@/features/search/components/search-conditions'
 import { SearchScopeTabs } from '@/features/search/components/search-scope-tabs'
 import {
   searchPageParamsSchema,
   toSearchPageState,
 } from '@/features/search/search-page-params'
 import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
-import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
+import {
+  NASA_IVL_PROVIDER_ID,
+  PROVIDERS,
+  PROVIDER_DISPLAY,
+} from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
 
 function searchTitle({ q, scope }: SearchPageState) {
@@ -144,25 +151,51 @@ function SearchPage() {
   const search = Route.useSearch()
   const params = searchPageParamsSchema.parse(search)
   const state = toSearchPageState(params)
-  const { q, scope } = state
   useCanonicalSearchReplace()
+  const formResetKey = hashKey(['search-form', state.q, state.scope])
+
+  return <SearchView key={formResetKey} state={state} />
+}
+
+function SearchView({ state }: { state: SearchPageState }) {
+  const { q, scope } = state
   const hasQuery = q.trim().length > 0
-  const formResetKey = hashKey(['search-form', q, scope])
+  const formId = useId()
+  const isNasaScope =
+    scope.scope === 'provider' &&
+    scope.filters.providerId === NASA_IVL_PROVIDER_ID
+  const [nasaFilters, setNasaFilters] = useState<NasaIvlSearchFilters>(
+    isNasaScope ? scope.filters.filters : {},
+  )
 
   return (
-    <>
-      <PageHeading>{searchTitle(state)}</PageHeading>
-      <div
-        className={css({
-          width: '100%',
-          maxWidth: 'pageColMax',
-          marginInline: 'auto',
-          paddingInline: '4',
-        })}
-      >
-        <SearchBar key={formResetKey} initialQuery={q} scope={scope} />
+    <div className={css({ width: '100%' })}>
+      <SearchBar
+        id={formId}
+        initialQuery={q}
+        scope={scope}
+        nasaFilters={nasaFilters}
+      />
+      {hasQuery && (
+        <div className={css({ marginTop: '6' })}>
+          <QueryHeadline query={q} />
+        </div>
+      )}
+      <div className={css({ marginTop: '5' })}>
+        <SearchScopeTabs q={q} scope={scope} />
       </div>
-      <SearchScopeTabs q={q} scope={scope}>
+      {hasQuery && (
+        <div className={css({ marginTop: '2' })}>
+          <SearchConditions
+            q={q}
+            scope={scope}
+            formId={formId}
+            nasaFilters={nasaFilters}
+            onNasaFiltersChange={setNasaFilters}
+          />
+        </div>
+      )}
+      <div className={css({ marginTop: hasQuery ? '4' : '5' })}>
         {!hasQuery ? (
           <SearchPrompt />
         ) : scope.scope !== 'provider' ? (
@@ -170,7 +203,7 @@ function SearchPage() {
         ) : (
           <ScopedSearchResults q={q} scope={scope} />
         )}
-      </SearchScopeTabs>
-    </>
+      </div>
+    </div>
   )
 }
