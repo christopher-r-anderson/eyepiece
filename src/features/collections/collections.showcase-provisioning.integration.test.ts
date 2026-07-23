@@ -175,7 +175,11 @@ describe('provisionShowcaseContent', () => {
 
     const [first] = curation.collections
     const edited: ShowcaseCuration = {
-      user: { ...curation.user, displayName: 'renamed curator' },
+      user: {
+        ...curation.user,
+        email: `renamed-${curation.user.email}`,
+        displayName: 'renamed curator',
+      },
       collections: [
         {
           ...first,
@@ -198,8 +202,16 @@ describe('provisionShowcaseContent', () => {
       collectionsWritten: 1,
       collectionsDeleted: 1,
       itemsWritten: 2,
-      itemsRemoved: 1,
+      // one pruned from the kept collection, one cascaded with the dropped one
+      itemsRemoved: 2,
     })
+
+    const { data: authUser } = await adminClient.auth.admin.getUserById(
+      curation.user.id,
+    )
+    expect(authUser.user?.email).toBe(edited.user.email)
+    expect(authUser.user?.email_confirmed_at).toBeTruthy()
+    expect(authUser.user?.user_metadata.display_name).toBe('renamed curator')
 
     const { data: profile } = await adminClient
       .from('profiles')

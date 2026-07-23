@@ -17,13 +17,13 @@ export interface ShowcaseCuration {
   collections: Array<ShowcaseCollection>
 }
 
-// The curated-content source of truth (the CMS stand-in from #18): the
-// provisioning reconcile makes every environment's database match this file,
-// so showcase content changes by editing it and deploying. Ids are fixed here
-// so local, CI, and production agree on every URL the homepage links.
+// The curated-content source of truth: the provisioning reconcile makes every
+// environment's database match this file, so showcase content changes by
+// editing it and deploying. Ids are fixed here so local, CI, and production
+// agree on every URL the homepage links.
 //
 // The account is created with a discarded random password; access is minted
-// on demand with project-admin rights (see #18's provisioning decision).
+// on demand with project-admin rights.
 export const SHOWCASE_CURATION: ShowcaseCuration = {
   user: {
     id: 'c081d76d-0949-4dd0-8041-475fad3f8d7c',

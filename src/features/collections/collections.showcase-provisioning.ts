@@ -6,6 +6,7 @@ import type {
 } from './collections.showcase'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
+import { assetKeySchema } from '@/domain/asset/asset.schema'
 import { ASSET_PREVIEW_SNAPSHOT_STALE_TIME } from '@/features/assets/asset-preview-snapshots.const'
 
 // Declarative reconcile run by scripts/provision-showcase.ts with service-role
@@ -58,6 +59,7 @@ export function validateShowcaseCuration(curation: ShowcaseCuration): void {
     }
     const itemIds = new Set<string>()
     for (const item of collection.items) {
+      assetKeySchema.parse(item)
       const id = assetKeyId(item)
       if (itemIds.has(id)) {
         throw new Error(
@@ -78,6 +80,25 @@ async function ensureShowcaseUser(
     throw new Error(`showcase user lookup failed: ${error.message}`)
   }
   if (data.user) {
+    const changes: {
+      email?: string
+      email_confirm?: boolean
+      user_metadata?: { display_name: string }
+    } = {}
+    if (data.user.email !== user.email) {
+      changes.email = user.email
+      changes.email_confirm = true
+    }
+    if (data.user.user_metadata.display_name !== user.displayName) {
+      changes.user_metadata = { display_name: user.displayName }
+    }
+    if (Object.keys(changes).length > 0) {
+      const { error: updateError } =
+        await adminClient.auth.admin.updateUserById(user.id, changes)
+      if (updateError) {
+        throw new Error(`showcase user update failed: ${updateError.message}`)
+      }
+    }
     return { userCreated: false }
   }
 
@@ -184,10 +205,10 @@ async function ensureSnapshots(
   return { snapshotIds, snapshotsFetched }
 }
 
-async function reconcileCollections(
+async function upsertCollections(
   adminClient: SupabaseClient,
   curation: ShowcaseCuration,
-): Promise<{ collectionsWritten: number; collectionsDeleted: number }> {
+): Promise<{ collectionsWritten: number }> {
   const rows = curation.collections.map((collection, index) => ({
     id: collection.id,
     owner_id: curation.user.id,
@@ -201,16 +222,46 @@ async function reconcileCollections(
   if (error) {
     throw new Error(`collections upsert failed: ${error.message}`)
   }
+  return { collectionsWritten: rows.length }
+}
 
-  const { count, error: deleteError } = await adminClient
+async function pruneRemovedCollections(
+  adminClient: SupabaseClient,
+  curation: ShowcaseCuration,
+): Promise<{ collectionsDeleted: number; itemsRemoved: number }> {
+  const keepIds = curation.collections.map((collection) => collection.id)
+  const { data: stale, error: staleError } = await adminClient
+    .from('collections')
+    .select('id')
+    .eq('owner_id', curation.user.id)
+    .not('id', 'in', `(${keepIds.join(',')})`)
+  if (staleError) {
+    throw new Error(`collections prune lookup failed: ${staleError.message}`)
+  }
+  if (stale.length === 0) {
+    return { collectionsDeleted: 0, itemsRemoved: 0 }
+  }
+
+  const staleIds = stale.map((row) => row.id)
+  // counted up front because deleting the collections cascades their items
+  const { count: cascadedItems, error: countError } = await adminClient
+    .from('collection_items')
+    .select('*', { count: 'exact', head: true })
+    .in('collection_id', staleIds)
+  if (countError) {
+    throw new Error(
+      `collections prune item count failed: ${countError.message}`,
+    )
+  }
+
+  const { count, error } = await adminClient
     .from('collections')
     .delete({ count: 'exact' })
-    .eq('owner_id', curation.user.id)
-    .not('id', 'in', `(${rows.map((row) => row.id).join(',')})`)
-  if (deleteError) {
-    throw new Error(`collections prune failed: ${deleteError.message}`)
+    .in('id', staleIds)
+  if (error) {
+    throw new Error(`collections prune failed: ${error.message}`)
   }
-  return { collectionsWritten: rows.length, collectionsDeleted: count ?? 0 }
+  return { collectionsDeleted: count ?? 0, itemsRemoved: cascadedItems ?? 0 }
 }
 
 async function reconcileItems(
@@ -283,10 +334,12 @@ export async function provisionShowcaseContent(
     curation,
   )
 
-  const { collectionsWritten, collectionsDeleted } = await reconcileCollections(
-    adminClient,
-    curation,
-  )
+  // collection deletion runs last: statements are individually atomic but the
+  // run is not a transaction, so an interrupted run (a cancelled deploy) must
+  // never have deleted a collection the still-published homepage links. an
+  // interruption leaves at most stale extras; the next successful run prunes
+  // them
+  const { collectionsWritten } = await upsertCollections(adminClient, curation)
 
   let itemsWritten = 0
   let itemsRemoved = 0
@@ -296,12 +349,14 @@ export async function provisionShowcaseContent(
     itemsRemoved += result.itemsRemoved
   }
 
+  const pruned = await pruneRemovedCollections(adminClient, curation)
+
   return {
     userCreated,
     snapshotsFetched,
     collectionsWritten,
-    collectionsDeleted,
+    collectionsDeleted: pruned.collectionsDeleted,
     itemsWritten,
-    itemsRemoved,
+    itemsRemoved: itemsRemoved + pruned.itemsRemoved,
   }
 }

@@ -80,7 +80,7 @@ The current authentication implementation supports email auth, allows new sign-u
 2. Gather the following values for later steps:
    - Project URL: `Settings -> Data API -> Project URL`. Use this in Netlify as `VITE_SUPABASE_URL`.
    - Publishable key: `Settings -> API Keys -> Publishable key`. Use this in Netlify as `VITE_SUPABASE_PUBLISHABLE_KEY`.
-   - Secret key: `Settings -> API Keys -> Secret keys`. Use this in Netlify as `SUPABASE_SECRET_KEY`.
+   - Secret key: `Settings -> API Keys -> Secret keys`. Use this in Netlify and GitHub as `SUPABASE_SECRET_KEY`.
    - Project ID: `Project Settings -> General -> Project ID`.
    - Access token: `Account -> Account Preferences -> Access Tokens -> Generate new token`. Use this in GitHub as `SUPABASE_ACCESS_TOKEN`. Give it an expiration date and track it so it does not expire unexpectedly.
 3. Run `pnpm supabase login` if you are not already logged in.
@@ -104,12 +104,13 @@ In your GitHub repository, go to `Settings -> Secrets and variables -> Actions`.
 
 You can use repository-level secrets and variables, or use an environment if you have one set up. Repository-level configuration is sufficient for the current setup.
 
-Add the following four secrets under `Secrets -> Repository secrets -> New repository secret`:
+Add the following five secrets under `Secrets -> Repository secrets -> New repository secret`:
 
 - `SI_OA_API_KEY`: your Smithsonian Institution Open Access or `api.data.gov` API key.
 - `NETLIFY_AUTH_TOKEN`: the Netlify Personal Access Token.
 - `SUPABASE_ACCESS_TOKEN`: the Supabase access token.
 - `SUPABASE_DB_PASSWORD`: the database password created during Supabase project setup. If you reset it later in Supabase, any other systems using that password will also need to be updated.
+- `SUPABASE_SECRET_KEY`: the Supabase secret key, the same value used in Netlify. The publish workflow uses it to provision showcase content after database migrations are deployed.
 
 Add the following two repository variables under `Variables -> Repository variables -> New repository variable`:
 

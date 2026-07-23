@@ -236,6 +236,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm provision-showcase
 
       - name: Trigger Netlify publish hook

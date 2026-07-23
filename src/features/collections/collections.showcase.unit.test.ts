@@ -73,6 +73,22 @@ describe('validateShowcaseCuration', () => {
     ).toThrow(/no items/)
   })
 
+  it('rejects an empty item external id', () => {
+    const collection = curationWith().collections[0]
+    expect(() =>
+      validateShowcaseCuration(
+        curationWith({
+          collections: [
+            {
+              ...collection,
+              items: [{ providerId: 'nasa_ivl', externalId: '' }],
+            },
+          ],
+        }),
+      ),
+    ).toThrow()
+  })
+
   it('rejects a blank collection name', () => {
     const collection = curationWith().collections[0]
     expect(() =>
