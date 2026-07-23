@@ -33,9 +33,7 @@ export default defineConfig({
   globalVars: {
     '--toggle-icon-color': { syntax: '*', inherits: true },
     '--toggle-icon-hover-color': { syntax: '*', inherits: true },
-    '--toggle-icon-hover-glow': { syntax: '*', inherits: true },
     '--toggle-icon-selected-color': { syntax: '*', inherits: true },
-    '--toggle-icon-selected-glow': { syntax: '*', inherits: true },
   },
   utilities: {
     extend: {
