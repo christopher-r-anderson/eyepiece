@@ -11,7 +11,6 @@ export function QueryHeadline({ query }: { query: string }) {
         animationTimingFunction: 'settle',
         animationFillMode: 'backwards',
         _motionReduce: { animation: 'none' },
-        _after: { content: '"."', color: 'text.muted' },
       })}
     >
       {query}
