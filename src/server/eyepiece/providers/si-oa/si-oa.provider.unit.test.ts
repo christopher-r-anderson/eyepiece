@@ -124,7 +124,7 @@ describe('makeSiOaAdapter', () => {
         'NASM-A19721168000-NASM2018-10153_screen',
       )
       expect(result?.thumbnail.href).toContain(
-        'NASM-A19721168000-NASM2018-10153_thumb',
+        'NASM-A19721168000-NASM2018-10153_screen',
       )
     })
 
@@ -183,7 +183,7 @@ describe('makeSiOaAdapter', () => {
         'NASM-A19740798000-NASM2018-10165_screen',
       )
       expect(result.items[0]?.thumbnail.href).toContain(
-        'NASM-A19740798000-NASM2018-10165_thumb',
+        'NASM-A19740798000-NASM2018-10165_screen',
       )
       expect(result.pagination.total).toBe(searchFixture.response.rowCount)
       expect(result.pagination.next).toBe(2)
