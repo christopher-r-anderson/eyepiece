@@ -2,11 +2,9 @@ import { useRef } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import { useLandmark } from 'react-aria'
 import { css, cx } from 'styled-system/css'
-import { grid, wrap } from 'styled-system/patterns'
 import type { ComponentPropsWithoutRef } from 'react'
 import { Link } from '@/components/ui/link'
-import ThemeSwitch from '@/components/theme/theme-switch'
-import logo from '@/assets/eyepiece-logo.svg'
+import { ThemeMenu } from '@/components/theme/theme-menu'
 import { LoginLink } from '@/features/auth/components/login-link'
 import { UserStatus } from '@/features/auth/components/user-status'
 
@@ -24,88 +22,30 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
       ref={ref}
       className={cx(
         css({
-          containerType: 'inline-size',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '18px',
+          marginInlineStart: 'auto',
+          flexShrink: 0,
+          fontSize: 'control',
+          mdDown: { gap: '3' },
         }),
         props.className,
       )}
     >
-      <div
-        className={grid({
-          gridTemplateColumns: 'minmax(0, 1fr)',
-          gridTemplateAreas: '"logo" "links"',
-          gap: '2',
-          justifyItems: 'center',
-          alignItems: 'center',
-          paddingBlock: '3',
-          paddingInline: '4',
-          '@/2xl': {
-            gridTemplateColumns: '1fr auto',
-            gridTemplateAreas: '"logo links"',
-            gap: '4',
-            alignItems: 'center',
-            justifyItems: 'stretch',
-          },
-          '@/3xl': {
-            gridTemplateColumns: 'auto minmax(0, 1fr)',
-            gridTemplateAreas: '"logo links"',
-            paddingBlock: '4',
-          },
-        })}
+      <Link
+        to="/favorites"
+        css={{
+          color: 'text.muted',
+          _hovered: { color: 'text', textDecoration: 'none' },
+          // narrow widths reach favorites through the user menu
+          mdDown: { display: 'none' },
+        }}
       >
-        <Link
-          to="/"
-          css={css.raw({
-            color: 'text',
-            gridArea: 'logo',
-            width: '100%',
-            maxWidth: '14rem',
-          })}
-          aria-label="eyepiece Home"
-        >
-          {/*
-          `svg` `use` instead of `img` to allow CSS color control at the cost of no `alt` text
-          still labeled for accessibility via `aria-label` but without a loading error fallback
-        */}
-          <svg
-            height="46"
-            role="img"
-            aria-label="eyepiece logo"
-            className={css({
-              display: 'block',
-              width: '100%',
-              height: 'auto',
-              overflow: 'visible',
-            })}
-          >
-            <use href={`${logo}#group`} />
-          </svg>
-        </Link>
-        <div
-          className={wrap({
-            gridArea: 'links',
-            align: 'center',
-            justify: 'center',
-            rowGap: '1',
-            columnGap: '3',
-            fontSize: 'base',
-            lineHeight: 'tight',
-            minWidth: 0,
-            width: '100%',
-            '@/2xl': {
-              justifyContent: 'flex-end',
-              width: 'auto',
-            },
-            '@/3xl': {
-              flexWrap: 'nowrap',
-              columnGap: '4',
-            },
-          })}
-        >
-          <ThemeSwitch />
-          <Link to="/favorites">Favorites</Link>
-          <UserStatusClientIsland />
-        </div>
-      </div>
+        Favorites
+      </Link>
+      <ThemeMenu />
+      <UserStatusClientIsland />
     </nav>
   )
 }

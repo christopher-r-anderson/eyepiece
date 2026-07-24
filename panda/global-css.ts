@@ -10,6 +10,8 @@ export const globalCss = defineGlobalStyles({
   html: {
     // react aria sets stable (not stable both-edges) which causes a jump in layout when a popover shows
     scrollbarGutter: 'stable both-edges !important',
+    // keyboard focus and anchor jumps must land below the sticky header
+    scrollPaddingTop: '4.5rem',
     background: 'bg.canvas',
     color: 'text',
   },

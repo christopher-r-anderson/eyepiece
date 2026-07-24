@@ -32,6 +32,7 @@ export const tokens = defineTokens({
     base: { value: '1.6' },
   },
   sizes: {
+    pageMax: { value: '80rem' },
     contentMax: { value: '72rem' },
     readingMax: { value: '65ch' },
     formMax: { value: '32rem' },
@@ -41,6 +42,7 @@ export const tokens = defineTokens({
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
   },
   spacing: {
+    pageInline: { value: '1.75rem' },
     '1': { value: '0.25rem' },
     '2': { value: '0.5rem' },
     '3': { value: '0.75rem' },
@@ -77,6 +79,7 @@ export const tokens = defineTokens({
   },
   zIndex: {
     base: { value: 0 },
+    sticky: { value: 5 },
     popover: { value: 10 },
     toast: { value: 20 },
     overlay: { value: 30 },

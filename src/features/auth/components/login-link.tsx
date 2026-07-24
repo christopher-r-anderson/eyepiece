@@ -12,6 +12,7 @@ export function LoginLink() {
   return (
     <Link
       to="/login"
+      css={{ fontWeight: 500, whiteSpace: 'nowrap' }}
       search={{ next: isModalStrategy ? urlToNextParam(href) : undefined }}
       onClick={(event) => {
         if (isModalStrategy && isPlainLeftClick(event)) {

@@ -72,6 +72,13 @@ export default defineConfig({
     },
   },
   theme: {
+    // page-shell viewport breakpoints; components keep container queries
+    breakpoints: {
+      sm: '40rem',
+      md: '48rem',
+      lg: '64rem',
+      xl: '80rem',
+    },
     // standard container query ladder, used as '@/xl' etc. against the
     // nearest containerType ancestor
     // 'form' is set by the form recipe's page layout so '@form/*' states

@@ -20,6 +20,8 @@ export const menuItemRecipe = defineRecipe({
   className: 'menu-item',
   base: {
     color: 'text',
+    // href items render as anchors; keep the prose underline off them
+    textDecoration: 'none',
     paddingBlock: '2',
     paddingInline: '4',
     borderRadius: 'sm',

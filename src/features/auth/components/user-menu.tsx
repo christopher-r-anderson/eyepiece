@@ -15,21 +15,29 @@ export function UserMenu() {
   const router = useRouter()
   const queueToastMessage = useQueueToastMessage()
   const { data: user } = useCurrentUserQuery()
+  const initial = user?.email?.[0]?.toUpperCase()
   return (
     <MenuTrigger>
-      <Button aria-label="User Menu" variant="ghost" size="icon">
-        <UserCircleIcon size={24} />
+      <Button
+        aria-label="User Menu"
+        variant="bare"
+        css={{
+          width: '30px',
+          height: '30px',
+          borderRadius: 'full',
+          backgroundColor: 'bg.surface.3',
+          color: 'text',
+          display: 'inline-grid',
+          placeItems: 'center',
+          fontWeight: 600,
+          fontSize: 'sm',
+          _hovered: { backgroundColor: 'bg.surface.4' },
+        }}
+      >
+        {initial ?? <UserCircleIcon size={20} />}
       </Button>
       <Popover placement="bottom end" containerPadding={20}>
         <Menu>
-          <MenuItem
-            href={{
-              to: '/favorites',
-            }}
-          >
-            Favorites
-          </MenuItem>
-          <Separator />
           {user && (
             <MenuItem
               href={{
@@ -40,6 +48,14 @@ export function UserMenu() {
               View Profile
             </MenuItem>
           )}
+          <MenuItem
+            href={{
+              to: '/favorites',
+            }}
+          >
+            Favorites
+          </MenuItem>
+          <Separator />
           <MenuItem
             href={{
               to: '/settings/profile',

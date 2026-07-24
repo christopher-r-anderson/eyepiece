@@ -7,12 +7,22 @@ export function Footer(props: ComponentPropsWithoutRef<'footer'>) {
       {...props}
       className={cx(
         css({
-          padding: '4',
+          maxWidth: 'pageMax',
+          width: '100%',
+          marginInline: 'auto',
+          paddingInline: 'pageInline',
+          paddingBlock: '28px 36px',
+          color: 'text.muted',
+          fontFamily: 'mono',
+          fontSize: 'mono',
         }),
         props.className,
       )}
     >
-      <p>&copy; 2025 Christopher Anderson</p>
+      <p>
+        &copy; 2026 christopher anderson &middot; imagery courtesy of nasa and
+        the smithsonian institution &mdash; public domain
+      </p>
     </footer>
   )
 }
