@@ -321,6 +321,31 @@ test('a submit click supersedes a year commit blurred by the same click', async 
   })
 })
 
+test('pressing Enter in a year field applies it in place, not the draft', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.getByLabel('Earliest year').press('Enter')
+
+  // Enter applies the year with the URL query, not the unsent draft
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('yearStart') === '1980'
+    )
+  })
+  await expect(
+    page.getByRole('searchbox', { name: 'Search keywords' }),
+  ).toHaveValue('mars')
+})
+
 test('a year commit keeps an unsent draft query in the search box', async ({
   page,
 }) => {

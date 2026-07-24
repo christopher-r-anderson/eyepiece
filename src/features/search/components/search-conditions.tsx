@@ -178,6 +178,17 @@ function YearRangeFields({
     onCommit()
   }
 
+  // Enter applies the year edit in place like blur does, rather than
+  // triggering the form's implicit submit (which would send the search
+  // box's unsent draft too); pre-hydration Enter still submits natively
+  function commitOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    commitIfValid()
+  }
+
   return (
     <span
       className={flex({
@@ -206,6 +217,7 @@ function YearRangeFields({
           })
         }}
         onBlur={commitIfValid}
+        onKeyDown={commitOnEnter}
         className={css(yearInputCss)}
       />
       <span aria-hidden="true">–</span>
@@ -227,6 +239,7 @@ function YearRangeFields({
           })
         }}
         onBlur={commitIfValid}
+        onKeyDown={commitOnEnter}
         className={css(yearInputCss)}
       />
     </span>

@@ -14,6 +14,7 @@ import { Link } from '@/components/ui/link'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
+import { toProviderSearchParams } from '@/features/search/search-page-params'
 import {
   ALL_SCOPE_SECTION_SIZE,
   useSuspenseSearchSection,
@@ -68,7 +69,10 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
         >
           <Suspense
             fallback={
-              <Link to="/search" search={{ q: query, providerId }}>
+              <Link
+                to="/search"
+                search={toProviderSearchParams(query, providerId)}
+              >
                 {`See all from ${display.shortLabel}`}
               </Link>
             }
@@ -108,7 +112,7 @@ function SeeAllLink({ query, providerId }: ProviderSectionProps) {
     return null
   }
   return (
-    <Link to="/search" search={{ q: query, providerId }}>
+    <Link to="/search" search={toProviderSearchParams(query, providerId)}>
       {`See all ${total}`}
     </Link>
   )

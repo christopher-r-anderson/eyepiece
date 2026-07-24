@@ -4,6 +4,7 @@ import type { SearchQuery } from '@/domain/search/search.schema'
 import { Link } from '@/components/ui/link'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
+import { toProviderSearchParams } from '@/features/search/search-page-params'
 import { useSearchTotal } from '@/features/search/search.queries'
 
 // the italic query term is the italics rule's one sanctioned use:
@@ -32,7 +33,11 @@ export function EmptyResultsNotice({
       {other && otherLead ? (
         <>
           , or{' '}
-          <Link to="/search" search={{ q: query, providerId: other }} underline>
+          <Link
+            to="/search"
+            search={toProviderSearchParams(query, other)}
+            underline
+          >
             see the {otherLead} from {PROVIDER_DISPLAY[other].shortLabel}
           </Link>
         </>
