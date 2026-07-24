@@ -70,6 +70,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     }
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const onChange = () => setResolvedTheme(systemTheme())
+    // sync on install: an OS change can land before the subscription exists
+    onChange()
     mediaQuery.addEventListener('change', onChange)
     return () => mediaQuery.removeEventListener('change', onChange)
   }, [mode])
