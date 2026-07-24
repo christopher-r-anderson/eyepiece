@@ -1,7 +1,6 @@
 import { css } from 'styled-system/css'
 import { SearchBar } from '@/features/search/components/search-bar'
 
-// the header's site-wide search: an all-libraries query from any page
 export function HeaderSearch() {
   return (
     <div

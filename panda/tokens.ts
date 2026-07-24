@@ -32,7 +32,6 @@ export const tokens = defineTokens({
     base: { value: '1.6' },
   },
   sizes: {
-    // the page shell: one content column shared by header, main, and footer
     pageMax: { value: '80rem' },
     contentMax: { value: '72rem' },
     readingMax: { value: '65ch' },
@@ -43,7 +42,6 @@ export const tokens = defineTokens({
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
   },
   spacing: {
-    // the page shell's inline gutter (header, main, and footer align on it)
     pageInline: { value: '1.75rem' },
     '1': { value: '0.25rem' },
     '2': { value: '0.5rem' },

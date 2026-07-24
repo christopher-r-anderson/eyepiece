@@ -3,10 +3,8 @@ import logo from '@/assets/eyepiece-logo.svg'
 import { Link } from '@/components/ui/link'
 
 interface BrandProps {
-  // the home masthead page shows the full logotype alone, no mark
   fullWordmark?: boolean
-  // when the header carries the search field, the field wins the narrow
-  // widths and the wordmark drops (the mark keeps the brand present)
+  // the search field wins the narrow widths; the mark keeps the brand present
   hideWordmarkWhenNarrow?: boolean
 }
 

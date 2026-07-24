@@ -33,6 +33,15 @@ function resolveTheme(mode: ThemeMode): ResolvedTheme {
   return mode === 'system' ? systemTheme() : mode
 }
 
+function readStoredMode(): ThemeMode {
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+    return stored === 'light' || stored === 'dark' ? stored : 'system'
+  } catch {
+    return 'system'
+  }
+}
+
 interface ThemeProviderProps {
   children: ReactNode
 }
@@ -44,10 +53,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   >()
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
-    const initialMode =
-      stored === 'light' || stored === 'dark' ? stored : 'system'
-    setModeState(initialMode)
+    setModeState(readStoredMode())
     const docTheme = document.documentElement.getAttribute(THEME_ATTR_NAME)
     setResolvedTheme(docTheme === 'dark' ? 'dark' : 'light')
   }, [])
@@ -69,10 +75,14 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   }, [mode])
 
   const setMode = (newMode: ThemeMode) => {
-    if (newMode === 'system') {
-      window.localStorage.removeItem(THEME_STORAGE_KEY)
-    } else {
-      window.localStorage.setItem(THEME_STORAGE_KEY, newMode)
+    try {
+      if (newMode === 'system') {
+        window.localStorage.removeItem(THEME_STORAGE_KEY)
+      } else {
+        window.localStorage.setItem(THEME_STORAGE_KEY, newMode)
+      }
+    } catch {
+      // storage unavailable
     }
     setModeState(newMode)
     setResolvedTheme(resolveTheme(newMode))

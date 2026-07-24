@@ -72,8 +72,7 @@ export default defineConfig({
     },
   },
   theme: {
-    // viewport breakpoints for the page shell (header, page rhythm);
-    // component-local responsiveness keeps using container queries
+    // page-shell viewport breakpoints; components keep container queries
     breakpoints: {
       sm: '40rem',
       md: '48rem',

@@ -1,5 +1,5 @@
 import { useLocation } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { SiteNav } from './site-nav'
 import { Brand } from './brand'
 import { HeaderSearch } from './header-search'
@@ -8,20 +8,22 @@ import type { ComponentPropsWithoutRef } from 'react'
 export function Header(props: ComponentPropsWithoutRef<'header'>) {
   const pathname = useLocation({ select: (location) => location.pathname })
   const isHome = pathname === '/'
-  // /search integrates the header field with its form mechanics in a
-  // follow-up; until then it keeps its on-page bar and the header stays bare
+  // home is hero-only; the search page owns its own bar
   const isSearchPage = pathname.startsWith('/search')
   const hasSearch = !isHome && !isSearchPage
   return (
     <header
       {...props}
-      className={css({
-        position: 'sticky',
-        top: 0,
-        zIndex: 'sticky',
-        backgroundColor: 'bg.canvas',
-        borderBottom: 'default',
-      })}
+      className={cx(
+        css({
+          position: 'sticky',
+          top: 0,
+          zIndex: 'sticky',
+          backgroundColor: 'bg.canvas',
+          borderBottom: 'default',
+        }),
+        props.className,
+      )}
     >
       <div
         className={css({
