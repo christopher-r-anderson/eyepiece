@@ -53,9 +53,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   >()
 
   useEffect(() => {
-    setModeState(readStoredMode())
-    const docTheme = document.documentElement.getAttribute(THEME_ATTR_NAME)
-    setResolvedTheme(docTheme === 'dark' ? 'dark' : 'light')
+    const initialMode = readStoredMode()
+    setModeState(initialMode)
+    setResolvedTheme(resolveTheme(initialMode))
   }, [])
 
   useEffect(() => {
