@@ -29,10 +29,10 @@ export function UserStatus() {
         {authStatus === 'logged-out' ? 'Please log in to see the menu.' : ''}
       </VisuallyHidden>
       <StableVisibilityStack activeKey={authStatus}>
-        <StableVisibilityStackItem itemKey="logged-out" align="center">
+        <StableVisibilityStackItem itemKey="logged-out" justify="end" align="center">
           <LoginLink />
         </StableVisibilityStackItem>
-        <StableVisibilityStackItem itemKey="logged-in">
+        <StableVisibilityStackItem itemKey="logged-in" justify="end" align="center">
           <UserMenu />
         </StableVisibilityStackItem>
       </StableVisibilityStack>

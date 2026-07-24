@@ -25,14 +25,20 @@ export function ThemeMenu() {
     <MenuTrigger>
       <Button
         aria-label="Theme"
-        variant="ghost"
-        size="icon"
+        variant="bare"
         isDisabled={!isThemeSet}
         css={{
-          transitionProperty: 'opacity',
+          width: '34px',
+          height: '34px',
+          display: 'inline-grid',
+          placeItems: 'center',
+          borderRadius: 'full',
+          color: 'text.muted',
+          transitionProperty: 'opacity, color, background-color',
           transitionDuration: 'standard',
           transitionTimingFunction: 'out',
           opacity: isThemeSet ? 1 : 0.3,
+          _hovered: { color: 'text', backgroundColor: 'bg.surface.2' },
         }}
       >
         {resolvedTheme === 'dark' ? (
