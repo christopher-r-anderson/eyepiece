@@ -24,44 +24,58 @@ export function buildSioaSearchParams(
   }
 }
 
-function ensureImage(image: unknown) {
-  if (image === null || typeof image !== 'object') {
-    return { ...NOT_FOUND_IMAGE }
-  }
-  return {
-    href:
-      'url' in image && typeof image.url === 'string'
-        ? image.url
-        : NOT_FOUND_IMAGE.href,
-    width:
-      'width' in image && typeof image.width === 'number'
-        ? image.width
-        : NOT_FOUND_IMAGE.width,
-    height:
-      'height' in image && typeof image.height === 'number'
-        ? image.height
-        : NOT_FOUND_IMAGE.height,
-  }
-}
-
 const RESOURCE_LABELS = {
   orig: 'High-resolution JPEG',
   standard: 'Screen Image',
-  thumb: 'Thumbnail Image',
 } as const
 
-function getImage(
-  resources: Array<SioaResourceItem>,
-  label: (typeof RESOURCE_LABELS)[keyof typeof RESOURCE_LABELS],
+function usableDimensions(resource: SioaResourceItem | undefined) {
+  if (
+    resource &&
+    typeof resource.width === 'number' &&
+    resource.width > 0 &&
+    typeof resource.height === 'number' &&
+    resource.height > 0
+  ) {
+    return { width: resource.width, height: resource.height }
+  }
+  return undefined
+}
+
+function buildImage(
+  resource: SioaResourceItem | undefined,
+  siblingDimensions: { width: number; height: number } | undefined,
 ): Image {
-  return ensureImage(resources.find((resource) => resource.label === label))
+  if (!resource || typeof resource.url !== 'string') {
+    return { ...NOT_FOUND_IMAGE }
+  }
+  const dimensions = usableDimensions(resource) ?? siblingDimensions
+  return {
+    href: resource.url,
+    width: dimensions?.width ?? NOT_FOUND_IMAGE.width,
+    height: dimensions?.height ?? NOT_FOUND_IMAGE.height,
+  }
 }
 
 function getImages(resources: Array<SioaResourceItem> = []) {
+  // search responses carry dimensions only on the hi-res resources, but
+  // every rendition in a media item shares the master image, so any
+  // dimensioned sibling supplies the true aspect ratio for the rest
+  // (some report 0x0 and fall through to the 4:3 fallback)
+  const siblingDimensions = resources.map(usableDimensions).find(Boolean)
+  const screen = buildImage(
+    resources.find((resource) => resource.label === RESOURCE_LABELS.standard),
+    siblingDimensions,
+  )
   return {
-    thumbnail: getImage(resources, RESOURCE_LABELS.thumb),
-    image: getImage(resources, RESOURCE_LABELS.standard),
-    original: getImage(resources, RESOURCE_LABELS.orig),
+    // the 150px thumb rendition upscales badly at grid row heights; the
+    // screen rendition serves as the preview
+    thumbnail: screen,
+    image: screen,
+    original: buildImage(
+      resources.find((resource) => resource.label === RESOURCE_LABELS.orig),
+      siblingDimensions,
+    ),
   }
 }
 

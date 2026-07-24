@@ -148,10 +148,11 @@ describe('mapAssetItem', () => {
         externalId: 'asset-123',
         providerId: SI_OA_PROVIDER_ID,
       },
+      // the screen rendition serves as both preview roles
       thumbnail: {
-        href: 'https://example.com/thumb.jpg',
-        width: 160,
-        height: 120,
+        href: 'https://example.com/standard.jpg',
+        width: 640,
+        height: 480,
       },
       image: {
         href: 'https://example.com/standard.jpg',
@@ -253,8 +254,96 @@ describe('mapAssetItem', () => {
       width: 640,
       height: 480,
     })
-    expect(result.thumbnail).toEqual(NOT_FOUND_IMAGE)
+    expect(result.thumbnail).toEqual(result.image)
     expect(result.original).toEqual(NOT_FOUND_IMAGE)
+  })
+
+  it('takes the aspect ratio from a dimensioned sibling resource', () => {
+    const assetItem = createAssetItem({
+      content: {
+        descriptiveNonRepeating: {
+          guid: 'guid-123',
+          title: { label: 'Title', content: 'Title' },
+          record_ID: 'rec-123',
+          unit_code: 'NASM',
+          data_source: 'National Air and Space Museum',
+          online_media: {
+            media: [
+              {
+                resources: [
+                  {
+                    url: 'https://example.com/orig.jpg' as any,
+                    label: 'High-resolution JPEG',
+                    width: 3000,
+                    height: 2000,
+                  },
+                  {
+                    url: 'https://example.com/standard.jpg' as any,
+                    label: 'Screen Image',
+                  },
+                ],
+              },
+            ],
+            mediaCount: 1,
+          },
+          metadata_usage: {
+            access: 'CC0',
+          },
+        },
+      },
+    })
+
+    const result = mapAssetItem(assetItem)
+
+    expect(result.thumbnail).toEqual({
+      href: 'https://example.com/standard.jpg',
+      width: 3000,
+      height: 2000,
+    })
+  })
+
+  it('ignores zero-dimension siblings', () => {
+    const assetItem = createAssetItem({
+      content: {
+        descriptiveNonRepeating: {
+          guid: 'guid-123',
+          title: { label: 'Title', content: 'Title' },
+          record_ID: 'rec-123',
+          unit_code: 'NASM',
+          data_source: 'National Air and Space Museum',
+          online_media: {
+            media: [
+              {
+                resources: [
+                  {
+                    url: 'https://example.com/orig.jpg' as any,
+                    label: 'High-resolution JPEG',
+                    width: 0,
+                    height: 0,
+                  },
+                  {
+                    url: 'https://example.com/standard.jpg' as any,
+                    label: 'Screen Image',
+                  },
+                ],
+              },
+            ],
+            mediaCount: 1,
+          },
+          metadata_usage: {
+            access: 'CC0',
+          },
+        },
+      },
+    })
+
+    const result = mapAssetItem(assetItem)
+
+    expect(result.thumbnail).toEqual({
+      href: 'https://example.com/standard.jpg',
+      width: NOT_FOUND_IMAGE.width,
+      height: NOT_FOUND_IMAGE.height,
+    })
   })
 
   it('uses NOT_FOUND_IMAGE when resource has null or invalid image data', () => {
