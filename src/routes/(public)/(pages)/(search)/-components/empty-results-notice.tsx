@@ -28,8 +28,8 @@ export function EmptyResultsNotice({
 
   return (
     <p className={css({ color: 'text.muted', maxWidth: 'readingMax' })}>
-      No matches for <em className={css({ fontStyle: 'italic' })}>{query}</em>{' '}
-      in {PROVIDER_DISPLAY[providerId].displayName}. Try a broader term
+      No matches for <i className={css({ fontStyle: 'italic' })}>{query}</i> in{' '}
+      {PROVIDER_DISPLAY[providerId].displayName}. Try a broader term
       {other && otherLead ? (
         <>
           , or{' '}

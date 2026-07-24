@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { css } from 'styled-system/css'
+import { visuallyHidden } from 'styled-system/patterns'
 import { SearchResults } from './-components/search-results'
 import { SearchPrompt } from './-components/search-prompt'
 import { AllProvidersResults } from './-components/all-providers-results'
@@ -213,8 +214,8 @@ function SearchPage() {
     }
   }, [])
 
-  // blur commits apply the URL's query, not in-progress typing in the
-  // search box; Enter still submits the whole form
+  // applies the year filters using the URL's query, not the search box's
+  // in-progress draft
   function commitNasaFilters() {
     if (!isNasaScope) {
       return
@@ -242,20 +243,24 @@ function SearchPage() {
   return (
     <div className={css({ width: '100%' })}>
       <SearchBar
-        // q only: the bar owns just the draft query now, and a scope or
-        // filter navigation must not wipe an unsent draft
+        // keyed by q alone: the bar owns the draft query, so a scope or
+        // filter navigation must not remount it and wipe an unsent draft
         key={hashKey(['search-form', q])}
         id={formId}
         initialQuery={q}
         scope={scope}
         nasaFilters={nasaFilters}
       />
-      {hasQuery && (
+      {hasQuery ? (
         // not keyed by the search state: the entrance plays on page
         // arrival, not on every scope or filter navigation
         <div className={css({ marginTop: '6' })}>
           <QueryHeadline query={q} />
         </div>
+      ) : (
+        // the empty state is headingless by design, but the page still
+        // needs an h1 for heading navigation
+        <h1 className={visuallyHidden()}>Search</h1>
       )}
       <div className={css({ marginTop: '5' })}>
         <SearchScopeTabs q={q} scope={scope} />

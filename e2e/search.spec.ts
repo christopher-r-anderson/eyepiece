@@ -346,6 +346,41 @@ test('pressing Enter in a year field applies it in place, not the draft', async 
   ).toHaveValue('mars')
 })
 
+test('Enter on an invalid year range surfaces native validation, not a silent no-op', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  // 1910 is below the 1920 floor; Enter without an intervening blur keeps
+  // focus on the invalid field
+  await page.getByLabel('Earliest year').fill('1910')
+  // the invalid event fires only if Enter reaches the implicit submit's
+  // constraint validation - i.e. the commit did not swallow it
+  await page.evaluate(() => {
+    const field = document.querySelector('input[name="yearStart"]')
+    ;(window as unknown as { invalidFired: boolean }).invalidFired = false
+    field?.addEventListener(
+      'invalid',
+      () => {
+        ;(window as unknown as { invalidFired: boolean }).invalidFired = true
+      },
+      { once: true },
+    )
+  })
+  await page.getByLabel('Earliest year').press('Enter')
+
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { invalidFired: boolean }).invalidFired,
+    ),
+  ).toBe(true)
+  expect(new URL(page.url()).searchParams.has('yearStart')).toBe(false)
+})
+
 test('a year commit keeps an unsent draft query in the search box', async ({
   page,
 }) => {

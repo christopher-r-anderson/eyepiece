@@ -103,6 +103,9 @@ function ProviderCount({
   return `${formatCount(total)} · ${PROVIDER_DISPLAY[scope.filters.providerId].displayName}`
 }
 
+// one suspense total per provider - rules-of-hooks forbids a dynamic
+// count, so this tracks the two libraries that ship in 1.0; a third
+// provider has to extend the sum here
 function AllLibrariesCount({ q }: { q: string }) {
   const totals = [
     useSuspenseSearchTotal(q, defaultSearchFilters(PROVIDERS[0])),
@@ -166,27 +169,29 @@ function YearRangeFields({
   const yearEndRef = useRef<HTMLInputElement>(null)
 
   // both fields must hold valid values (bounds, inversion) before a
-  // commit - blurring the valid field must not apply the invalid one;
-  // the user sees native validation when they submit instead
-  function commitIfValid() {
-    if (
-      !yearStartRef.current?.validity.valid ||
-      !yearEndRef.current?.validity.valid
-    ) {
-      return
-    }
-    onCommit()
+  // commit - an invalid value in either one blocks applying the other
+  function bothFieldsValid() {
+    return (
+      yearStartRef.current?.validity.valid === true &&
+      yearEndRef.current?.validity.valid === true
+    )
   }
 
-  // Enter applies the year edit in place like blur does, rather than
-  // triggering the form's implicit submit (which would send the search
-  // box's unsent draft too); pre-hydration Enter still submits natively
+  function commitIfValid() {
+    if (bothFieldsValid()) {
+      onCommit()
+    }
+  }
+
+  // Enter applies a valid edit in place rather than triggering the form's
+  // implicit submit (which would send the search box's unsent draft); an
+  // invalid range falls through to the form's native validation
   function commitOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== 'Enter') {
+    if (event.key !== 'Enter' || !bothFieldsValid()) {
       return
     }
     event.preventDefault()
-    commitIfValid()
+    onCommit()
   }
 
   return (

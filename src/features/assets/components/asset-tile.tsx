@@ -168,6 +168,9 @@ export function AssetTile({
         })}
       >
         <p
+          // the thumbnail link already exposes the title via aria-label;
+          // this is its visible echo
+          aria-hidden="true"
           className={css({
             flex: 1,
             minWidth: 0,

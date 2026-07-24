@@ -31,9 +31,6 @@ export function SearchBar({
   ...props
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery)
-  const isNasaScope =
-    scope.scope === 'provider' &&
-    scope.filters.providerId === NASA_IVL_PROVIDER_ID
   const navigate = useNavigate()
 
   // before hydration the form submits natively and serializes in document
@@ -52,12 +49,15 @@ export function SearchBar({
   const fieldsAfterQuery = nativeScopeFields.filter(([name]) => name > 'q')
 
   function submitScope(): SearchScope {
-    if (isNasaScope) {
+    if (
+      scope.scope === 'provider' &&
+      scope.filters.providerId === NASA_IVL_PROVIDER_ID
+    ) {
       return {
         scope: 'provider',
         filters: {
           providerId: NASA_IVL_PROVIDER_ID,
-          filters: nasaFilters ?? {},
+          filters: nasaFilters ?? scope.filters.filters,
         },
       }
     }
