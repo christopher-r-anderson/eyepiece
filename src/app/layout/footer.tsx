@@ -14,7 +14,7 @@ export function Footer(props: ComponentPropsWithoutRef<'footer'>) {
           paddingBlock: '28px 36px',
           color: 'text.muted',
           fontFamily: 'mono',
-          fontSize: 'xs',
+          fontSize: 'mono',
         }),
         props.className,
       )}
