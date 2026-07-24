@@ -1,10 +1,10 @@
 import { defineSemanticTokens } from '@pandacss/dev'
 
 // The "violet atlas" palette (#129 decision record; visual spec in the phase-1
-// baselines dir). Dark is the design-primary theme; light is a provisional
-// translation refined before tokens freeze. The surface ladder expresses
-// elevation by lightening. The warm "star" accent is reserved for favorite
-// stars and focus rings.
+// baselines dir). Dark is the design-primary theme. The surface ladder
+// expresses elevation by lightening in both themes: dark raises out of the
+// deep canvas, light raises toward white off a violet-gray field. The warm
+// "star" accent is reserved for favorite stars and focus rings.
 //
 // State colors are explicit tokens - no mixing math in token values or
 // component styles. Every text/background pair here is contrast-checked (the
@@ -14,32 +14,32 @@ export const semanticTokens = defineSemanticTokens({
     bg: {
       canvas: {
         value: {
-          base: 'oklch(0.962 0.008 293)',
+          base: 'oklch(0.93 0.012 293)',
           _dark: 'oklch(0.1896 0.0202 293.5)',
         },
       },
       surface: {
         '1': {
           value: {
-            base: 'oklch(0.935 0.012 293)',
+            base: 'oklch(0.955 0.009 293)',
             _dark: 'oklch(0.2243 0.0291 293.1)',
           },
         },
         '2': {
           value: {
-            base: 'oklch(0.906 0.016 293)',
+            base: 'oklch(0.975 0.006 293)',
             _dark: 'oklch(0.266 0.0371 292.9)',
           },
         },
         '3': {
           value: {
-            base: 'oklch(0.873 0.02 293)',
+            base: 'oklch(0.99 0.004 293)',
             _dark: 'oklch(0.3061 0.0447 292.7)',
           },
         },
         '4': {
           value: {
-            base: 'oklch(0.84 0.024 293)',
+            base: 'oklch(0.998 0.002 293)',
             _dark: 'oklch(0.3483 0.0503 293.1)',
           },
         },
@@ -177,14 +177,20 @@ export const semanticTokens = defineSemanticTokens({
       bg: {
         value: '{colors.bg.surface.1}',
       },
+      // the veil scrim composites over arbitrary imagery - its text and icon
+      // pairs are contrast-checked against worst-case composites, not the
+      // raw token value
       captionBg: {
         value: {
-          base: 'rgba(18, 15, 28, 0.74)',
+          base: 'rgba(242, 241, 247, 0.88)',
           _dark: 'rgba(12, 10, 20, 0.76)',
         },
       },
       captionText: {
-        value: 'oklch(0.9428 0.0163 297.5)',
+        value: {
+          base: 'oklch(0.26 0.035 293)',
+          _dark: 'oklch(0.9428 0.0163 297.5)',
+        },
       },
     },
   },
