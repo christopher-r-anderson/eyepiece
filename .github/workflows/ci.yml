@@ -131,6 +131,9 @@ jobs:
     name: E2E (Playwright w/ Netlify + Supabase)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # e2e gates the publish on main; PR branches run the suite locally
+    # before pushing instead of paying it on every review-round push
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     # TODO: run this in parallel with integration tests
     # this should already work on github, but locally with act this causes a docker conflict.
     # since this leaves us unable to test, we run sequentially for now
