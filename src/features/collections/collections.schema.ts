@@ -14,6 +14,7 @@ export const collectionNameSchema = z.string().trim().min(1).max(120)
 
 export const collectionSchema = z.object({
   id: collectionIdSchema,
+  ownerId: z.uuid(),
   name: collectionNameSchema,
   visibility: collectionVisibilitySchema,
   createdAt: z.iso.datetime({ offset: true }),
