@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { css } from 'styled-system/css'
@@ -165,34 +165,6 @@ function YearRangeFields({
   // pre-hydration edits (an inverted no-JS submit drops as a pair at the
   // URL boundary instead)
   const [edited, setEdited] = useState(false)
-  const yearStartRef = useRef<HTMLInputElement>(null)
-  const yearEndRef = useRef<HTMLInputElement>(null)
-
-  // both fields must hold valid values (bounds, inversion) before a
-  // commit - an invalid value in either one blocks applying the other
-  function bothFieldsValid() {
-    return (
-      yearStartRef.current?.validity.valid === true &&
-      yearEndRef.current?.validity.valid === true
-    )
-  }
-
-  function commitIfValid() {
-    if (bothFieldsValid()) {
-      onCommit()
-    }
-  }
-
-  // Enter applies a valid edit in place rather than triggering the form's
-  // implicit submit (which would send the search box's unsent draft); an
-  // invalid range falls through to the form's native validation
-  function commitOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== 'Enter' || !bothFieldsValid()) {
-      return
-    }
-    event.preventDefault()
-    onCommit()
-  }
 
   return (
     <span
@@ -205,7 +177,6 @@ function YearRangeFields({
     >
       <span>years</span>
       <input
-        ref={yearStartRef}
         type="number"
         form={formId}
         name="yearStart"
@@ -221,13 +192,11 @@ function YearRangeFields({
             yearStart: toYearValue(event.target.value),
           })
         }}
-        onBlur={commitIfValid}
-        onKeyDown={commitOnEnter}
+        onBlur={onCommit}
         className={css(yearInputCss)}
       />
       <span aria-hidden="true">–</span>
       <input
-        ref={yearEndRef}
         type="number"
         form={formId}
         name="yearEnd"
@@ -243,8 +212,7 @@ function YearRangeFields({
             yearEnd: toYearValue(event.target.value),
           })
         }}
-        onBlur={commitIfValid}
-        onKeyDown={commitOnEnter}
+        onBlur={onCommit}
         className={css(yearInputCss)}
       />
     </span>

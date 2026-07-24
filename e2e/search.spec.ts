@@ -295,7 +295,7 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
   })
 })
 
-test('a submit click supersedes a year commit blurred by the same click', async ({
+test('a year blur and the submit click land a single history entry', async ({
   page,
 }) => {
   await page.route('**/api/v1/search*', (route) =>
@@ -306,13 +306,12 @@ test('a submit click supersedes a year commit blurred by the same click', async 
 
   await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
   await page.getByLabel('Earliest year').fill('1980')
-  // the click blurs the focused year input first; only the submit
-  // navigation may land
+  // the click blurs the year field (submitting the form) then submits again;
+  // both target the same URL, so the router coalesces them to one entry
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.waitForURL((url) => url.searchParams.get('q') === 'mars')
   expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1980')
 
-  // no intermediate entry from a superseded blur commit
   await page.goBack()
   await page.waitForURL((url) => {
     return (
@@ -321,7 +320,24 @@ test('a submit click supersedes a year commit blurred by the same click', async 
   })
 })
 
-test('pressing Enter in a year field applies it in place, not the draft', async ({
+test('keyboard focus on a result row reveals the tile veil', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  const firstRow = page.getByRole('row').first()
+  await firstRow.focus()
+  // the roving focus lands on the row, an ancestor of the tile; the veil
+  // (hidden at rest) must still reveal
+  const veil = firstRow.locator('[data-tile-reveal]').first()
+  await expect(veil).toHaveCSS('opacity', '1')
+})
+
+test('pressing Enter in a year field submits the form with the query', async ({
   page,
 }) => {
   await page.route('**/api/v1/search*', (route) =>
@@ -334,54 +350,16 @@ test('pressing Enter in a year field applies it in place, not the draft', async 
   await page.getByLabel('Earliest year').fill('1980')
   await page.getByLabel('Earliest year').press('Enter')
 
-  // Enter applies the year with the URL query, not the unsent draft
+  // Enter submits the whole form: the typed query and the year travel together
   await page.waitForURL((url) => {
     return (
-      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('q') === 'mars' &&
       url.searchParams.get('yearStart') === '1980'
     )
   })
-  await expect(
-    page.getByRole('searchbox', { name: 'Search keywords' }),
-  ).toHaveValue('mars')
 })
 
-test('Enter on an invalid year range surfaces native validation, not a silent no-op', async ({
-  page,
-}) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
-  await waitForHydratedResults(page)
-
-  // 1910 is below the 1920 floor; Enter without an intervening blur keeps
-  // focus on the invalid field
-  await page.getByLabel('Earliest year').fill('1910')
-  // the invalid event fires only if Enter reaches the implicit submit's
-  // constraint validation - i.e. the commit did not swallow it
-  await page.evaluate(() => {
-    const field = document.querySelector('input[name="yearStart"]')
-    ;(window as unknown as { invalidFired: boolean }).invalidFired = false
-    field?.addEventListener(
-      'invalid',
-      () => {
-        ;(window as unknown as { invalidFired: boolean }).invalidFired = true
-      },
-      { once: true },
-    )
-  })
-  await page.getByLabel('Earliest year').press('Enter')
-
-  expect(
-    await page.evaluate(
-      () => (window as unknown as { invalidFired: boolean }).invalidFired,
-    ),
-  ).toBe(true)
-  expect(new URL(page.url()).searchParams.has('yearStart')).toBe(false)
-})
-
-test('a year commit keeps an unsent draft query in the search box', async ({
+test('a year blur submits the current draft query with the filter', async ({
   page,
 }) => {
   await page.route('**/api/v1/search*', (route) =>
@@ -394,44 +372,16 @@ test('a year commit keeps an unsent draft query in the search box', async ({
   await page.getByLabel('Earliest year').fill('1980')
   await page.keyboard.press('Tab')
 
-  // the commit applies the URL query, not the draft; the draft stays put
+  // blur submits the form, so the box and the results stay in agreement
   await page.waitForURL((url) => {
     return (
-      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('q') === 'mars' &&
       url.searchParams.get('yearStart') === '1980'
     )
   })
   await expect(
     page.getByRole('searchbox', { name: 'Search keywords' }),
   ).toHaveValue('mars')
-})
-
-test('a blur never commits while the other year field is invalid', async ({
-  page,
-}) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
-  await waitForHydratedResults(page)
-
-  // a valid committed edit sets the baseline
-  const from = page.getByLabel('Earliest year')
-  await from.fill('1980')
-  await page.keyboard.press('Tab')
-  await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
-
-  // 1910 is below the 1920 floor, so the earliest field is invalid; no
-  // commit may fire - not even when the valid latest field blurs. The
-  // commit is synchronous or never, so the URL cannot have moved off the
-  // baseline
-  await from.fill('1910')
-  await page.keyboard.press('Tab')
-  await page.getByLabel('Latest year').fill('2001')
-  await page.keyboard.press('Tab')
-  await expect(page).toHaveURL(/yearStart=1980/)
-  expect(new URL(page.url()).searchParams.has('yearEnd')).toBe(false)
-  expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1980')
 })
 
 test('an inverted year range in the URL is dropped as a pair', async ({

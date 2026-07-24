@@ -82,17 +82,21 @@ const containerCss = css.raw({
   backgroundColor: 'assetTile.bg',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
-  '&:is(:hover, :focus-within) [data-tile-reveal]': {
-    opacity: 1,
-    translate: '0 0',
-  },
+  // the grid's roving focus lands on the ancestor row, not on the tile, so
+  // the reveal also keys off a focused row - :focus-within on the tile
+  // alone would miss keyboard navigation
+  '&:is(:hover, :focus-within) [data-tile-reveal], [role="row"]:focus-within & [data-tile-reveal]':
+    {
+      opacity: 1,
+      translate: '0 0',
+    },
   // hidden controls must not be hit-testable: pointer-events re-enables
   // per element, so a tap on an unrevealed tile would hit the invisible
-  // star instead of the link. Keyboard focus is unaffected, and focusing
-  // a control reveals it through :focus-within
-  '&:is(:hover, :focus-within) [data-tile-controls]': {
-    pointerEvents: 'auto',
-  },
+  // star instead of the link
+  '&:is(:hover, :focus-within) [data-tile-controls], [role="row"]:focus-within & [data-tile-controls]':
+    {
+      pointerEvents: 'auto',
+    },
   // no hover means no reveal path, so coarse-pointer devices keep the
   // veil and its controls present; phase 3 owns the real mobile design
   '@media (hover: none)': {

@@ -3,6 +3,7 @@ import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
+import { VisuallyHidden } from 'styled-system/jsx'
 import { grid, wrap } from 'styled-system/patterns'
 import { AssetResultsGrid } from './asset-results-grid'
 import { EmptyResultsNotice } from './empty-results-notice'
@@ -111,9 +112,16 @@ function SeeAllLink({ query, providerId }: ProviderSectionProps) {
   if (total === 0) {
     return null
   }
+  // the visible text stays compact, but two providers with the same total
+  // would otherwise share one accessible name; name the provider for
+  // link-by-link screen-reader navigation
   return (
     <Link to="/search" search={toProviderSearchParams(query, providerId)}>
-      {`See all ${total}`}
+      See all {total}
+      <VisuallyHidden>
+        {' '}
+        from {PROVIDER_DISPLAY[providerId].shortLabel}
+      </VisuallyHidden>
     </Link>
   )
 }

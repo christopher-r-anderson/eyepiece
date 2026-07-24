@@ -98,11 +98,16 @@ describe('all providers results', () => {
         name: 'Smithsonian National Air and Space Museum',
       }),
     )
+    // identical totals must not collapse to one accessible name
     expect(
-      nasaSection.getByRole('link', { name: 'See all 2' }).getAttribute('href'),
+      nasaSection
+        .getByRole('link', { name: 'See all 2 from NASA' })
+        .getAttribute('href'),
     ).toBe(`/search?providerId=${NASA_IVL_PROVIDER_ID}&q=moon`)
     expect(
-      siSection.getByRole('link', { name: 'See all 2' }).getAttribute('href'),
+      siSection
+        .getByRole('link', { name: 'See all 2 from Smithsonian' })
+        .getAttribute('href'),
     ).toBe(`/search?providerId=${SI_OA_PROVIDER_ID}&q=moon`)
     expect(mockUseSuspenseSearchSection).toHaveBeenCalledWith('moon', {
       providerId: NASA_IVL_PROVIDER_ID,
@@ -185,7 +190,9 @@ describe('all providers results', () => {
         name: 'Smithsonian National Air and Space Museum',
       }),
     )
-    expect(siSection.getByRole('link', { name: 'See all 214' })).toBeTruthy()
+    expect(
+      siSection.getByRole('link', { name: 'See all 214 from Smithsonian' }),
+    ).toBeTruthy()
     const nasaSection = within(
       screen.getByRole('region', { name: 'NASA Image and Video Library' }),
     )

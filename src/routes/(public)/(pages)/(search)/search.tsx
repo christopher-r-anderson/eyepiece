@@ -2,7 +2,6 @@ import { Suspense, useEffect, useId, useRef, useState } from 'react'
 import {
   CatchBoundary,
   createFileRoute,
-  useNavigate,
   useRouterState,
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
@@ -27,7 +26,6 @@ import { SearchConditions } from '@/features/search/components/search-conditions
 import { SearchScopeTabs } from '@/features/search/components/search-scope-tabs'
 import {
   searchPageParamsSchema,
-  toSearchPageParams,
   toSearchPageState,
 } from '@/features/search/search-page-params'
 import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
@@ -158,7 +156,6 @@ function SearchPage() {
   const { q, scope } = state
   const hasQuery = q.trim().length > 0
   const formId = useId()
-  const navigate = useNavigate()
   const isNasaScope =
     scope.scope === 'provider' &&
     scope.filters.providerId === NASA_IVL_PROVIDER_ID
@@ -167,12 +164,8 @@ function SearchPage() {
   )
 
   // a navigation that changes the URL filters (scope switch, back button,
-  // canonical drops) resets the year inputs without remounting them, so
-  // focus survives blur commits. Runs as an effect so interrupted renders
-  // (the search-state tearing gotcha) never act, and a change matching our
-  // own in-flight commit skips the reset - the user may already be typing
-  // in the other field
-  const lastCommittedScopeKeyRef = useRef<string | null>(null)
+  // canonical drops) re-syncs the year inputs without remounting them, so
+  // focus survives a blur that commits
   const scopeFiltersKey = hashKey(['scope-filters', scope])
   const lastSyncedScopeKeyRef = useRef(scopeFiltersKey)
   useEffect(() => {
@@ -180,42 +173,13 @@ function SearchPage() {
       return
     }
     lastSyncedScopeKeyRef.current = scopeFiltersKey
-    if (lastCommittedScopeKeyRef.current === scopeFiltersKey) {
-      lastCommittedScopeKeyRef.current = null
-      return
-    }
-    lastCommittedScopeKeyRef.current = null
     setNasaFilters(isNasaScope ? scope.filters.filters : {})
   }, [scopeFiltersKey, isNasaScope, scope])
 
-  // a pointer press on a link or submit control supersedes a year commit:
-  // that control's own navigation should win, so blurring a year field to
-  // click it must not fire a competing navigation. pointerdown lands before
-  // the blur it causes, and stays set until the release, so the blur handler
-  // reads it deterministically - no timing window
-  const supersedingPointerRef = useRef(false)
-  useEffect(() => {
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target as Element | null
-      supersedingPointerRef.current = Boolean(
-        target?.closest('a[href], button[type="submit"]'),
-      )
-    }
-    const clear = () => {
-      supersedingPointerRef.current = false
-    }
-    document.addEventListener('pointerdown', onPointerDown, true)
-    document.addEventListener('pointerup', clear, true)
-    document.addEventListener('pointercancel', clear, true)
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown, true)
-      document.removeEventListener('pointerup', clear, true)
-      document.removeEventListener('pointercancel', clear, true)
-    }
-  }, [])
-
-  // applies the year filters using the URL's query, not the search box's
-  // in-progress draft
+  // a committed year edit submits the whole form, exactly as Enter or the
+  // search button does, so the query and filters always travel together and
+  // land on one URL. checkValidity keeps a blur silent on an invalid range -
+  // Enter and the button surface native validation instead
   function commitNasaFilters() {
     if (!isNasaScope) {
       return
@@ -223,21 +187,10 @@ function SearchPage() {
     if (hashKey([nasaFilters]) === hashKey([scope.filters.filters])) {
       return
     }
-    if (supersedingPointerRef.current) {
-      return
+    const form = document.getElementById(formId)
+    if (form instanceof HTMLFormElement && form.checkValidity()) {
+      form.requestSubmit()
     }
-    const committedScope = {
-      scope: 'provider' as const,
-      filters: { providerId: NASA_IVL_PROVIDER_ID, filters: nasaFilters },
-    }
-    lastCommittedScopeKeyRef.current = hashKey([
-      'scope-filters',
-      committedScope,
-    ])
-    void navigate({
-      to: '/search',
-      search: toSearchPageParams(q, committedScope),
-    })
   }
 
   return (
