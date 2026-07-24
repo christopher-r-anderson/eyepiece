@@ -46,7 +46,6 @@ function SearchHarness({
       id: 'search-form',
       initialQuery,
       scope,
-      nasaFilters,
     }),
     createElement(SearchConditions, {
       q: initialQuery,
