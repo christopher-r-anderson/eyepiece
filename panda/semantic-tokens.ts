@@ -177,12 +177,6 @@ export const semanticTokens = defineSemanticTokens({
       bg: {
         value: '{colors.bg.surface.1}',
       },
-      border: {
-        value: {
-          base: 'oklch(0.82 0.022 293)',
-          _dark: 'oklch(0.36 0.048 293)',
-        },
-      },
       captionBg: {
         value: {
           base: 'rgba(18, 15, 28, 0.74)',
@@ -191,33 +185,6 @@ export const semanticTokens = defineSemanticTokens({
       },
       captionText: {
         value: 'oklch(0.9428 0.0163 297.5)',
-      },
-      badgeBg: {
-        value: {
-          base: 'rgba(242, 241, 247, 0.9)',
-          _dark: 'rgba(28, 25, 40, 0.86)',
-        },
-      },
-      badgeText: {
-        value: '{colors.text}',
-      },
-      badgeBorder: {
-        value: {
-          base: 'rgba(37, 33, 52, 0.16)',
-          _dark: 'rgba(237, 234, 246, 0.12)',
-        },
-      },
-      actionBg: {
-        value: {
-          base: 'rgba(242, 241, 247, 0.72)',
-          _dark: 'rgba(28, 25, 40, 0.7)',
-        },
-      },
-      actionBorder: {
-        value: {
-          base: 'rgba(37, 33, 52, 0.1)',
-          _dark: 'rgba(237, 234, 246, 0.08)',
-        },
       },
     },
   },

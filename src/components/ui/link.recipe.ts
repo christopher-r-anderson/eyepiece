@@ -1,6 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
 import { ghostVisualStyles } from './button.styles'
-import { tabSelectedStyles, tabVisualStyles } from './tab.styles'
 
 export const linkRecipe = defineRecipe({
   className: 'link',
@@ -16,15 +15,6 @@ export const linkRecipe = defineRecipe({
   },
   variants: {
     variant: {
-      // a link that navigates between tab-like panels; selection comes from
-      // aria-current, not react aria's data-selected
-      tab: {
-        ...tabVisualStyles,
-        textDecoration: 'none',
-        _hovered: { textDecoration: 'none' },
-        '&[aria-current="page"]': tabSelectedStyles,
-        _focusVisible: { outlineOffset: '0' },
-      },
       // a link dressed as a compact ghost button
       ghost: {
         ...ghostVisualStyles,

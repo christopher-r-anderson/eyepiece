@@ -110,6 +110,18 @@ export function toSearchPageParams(
   return { q: query, providerId: scope.filters.providerId }
 }
 
+// A provider scope with no filters - the payload for "see all" and
+// cross-provider links, built through the shared builder per Search.md.
+export function toProviderSearchParams(
+  q: string,
+  providerId: ProviderId,
+): SearchPageParams {
+  return toSearchPageParams(q, {
+    scope: 'provider',
+    filters: { providerId, filters: {} },
+  })
+}
+
 // Omits an empty q so /search?q= and /search share one CDN cache key.
 export function toCanonicalUrlParams(
   params: SearchPageParams,

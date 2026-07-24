@@ -30,6 +30,9 @@ export const textFieldRecipe = defineSlotRecipe({
       color: 'text',
       transitionFast: 'border-color, outline-color',
       _focusWithin: {
+        borderColor: 'accent',
+      },
+      '&:has([data-focus-visible])': {
         outline: 'focusRing',
         outlineOffset: '2px',
       },

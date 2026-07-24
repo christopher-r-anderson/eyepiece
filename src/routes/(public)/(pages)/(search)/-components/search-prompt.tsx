@@ -4,9 +4,9 @@ export function SearchPrompt() {
   return (
     <p
       className={css({
-        textAlign: 'center',
-        marginBlock: '7',
-        marginInline: '0',
+        color: 'text.muted',
+        marginBlock: '6',
+        maxWidth: 'readingMax',
       })}
     >
       Enter search keywords to see results.

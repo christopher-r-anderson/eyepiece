@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
-import { center, flex } from 'styled-system/patterns'
+import { flex } from 'styled-system/patterns'
 import type {
   ComponentPropsWithRef,
   ComponentPropsWithoutRef,
@@ -32,15 +32,14 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
       onClick={() => setDetailClicked(true)}
+      // the visible title sits in the veil outside the link
+      aria-label={assetPreview.title}
       css={css.raw({
         width: '100%',
         height: '100%',
         display: 'block',
         position: 'relative',
         color: 'inherit',
-        // nested radius: outer minus padding, floored once the outer
-        // radius is smaller than the inset
-        borderRadius: 'max(0px, calc(token(radii.sm) - token(spacing.2)))',
         overflow: 'hidden',
         // the halo must paint above the thumbnail, so it lives on a pseudo
         // element; an inset shadow on the link would be covered by the image
@@ -57,75 +56,58 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
         },
       })}
     >
-      <figure
-        className={center({
-          position: 'relative',
+      <img
+        className={css({
           width: '100%',
           height: '100%',
-          overflow: 'hidden',
+          objectFit: 'cover',
+          viewTransitionClass: 'asset-image',
         })}
-      >
-        <img
-          className={css({
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit: 'scale-down',
-            width: 'auto',
-            height: 'auto',
-            viewTransitionClass: 'asset-image',
-          })}
-          style={{
-            viewTransitionName: detailClicked
-              ? `asset-${toAssetKeyString(assetPreview.key)}`
-              : undefined,
-          }}
-          src={assetPreview.thumbnail.href}
-          alt=""
-          width={assetPreview.thumbnail.width}
-          height={assetPreview.thumbnail.height}
-        />
-        <figcaption
-          className={css({
-            fontSize: 'sm',
-            backgroundColor: 'assetTile.captionBg',
-            backdropFilter: 'blur(4px)',
-            position: 'absolute',
-            padding: '3',
-            bottom: 0,
-            right: 0,
-            left: 0,
-          })}
-        >
-          <p
-            className={css({
-              color: 'assetTile.captionText',
-              height: '2.2em',
-              lineHeight: '1.1em',
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            })}
-          >
-            {assetPreview.title}
-          </p>
-        </figcaption>
-      </figure>
+        style={{
+          viewTransitionName: detailClicked
+            ? `asset-${toAssetKeyString(assetPreview.key)}`
+            : undefined,
+        }}
+        src={assetPreview.thumbnail.href}
+        alt=""
+        width={assetPreview.thumbnail.width}
+        height={assetPreview.thumbnail.height}
+      />
     </Link>
   )
 }
 
 const containerCss = css.raw({
-  backgroundColor: 'assetTile.bg',
-  padding: '2',
-  borderRadius: 'sm',
-  border: '1px solid token(colors.assetTile.border)',
   position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
+  backgroundColor: 'assetTile.bg',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
+  // the grid's roving focus lands on the ancestor row, not on the tile, so
+  // the reveal also keys off a focused row - :focus-within on the tile
+  // alone would miss keyboard navigation
+  '&:is(:hover, :focus-within) [data-tile-reveal], [role="row"]:focus-within & [data-tile-reveal]':
+    {
+      opacity: 1,
+      translate: '0 0',
+    },
+  // hidden controls must not be hit-testable: pointer-events re-enables
+  // per element, so a tap on an unrevealed tile would hit the invisible
+  // star instead of the link
+  '&:is(:hover, :focus-within) [data-tile-controls], [role="row"]:focus-within & [data-tile-controls]':
+    {
+      pointerEvents: 'auto',
+    },
+  // no hover means no reveal path, so coarse-pointer devices keep the
+  // veil and its controls present; phase 3 owns the real mobile design
+  '@media (hover: none)': {
+    '& [data-tile-reveal]': {
+      opacity: 1,
+      translate: '0 0',
+    },
+    '& [data-tile-controls]': {
+      pointerEvents: 'auto',
+    },
+  },
 })
 
 export function AssetTile({
@@ -140,41 +122,85 @@ export function AssetTile({
       <Thumbnail assetPreview={assetPreview} />
       {relatedLinks && (
         <div
+          data-tile-reveal
+          data-tile-controls
           className={css({
             position: 'absolute',
             top: '2',
             left: '2',
+            maxWidth: 'calc(100% - (2 * token(spacing.2)))',
             paddingBlock: '1',
             paddingInline: '2',
-            border: '1px solid token(colors.assetTile.badgeBorder)',
-            borderRadius: 'sm',
-            backgroundColor: 'assetTile.badgeBg',
-            color: 'assetTile.badgeText',
-            backdropFilter: 'blur(6px)',
+            backgroundColor: 'assetTile.captionBg',
+            color: 'assetTile.captionText',
             fontSize: 'xs',
+            opacity: 0,
+            translate: '0 -4px',
+            pointerEvents: 'none',
+            transitionFast: 'opacity, translate',
+            _motionReduce: {
+              transition: 'none',
+              translate: '0 0',
+            },
           })}
         >
           {relatedLinks}
         </div>
       )}
-      {actions && (
-        <div
-          className={flex({
-            position: 'absolute',
-            top: '1',
-            right: '1',
-            justify: 'flex-end',
-            padding: '1',
-            backgroundColor: 'assetTile.actionBg',
-            color: 'assetTile.badgeText',
-            border: '1px solid token(colors.assetTile.actionBorder)',
-            borderRadius: 'sm',
-            backdropFilter: 'blur(4px)',
+      <div
+        data-tile-reveal
+        // clicks over the veil fall through to the link; only the action
+        // cluster takes the pointer back, and only while revealed
+        className={flex({
+          position: 'absolute',
+          insetInline: 0,
+          bottom: 0,
+          alignItems: 'center',
+          gap: '2',
+          paddingBlock: '2',
+          paddingInline: '3',
+          backgroundColor: 'assetTile.captionBg',
+          color: 'assetTile.captionText',
+          opacity: 0,
+          translate: '0 4px',
+          pointerEvents: 'none',
+          transitionFast: 'opacity, translate',
+          _motionReduce: {
+            transition: 'none',
+            translate: '0 0',
+          },
+        })}
+      >
+        <p
+          // the thumbnail link already exposes the title via aria-label;
+          // this is its visible echo
+          aria-hidden="true"
+          className={css({
+            flex: 1,
+            minWidth: 0,
+            fontSize: 'sm',
+            lineHeight: 1.3,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
           })}
         >
-          {actions}
-        </div>
-      )}
+          {assetPreview.title}
+        </p>
+        {actions && (
+          <div
+            data-tile-controls
+            className={flex({
+              pointerEvents: 'none',
+              flexShrink: 0,
+              alignItems: 'center',
+            })}
+          >
+            {actions}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

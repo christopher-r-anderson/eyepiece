@@ -52,7 +52,7 @@ export const tokens = defineTokens({
     contentInline: { value: 'clamp(0.75rem, 2.5vw, 1.5rem)' },
     contentBlock: { value: 'clamp(1rem, 4vw, 2rem)' },
     clusterGap: { value: 'clamp(0.5rem, 1.8vw, 1rem)' },
-    sectionGap: { value: 'clamp(1rem, 3vw, 2rem)' },
+    sectionGap: { value: 'clamp(2rem, 5vw, 3.5rem)' },
   },
   radii: {
     sm: { value: '2px' },

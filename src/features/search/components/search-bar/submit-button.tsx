@@ -7,13 +7,19 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
   return (
     <Button
       type="submit"
+      // opt out of SearchField's button slot, which would otherwise turn
+      // this into a second clear button
+      slot={null}
       aria-label="Search"
       variant="bare"
       css={css.raw(
         {
-          color: 'text',
+          display: 'grid',
+          placeItems: 'center',
+          padding: '1',
+          color: 'accent.emphasis',
           _hovered: {
-            color: 'accent.emphasis',
+            color: 'text',
           },
           _disabled: {
             color: 'text.muted',

@@ -37,6 +37,13 @@ function collectConsoleErrors(page: Page) {
   return errors
 }
 
+// the favorite star is disabled until the client hydrates and its
+// favorites index settles, so an enabled star is a deterministic signal
+// that the hydrated year-commit handlers are live
+async function waitForHydratedResults(page: Page) {
+  await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
+}
+
 function trackSearchApiRequests(page: Page) {
   const requests: Array<string> = []
   page.on('request', (request) => {
@@ -62,7 +69,7 @@ test('all scope renders publicly cacheable with sections and no console errors',
   expect(response?.headers()['cache-control']).toContain('public')
 
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
   const scopeNav = page.getByRole('navigation', { name: 'Search scope' })
   await expect(scopeNav.getByRole('link')).toHaveText([
@@ -189,7 +196,7 @@ test('home search submits before hydration', async ({ page }) => {
     )
   })
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
 })
 
@@ -204,8 +211,8 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
   await searchbox.fill('mars')
   // both year edits land outside the initial 1960-2000 range
-  await page.getByLabel('From', { exact: true }).fill('2005')
-  await page.getByLabel('To', { exact: true }).fill('2015')
+  await page.getByLabel('Earliest year').fill('2005')
+  await page.getByLabel('Latest year').fill('2015')
   await page.getByRole('button', { name: 'Search', exact: true }).click()
 
   // the year inputs serialize in document order after q, so the native
@@ -232,7 +239,7 @@ test('an inverted year range is blocked natively after hydration', async ({
 
   // a fill that lands before hydration is wiped by the controlled input;
   // retry until the value sticks
-  const from = page.getByLabel('From', { exact: true })
+  const from = page.getByLabel('Earliest year')
   await expect(async () => {
     await from.fill('2010')
     await page.waitForTimeout(150)
@@ -242,6 +249,139 @@ test('an inverted year range is blocked natively after hydration', async ({
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.waitForTimeout(500)
   expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1960')
+})
+
+test('year filters survive a pre-hydration submit from an empty-query NASA page', async ({
+  page,
+}) => {
+  await blockScripts(page)
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&yearStart=1990`)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('moon')
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/search' &&
+      url.searchParams.get('q') === 'moon' &&
+      url.searchParams.get('providerId') === NASA_PROVIDER_ID &&
+      url.searchParams.get('yearStart') === '1990'
+    )
+  })
+})
+
+test('a year edit applies on blur and keeps focus for the next field', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.keyboard.press('Tab')
+
+  await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
+  await expect(page.getByLabel('Latest year')).toBeFocused()
+
+  await page.getByLabel('Latest year').fill('2001')
+  await page.keyboard.press('Tab')
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('yearStart') === '1980' &&
+      url.searchParams.get('yearEnd') === '2001'
+    )
+  })
+})
+
+test('a year blur and the submit click land a single history entry', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  // the click blurs the year field (submitting the form) then submits again;
+  // both target the same URL, so the router coalesces them to one entry
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await page.waitForURL((url) => url.searchParams.get('q') === 'mars')
+  expect(new URL(page.url()).searchParams.get('yearStart')).toBe('1980')
+
+  await page.goBack()
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'moon' && !url.searchParams.has('yearStart')
+    )
+  })
+})
+
+test('keyboard focus on a result row reveals the tile veil', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  const firstRow = page.getByRole('row').first()
+  await firstRow.focus()
+  // the roving focus lands on the row, an ancestor of the tile; the veil
+  // (hidden at rest) must still reveal
+  const veil = firstRow.locator('[data-tile-reveal]').first()
+  await expect(veil).toHaveCSS('opacity', '1')
+})
+
+test('pressing Enter in a year field submits the form with the query', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.getByLabel('Earliest year').press('Enter')
+
+  // Enter submits the whole form: the typed query and the year travel together
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'mars' &&
+      url.searchParams.get('yearStart') === '1980'
+    )
+  })
+})
+
+test('a year blur submits the current draft query with the filter', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByRole('searchbox', { name: 'Search keywords' }).fill('mars')
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.keyboard.press('Tab')
+
+  // blur submits the form, so the box and the results stay in agreement
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get('q') === 'mars' &&
+      url.searchParams.get('yearStart') === '1980'
+    )
+  })
+  await expect(
+    page.getByRole('searchbox', { name: 'Search keywords' }),
+  ).toHaveValue('mars')
 })
 
 test('an inverted year range in the URL is dropped as a pair', async ({
@@ -301,7 +441,7 @@ test('a multi-word padded query canonicalizes from a pre-hydration submit', asyn
     (url) => url.pathname === '/search' && url.search === '?q=crab+nebula',
   )
   await expect(
-    page.getByRole('heading', { name: 'Search for "crab nebula"' }),
+    page.getByRole('heading', { level: 1, name: /crab nebula/ }),
   ).toBeVisible()
 })
 
@@ -347,7 +487,7 @@ test('all-view sections load once and "See all" reuses the cache', async ({
   const requestsAfterSections = searchRequests.length
   expect(requestsAfterSections).toBeGreaterThan(0)
 
-  await nasaSection.getByRole('link', { name: 'See all from NASA' }).click()
+  await nasaSection.getByRole('link', { name: /^See all/ }).click()
   await page.waitForURL((url) => {
     return (
       url.searchParams.get('q') === 'moon' &&
@@ -422,7 +562,7 @@ test('a legacy mediaType URL loads and canonicalizes without the key', async ({
     )
   })
   await expect(
-    page.getByRole('heading', { name: 'Search for "moon"' }),
+    page.getByRole('heading', { level: 1, name: /moon/ }),
   ).toBeVisible()
 
   expect(consoleErrors).toEqual([])

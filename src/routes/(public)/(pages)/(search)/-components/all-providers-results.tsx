@@ -2,8 +2,11 @@ import { Suspense } from 'react'
 import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
+import { css } from 'styled-system/css'
+import { VisuallyHidden } from 'styled-system/jsx'
 import { grid, wrap } from 'styled-system/patterns'
 import { AssetResultsGrid } from './asset-results-grid'
+import { EmptyResultsNotice } from './empty-results-notice'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import { Heading } from '@/components/ui/heading'
@@ -12,9 +15,11 @@ import { Link } from '@/components/ui/link'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { defaultSearchFilters } from '@/domain/search/search.schema'
+import { toProviderSearchParams } from '@/features/search/search-page-params'
 import {
   ALL_SCOPE_SECTION_SIZE,
   useSuspenseSearchSection,
+  useSuspenseSearchTotal,
 } from '@/features/search/search.queries'
 
 // Sections own sibling Suspense/error boundaries so one provider failing
@@ -52,13 +57,30 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           marginBottom: '4',
         })}
       >
-        <Heading level={2} id={headingId}>
+        <Heading
+          level={2}
+          id={headingId}
+          css={css.raw({ textStyle: 'title.md' })}
+        >
           {display.displayName}
         </Heading>
-        <Link
-          to="/search"
-          search={{ q: query, providerId }}
-        >{`See all from ${display.shortLabel}`}</Link>
+        <CatchBoundary
+          getResetKey={() => hashKey(['see-all', query, providerId])}
+          errorComponent={() => null}
+        >
+          <Suspense
+            fallback={
+              <Link
+                to="/search"
+                search={toProviderSearchParams(query, providerId)}
+              >
+                {`See all from ${display.shortLabel}`}
+              </Link>
+            }
+          >
+            <SeeAllLink query={query} providerId={providerId} />
+          </Suspense>
+        </CatchBoundary>
       </div>
       <CatchBoundary
         getResetKey={() => hashKey(['search-section', providerId, query])}
@@ -85,6 +107,25 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
   )
 }
 
+function SeeAllLink({ query, providerId }: ProviderSectionProps) {
+  const total = useSuspenseSearchTotal(query, defaultSearchFilters(providerId))
+  if (total === 0) {
+    return null
+  }
+  // the visible text stays compact, but two providers with the same total
+  // would otherwise share one accessible name; name the provider for
+  // link-by-link screen-reader navigation
+  return (
+    <Link to="/search" search={toProviderSearchParams(query, providerId)}>
+      See all {total}
+      <VisuallyHidden>
+        {' '}
+        from {PROVIDER_DISPLAY[providerId].shortLabel}
+      </VisuallyHidden>
+    </Link>
+  )
+}
+
 function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
   const { data } = useSuspenseSearchSection(
     query,
@@ -92,7 +133,7 @@ function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
   )
 
   if (data.items.length === 0) {
-    return <p>No results from {PROVIDER_DISPLAY[providerId].displayName}.</p>
+    return <EmptyResultsNotice query={query} providerId={providerId} />
   }
 
   return <AssetResultsGrid items={data.items} />
