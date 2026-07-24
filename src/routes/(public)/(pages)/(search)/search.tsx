@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useId, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import {
   CatchBoundary,
   createFileRoute,
@@ -21,7 +21,7 @@ import { CapturedPrettyError, RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/routes/-components/page-heading'
 import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
-import { SearchBar } from '@/features/search/components/search-bar'
+import { SEARCH_FORM_ID } from '@/features/search/components/search-bar'
 import { SearchConditions } from '@/features/search/components/search-conditions'
 import { SearchScopeTabs } from '@/features/search/components/search-scope-tabs'
 import {
@@ -155,7 +155,6 @@ function SearchPage() {
   useCanonicalSearchReplace()
   const { q, scope } = state
   const hasQuery = q.trim().length > 0
-  const formId = useId()
   const isNasaScope =
     scope.scope === 'provider' &&
     scope.filters.providerId === NASA_IVL_PROVIDER_ID
@@ -165,15 +164,24 @@ function SearchPage() {
 
   // a navigation that changes the URL filters (scope switch, back button,
   // canonical drops) re-syncs the year inputs without remounting them, so
-  // focus survives a blur that commits
+  // focus survives a blur that commits. a navigation caused by our own
+  // commit skips the reset: the effect can run after the user has already
+  // typed into the next field, and that draft must survive
   const scopeFiltersKey = hashKey(['scope-filters', scope])
   const lastSyncedScopeKeyRef = useRef(scopeFiltersKey)
+  const lastCommittedFiltersKeyRef = useRef<string | null>(null)
   useEffect(() => {
     if (lastSyncedScopeKeyRef.current === scopeFiltersKey) {
       return
     }
     lastSyncedScopeKeyRef.current = scopeFiltersKey
-    setNasaFilters(isNasaScope ? scope.filters.filters : {})
+    const urlFilters = isNasaScope ? scope.filters.filters : {}
+    const isOwnCommit =
+      lastCommittedFiltersKeyRef.current === hashKey([urlFilters])
+    lastCommittedFiltersKeyRef.current = null
+    if (!isOwnCommit) {
+      setNasaFilters(urlFilters)
+    }
   }, [scopeFiltersKey, isNasaScope, scope])
 
   // a committed year edit submits the whole form, exactly as Enter or the
@@ -187,27 +195,19 @@ function SearchPage() {
     if (hashKey([nasaFilters]) === hashKey([scope.filters.filters])) {
       return
     }
-    const form = document.getElementById(formId)
+    const form = document.getElementById(SEARCH_FORM_ID)
     if (form instanceof HTMLFormElement && form.checkValidity()) {
+      lastCommittedFiltersKeyRef.current = hashKey([nasaFilters])
       form.requestSubmit()
     }
   }
 
   return (
     <div className={css({ width: '100%' })}>
-      <SearchBar
-        // keyed by q alone: the bar owns the draft query, so a scope or
-        // filter navigation must not remount it and wipe an unsent draft
-        key={hashKey(['search-form', q])}
-        id={formId}
-        initialQuery={q}
-        scope={scope}
-        nasaFilters={nasaFilters}
-      />
       {hasQuery ? (
         // not keyed by the search state: the entrance plays on page
         // arrival, not on every scope or filter navigation
-        <div className={css({ marginTop: '6' })}>
+        <div className={css({ marginTop: '2' })}>
           <QueryHeadline query={q} />
         </div>
       ) : (
@@ -223,7 +223,7 @@ function SearchPage() {
           <SearchConditions
             q={q}
             scope={scope}
-            formId={formId}
+            formId={SEARCH_FORM_ID}
             nasaFilters={nasaFilters}
             onNasaFiltersChange={setNasaFilters}
             onNasaFiltersCommit={commitNasaFilters}

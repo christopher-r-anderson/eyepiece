@@ -1,20 +1,22 @@
-import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
-import { toSearchPageParams } from '../search-page-params'
+import {
+  searchPageParamsSchema,
+  toSearchPageParams,
+  toSearchPageState,
+} from '../search-page-params'
 import { SearchInput } from './search-bar/search-input'
 import type { FormProps } from '@/components/ui/forms'
 import type { SearchScope } from '../search-page-params'
-import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import { Form } from '@/components/ui/forms'
-import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+
+// the single site search form; the search page's year inputs associate
+// with it through the form attribute
+export const SEARCH_FORM_ID = 'site-search-form'
 
 interface SearchBarProps extends FormProps {
   initialQuery: string
   scope: SearchScope
-  // the year inputs live in the conditions line and associate through the
-  // form attribute; hydrated submits read this lifted state
-  nasaFilters?: NasaIvlSearchFilters
 }
 
 function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
@@ -26,11 +28,9 @@ function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
 export function SearchBar({
   initialQuery,
   scope,
-  nasaFilters,
   css: styles,
   ...props
 }: SearchBarProps) {
-  const [query, setQuery] = useState(initialQuery)
   const navigate = useNavigate()
 
   // before hydration the form submits natively and serializes in document
@@ -48,22 +48,6 @@ export function SearchBar({
   const fieldsBeforeQuery = nativeScopeFields.filter(([name]) => name < 'q')
   const fieldsAfterQuery = nativeScopeFields.filter(([name]) => name > 'q')
 
-  function submitScope(): SearchScope {
-    if (
-      scope.scope === 'provider' &&
-      scope.filters.providerId === NASA_IVL_PROVIDER_ID
-    ) {
-      return {
-        scope: 'provider',
-        filters: {
-          providerId: NASA_IVL_PROVIDER_ID,
-          filters: nasaFilters ?? scope.filters.filters,
-        },
-      }
-    }
-    return scope
-  }
-
   return (
     <Form
       action="/search"
@@ -73,19 +57,23 @@ export function SearchBar({
       )}
       onSubmit={(event) => {
         event.preventDefault()
+        // the form is the source of truth for a hydrated submit too: the
+        // query, hidden scope fields, and form-associated year inputs all
+        // arrive through FormData and take the same lenient parse as a URL
+        const state = toSearchPageState(
+          searchPageParamsSchema.parse(
+            Object.fromEntries(new FormData(event.currentTarget)),
+          ),
+        )
         void navigate({
           to: '/search',
-          search: toSearchPageParams(query, submitScope()),
+          search: toSearchPageParams(state.q, state.scope),
         })
       }}
       {...props}
     >
       <HiddenScopeFields fields={fieldsBeforeQuery} />
-      <SearchInput
-        aria-label="Search keywords"
-        value={query}
-        onChange={setQuery}
-      />
+      <SearchInput aria-label="Search keywords" defaultValue={initialQuery} />
       <HiddenScopeFields fields={fieldsAfterQuery} />
     </Form>
   )

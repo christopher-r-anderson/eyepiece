@@ -236,15 +236,12 @@ test('an inverted year range is blocked natively after hydration', async ({
   await page.goto(
     `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=2000&yearStart=1960`,
   )
+  // pre-hydration the bounds are static by design and a native submit
+  // drops the inverted pair at the URL, so the block under test only
+  // exists after hydration
+  await waitForHydratedResults(page)
 
-  // a fill that lands before hydration is wiped by the controlled input;
-  // retry until the value sticks
-  const from = page.getByLabel('Earliest year')
-  await expect(async () => {
-    await from.fill('2010')
-    await page.waitForTimeout(150)
-    await expect(from).toHaveValue('2010')
-  }).toPass()
+  await page.getByLabel('Earliest year').fill('2010')
 
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.waitForTimeout(500)
@@ -268,6 +265,44 @@ test('year filters survive a pre-hydration submit from an empty-query NASA page'
       url.searchParams.get('yearStart') === '1990'
     )
   })
+})
+
+test('typing that lands before hydration survives it', async ({ page }) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  // widen the pre-hydration window so the fill deterministically lands
+  // inside it
+  await page.route('**/*.js', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1200))
+    await route.continue()
+  })
+  await page.goto('/search?q=moon', { waitUntil: 'domcontentloaded' })
+
+  const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
+  await searchbox.fill('crab draft')
+
+  await waitForHydratedResults(page)
+  await expect(searchbox).toHaveValue('crab draft')
+})
+
+test('a draft typed in the next field survives the blur commit', async ({
+  page,
+}) => {
+  await page.route('**/api/v1/search*', (route) =>
+    route.fulfill({ json: stubSearchResponse }),
+  )
+  await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
+  await waitForHydratedResults(page)
+
+  await page.getByLabel('Earliest year').fill('1980')
+  await page.keyboard.press('Tab')
+  // type immediately, before the commit navigation and its filter
+  // re-sync settle
+  await page.getByLabel('Latest year').pressSequentially('2001')
+
+  await page.waitForURL((url) => url.searchParams.get('yearStart') === '1980')
+  await expect(page.getByLabel('Latest year')).toHaveValue('2001')
 })
 
 test('a year edit applies on blur and keeps focus for the next field', async ({

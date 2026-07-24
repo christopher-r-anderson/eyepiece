@@ -7,10 +7,9 @@ import type { ComponentPropsWithoutRef } from 'react'
 
 export function Header(props: ComponentPropsWithoutRef<'header'>) {
   const pathname = useLocation({ select: (location) => location.pathname })
+  // home is hero-only
   const isHome = pathname === '/'
-  // home is hero-only; the search page owns its own bar
-  const isSearchPage = pathname === '/search'
-  const hasSearch = !isHome && !isSearchPage
+  const hasSearch = !isHome
   return (
     <header
       {...props}
