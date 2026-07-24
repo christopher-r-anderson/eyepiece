@@ -72,6 +72,14 @@ export default defineConfig({
     },
   },
   theme: {
+    // viewport breakpoints for the page shell (header, page rhythm);
+    // component-local responsiveness keeps using container queries
+    breakpoints: {
+      sm: '40rem',
+      md: '48rem',
+      lg: '64rem',
+      xl: '80rem',
+    },
     // standard container query ladder, used as '@/xl' etc. against the
     // nearest containerType ancestor
     // 'form' is set by the form recipe's page layout so '@form/*' states

@@ -20,6 +20,9 @@ export const menuItemRecipe = defineRecipe({
   className: 'menu-item',
   base: {
     color: 'text',
+    // items render as anchors when they carry href; the prose underline
+    // rule must not reach them
+    textDecoration: 'none',
     paddingBlock: '2',
     paddingInline: '4',
     borderRadius: 'sm',

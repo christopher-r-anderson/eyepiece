@@ -35,23 +35,6 @@ export const switchRecipe = defineRecipe({
   variants: {
     variant: {
       default: {},
-      subtle: {
-        minWidth: '2.5rem',
-        minHeight: '1.5rem',
-        paddingBlock: '1',
-        paddingInline: '2',
-        borderColor: 'transparent',
-        backgroundColor: 'transparent',
-        color: 'text.muted',
-        _hovered: {
-          backgroundColor: 'transparent',
-          color: 'text',
-        },
-        _selected: {
-          backgroundColor: 'transparent',
-          color: 'accent.emphasis',
-        },
-      },
     },
   },
   defaultVariants: {
