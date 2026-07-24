@@ -102,6 +102,13 @@ function CollectionPage() {
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     itemsResult.data.assetPreviewSnapshotIds,
   )
+  // a failed snapshot page would otherwise blank the grid silently: on
+  // error the batch query holds no data for its new key, so the fallback
+  // below would render zero tiles. Failing over to the route boundary
+  // matches how a first-page failure surfaces from the loader.
+  if (snapshotsResult.isError) {
+    throw snapshotsResult.error
+  }
   const { total } = itemsResult.data
 
   return (
@@ -131,8 +138,11 @@ function CollectionPage() {
           <p>This collection is empty.</p>
         ) : (
           <InfiniteLoader
+            // isFetching, not isLoading: after an edge page lands the batch
+            // query switches keys and keepPreviousData reports isLoading
+            // false while the new snapshots are still in flight
             isFetchingNextPage={
-              itemsResult.isFetchingNextPage || snapshotsResult.isLoading
+              itemsResult.isFetchingNextPage || snapshotsResult.isFetching
             }
             fetchNextPage={() => {
               startTransition(async () => {
