@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { collectionVisibilitySchema } from './collections.schema'
 import type {
   Collection,
+  CollectionCard,
   CollectionId,
   CollectionItemEdge,
 } from './collections.schema'
@@ -41,6 +42,50 @@ export function mapCollection(row: DbCollection): Collection {
     visibility: row.visibility,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  }
+}
+
+const dbSnapshotEmbedSchema = z.object({
+  id: z.uuid(),
+  provider_id: providerIdSchema,
+  external_id: externalAssetIdSchema,
+  title: z.string().nullable(),
+  thumb_href: z.url(),
+  thumb_width: z.number().int().positive(),
+  thumb_height: z.number().int().positive(),
+})
+
+const dbCollectionCardSchema = dbCollectionSchema.extend({
+  item_count: z.array(z.object({ count: z.number().int().nonnegative() })),
+  cover_items: z.array(
+    z.object({ asset_preview_snapshots: dbSnapshotEmbedSchema }),
+  ),
+})
+
+type DbCollectionCard = z.infer<typeof dbCollectionCardSchema>
+
+const dbCollectionCardsSchema = z.array(dbCollectionCardSchema)
+
+function mapCollectionCard(row: DbCollectionCard): CollectionCard {
+  const coverRow = row.cover_items.at(0)?.asset_preview_snapshots
+  return {
+    collection: mapCollection(row),
+    itemCount: row.item_count.at(0)?.count ?? 0,
+    cover: coverRow
+      ? {
+          id: coverRow.id,
+          key: {
+            providerId: coverRow.provider_id,
+            externalId: coverRow.external_id,
+          },
+          title: coverRow.title ?? 'No Title',
+          thumbnail: {
+            href: coverRow.thumb_href,
+            width: coverRow.thumb_width,
+            height: coverRow.thumb_height,
+          },
+        }
+      : null,
   }
 }
 
@@ -118,6 +163,40 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     return Ok(rows.map(mapCollection))
   }
 
+  // one query per card row: the count and the deterministically-first item
+  // ride as aliased embeds of the same relationship
+  async function getPublicCollectionCardsForOwner(
+    ownerId: string,
+  ): Promise<Result<Array<CollectionCard>>> {
+    const { data, error: pgError } = await client
+      .from('collections')
+      .select(
+        `${COLLECTION_COLUMNS}, item_count:collection_items(count), cover_items:collection_items(asset_preview_snapshots(id, provider_id, external_id, title, thumb_href, thumb_width, thumb_height))`,
+      )
+      .eq('owner_id', ownerId)
+      .eq('visibility', 'public')
+      .order('position', { ascending: true })
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      // the cover is the same row the detail page shows first
+      .order('position', { ascending: true, referencedTable: 'cover_items' })
+      .order('created_at', { ascending: true, referencedTable: 'cover_items' })
+      .order('asset_preview_snapshot_id', {
+        ascending: true,
+        referencedTable: 'cover_items',
+      })
+      .limit(1, { referencedTable: 'cover_items' })
+    if (pgError) {
+      return Err({ message: pgError.message, cause: pgError })
+    }
+    const { data: rows, error: parseError } =
+      dbCollectionCardsSchema.safeParse(data)
+    if (parseError) {
+      return Err({ message: parseError.message, cause: parseError })
+    }
+    return Ok(rows.map(mapCollectionCard))
+  }
+
   // null = missing OR private-to-someone-else; callers map both to not-found
   async function getCollection(
     collectionId: CollectionId,
@@ -179,6 +258,7 @@ export function makeCollectionsRepo(client: SupabaseClient) {
   return {
     getUserCollections,
     getPublicCollectionsForOwner,
+    getPublicCollectionCardsForOwner,
     getCollection,
     getCollectionItemEdges,
   }

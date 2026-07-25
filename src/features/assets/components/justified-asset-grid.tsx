@@ -29,6 +29,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
         flexWrap: 'wrap',
         gap: '3',
         listStyle: 'none',
+        paddingInlineStart: '0',
         '--row-h': '225px',
         mdDown: { gap: '2', '--row-h': '122px' },
         _after: { content: '""', flex: '10000 1 0' },

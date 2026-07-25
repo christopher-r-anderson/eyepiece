@@ -75,3 +75,20 @@ export function ensureInfiniteAlbum({
     getInfiniteAlbumOptions({ repo: albumsRepo, albumKey: albumKey }),
   )
 }
+
+// for fire-and-forget loader warming: never throws, so a failed prefetch
+// falls through to the consumer's own boundary and client refetch
+export function prefetchInfiniteAlbum({
+  albumKey,
+  eyepieceClient,
+  queryClient,
+}: {
+  albumKey: AlbumKey
+  eyepieceClient: EyepieceClient
+  queryClient: QueryClient
+}) {
+  const albumsRepo = makeAlbumsRepo(eyepieceClient)
+  return queryClient.prefetchInfiniteQuery(
+    getInfiniteAlbumOptions({ repo: albumsRepo, albumKey: albumKey }),
+  )
+}
