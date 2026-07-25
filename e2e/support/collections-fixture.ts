@@ -11,24 +11,28 @@ export const COLLECTIONS_FIXTURE = {
     password: 'hunter2-e2e-collections',
     displayName: 'e2e curator',
   },
+  // real NASA external ids so tile -> detail navigation works in journey
+  // specs, chosen OUTSIDE the showcase set (snapshots are unique per
+  // provider+external id, so showcase-owned assets would collide); titles
+  // and dimensions stay synthetic - stored dims drive layout, not bitmaps
   snapshots: [
     {
       id: 'e2ec0000-0000-4000-8000-00000000a001',
-      externalId: 'e2e-collections-wide',
+      externalId: 'PIA14417',
       title: 'E2E Wide',
       width: 600,
       height: 300,
     },
     {
       id: 'e2ec0000-0000-4000-8000-00000000a002',
-      externalId: 'e2e-collections-square',
+      externalId: 'PIA03606',
       title: 'E2E Square',
       width: 300,
       height: 300,
     },
     {
       id: 'e2ec0000-0000-4000-8000-00000000a003',
-      externalId: 'e2e-collections-tall',
+      externalId: 'ARC-2010-ACD10-0054-007',
       title: 'E2E Tall',
       width: 200,
       height: 300,
