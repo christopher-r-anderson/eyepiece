@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { startTransition } from 'react'
 import { css } from 'styled-system/css'
-import { AssetGrid } from '@/features/assets/components/asset-grid'
+import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureInfiniteUserFavoritesEdges,
   useSuspenseInfiniteUserFavoriteAssetIds,
@@ -85,7 +85,7 @@ function FavoritesPage() {
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
-        <AssetGrid items={assetPreviewSnapshotsResult.data ?? []} />
+        <JustifiedAssetGrid items={assetPreviewSnapshotsResult.data ?? []} />
       </InfiniteLoader>
     </>
   )

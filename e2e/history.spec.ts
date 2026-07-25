@@ -106,7 +106,7 @@ test('the auth dialog occupies one history entry from open to close', async ({
   // back-close from a same-URL replace
   await page.goto('/')
   await page.goto(`/collections/${publicCollection.id}`)
-  const tile = page.getByRole('listitem').first()
+  const tile = page.getByRole('grid').getByRole('row').first()
   await expect(tile.getByRole('button', { name: 'Star' })).toBeEnabled()
   // the veil must be revealed before its controls take the pointer
   await tile.hover()
