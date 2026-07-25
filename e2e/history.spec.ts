@@ -109,6 +109,10 @@ test('a deep-linked auth dialog closes in place', async ({ page }) => {
 test('the auth dialog occupies one history entry from open to close', async ({
   page,
 }) => {
+  // a known prior entry lets the final goBack prove the close truly went
+  // back over the dialog entry (a replace-close would preserve length and
+  // pathname but leave Back stranded on the collection)
+  await page.goto('/')
   await page.goto(`/collections/${publicCollection.id}`)
   const tile = page.getByRole('listitem').first()
   await expect(tile.getByRole('button', { name: 'Star' })).toBeEnabled()
@@ -121,7 +125,12 @@ test('the auth dialog occupies one history entry from open to close', async ({
   await page.waitForFunction(() => location.search.includes('auth=login'))
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
 
-  // switching tabs stays inside the same entry
+  // the forgot-password link stays inside the same entry
+  await page.getByRole('link', { name: 'Forgot Password?' }).click()
+  await page.waitForFunction(() => location.search.includes('fp=1'))
+  expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+
+  // as do tab switches
   await page.getByRole('tab', { name: 'Register' }).click()
   await page.waitForFunction(() => location.search.includes('auth=register'))
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
@@ -135,4 +144,9 @@ test('the auth dialog occupies one history entry from open to close', async ({
   expect(await page.evaluate(() => location.pathname)).toBe(
     `/collections/${publicCollection.id}`,
   )
+
+  // Back leaves the page entirely - the dialog entry is gone
+  await page.goBack()
+  await page.waitForURL('/')
+  await expect(page.getByRole('dialog')).toBeHidden()
 })
