@@ -13,7 +13,7 @@ import * as result from '@/lib/result'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 
-const dbAssetPreviewSnapshotSchema = z.object({
+export const dbAssetPreviewSnapshotSchema = z.object({
   id: assetPreviewSnapshotIdSchema,
   provider_id: providerIdSchema,
   external_id: externalAssetIdSchema,
@@ -27,7 +27,7 @@ const dbAssetPreviewSnapshotsSchema = z.array(dbAssetPreviewSnapshotSchema)
 
 type DbAssetPreviewSnapshot = z.infer<typeof dbAssetPreviewSnapshotSchema>
 
-function mapAssetPreviewSnapshot({
+export function mapAssetPreviewSnapshot({
   id,
   provider_id,
   external_id,

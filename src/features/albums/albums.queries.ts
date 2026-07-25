@@ -50,6 +50,7 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
+    staleTime: 1000 * 60 * 5,
     select,
   })
 }
@@ -72,6 +73,21 @@ export function ensureInfiniteAlbum({
 }) {
   const albumsRepo = makeAlbumsRepo(eyepieceClient)
   return queryClient.ensureInfiniteQueryData(
+    getInfiniteAlbumOptions({ repo: albumsRepo, albumKey: albumKey }),
+  )
+}
+
+export function prefetchInfiniteAlbum({
+  albumKey,
+  eyepieceClient,
+  queryClient,
+}: {
+  albumKey: AlbumKey
+  eyepieceClient: EyepieceClient
+  queryClient: QueryClient
+}) {
+  const albumsRepo = makeAlbumsRepo(eyepieceClient)
+  return queryClient.prefetchInfiniteQuery(
     getInfiniteAlbumOptions({ repo: albumsRepo, albumKey: albumKey }),
   )
 }

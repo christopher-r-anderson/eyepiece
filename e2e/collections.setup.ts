@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { test as setup } from '@playwright/test'
 import {
   COLLECTIONS_FIXTURE,
@@ -5,6 +6,7 @@ import {
   pagingSnapshot,
   thumbHref,
 } from './support/collections-fixture'
+import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
 
 // Seeds the collection detail fixture: showcase provisioning never runs in
 // CI (it would hit the live NASA API), so the spec brings its own rows.
@@ -116,5 +118,85 @@ setup('seed collections fixture', async () => {
   ])
   if (itemsError) {
     throw new Error(`Failed to upsert fixture items: ${itemsError.message}`)
+  }
+})
+
+// a database without showcase content (always CI, whose fresh database
+// never gets provisioned - that would hit the live provider) gets a minimal
+// stand-in on the real fixed ids; provisioning upserts those same ids, so a
+// provisioned database passes the completeness check and is left alone
+setup('seed showcase stand-in when needed', async () => {
+  const admin = makeAdminClient()
+  const expectedIds = SHOWCASE_CURATION.collections.map(
+    (collection) => collection.id,
+  )
+  const { data: existing } = await admin
+    .from('collections')
+    .select('id, collection_items(count)')
+    .in('id', expectedIds)
+  const complete =
+    existing?.length === expectedIds.length &&
+    existing.every((row) => (row.collection_items.at(0)?.count ?? 0) > 0)
+  if (complete) {
+    return
+  }
+
+  const { error: userError } = await admin.auth.admin.createUser({
+    id: SHOWCASE_CURATION.user.id,
+    email: 'showcase-e2e-stand-in@example.com',
+    password: randomUUID(),
+    email_confirm: true,
+  })
+  if (userError && !/already.*registered/i.test(userError.message)) {
+    throw new Error(`Failed to create showcase stand-in: ${userError.message}`)
+  }
+  const { error: profileError } = await admin.from('profiles').upsert({
+    id: SHOWCASE_CURATION.user.id,
+    display_name: SHOWCASE_CURATION.user.displayName,
+  })
+  if (profileError) {
+    throw new Error(
+      `Failed to upsert showcase stand-in profile: ${profileError.message}`,
+    )
+  }
+
+  for (const [index, collection] of SHOWCASE_CURATION.collections.entries()) {
+    const standInSnapshotId = `e2ec0000-0000-4000-8000-00000000d00${index}`
+    const { error: snapshotError } = await admin
+      .from('asset_preview_snapshots')
+      .upsert({
+        id: standInSnapshotId,
+        provider_id: 'nasa_ivl',
+        external_id: `e2e-showcase-stand-in-${index}`,
+        title: `Showcase stand-in ${index}`,
+        thumb_href: thumbHref(`e2e-showcase-stand-in-${index}`),
+        thumb_width: 630,
+        thumb_height: 300,
+      })
+    if (snapshotError) {
+      throw new Error(
+        `Failed to seed stand-in snapshot: ${snapshotError.message}`,
+      )
+    }
+    const { error: collectionError } = await admin.from('collections').upsert({
+      id: collection.id,
+      owner_id: SHOWCASE_CURATION.user.id,
+      name: collection.name,
+      visibility: 'public',
+      position: index + 1,
+    })
+    if (collectionError) {
+      throw new Error(
+        `Failed to seed stand-in collection: ${collectionError.message}`,
+      )
+    }
+    const { error: itemError } = await admin.from('collection_items').upsert({
+      collection_id: collection.id,
+      asset_preview_snapshot_id: standInSnapshotId,
+      position: 1,
+    })
+    if (itemError) {
+      throw new Error(`Failed to seed stand-in item: ${itemError.message}`)
+    }
   }
 })

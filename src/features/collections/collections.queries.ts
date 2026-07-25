@@ -23,6 +23,48 @@ const collectionsKeys = {
     [...collectionsKeys.all, 'detail', collectionId] as const,
   itemEdges: (collectionId: CollectionId) =>
     [...collectionsKeys.detail(collectionId), 'itemEdges'] as const,
+  publicCards: (ownerId: string) =>
+    [...collectionsKeys.all, 'publicCards', ownerId] as const,
+}
+
+export function getPublicCollectionCardsOptions({
+  ownerId,
+  repo,
+}: {
+  ownerId: string
+  repo: Pick<CollectionsRepo, 'getPublicCollectionCardsForOwner'>
+}) {
+  return queryOptions({
+    queryKey: collectionsKeys.publicCards(ownerId),
+    queryFn: async () => {
+      const result = await repo.getPublicCollectionCardsForOwner(ownerId)
+      return unwrapOrThrow(result)
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function prefetchPublicCollectionCards({
+  ownerId,
+  queryClient,
+  publicSupabaseClient,
+}: {
+  ownerId: string
+  queryClient: QueryClient
+  publicSupabaseClient: SupabaseClient
+}) {
+  const repo = makeCollectionsRepo(publicSupabaseClient)
+  return queryClient.prefetchQuery(
+    getPublicCollectionCardsOptions({ ownerId, repo }),
+  )
+}
+
+export function useSuspensePublicCollectionCards(ownerId: string) {
+  const repo = usePublicCollectionsRepo()
+  const { data } = useSuspenseQuery(
+    getPublicCollectionCardsOptions({ ownerId, repo }),
+  )
+  return data
 }
 
 export function getCollectionOptions({

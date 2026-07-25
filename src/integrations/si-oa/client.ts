@@ -6,6 +6,7 @@ import type { SioaSearchParams } from './types'
 import { stringifySearchParams } from '@/lib/search-params'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { ProviderClientError } from '@/integrations/provider-client-error'
+import { providerFetch } from '@/integrations/provider-fetch'
 
 const API_ROOT = 'https://api.si.edu/openaccess/api/v1.0'
 
@@ -38,7 +39,7 @@ async function readMessage(response: Response) {
 
 export async function search(params: SioaSearchParams, apiKey: string) {
   const url = `${API_ROOT}/search${stringifySearchParams({ ...params, [API_KEY_PARAM_NAME]: apiKey })}`
-  const response = await fetch(url)
+  const response = await providerFetch(url)
   if (!response.ok) {
     const message = await readMessage(response)
     throw new ProviderClientError({
@@ -55,7 +56,7 @@ export async function search(params: SioaSearchParams, apiKey: string) {
 
 export async function getContent(id: string, apiKey: string) {
   const url = `${API_ROOT}/content/${id}?api_key=${apiKey}`
-  const response = await fetch(url)
+  const response = await providerFetch(url)
   if (!response.ok) {
     const message = await readMessage(response)
     throw new ProviderClientError({

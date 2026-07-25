@@ -346,6 +346,68 @@ describe('collection items', () => {
     snapshotIds.length = 0
   })
 
+  it('builds public collection cards with count and first-item cover', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const withItems = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'With items',
+        visibility: 'public',
+      }),
+    )
+    const empty = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Empty',
+        visibility: 'public',
+      }),
+    )
+    const hidden = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Hidden',
+        visibility: 'private',
+      }),
+    )
+    const externalA = `cards-a-${Date.now()}`
+    const externalB = `cards-b-${Date.now()}`
+    const snapshotA = await seedAssetPreviewSnapshot(adminClient, externalA)
+    const snapshotB = await seedAssetPreviewSnapshot(adminClient, externalB)
+    snapshotIds.push(snapshotA, snapshotB)
+    for (const [collectionId, externalId, snapshotId] of [
+      [withItems.id, externalA, snapshotA],
+      [withItems.id, externalB, snapshotB],
+      [hidden.id, externalA, snapshotA],
+    ] as const) {
+      unwrapOrThrow(
+        await addCollectionItemForUser(
+          client,
+          {
+            collectionId,
+            assetKey: { providerId: 'nasa_ivl', externalId },
+          },
+          snapshotId,
+        ),
+      )
+    }
+
+    const cards = unwrapOrThrow(
+      await makeCollectionsRepo(
+        createAnonClient(),
+      ).getPublicCollectionCardsForOwner(user.id),
+    )
+
+    expect(cards.map((card) => card.collection.id)).toEqual([
+      withItems.id,
+      empty.id,
+    ])
+    expect(cards[0]?.itemCount).toBe(2)
+    expect(cards[0]?.cover?.id).toBe(snapshotA)
+    expect(cards[0]?.cover?.thumbnail.width).toBe(200)
+    expect(cards[1]?.itemCount).toBe(0)
+    expect(cards[1]?.cover).toBeNull()
+  })
+
   // tie every item on position AND created_at so only the snapshot-id key
   // orders them; paging in twos must yield each item once, in id order, with
   // no drift (a dropped tiebreaker would duplicate or skip across pages)

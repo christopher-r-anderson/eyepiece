@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { assetKeySchema } from '@/domain/asset/asset.schema'
+import {
+  assetKeySchema,
+  assetPreviewSnapshotSchema,
+} from '@/domain/asset/asset.schema'
 
 export const collectionVisibilitySchema = z.enum(['public', 'private'])
 
@@ -22,6 +25,14 @@ export const collectionSchema = z.object({
 })
 
 export type Collection = z.infer<typeof collectionSchema>
+
+export const collectionCardSchema = z.object({
+  collection: collectionSchema,
+  itemCount: z.number().int().nonnegative(),
+  cover: assetPreviewSnapshotSchema.nullable(),
+})
+
+export type CollectionCard = z.infer<typeof collectionCardSchema>
 
 export const collectionItemEdgeSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),

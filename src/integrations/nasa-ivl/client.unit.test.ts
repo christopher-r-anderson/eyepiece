@@ -158,4 +158,13 @@ describe('nasa-ivl client search', () => {
       status: 404,
     })
   })
+
+  it('sends requests with the provider deadline signal', async () => {
+    const fetchMock = stubFetchJsonOnce({ json: querySearchFixture })
+
+    await search({ q: 'apollo' })
+
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
+    expect(init?.signal).toBeInstanceOf(AbortSignal)
+  })
 })
