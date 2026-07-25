@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { VisuallyHidden } from 'styled-system/jsx'
 import { UserMenu } from './user-menu'
 import { LoginLink } from './login-link'
@@ -8,25 +7,18 @@ import {
   StableVisibilityStackItem,
 } from '@/components/ui/stable-visibility-stack'
 
-type status = 'loading' | 'logged-in' | 'logged-out'
-
 export function UserStatus() {
   const { data: user, isPending } = useCurrentUserQuery()
-  const [authStatus, setAuthStatus] = useState<status>('loading')
-  useEffect(() => {
-    if (isPending) {
-      setAuthStatus('loading')
-    } else if (user) {
-      setAuthStatus('logged-in')
-    } else {
-      setAuthStatus('logged-out')
-    }
-  }, [isPending, user])
+  // optimistic logged-out: the link renders from SSR onward and swaps only
+  // when a session actually resolves, so nobody sees an empty slot
+  const authStatus = user ? 'logged-in' : 'logged-out'
   return (
     <>
       <VisuallyHidden aria-live="polite" aria-atomic="true">
-        {authStatus === 'logged-in' ? 'User menu loaded.' : ''}
-        {authStatus === 'logged-out' ? 'Please log in to see the menu.' : ''}
+        {!isPending && authStatus === 'logged-in' ? 'User menu loaded.' : ''}
+        {!isPending && authStatus === 'logged-out'
+          ? 'Please log in to see the menu.'
+          : ''}
       </VisuallyHidden>
       <StableVisibilityStack activeKey={authStatus}>
         <StableVisibilityStackItem
