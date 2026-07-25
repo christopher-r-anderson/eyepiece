@@ -121,15 +121,11 @@ setup('seed collections fixture', async () => {
   }
 })
 
-// The homepage renders the showcase user's public collections, and CI never
-// runs showcase provisioning (it would hit the live NASA API). When the
-// showcase is absent or incomplete, reconcile a minimal stand-in on the real
-// fixed ids - one stub item per collection - so the cards render everywhere.
-// A complete showcase (his real locally-provisioned one, or a finished
-// stand-in) is left untouched; every write below is idempotent so a retry
-// after a partial seed repairs the remainder. A later real provisioning run
-// absorbs the stand-in through its fixed-id upserts.
-setup('reconcile showcase stand-in', async () => {
+// a database without showcase content (always CI, whose fresh database
+// never gets provisioned - that would hit the live provider) gets a minimal
+// stand-in on the real fixed ids; provisioning upserts those same ids, so a
+// provisioned database passes the completeness check and is left alone
+setup('seed showcase stand-in when needed', async () => {
   const admin = makeAdminClient()
   const expectedIds = SHOWCASE_CURATION.collections.map(
     (collection) => collection.id,
@@ -151,7 +147,6 @@ setup('reconcile showcase stand-in', async () => {
     password: randomUUID(),
     email_confirm: true,
   })
-  // an existing user is a partial prior seed; everything below repairs it
   if (userError && !/already.*registered/i.test(userError.message)) {
     throw new Error(`Failed to create showcase stand-in: ${userError.message}`)
   }

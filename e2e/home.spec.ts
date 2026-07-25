@@ -19,7 +19,6 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
     }),
   ).toBeVisible()
 
-  // chips link to canonical /search spellings (spaces spelled as '+')
   const firstChip = SUGGESTED_SEARCHES[0]
   await expect(
     page.getByRole('link', { name: firstChip, exact: true }),
@@ -36,9 +35,8 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
       `/albums/${featured.albumKey.providerId}/${featured.albumKey.externalId}`,
     )
   }
-  // strip tiles come from the live album API during SSR streaming, which
-  // this suite cannot stub; the section must settle into one of its two
-  // designed states - tiles or its own error boundary - never an empty hang
+  // strips stream from the live album API, which this suite can't stub;
+  // the section must settle into tiles or its boundary, never hang empty
   const firstStrip = page.getByRole('region', {
     name: `editor’s picks ${FEATURED_ALBUMS[0].title}`,
   })

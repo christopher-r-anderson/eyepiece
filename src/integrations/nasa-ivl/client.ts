@@ -3,6 +3,7 @@ import type { NasaAlbumParams, NasaSearchParams } from './types'
 import { stringifySearchParams } from '@/lib/search-params'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { ProviderClientError } from '@/integrations/provider-client-error'
+import { providerFetch } from '@/integrations/provider-fetch'
 
 const IMAGE_HOST = 'https://images-api.nasa.gov'
 const ASSET_HOST = 'https://images-assets.nasa.gov'
@@ -39,7 +40,7 @@ function isAlbumNotFoundResponse(status: number, reason: string) {
 
 export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
   const url = `${IMAGE_HOST}/album/${id}${stringifyParams(params)}`
-  const response = await fetch(url)
+  const response = await providerFetch(url)
   if (!response.ok) {
     const reason = await readReason(response)
     throw new ProviderClientError({
@@ -60,7 +61,7 @@ export async function getAlbum(id: string, params: NasaAlbumParams = {}) {
 
 export async function search(params: NasaSearchParams) {
   const url = `${IMAGE_HOST}/search${stringifyParams(params)}`
-  const response = await fetch(url)
+  const response = await providerFetch(url)
   if (!response.ok) {
     const reason = await readReason(response)
     throw new ProviderClientError({
@@ -77,7 +78,7 @@ export async function search(params: NasaSearchParams) {
 
 export async function getMetadata(id: string) {
   const url = `${ASSET_HOST}/image/${id}/metadata.json`
-  const response = await fetch(url)
+  const response = await providerFetch(url)
   if (!response.ok) {
     const reason = await readReason(response)
     throw new ProviderClientError({

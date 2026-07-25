@@ -6,9 +6,7 @@ interface FeaturedAlbum {
   title: string
 }
 
-// Curated homepage content. Album keys are verified against the live NASA
-// API (album ids are case-sensitive); counts checked 2026-07-24:
-// Apollo-at-50 13 items, Artemis_I_Launch 205 items.
+// album ids are case-sensitive; verify new keys against the live API
 export const FEATURED_ALBUMS: Array<FeaturedAlbum> = [
   {
     albumKey: { providerId: 'nasa_ivl', externalId: 'Apollo-at-50' },

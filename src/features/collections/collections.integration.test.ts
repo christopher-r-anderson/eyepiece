@@ -397,13 +397,11 @@ describe('collection items', () => {
       ).getPublicCollectionCardsForOwner(user.id),
     )
 
-    // private stays hidden; public cards come back in position order
     expect(cards.map((card) => card.collection.id)).toEqual([
       withItems.id,
       empty.id,
     ])
     expect(cards[0]?.itemCount).toBe(2)
-    // the cover is the position-first item, the same row the detail shows first
     expect(cards[0]?.cover?.id).toBe(snapshotA)
     expect(cards[0]?.cover?.thumbnail.width).toBe(200)
     expect(cards[1]?.itemCount).toBe(0)

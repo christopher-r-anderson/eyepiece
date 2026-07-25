@@ -96,28 +96,4 @@ describe('createEyepieceClient', () => {
       ),
     ).rejects.toThrow('Error searching assets: Search provider does not exist')
   })
-
-  it('sends every request with an abort deadline signal', async () => {
-    const client = createEyepieceClient({ origin: 'https://example.com' })
-    const key = { providerId: NASA_IVL_PROVIDER_ID, externalId: 'x' } as const
-    const requests: Array<() => Promise<unknown>> = [
-      () => client.getAsset(key),
-      () => client.getAlbum(key, { page: 1, pageSize: 1 }),
-      () => client.getMetadata(key),
-      () =>
-        client.searchAssets(
-          'apollo',
-          { providerId: NASA_IVL_PROVIDER_ID, filters: {} },
-          { page: 1, pageSize: 1 },
-        ),
-    ]
-    for (const request of requests) {
-      const fetchMock = stubFetchJsonOnce({ json: {} })
-      // response parsing may reject; only the request wiring matters here
-      await request().catch(() => {})
-      expect(fetchMock).toHaveBeenCalledTimes(1)
-      const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
-      expect(init?.signal).toBeInstanceOf(AbortSignal)
-    }
-  })
 })

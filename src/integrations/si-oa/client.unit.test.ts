@@ -142,4 +142,13 @@ describe('si-oa client', () => {
       status: 404,
     })
   })
+
+  it('sends requests with the provider deadline signal', async () => {
+    const fetchMock = stubFetchJsonOnce({ json: searchFixture })
+
+    await search({ q: 'apollo', start: 0, rows: 24 }, 'key')
+
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
+    expect(init?.signal).toBeInstanceOf(AbortSignal)
+  })
 })

@@ -87,12 +87,9 @@ test('private collection is not found, even by id', async ({ page }) => {
 test('private collection is not found even for its signed-in owner', async ({
   page,
 }) => {
-  // the public detail read is deliberately viewer-independent (public
-  // client, CDN-cacheable), so owning the collection must change nothing.
-  // The app's own post-login redirect lands on the collection; a separate
-  // goto after login gets spuriously aborted by firefox. The client-side
-  // navigation renders the route-level not-found (the 404 status is pinned
-  // by the anonymous test above).
+  // the viewer-independent read means the owner still gets the 404 (status
+  // pinned by the anonymous test); the app's next= redirect avoids a
+  // post-login goto that automated firefox aborts
   const target = `/collections/${privateCollection.id}`
   await page.goto(`/login?next=${encodeURIComponent(target)}`)
   await page.getByRole('textbox', { name: 'Email' }).fill(user.email)

@@ -163,8 +163,6 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     return Ok(rows.map(mapCollection))
   }
 
-  // one query per card row: the count and the deterministically-first item
-  // ride as aliased embeds of the same relationship
   async function getPublicCollectionCardsForOwner(
     ownerId: string,
   ): Promise<Result<Array<CollectionCard>>> {
@@ -178,7 +176,6 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       .order('position', { ascending: true })
       .order('created_at', { ascending: true })
       .order('id', { ascending: true })
-      // the cover is the same row the detail page shows first
       .order('position', { ascending: true, referencedTable: 'cover_items' })
       .order('created_at', { ascending: true, referencedTable: 'cover_items' })
       .order('asset_preview_snapshot_id', {

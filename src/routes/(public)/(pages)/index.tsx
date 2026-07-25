@@ -32,9 +32,7 @@ export const Route = createFileRoute('/(public)/(pages)/')({
   loader: ({
     context: { queryClient, eyepieceClient, publicSupabaseClient },
   }) => {
-    // deliberately not awaited: the masthead is the LCP and must not wait
-    // on providers; each section streams into its own boundary and a
-    // failed prefetch refetches client-side
+    // not awaited: sections stream and settle into their own boundaries
     for (const featured of FEATURED_ALBUMS) {
       void prefetchInfiniteAlbum({
         albumKey: featured.albumKey,
@@ -61,8 +59,6 @@ function HomePage() {
     <div className={css({ width: '100%' })}>
       <section
         className={css({
-          // component-local rhythm: composes with the page shell's own
-          // padding to land on the mockup's 56/44 masthead band
           paddingTop: '40px',
           paddingBottom: '44px',
           maxWidth: '720px',

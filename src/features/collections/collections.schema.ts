@@ -26,7 +26,6 @@ export const collectionSchema = z.object({
 
 export type Collection = z.infer<typeof collectionSchema>
 
-// a collection with just enough item data to render a linked card
 export const collectionCardSchema = z.object({
   collection: collectionSchema,
   itemCount: z.number().int().nonnegative(),

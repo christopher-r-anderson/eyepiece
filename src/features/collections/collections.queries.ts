@@ -44,8 +44,6 @@ export function getPublicCollectionCardsOptions({
   })
 }
 
-// fire-and-forget loader warming; a failure falls through to the
-// consumer's boundary and client refetch
 export function prefetchPublicCollectionCards({
   ownerId,
   queryClient,

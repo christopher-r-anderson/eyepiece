@@ -50,8 +50,6 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
-    // keeps an SSR-prefetched album fresh through hydration; without it the
-    // suspense mount refetches the same album immediately
     staleTime: 1000 * 60 * 5,
     select,
   })
@@ -79,8 +77,6 @@ export function ensureInfiniteAlbum({
   )
 }
 
-// for fire-and-forget loader warming: never throws, so a failed prefetch
-// falls through to the consumer's own boundary and client refetch
 export function prefetchInfiniteAlbum({
   albumKey,
   eyepieceClient,
