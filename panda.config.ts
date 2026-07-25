@@ -54,6 +54,18 @@ export default defineConfig({
           }
         },
       },
+      // the app's inner-scrollport treatment; the page scrollbar stays native
+      scrollbarThin: {
+        className: 'scrollbar-thin',
+        values: { type: 'boolean' },
+        transform(value: boolean, { token }) {
+          if (!value) return {}
+          return {
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${token('colors.control.border')} transparent`,
+          }
+        },
+      },
     },
   },
   conditions: {
