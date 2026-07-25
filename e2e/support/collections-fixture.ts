@@ -42,8 +42,26 @@ export const COLLECTIONS_FIXTURE = {
     id: 'e2ec0000-0000-4000-8000-00000000c002',
     name: 'e2e private collection',
   },
+  // three pages at the default page size, so the paging spec can observe
+  // whether page 3 waits for page 2's thumbnails
+  pagingCollection: {
+    id: 'e2ec0000-0000-4000-8000-00000000c003',
+    name: 'e2e paging collection',
+    itemCount: 60,
+  },
   unknownCollectionId: 'e2ec0000-0000-4000-8000-00000000dead',
 } as const
+
+export function pagingSnapshot(index: number) {
+  const suffix = String(index).padStart(2, '0')
+  return {
+    id: `e2ec0000-0000-4000-8000-00000000b0${suffix}`,
+    externalId: `e2e-collections-page-${suffix}`,
+    title: `E2E Page Item ${suffix}`,
+    width: 200 + (index % 5) * 100,
+    height: 300,
+  }
+}
 
 export function thumbHref(externalId: string) {
   return `https://images-assets.nasa.gov/image/${externalId}/${externalId}~thumb.jpg`

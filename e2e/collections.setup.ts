@@ -2,6 +2,7 @@ import { test as setup } from '@playwright/test'
 import {
   COLLECTIONS_FIXTURE,
   makeAdminClient,
+  pagingSnapshot,
   thumbHref,
 } from './support/collections-fixture'
 
@@ -13,6 +14,12 @@ setup('seed collections fixture', async () => {
   const admin = makeAdminClient()
   const { user, snapshots, publicCollection, privateCollection } =
     COLLECTIONS_FIXTURE
+  const { pagingCollection } = COLLECTIONS_FIXTURE
+  const pagingSnapshots = Array.from(
+    { length: pagingCollection.itemCount },
+    (_, index) => pagingSnapshot(index),
+  )
+  const allSnapshots = [...snapshots, ...pagingSnapshots]
 
   // deleting the user cascades collections and their items, freeing the
   // RESTRICT-protected snapshots for their own delete
@@ -22,7 +29,7 @@ setup('seed collections fixture', async () => {
     .delete()
     .in(
       'id',
-      snapshots.map((snapshot) => snapshot.id),
+      allSnapshots.map((snapshot) => snapshot.id),
     )
   if (snapshotDeleteError) {
     throw new Error(
@@ -50,7 +57,7 @@ setup('seed collections fixture', async () => {
   const { error: snapshotsError } = await admin
     .from('asset_preview_snapshots')
     .upsert(
-      snapshots.map((snapshot) => ({
+      allSnapshots.map((snapshot) => ({
         id: snapshot.id,
         provider_id: 'nasa_ivl',
         external_id: snapshot.externalId,
@@ -81,6 +88,13 @@ setup('seed collections fixture', async () => {
       visibility: 'private',
       position: 2,
     },
+    {
+      id: pagingCollection.id,
+      owner_id: user.id,
+      name: pagingCollection.name,
+      visibility: 'public',
+      position: 3,
+    },
   ])
   if (collectionsError) {
     throw new Error(
@@ -88,13 +102,18 @@ setup('seed collections fixture', async () => {
     )
   }
 
-  const { error: itemsError } = await admin.from('collection_items').upsert(
-    snapshots.map((snapshot, index) => ({
+  const { error: itemsError } = await admin.from('collection_items').upsert([
+    ...snapshots.map((snapshot, index) => ({
       collection_id: publicCollection.id,
       asset_preview_snapshot_id: snapshot.id,
       position: index + 1,
     })),
-  )
+    ...pagingSnapshots.map((snapshot, index) => ({
+      collection_id: pagingCollection.id,
+      asset_preview_snapshot_id: snapshot.id,
+      position: index + 1,
+    })),
+  ])
   if (itemsError) {
     throw new Error(`Failed to upsert fixture items: ${itemsError.message}`)
   }
