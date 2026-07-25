@@ -153,7 +153,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           // width and height both set leaves the tile's own square
-          // aspect-ratio inert; the ratio lives on the list item
+          // aspect-ratio inert; the ratio lives on the row
           className={css(fillCss)}
         />
       </div>

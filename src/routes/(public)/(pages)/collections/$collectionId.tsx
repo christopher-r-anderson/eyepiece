@@ -27,7 +27,7 @@ import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
 
 // module-level so memoized grid rows see stable references
-const tileActions = (item: AssetPreview) => (
+const renderTileActions = (item: AssetPreview) => (
   <FavoriteButton assetKey={item.key} />
 )
 
@@ -166,7 +166,7 @@ function CollectionPage() {
           >
             <JustifiedAssetGrid
               items={snapshotsResult.data ?? []}
-              tileActions={tileActions}
+              tileActions={renderTileActions}
             />
           </InfiniteLoader>
         )}

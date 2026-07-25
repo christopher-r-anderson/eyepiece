@@ -206,6 +206,16 @@ test('grid arrows navigate by geometry with a roving tab stop', async ({
   await page.keyboard.press('ArrowUp')
   const backBox = await documentBox(page.locator('[role="row"]:focus'))
   expect(backBox.y).toBeLessThan(belowBox.y - 1)
+
+  // the delegate pages by viewport height (the base class pages by the
+  // container box, which spans the whole document-scrolled grid)
+  const viewportHeight = await page.evaluate(() => window.innerHeight)
+  await page.keyboard.press('PageDown')
+  const pagedBox = await documentBox(page.locator('[role="row"]:focus'))
+  expect(pagedBox.y - backBox.y).toBeGreaterThanOrEqual(viewportHeight - 1)
+  await page.keyboard.press('PageUp')
+  const pagedBackBox = await documentBox(page.locator('[role="row"]:focus'))
+  expect(pagedBox.y - pagedBackBox.y).toBeGreaterThanOrEqual(viewportHeight - 1)
 })
 
 test('keyboard reaches the tile link and star; Enter opens the tile', async ({

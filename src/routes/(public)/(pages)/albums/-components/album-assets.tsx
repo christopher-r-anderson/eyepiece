@@ -13,7 +13,9 @@ export interface AlbumAssetsProps {
 }
 
 // module-level so memoized grid rows see stable references
-const tileActions = (item: Asset) => <FavoriteButton assetKey={item.key} />
+const renderTileActions = (item: Asset) => (
+  <FavoriteButton assetKey={item.key} />
+)
 
 export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -37,7 +39,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
       uiResetKey={uiResetKey}
       className={css({ width: '100%' })}
     >
-      <JustifiedAssetGrid items={data.items} tileActions={tileActions} />
+      <JustifiedAssetGrid items={data.items} tileActions={renderTileActions} />
     </InfiniteLoader>
   )
 }
