@@ -103,10 +103,14 @@ function CollectionPage() {
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     itemsResult.data.assetPreviewSnapshotIds,
   )
-  // a failed snapshot page would otherwise blank the grid silently: on
-  // error the batch query holds no data for its new key, so the fallback
-  // below would render zero tiles. Failing over to the route boundary
-  // matches how a first-page failure surfaces from the loader.
+  // failed page fetches would otherwise degrade silently: an edge-page
+  // error only surfaces on the result once earlier pages exist, and an
+  // errored snapshot batch holds no data for its new key so the fallback
+  // below would render zero tiles. Both fail over to the route boundary,
+  // matching how a first-page failure surfaces from the loader.
+  if (itemsResult.isError) {
+    throw itemsResult.error
+  }
   if (snapshotsResult.isError) {
     throw snapshotsResult.error
   }
