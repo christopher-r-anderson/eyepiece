@@ -16,6 +16,10 @@ import type { AuthInteractionStrategy } from '@/features/auth/auth.types'
 declare module '@tanstack/react-router' {
   interface HistoryState {
     returnUrl?: string
+    // set on the history entry a dialog pushed to open itself, so closing
+    // can go back instead of pushing forward; absent on deep links, where
+    // closing replaces in place
+    dialogPushed?: boolean
   }
   interface StaticDataRouteOption {
     authInteractionStrategy?: AuthInteractionStrategy

@@ -1,4 +1,4 @@
-import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { MetadataModal } from './modal'
@@ -17,15 +17,31 @@ export function MetadataButton({
   css?: SystemStyleObject
 }) {
   const navigate = useNavigate()
+  const router = useRouter()
 
   const isOpen = useRouterState({
     select: (s) => s.location.hash === METADATA_HASH,
   })
+  const openedByPush = useRouterState({
+    select: (s) => !!s.location.state.dialogPushed,
+  })
 
   const open = () =>
-    navigate({ hash: METADATA_HASH, replace: false, viewTransition: false })
-  const close = () =>
-    navigate({ hash: '', replace: false, viewTransition: false })
+    navigate({
+      hash: METADATA_HASH,
+      replace: false,
+      viewTransition: false,
+      state: (prev) => ({ ...prev, dialogPushed: true }),
+    })
+  // closing never pushes forward: consume the entry the open pushed, or
+  // replace in place when the dialog was reached directly (deep link)
+  const close = () => {
+    if (openedByPush) {
+      router.history.back()
+      return
+    }
+    navigate({ hash: '', replace: true, viewTransition: false })
+  }
   // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
   const prefetch = usePrefetchMetadata(assetKey)
   return (

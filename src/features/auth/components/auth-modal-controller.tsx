@@ -1,4 +1,9 @@
-import { useLocation, useNavigate } from '@tanstack/react-router'
+import {
+  useLocation,
+  useNavigate,
+  useRouter,
+  useRouterState,
+} from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
@@ -40,20 +45,31 @@ export function AuthModalController({
   const href = useLocation({ select: (location) => location.href })
   const next = urlToNextParam(href)
   const navigate = useNavigate()
+  const router = useRouter()
   const showAuthModal = useShowAuthModal()
-  const goBack = useCallback(() => {
+  const openedByPush = useRouterState({
+    select: (s) => !!s.location.state.dialogPushed,
+  })
+  // closing never pushes forward: consume the entry the open pushed, or
+  // replace in place when the modal params arrived by deep link
+  const close = useCallback(() => {
+    if (openedByPush) {
+      router.history.back()
+      return
+    }
     navigate({
       to: '.',
       search: stripAuthSearchParams,
+      replace: true,
       viewTransition: false,
     })
-  }, [navigate])
+  }, [openedByPush, router, navigate])
 
   return (
     <ModalDialog
       title="Log In or Register"
       isOpen={!!authMode}
-      onOpenChange={goBack}
+      onOpenChange={close}
     >
       <Tabs
         selectedKey={authMode ?? 'login'}
@@ -77,7 +93,7 @@ export function AuthModalController({
                 <ForgotPasswordSection next={next} />
               </StableVisibilityStackItem>
               <StableVisibilityStackItem itemKey="login">
-                <LoginSection next={next} onSuccess={goBack} />
+                <LoginSection next={next} onSuccess={close} />
               </StableVisibilityStackItem>
             </StableVisibilityStack>
           </TabPanel>
@@ -103,7 +119,15 @@ function LoginSection({
         headingLevel={3}
         onSuccess={onSuccess}
         forgotPasswordLink={
-          <Link to="." search={showForgotPasswordSearch} viewTransition={false}>
+          // in-dialog navigation replaces so the open dialog stays a
+          // single history entry
+          <Link
+            to="."
+            search={showForgotPasswordSearch}
+            replace
+            state={(prev) => prev}
+            viewTransition={false}
+          >
             Forgot Password?
           </Link>
         }
