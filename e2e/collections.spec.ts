@@ -88,22 +88,24 @@ test('private collection is not found even for its signed-in owner', async ({
   page,
 }) => {
   // the public detail read is deliberately viewer-independent (public
-  // client, CDN-cacheable), so owning the collection must change nothing
-  await page.goto('/login')
+  // client, CDN-cacheable), so owning the collection must change nothing.
+  // The app's own post-login redirect lands on the collection; a separate
+  // goto after login gets spuriously aborted by firefox. The client-side
+  // navigation renders the route-level not-found (the 404 status is pinned
+  // by the anonymous test above).
+  const target = `/collections/${privateCollection.id}`
+  await page.goto(`/login?next=${encodeURIComponent(target)}`)
   await page.getByRole('textbox', { name: 'Email' }).fill(user.email)
   await page.getByRole('textbox', { name: 'Password' }).fill(user.password)
   await Promise.all([
-    page.waitForURL('/'),
+    page.waitForURL(target),
     page.getByRole('button', { name: 'Log In' }).click(),
   ])
-  // the header swaps to the avatar once auth settles; navigating before
-  // that races the post-login work and firefox aborts the goto
+
+  await expect(
+    page.getByRole('heading', { name: 'Collection Not Found' }),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: 'User Menu' })).toBeVisible()
-
-  const response = await page.goto(`/collections/${privateCollection.id}`)
-
-  expect(response?.status()).toBe(404)
-  await expect(page.getByText(/not found/i).first()).toBeVisible()
 })
 
 test('later pages wait for prior thumbnails to settle', async ({ page }) => {

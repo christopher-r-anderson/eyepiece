@@ -87,6 +87,15 @@ export type EyepieceClient = {
   ) => Promise<PaginatedCollection<Asset>>
 }
 
+// a stalled provider connection must settle into the caller's error
+// handling (a section boundary, a route error) rather than holding an SSR
+// stream open until the platform kills the request
+const REQUEST_DEADLINE_MS = 10_000
+
+function fetchWithDeadline(url: string) {
+  return fetch(url, { signal: AbortSignal.timeout(REQUEST_DEADLINE_MS) })
+}
+
 export function createEyepieceClient({
   origin = '',
 }: EyepieceClientOptions = {}): EyepieceClient {
@@ -100,7 +109,7 @@ export function createEyepieceClient({
 
   return {
     getAlbum: async function getAlbum(key: AlbumKey, pagination: Pagination) {
-      const res = await fetch(
+      const res = await fetchWithDeadline(
         withOrigin(
           `${buildAlbumUrl(key.providerId, key.externalId)}${stringifySearchParams(pagination)}`,
         ),
@@ -113,7 +122,7 @@ export function createEyepieceClient({
     },
 
     getAsset: async function getAsset(key: AssetKey) {
-      const res = await fetch(
+      const res = await fetchWithDeadline(
         withOrigin(buildAssetUrl(key.providerId, key.externalId)),
       )
       if (!res.ok) {
@@ -124,7 +133,7 @@ export function createEyepieceClient({
     },
 
     getMetadata: async function getMetadata(key: AssetKey) {
-      const res = await fetch(
+      const res = await fetchWithDeadline(
         withOrigin(buildAssetMetadataUrl(key.providerId, key.externalId)),
       )
       if (!res.ok) {
@@ -139,7 +148,7 @@ export function createEyepieceClient({
       filters: SearchFilters,
       pagination: Pagination,
     ) {
-      const res = await fetch(
+      const res = await fetchWithDeadline(
         withOrigin(
           `${SEARCH_URL}${stringifySearchParams({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
         ),
