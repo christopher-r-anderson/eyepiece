@@ -34,6 +34,9 @@ const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
       onClick={() => setDetailClicked(true)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
+      // the grid's row action opens the tile through this link so every
+      // navigation shares one path
+      data-tile-primary-link
       css={css.raw({
         width: '100%',
         height: '100%',

@@ -49,7 +49,7 @@ test('public collection renders name, meta line, and justified tiles', async ({
     page.getByText(`3 items · curated by ${user.displayName}`),
   ).toBeVisible()
 
-  const tiles = page.getByRole('list').getByRole('listitem')
+  const tiles = page.getByRole('grid').getByRole('row')
   await expect(tiles).toHaveCount(3)
   await expect(page.getByRole('link', { name: 'E2E Wide' })).toHaveAttribute(
     'href',
@@ -128,7 +128,7 @@ test('later pages wait for prior thumbnails to settle', async ({ page }) => {
   })
 
   await page.goto(`/collections/${pagingCollection.id}`)
-  const tiles = page.getByRole('list').getByRole('listitem')
+  const tiles = page.getByRole('grid').getByRole('row')
   await expect(tiles).toHaveCount(24)
   // an enabled star is the deterministic hydration signal; scrolling
   // earlier gets undone by scroll restoration before the observer attaches
@@ -161,4 +161,97 @@ test('unknown and malformed collection ids are not found', async ({ page }) => {
   const malformedResponse = await page.goto('/collections/not-a-uuid')
   expect(malformedResponse?.status()).toBe(404)
   await expect(page.getByText(/not found/i).first()).toBeVisible()
+})
+
+test('grid arrows navigate by geometry with a roving tab stop', async ({
+  page,
+}) => {
+  await page.route('**/image/e2e-collections-page-*/**', (route) =>
+    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
+  )
+  await page.goto(`/collections/${pagingCollection.id}`)
+  const rows = page.getByRole('grid').getByRole('row')
+  await expect(rows).toHaveCount(24)
+  await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
+
+  // roving tab stop: the grid is the single entry point until a row is
+  // visited, then the visited row carries the stop
+  await expect(page.getByRole('grid')).toHaveAttribute('tabindex', '0')
+  await expect(rows.first()).toHaveAttribute('tabindex', '-1')
+
+  await rows.first().focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(rows.nth(1)).toBeFocused()
+  await expect(rows.nth(1)).toHaveAttribute('tabindex', '0')
+
+  // ArrowDown lands on a lower row that horizontally overlaps the origin;
+  // justified tiles never column-align, so this is the geometric contract.
+  // boundingBox is viewport-relative and arrow moves scroll the focused
+  // row into view, so positions are normalized to document coordinates
+  const documentBox = async (locator: ReturnType<Page['locator']>) => {
+    const box = await locator.boundingBox()
+    if (!box) {
+      throw new Error('grid row did not render')
+    }
+    const scrollY = await page.evaluate(() => window.scrollY)
+    return { ...box, y: box.y + scrollY }
+  }
+  const originBox = await documentBox(rows.nth(1))
+  await page.keyboard.press('ArrowDown')
+  const belowBox = await documentBox(page.locator('[role="row"]:focus'))
+  expect(belowBox.y).toBeGreaterThan(originBox.y + 1)
+  expect(belowBox.x).toBeLessThan(originBox.x + originBox.width)
+  expect(belowBox.x + belowBox.width).toBeGreaterThan(originBox.x)
+
+  await page.keyboard.press('ArrowUp')
+  const backBox = await documentBox(page.locator('[role="row"]:focus'))
+  expect(backBox.y).toBeLessThan(belowBox.y - 1)
+})
+
+test('keyboard reaches the tile link and star; Enter opens the tile', async ({
+  page,
+}) => {
+  await page.route('**/image/e2e-collections-*/**', (route) =>
+    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
+  )
+  await page.route('**/api/v1/asset/nasa_ivl/e2e-collections-wide*', (route) =>
+    route.fulfill({
+      json: {
+        key: { providerId: 'nasa_ivl', externalId: 'e2e-collections-wide' },
+        title: 'E2E Wide',
+        description: 'Stubbed asset for the keyboard journey',
+        thumbnail: {
+          href: 'https://example.com/wide.png',
+          width: 200,
+          height: 100,
+        },
+        image: {
+          href: 'https://example.com/wide.png',
+          width: 200,
+          height: 100,
+        },
+        original: {
+          href: 'https://example.com/wide.png',
+          width: 200,
+          height: 100,
+        },
+      },
+    }),
+  )
+  await page.goto(`/collections/${publicCollection.id}`)
+  const rows = page.getByRole('grid').getByRole('row')
+  await expect(rows).toHaveCount(3)
+  await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
+
+  // Tab dives into the focused row's focusables: link first, then the star
+  await rows.first().focus()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('link', { name: 'E2E Wide' })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(rows.first().getByRole('button', { name: 'Star' })).toBeFocused()
+
+  // Enter on the row itself opens the tile through its own link
+  await rows.first().focus()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL('/assets/nasa_ivl/e2e-collections-wide')
 })
