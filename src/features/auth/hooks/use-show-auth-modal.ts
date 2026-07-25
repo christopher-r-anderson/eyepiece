@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { stripAuthSearchParams } from '@/features/auth/auth.utils'
 
@@ -14,15 +14,21 @@ function createAuthModalSearch<T extends Record<string, unknown>>(
 
 export function useShowAuthModal() {
   const navigate = useNavigate()
+  const router = useRouter()
   return useCallback(
     (auth: 'login' | 'register') => {
+      // tab switches while open replace, so a dialog visit stays one entry
+      const alreadyOpen =
+        (router.state.location.search as { auth?: unknown }).auth != null
       navigate({
         to: '.',
         search: (prev) => createAuthModalSearch(prev, auth),
         viewTransition: false,
+        replace: alreadyOpen,
+        state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
       })
     },
-    [navigate],
+    [navigate, router],
   )
 }
 
