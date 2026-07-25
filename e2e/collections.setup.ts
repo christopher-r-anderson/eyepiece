@@ -123,18 +123,25 @@ setup('seed collections fixture', async () => {
 
 // The homepage renders the showcase user's public collections, and CI never
 // runs showcase provisioning (it would hit the live NASA API). When the
-// showcase user is absent, seed a minimal stand-in on the real fixed ids -
-// one stub item per collection - so the cards render everywhere. A real
-// locally-provisioned showcase is left untouched, and a later real
-// provisioning run absorbs the stand-in through its fixed-id upserts.
-setup('seed showcase stand-in when absent', async () => {
+// showcase is absent or incomplete, reconcile a minimal stand-in on the real
+// fixed ids - one stub item per collection - so the cards render everywhere.
+// A complete showcase (his real locally-provisioned one, or a finished
+// stand-in) is left untouched; every write below is idempotent so a retry
+// after a partial seed repairs the remainder. A later real provisioning run
+// absorbs the stand-in through its fixed-id upserts.
+setup('reconcile showcase stand-in', async () => {
   const admin = makeAdminClient()
-  const { data: existingProfile } = await admin
-    .from('profiles')
-    .select('id')
-    .eq('id', SHOWCASE_CURATION.user.id)
-    .maybeSingle()
-  if (existingProfile) {
+  const expectedIds = SHOWCASE_CURATION.collections.map(
+    (collection) => collection.id,
+  )
+  const { data: existing } = await admin
+    .from('collections')
+    .select('id, collection_items(count)')
+    .in('id', expectedIds)
+  const complete =
+    existing?.length === expectedIds.length &&
+    existing.every((row) => (row.collection_items.at(0)?.count ?? 0) > 0)
+  if (complete) {
     return
   }
 
@@ -144,7 +151,8 @@ setup('seed showcase stand-in when absent', async () => {
     password: randomUUID(),
     email_confirm: true,
   })
-  if (userError) {
+  // an existing user is a partial prior seed; everything below repairs it
+  if (userError && !/already.*registered/i.test(userError.message)) {
     throw new Error(`Failed to create showcase stand-in: ${userError.message}`)
   }
   const { error: profileError } = await admin.from('profiles').upsert({
@@ -158,9 +166,11 @@ setup('seed showcase stand-in when absent', async () => {
   }
 
   for (const [index, collection] of SHOWCASE_CURATION.collections.entries()) {
-    const { data: snapshot, error: snapshotError } = await admin
+    const standInSnapshotId = `e2ec0000-0000-4000-8000-00000000d00${index}`
+    const { error: snapshotError } = await admin
       .from('asset_preview_snapshots')
-      .insert({
+      .upsert({
+        id: standInSnapshotId,
         provider_id: 'nasa_ivl',
         external_id: `e2e-showcase-stand-in-${index}`,
         title: `Showcase stand-in ${index}`,
@@ -168,8 +178,6 @@ setup('seed showcase stand-in when absent', async () => {
         thumb_width: 630,
         thumb_height: 300,
       })
-      .select('id')
-      .single()
     if (snapshotError) {
       throw new Error(
         `Failed to seed stand-in snapshot: ${snapshotError.message}`,
@@ -189,7 +197,7 @@ setup('seed showcase stand-in when absent', async () => {
     }
     const { error: itemError } = await admin.from('collection_items').upsert({
       collection_id: collection.id,
-      asset_preview_snapshot_id: snapshot.id,
+      asset_preview_snapshot_id: standInSnapshotId,
       position: 1,
     })
     if (itemError) {
