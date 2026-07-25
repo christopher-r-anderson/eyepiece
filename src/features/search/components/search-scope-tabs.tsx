@@ -57,6 +57,7 @@ export function SearchScopeTabs({ q, scope }: SearchScopeTabsProps) {
         alignItems: 'center',
         gap: '5',
         overflowX: 'auto',
+        scrollbarThin: true,
         whiteSpace: 'nowrap',
         // the scroll container clips focus rings; pad the scrollport and
         // pull the box back so the layout position holds

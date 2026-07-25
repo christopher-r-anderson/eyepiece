@@ -28,6 +28,7 @@ const stripCss = css.raw({
   listStyle: 'none',
   paddingInlineStart: '0',
   overflowX: 'auto',
+  scrollbarThin: true,
   scrollSnapType: 'x proximity',
   paddingBottom: '2',
   '--strip-h': '186px',
