@@ -17,6 +17,10 @@ import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
+import {
+  dbAssetPreviewSnapshotSchema,
+  mapAssetPreviewSnapshot,
+} from '@/features/assets/asset-preview-snapshots.repo'
 
 const dbCollectionSchema = z.object({
   id: z.uuid(),
@@ -45,20 +49,10 @@ export function mapCollection(row: DbCollection): Collection {
   }
 }
 
-const dbSnapshotEmbedSchema = z.object({
-  id: z.uuid(),
-  provider_id: providerIdSchema,
-  external_id: externalAssetIdSchema,
-  title: z.string().nullable(),
-  thumb_href: z.url(),
-  thumb_width: z.number().int().positive(),
-  thumb_height: z.number().int().positive(),
-})
-
 const dbCollectionCardSchema = dbCollectionSchema.extend({
   item_count: z.array(z.object({ count: z.number().int().nonnegative() })),
   cover_items: z.array(
-    z.object({ asset_preview_snapshots: dbSnapshotEmbedSchema }),
+    z.object({ asset_preview_snapshots: dbAssetPreviewSnapshotSchema }),
   ),
 })
 
@@ -71,21 +65,7 @@ function mapCollectionCard(row: DbCollectionCard): CollectionCard {
   return {
     collection: mapCollection(row),
     itemCount: row.item_count.at(0)?.count ?? 0,
-    cover: coverRow
-      ? {
-          id: coverRow.id,
-          key: {
-            providerId: coverRow.provider_id,
-            externalId: coverRow.external_id,
-          },
-          title: coverRow.title ?? 'No Title',
-          thumbnail: {
-            href: coverRow.thumb_href,
-            width: coverRow.thumb_width,
-            height: coverRow.thumb_height,
-          },
-        }
-      : null,
+    cover: coverRow ? mapAssetPreviewSnapshot(coverRow) : null,
   }
 }
 
