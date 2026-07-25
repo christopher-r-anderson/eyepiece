@@ -19,14 +19,12 @@ const MODES: Array<{ id: ThemeMode; label: string; icon: ReactNode }> = [
 ]
 
 export function ThemeMenu() {
-  const { mode, resolvedTheme, setMode } = useTheme()
-  const isThemeSet = mode !== undefined
+  const { mode, setMode } = useTheme()
   return (
     <MenuTrigger>
       <Button
         aria-label="Theme"
         variant="bare"
-        isDisabled={!isThemeSet}
         css={{
           width: '34px',
           height: '34px',
@@ -34,18 +32,24 @@ export function ThemeMenu() {
           placeItems: 'center',
           borderRadius: 'full',
           color: 'text.muted',
-          transitionProperty: 'opacity, color, background-color',
+          transitionProperty: 'color, background-color',
           transitionDuration: 'standard',
           transitionTimingFunction: 'out',
-          opacity: isThemeSet ? 1 : 0.3,
           _hovered: { color: 'text', backgroundColor: 'bg.surface.2' },
         }}
       >
-        {resolvedTheme === 'dark' ? (
-          <MoonStarsIcon size={20} />
-        ) : (
-          <SunIcon size={20} />
-        )}
+        {/* the icon follows the html data-theme attribute in CSS, so the
+            server markup never depends on client-only theme state */}
+        <SunIcon
+          size={20}
+          aria-hidden="true"
+          className={css({ _dark: { display: 'none' } })}
+        />
+        <MoonStarsIcon
+          size={20}
+          aria-hidden="true"
+          className={css({ display: 'none', _dark: { display: 'block' } })}
+        />
       </Button>
       <Popover placement="bottom end" containerPadding={20}>
         <Menu
