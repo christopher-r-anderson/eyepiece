@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { startTransition } from 'react'
 import { css } from 'styled-system/css'
+import { FavoriteButton } from '../-components/favorite-button'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureAssetPreviewSnapshotsBatch,
@@ -73,7 +74,7 @@ export const Route = createFileRoute(
   notFoundComponent: () => (
     <>
       <PageHeading>Collection Not Found</PageHeading>
-      <p>We couldn't find a collection with that ID.</p>
+      <p>This collection doesn't exist, or it may be private.</p>
     </>
   ),
   errorComponent: ({ error }) => (
@@ -153,7 +154,10 @@ function CollectionPage() {
             loadedCount={snapshotsResult.data?.length ?? 0}
             uiResetKey={collectionId}
           >
-            <JustifiedAssetGrid items={snapshotsResult.data ?? []} />
+            <JustifiedAssetGrid
+              items={snapshotsResult.data ?? []}
+              tileActions={(item) => <FavoriteButton assetKey={item.key} />}
+            />
           </InfiniteLoader>
         )}
       </div>
