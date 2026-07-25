@@ -6,7 +6,9 @@ import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 // module-level so memoized grid rows see stable references
 const renderTileRelatedLinks = (item: Asset) =>
   item.albums ? <AlbumLinkList albums={item.albums} /> : undefined
-const renderTileActions = (item: Asset) => <FavoriteButton assetKey={item.key} />
+const renderTileActions = (item: Asset) => (
+  <FavoriteButton assetKey={item.key} />
+)
 
 export function AssetResultsGrid({ items }: { items: Array<Asset> }) {
   return (
