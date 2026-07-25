@@ -89,6 +89,23 @@ test('a deep-linked metadata dialog closes in place', async ({ page }) => {
   )
 })
 
+test('a deep-linked auth dialog closes in place', async ({ page }) => {
+  await page.goto(`/collections/${publicCollection.id}?auth=login`)
+  await expect(page.getByRole('dialog')).toBeVisible()
+
+  const lengthBefore = await page.evaluate(() => history.length)
+  await page
+    .getByRole('button', { name: 'Close Log In or Register dialog' })
+    .click()
+  await page.waitForFunction(() => !location.search.includes('auth'))
+  await expect(page.getByRole('dialog')).toBeHidden()
+  // no entry was pushed to open it, so the close replaced in place
+  expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
+  expect(await page.evaluate(() => location.pathname)).toBe(
+    `/collections/${publicCollection.id}`,
+  )
+})
+
 test('the auth dialog occupies one history entry from open to close', async ({
   page,
 }) => {
