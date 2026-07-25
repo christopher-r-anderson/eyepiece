@@ -17,9 +17,7 @@ export function useShowAuthModal() {
   const router = useRouter()
   return useCallback(
     (auth: 'login' | 'register') => {
-      // the first open pushes one entry (marked so closing can go back);
-      // switching tabs while open replaces, so the whole dialog visit
-      // occupies a single history entry
+      // tab switches while open replace, so a dialog visit stays one entry
       const alreadyOpen =
         (router.state.location.search as { auth?: unknown }).auth != null
       navigate({

@@ -50,8 +50,6 @@ export function AuthModalController({
   const openedByPush = useRouterState({
     select: (s) => !!s.location.state.dialogPushed,
   })
-  // closing never pushes forward: consume the entry the open pushed, or
-  // replace in place when the modal params arrived by deep link
   const close = useCallback(() => {
     if (openedByPush) {
       router.history.back()
@@ -119,8 +117,6 @@ function LoginSection({
         headingLevel={3}
         onSuccess={onSuccess}
         forgotPasswordLink={
-          // in-dialog navigation replaces so the open dialog stays a
-          // single history entry
           <Link
             to="."
             search={showForgotPasswordSearch}

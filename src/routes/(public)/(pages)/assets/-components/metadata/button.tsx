@@ -33,8 +33,6 @@ export function MetadataButton({
       viewTransition: false,
       state: (prev) => ({ ...prev, dialogPushed: true }),
     })
-  // closing never pushes forward: consume the entry the open pushed, or
-  // replace in place when the dialog was reached directly (deep link)
   const close = () => {
     if (openedByPush) {
       router.history.back()
