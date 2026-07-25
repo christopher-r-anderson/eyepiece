@@ -37,6 +37,7 @@ import { Route as privatepagesCompleteProfileRouteImport } from './routes/(priva
 import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
 import { Route as publicApiV1SearchRouteImport } from './routes/(public)/api/v1/search'
 import { Route as publicpagesProfileProfileIdRouteImport } from './routes/(public)/(pages)/profile.$profileId'
+import { Route as publicpagesCollectionsCollectionIdRouteImport } from './routes/(public)/(pages)/collections/$collectionId'
 import { Route as publicpagessearchSearchRouteImport } from './routes/(public)/(pages)/(search)/search'
 import { Route as publicauthAuthForgotPasswordRouteImport } from './routes/(public)/(auth)/auth/forgot-password'
 import { Route as publicauthAuthConfirmErrorRouteImport } from './routes/(public)/(auth)/auth/confirm-error'
@@ -189,6 +190,12 @@ const publicpagesProfileProfileIdRoute =
     path: '/profile/$profileId',
     getParentRoute: () => publicpagesRouteRoute,
   } as any)
+const publicpagesCollectionsCollectionIdRoute =
+  publicpagesCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
+    getParentRoute: () => publicpagesRouteRoute,
+  } as any)
 const publicpagessearchSearchRoute = publicpagessearchSearchRouteImport.update({
   id: '/(search)/search',
   path: '/search',
@@ -274,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
   '/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
   '/search': typeof publicpagessearchSearchRoute
+  '/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/api/v1/search': typeof publicApiV1SearchRoute
   '/settings/': typeof privatepagesSettingsIndexRoute
@@ -305,6 +313,7 @@ export interface FileRoutesByTo {
   '/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
   '/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
   '/search': typeof publicpagessearchSearchRoute
+  '/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/api/v1/search': typeof publicApiV1SearchRoute
   '/settings': typeof privatepagesSettingsIndexRoute
@@ -346,6 +355,7 @@ export interface FileRoutesById {
   '/(public)/(auth)/auth/confirm-error': typeof publicauthAuthConfirmErrorRoute
   '/(public)/(auth)/auth/forgot-password': typeof publicauthAuthForgotPasswordRoute
   '/(public)/(pages)/(search)/search': typeof publicpagessearchSearchRoute
+  '/(public)/(pages)/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/(public)/(pages)/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/(public)/api/v1/search': typeof publicApiV1SearchRoute
   '/(private)/(pages)/settings/': typeof privatepagesSettingsIndexRoute
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/search'
+    | '/collections/$collectionId'
     | '/profile/$profileId'
     | '/api/v1/search'
     | '/settings/'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '/auth/confirm-error'
     | '/auth/forgot-password'
     | '/search'
+    | '/collections/$collectionId'
     | '/profile/$profileId'
     | '/api/v1/search'
     | '/settings'
@@ -453,6 +465,7 @@ export interface FileRouteTypes {
     | '/(public)/(auth)/auth/confirm-error'
     | '/(public)/(auth)/auth/forgot-password'
     | '/(public)/(pages)/(search)/search'
+    | '/(public)/(pages)/collections/$collectionId'
     | '/(public)/(pages)/profile/$profileId'
     | '/(public)/api/v1/search'
     | '/(private)/(pages)/settings/'
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicpagesProfileProfileIdRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
+    '/(public)/(pages)/collections/$collectionId': {
+      id: '/(public)/(pages)/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/collections/$collectionId'
+      preLoaderRoute: typeof publicpagesCollectionsCollectionIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
+    }
     '/(public)/(pages)/(search)/search': {
       id: '/(public)/(pages)/(search)/search'
       path: '/search'
@@ -805,6 +825,7 @@ interface publicpagesRouteRouteChildren {
   publicpagesButtonsRoute: typeof publicpagesButtonsRoute
   publicpagesIndexRoute: typeof publicpagesIndexRoute
   publicpagessearchSearchRoute: typeof publicpagessearchSearchRoute
+  publicpagesCollectionsCollectionIdRoute: typeof publicpagesCollectionsCollectionIdRoute
   publicpagesProfileProfileIdRoute: typeof publicpagesProfileProfileIdRoute
   publicpagesAlbumsProviderIdAlbumIdRoute: typeof publicpagesAlbumsProviderIdAlbumIdRoute
   publicpagesAssetsProviderIdAssetIdRoute: typeof publicpagesAssetsProviderIdAssetIdRoute
@@ -814,6 +835,8 @@ const publicpagesRouteRouteChildren: publicpagesRouteRouteChildren = {
   publicpagesButtonsRoute: publicpagesButtonsRoute,
   publicpagesIndexRoute: publicpagesIndexRoute,
   publicpagessearchSearchRoute: publicpagessearchSearchRoute,
+  publicpagesCollectionsCollectionIdRoute:
+    publicpagesCollectionsCollectionIdRoute,
   publicpagesProfileProfileIdRoute: publicpagesProfileProfileIdRoute,
   publicpagesAlbumsProviderIdAlbumIdRoute:
     publicpagesAlbumsProviderIdAlbumIdRoute,

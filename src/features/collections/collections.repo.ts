@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { useMemo } from 'react'
 import { collectionVisibilitySchema } from './collections.schema'
 import type {
   Collection,
@@ -14,9 +15,11 @@ import type {
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
+import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 
 const dbCollectionSchema = z.object({
   id: z.uuid(),
+  owner_id: z.uuid(),
   name: z.string(),
   visibility: collectionVisibilitySchema,
   created_at: z.iso.datetime({ offset: true }),
@@ -27,11 +30,13 @@ type DbCollection = z.infer<typeof dbCollectionSchema>
 
 const dbCollectionsSchema = z.array(dbCollectionSchema)
 
-export const COLLECTION_COLUMNS = 'id, name, visibility, created_at, updated_at'
+export const COLLECTION_COLUMNS =
+  'id, owner_id, name, visibility, created_at, updated_at'
 
 export function mapCollection(row: DbCollection): Collection {
   return {
     id: row.id,
+    ownerId: row.owner_id,
     name: row.name,
     visibility: row.visibility,
     createdAt: row.created_at,
@@ -177,4 +182,15 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     getCollection,
     getCollectionItemEdges,
   }
+}
+
+// the public client: public-surface reads must not vary by viewer, so a
+// private collection stays not-found even for its owner here. Owner-scoped
+// listings build their own repo from the user client.
+export function usePublicCollectionsRepo() {
+  const publicSupabaseClient = usePublicSupabaseClient()
+  return useMemo(
+    () => makeCollectionsRepo(publicSupabaseClient),
+    [publicSupabaseClient],
+  )
 }
