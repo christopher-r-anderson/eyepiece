@@ -29,13 +29,11 @@ test('public collection renders name, meta line, and justified tiles', async ({
   page,
 }) => {
   const consoleErrors = collectConsoleErrors(page)
-  // a stub bitmap keeps the console clean regardless of upstream image
-  // availability; layout comes from the stored dimensions
-  for (const snapshot of COLLECTIONS_FIXTURE.snapshots) {
-    await page.route(`**/image/${snapshot.externalId}/**`, (route) =>
-      route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
-    )
-  }
+  // fixture thumbnails do not exist upstream; a stub bitmap keeps the
+  // console clean while layout still comes from the stored dimensions
+  await page.route('**/image/e2e-collections-*/**', (route) =>
+    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
+  )
 
   const response = await page.goto(`/collections/${publicCollection.id}`)
 
@@ -55,7 +53,7 @@ test('public collection renders name, meta line, and justified tiles', async ({
   await expect(tiles).toHaveCount(3)
   await expect(page.getByRole('link', { name: 'E2E Wide' })).toHaveAttribute(
     'href',
-    `/assets/nasa_ivl/${COLLECTIONS_FIXTURE.snapshots[0].externalId}`,
+    '/assets/nasa_ivl/e2e-collections-wide',
   )
 
   // the justified row: tiles share one height and split width by aspect

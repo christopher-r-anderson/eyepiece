@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
+import type { Page } from '@playwright/test'
 
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
 const wideSnapshot = snapshots[0]
@@ -7,9 +8,38 @@ const wideSnapshot = snapshots[0]
 // D13: closing a dialog never pushes history forward. An open pushed by the
 // app is consumed with a real back(); a deep-linked open closes by replace.
 
+// the tile -> detail journey navigates client-side, so the browser fetches
+// the asset through /api/v1 and the spec can serve it deterministically
+async function stubAssetApi(page: Page) {
+  const image = {
+    href: `https://images-assets.nasa.gov/image/${wideSnapshot.externalId}/${wideSnapshot.externalId}~thumb.jpg`,
+    width: wideSnapshot.width,
+    height: wideSnapshot.height,
+  }
+  await page.route(
+    `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}/metadata`,
+    (route) => route.fulfill({ json: { instrument: 'stub' } }),
+  )
+  await page.route(
+    `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}`,
+    (route) =>
+      route.fulfill({
+        json: {
+          key: { providerId: 'nasa_ivl', externalId: wideSnapshot.externalId },
+          title: wideSnapshot.title,
+          description: 'Stubbed asset for the history journey',
+          thumbnail: image,
+          image,
+          original: image,
+        },
+      }),
+  )
+}
+
 test('closing the metadata dialog consumes its history entry', async ({
   page,
 }) => {
+  await stubAssetApi(page)
   await page.goto(`/collections/${publicCollection.id}`)
   // enabled star = hydrated (tile links work pre-hydration, dialogs do not)
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
@@ -41,7 +71,11 @@ test('closing the metadata dialog consumes its history entry', async ({
 })
 
 test('a deep-linked metadata dialog closes in place', async ({ page }) => {
-  await page.goto(`/assets/nasa_ivl/${wideSnapshot.externalId}#metadata`)
+  // a deep link is by definition a fresh document, so this journey needs a
+  // server-rendered detail page; it uses a live, stable NASA asset and
+  // shares the suite's existing live-SSR exposure (search sections do the
+  // same). Everything else in this file is hermetic.
+  await page.goto('/assets/nasa_ivl/PIA14417#metadata')
   await expect(page.getByRole('dialog')).toBeVisible()
 
   const lengthBefore = await page.evaluate(() => history.length)
@@ -51,7 +85,7 @@ test('a deep-linked metadata dialog closes in place', async ({ page }) => {
   // nothing to go back over: the close replaced the deep-linked entry
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
   expect(await page.evaluate(() => location.pathname)).toBe(
-    `/assets/nasa_ivl/${wideSnapshot.externalId}`,
+    '/assets/nasa_ivl/PIA14417',
   )
 })
 
