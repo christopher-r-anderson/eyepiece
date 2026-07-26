@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation } from '@tanstack/react-router'
+import { useLocation, useRouterState } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
 import type {
@@ -37,6 +37,15 @@ const Thumbnail = ({
 }) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
+  // SPIKE (overlay route masking): while this asset shows in the overlay,
+  // the overlay image owns the shared-element name - a duplicate name on
+  // the still-mounted tile would make the browser skip the transition
+  const isViewedInOverlay = useRouterState({
+    select: (s) =>
+      s.location.state.viewingAsset != null &&
+      toAssetKeyString(s.location.state.viewingAsset) ===
+        toAssetKeyString(assetPreview.key),
+  })
   return (
     <Link
       isDisabled={isLinkDisabled}
@@ -83,9 +92,10 @@ const Thumbnail = ({
           viewTransitionClass: 'asset-image',
         })}
         style={{
-          viewTransitionName: detailClicked
-            ? `asset-${toAssetKeyString(assetPreview.key)}`
-            : undefined,
+          viewTransitionName:
+            detailClicked && !isViewedInOverlay
+              ? `asset-${toAssetKeyString(assetPreview.key)}`
+              : undefined,
         }}
         src={assetPreview.thumbnail.href}
         alt=""
