@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useHydrated, useLocation, useNavigate } from '@tanstack/react-router'
+import { useEnsureProfile } from '../profiles.queries'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
-import { useEnsureProfile } from '@/features/profiles/profiles.queries'
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { urlToNextParam } from '@/lib/utils'
 

@@ -42,7 +42,7 @@ Use plural suffixes for collections of exports and singular for architectural la
 ## 3. Module Rules
 
 - _No Barrel Files:_ Import directly from the source file.
-- _Imports:_ Use path aliases (`@/features/...`) for cross-feature imports. Use relative paths (`./`) only when importing files within the same directory or feature.
+- _Imports:_ Use relative paths within the same feature or directory tree; use path aliases (`@/...`) when crossing a layer or feature boundary. The layering lint rules catch alias spellings and relative crossings at the depths in the tree today; a cross-feature relative import (`../auth/...`) is shape-ambiguous and always evades them (see Import Layering).
 
 ## 4. Code Organization & Colocation
 
@@ -53,7 +53,19 @@ Use plural suffixes for collections of exports and singular for architectural la
 - _Route Loaders:_ Prefer `await` in route loaders for query preloading so route-level pending/error handling works by default. Avoid returning loader data that duplicates query cache.
 - _SUspense and Error Boundaries:_ Use route-level pending/error handling for page-critical data. If a page has multiple high-level sections, use a boundary at the section level to limit breakage to the failing section.
 
-## 5. Environment & RPC Suffixes
+## 5. Import Layering
+
+Dependency direction: `routes` -> `app` -> `features` -> `components` -> `domain` / `lib`, with `integrations` at the bottom alongside `domain` and `lib`.
+
+- `/src/app/` is the composition layer: the shell, layout, providers, and route boundaries/guards. It may import features and components; nothing below `routes` imports it.
+- Features never import other features. Exceptions, allowlisted in `eslint.config.ts` until they graduate to a shared home: auth's non-UI primitives (`get-user`, auth queries, auth search params) and the asset preview snapshot modules in `features/assets`.
+- `/src/components/` is the shared, feature-free UI layer. `components/ui` is the domain-agnostic kit; other `components/` dirs may use domain types but never feature behavior (no queries, commands, or server functions).
+- Router primitives (`Link`, `useNavigate`, `useLocation`, `useRouterState`) are ambient app infrastructure, usable in features and shared components. Route-specific APIs (`Route.useSearch`, `getRouteApi`, loader data) stay in route files and their `-components/`.
+- `-components/` directories are colocation, not a layer: components scoped to a route segment live next to it, deep in the tree.
+
+ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`). The rules match import specifiers, not resolved paths: alias spellings are always caught, and relative crossings are caught at the depths listed in the config. A cross-feature relative import (`../auth/...` from another feature) is shape-identical to a same-feature one and can never be flagged - watch for it in review.
+
+## 6. Environment & RPC Suffixes
 
 When appropriate, always use TanStack Start import protection file naming conventions:
 

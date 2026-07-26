@@ -6,7 +6,7 @@ import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Link } from '@/components/ui/link'
 import { Heading } from '@/components/ui/heading'
-import { PageHeading } from '@/routes/-components/page-heading'
+import { PageHeading } from '@/components/page-heading'
 
 export const devPageSectionCss = css.raw({
   display: 'grid',

@@ -3,7 +3,6 @@ import * as Sentry from '@sentry/tanstackstart-react'
 import {
   createSentryUserContextSync,
   setSentryUserContext,
-  setSentryUserIdContext,
   toSentryUser,
 } from './auth.sentry'
 
@@ -50,20 +49,6 @@ describe('toSentryUser', () => {
     ).toEqual({
       id: 'user-123',
     })
-  })
-})
-
-describe('setSentryUserIdContext', () => {
-  it('sets only the user id on the Sentry scope', () => {
-    setSentryUserIdContext('user-123')
-
-    expect(mockSetUser).toHaveBeenCalledWith({ id: 'user-123' })
-  })
-
-  it('clears the Sentry user when the id is missing', () => {
-    setSentryUserIdContext(null)
-
-    expect(mockSetUser).toHaveBeenCalledWith(null)
   })
 })
 

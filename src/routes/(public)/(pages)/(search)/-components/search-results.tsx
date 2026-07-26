@@ -5,7 +5,7 @@ import { AssetResultsGrid } from './asset-results-grid'
 import { EmptyResultsNotice } from './empty-results-notice'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
 import { useSuspenseInfiniteSearch } from '@/features/search/search.queries'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
+import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 
 interface SearchResultsProps {
   query: SearchQuery

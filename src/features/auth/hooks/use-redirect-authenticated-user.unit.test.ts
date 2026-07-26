@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useHydrated, useNavigate } from '@tanstack/react-router'
+import { useCurrentUserQuery } from '../auth.queries'
 import { useRedirectAuthenticatedUser } from './use-redirect-authenticated-user'
-import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 
 vi.mock('@tanstack/react-router')
-vi.mock('@/features/auth/auth.queries')
+vi.mock('../auth.queries')
 vi.mock('@/lib/utils', () => ({
   urlToNextParam: vi.fn((url) => `/clean${url}`),
 }))

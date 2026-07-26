@@ -1,8 +1,8 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
-import { pageMainCss } from '@/routes/-components/page-main'
+import { pageMainCss } from '@/components/page-main'
 import { authModalSearchParamsSchema } from '@/features/auth/auth.schema'
-import { userHasProfile } from '@/lib/guards'
+import { userHasProfile } from '@/app/guards'
 
 export const Route = createFileRoute('/(private)/(pages)')({
   validateSearch: authModalSearchParamsSchema,

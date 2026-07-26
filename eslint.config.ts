@@ -1,6 +1,86 @@
 import { tanstackConfig } from '@tanstack/eslint-config'
 import queryPlugin from '@tanstack/eslint-plugin-query'
 
+// flat-config rule values are replaced per matching file, never merged:
+// every no-restricted-imports block below states its complete value,
+// composed from the pieces here
+const reactUseIdPath = {
+  name: 'react',
+  importNames: ['useId'],
+  message: 'Import useId from "react-aria" instead of "react".',
+}
+
+const reactAriaComponentsPath = {
+  name: 'react-aria-components',
+  message:
+    'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+}
+
+const routeApiPath = {
+  name: '@tanstack/react-router',
+  importNames: ['getRouteApi'],
+  message:
+    'Route-specific APIs stay in route files and their -components/. Pass data down as props.',
+}
+
+const basePaths = [reactUseIdPath, reactAriaComponentsPath]
+const nonRoutePaths = [...basePaths, routeApiPath]
+
+const basePatterns = [
+  {
+    group: ['react-aria-components/*'],
+    message:
+      'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+  },
+  {
+    group: [
+      '../**/components/ui',
+      '../**/components/ui/*',
+      './**/components/ui',
+      './**/components/ui/*',
+    ],
+    message: 'Import UI via "@/components/ui/…" instead of relative paths.',
+  },
+]
+
+// relative spellings cover the layer depths that exist today; a boundary
+// crossed relatively from deeper nesting is invisible to these
+// specifier-matching rules (see STYLEGUIDE Import Layering)
+const relativeDepths = ['../', '../../', '../../../', '../../../../']
+
+function layerGroup(layer: string) {
+  return [
+    `@/${layer}/**`,
+    ...relativeDepths.map((depth) => `${depth}${layer}/**`),
+  ]
+}
+
+const featuresGroup = layerGroup('features')
+const componentsGroup = layerGroup('components')
+const appGroup = layerGroup('app')
+const domainGroup = layerGroup('domain')
+const routesGroup = layerGroup('routes')
+
+const routesRestriction = {
+  group: routesGroup,
+  message: 'Only route files may import route modules.',
+}
+
+const serverFunctionsRestriction = {
+  group: ['*.functions', '**/*.functions'],
+  message: 'Shared components must not import server functions.',
+}
+
+// non-UI primitives features may share until they graduate to a shared home
+const crossFeatureAllowlist = [
+  '!@/features/auth/get-user',
+  '!@/features/auth/auth.queries',
+  '!@/features/auth/auth.utils',
+  '!@/features/assets/asset-preview-snapshots.repo',
+  '!@/features/assets/asset-preview-snapshots.server',
+  '!@/features/assets/asset-preview-snapshots.const',
+]
+
 export default [
   {
     ignores: [
@@ -17,34 +97,99 @@ export default [
       'no-restricted-imports': [
         'error',
         {
-          paths: [
+          paths: basePaths,
+          patterns: basePatterns,
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/routes/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: nonRoutePaths,
+          patterns: [...basePatterns, routesRestriction],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/features/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: nonRoutePaths,
+          patterns: [
+            ...basePatterns,
             {
-              name: 'react',
-              importNames: ['useId'],
-              message: 'Import useId from "react-aria" instead of "react".',
-            },
-            {
-              name: 'react-aria-components',
+              // contents-only glob: excluding the feature directory itself
+              // would make the file-level negations unmatchable (gitignore
+              // rule: no re-including under an excluded parent). Same-feature
+              // imports are spelled relative, so no self-exception is needed.
+              group: ['@/features/*/**', ...crossFeatureAllowlist],
               message:
-                'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+                'Features must not import other features. Same-feature imports are relative.',
             },
+            {
+              group: appGroup,
+              message: 'Features must not import the app shell.',
+            },
+            routesRestriction,
           ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: nonRoutePaths,
+          patterns: [
+            ...basePatterns,
+            {
+              group: featuresGroup,
+              message: 'Shared components must not import features.',
+            },
+            {
+              group: appGroup,
+              message: 'Shared components must not import the app shell.',
+            },
+            routesRestriction,
+            serverFunctionsRestriction,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [reactUseIdPath, routeApiPath],
           patterns: [
             {
-              group: ['react-aria-components/*'],
-              message:
-                'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+              group: featuresGroup,
+              message: 'The UI kit must not import features.',
             },
             {
-              group: [
-                '../**/components/ui',
-                '../**/components/ui/*',
-                './**/components/ui',
-                './**/components/ui/*',
-              ],
-              message:
-                'Import UI via "@/components/ui/…" instead of relative paths.',
+              group: appGroup,
+              message: 'The UI kit must not import the app shell.',
             },
+            {
+              group: domainGroup,
+              message: 'The UI kit is domain-agnostic.',
+            },
+            routesRestriction,
+            serverFunctionsRestriction,
           ],
         },
       ],
@@ -52,11 +197,62 @@ export default [
   },
   {
     files: [
-      'src/components/ui/**/*.{ts,tsx}',
-      'src/integrations/react-aria-components/*.{ts,tsx}',
+      'src/domain/**/*.{ts,tsx}',
+      'src/lib/**/*.{ts,tsx}',
+      'src/integrations/**/*.{ts,tsx}',
+      'src/server/**/*.{ts,tsx}',
     ],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: nonRoutePaths,
+          patterns: [
+            ...basePatterns,
+            {
+              group: featuresGroup,
+              message: 'Base layers must not import features.',
+            },
+            {
+              group: componentsGroup,
+              message: 'Base layers must not import components.',
+            },
+            {
+              group: appGroup,
+              message: 'Base layers must not import the app shell.',
+            },
+            routesRestriction,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // the adapter needs direct react-aria-components imports, but stays a
+    // bottom layer: the layer restrictions are restated, not switched off
+    files: ['src/integrations/react-aria-components/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [reactUseIdPath, routeApiPath],
+          patterns: [
+            {
+              group: featuresGroup,
+              message: 'Base layers must not import features.',
+            },
+            {
+              group: componentsGroup,
+              message: 'Base layers must not import components.',
+            },
+            {
+              group: appGroup,
+              message: 'Base layers must not import the app shell.',
+            },
+            routesRestriction,
+          ],
+        },
+      ],
     },
   },
   {
@@ -66,6 +262,7 @@ export default [
         'error',
         {
           paths: [
+            ...basePaths,
             {
               name: '@/integrations/supabase/user',
               message:
@@ -77,7 +274,7 @@ export default [
                 'Do not use the user Supabase client in public page routes. Use public APIs/client instead.',
             },
             {
-              name: '@/lib/guards',
+              name: '@/app/guards',
               importNames: ['requireAuthenticated'],
               message: 'Public routes must not import authenticated guards.',
             },
@@ -91,6 +288,7 @@ export default [
                 'Public routes must not use private/authenticated policy helpers.',
             },
           ],
+          patterns: basePatterns,
         },
       ],
     },
@@ -102,6 +300,7 @@ export default [
         'error',
         {
           paths: [
+            ...basePaths,
             {
               name: '@/lib/route-policy',
               importNames: [
@@ -112,6 +311,7 @@ export default [
                 'Private routes must not use public cache/policy helpers.',
             },
           ],
+          patterns: basePatterns,
         },
       ],
     },
@@ -123,6 +323,7 @@ export default [
         'error',
         {
           paths: [
+            ...basePaths,
             {
               name: '@/components/ui/forms',
               message:
@@ -155,6 +356,7 @@ export default [
                 'Token-callback route policy is inherited from /(token-callbacks)/route.tsx; do not override in descendants.',
             },
           ],
+          patterns: basePatterns,
         },
       ],
     },

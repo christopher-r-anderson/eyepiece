@@ -1,10 +1,7 @@
 import { css } from 'styled-system/css'
+import { AssetTileSkeleton } from './asset-tile'
+import { justifiedGridCss, justifiedGridItemCss } from './justified-asset-grid'
 import type { CSSProperties } from 'react'
-import { AssetTileSkeleton } from '@/features/assets/components/asset-tile'
-import {
-  justifiedGridCss,
-  justifiedGridItemCss,
-} from '@/features/assets/components/justified-asset-grid'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 // varied ratios so the pending state reads as justified rows, not squares

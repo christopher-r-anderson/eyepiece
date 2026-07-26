@@ -2,10 +2,10 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
+import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
+import { useAuthCommands } from '../hooks/use-auth-commands'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
-import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
 import { Heading } from '@/components/ui/heading'
 import {
   Form,

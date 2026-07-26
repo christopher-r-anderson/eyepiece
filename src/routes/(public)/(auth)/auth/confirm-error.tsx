@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
-import { PageHeading } from '../../../-components/page-heading'
+import { PageHeading } from '@/components/page-heading'
 import {
   ResendConfirmationForm,
   ResendConfirmationSuccessMessage,

@@ -1,6 +1,6 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { stripAuthSearchParams } from '@/features/auth/auth.utils'
+import { stripAuthSearchParams } from '../auth.utils'
 
 function createAuthModalSearch<T extends Record<string, unknown>>(
   prev: T,

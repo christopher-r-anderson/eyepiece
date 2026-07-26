@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
-import { PageHeading } from '@/routes/-components/page-heading'
+import { PageHeading } from '@/components/page-heading'
 import { RouteError } from '@/app/layout/route-error'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
-import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
+import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 
 export const Route = createFileRoute(
   '/(public)/(pages)/albums/$providerId/$albumId',

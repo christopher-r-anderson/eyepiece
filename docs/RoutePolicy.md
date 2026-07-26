@@ -65,7 +65,7 @@ routes honest is enforcement, layered below.
 ## Enforcement Layers (defense in depth)
 
 1. **Boundaries (top-down intent).** Policy roots call boundary factories
-   from `src/lib/route-boundaries.ts` that return the complete route options,
+   from `src/app/route-boundaries.ts` that return the complete route options,
    coupling cache headers with auth behavior (`publicBoundary()`,
    `authenticatedBoundary()`, `privateAnonymousBoundary()`). The
    policy-reserved keys (`headers`, `beforeLoad`) are typed `never` on the

@@ -1,11 +1,11 @@
 import { startTransition, useEffect } from 'react'
 import { css } from 'styled-system/css'
 import { VisuallyHidden } from 'styled-system/jsx'
+import { useInfiniteStatus } from './use-infinite-status'
+import { useLoadMoreController } from './use-load-more-controller'
 import type { ComponentPropsWithoutRef } from 'react'
 import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
-import { useInfiniteStatus } from '@/features/listing/infinite-loader/hooks/use-infinite-status'
-import { useLoadMoreController } from '@/features/listing/infinite-loader/hooks/use-load-more-controller'
 
 export function InfiniteLoader({
   children,
