@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { css } from 'styled-system/css'
 import { toCollectionsResultError } from '../collections.commands'
 import { CollectionsErrorCodes } from '../collections.const'
 import { useRenameCollection } from '../collections.queries'
@@ -54,30 +53,12 @@ export function RenameCollectionForm({
   return (
     <Form
       action={formAction}
-      // the pending button blocks clicks but not Enter's implicit submit,
-      // which React would queue into a second rename
-      onSubmit={(event) => {
-        if (isPending) {
-          event.preventDefault()
-        }
-      }}
+      isPending={isPending}
       validationErrors={state.fieldErrors}
       formError={state.error}
-      aria-busy={isPending || undefined}
       controls={
         <FormActions>
-          <Button
-            variant="primary"
-            type="submit"
-            isPending={isPending}
-            css={css.raw({
-              '&[data-pending]': {
-                cursor: 'default',
-                opacity: 0.7,
-                color: 'accent.fg.muted',
-              },
-            })}
-          >
+          <Button variant="primary" type="submit" isPending={isPending}>
             Rename
           </Button>
         </FormActions>

@@ -52,11 +52,11 @@ export function LoginForm({
       formError={state.error}
       surface={surface}
       aria-labelledby={id}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
           <div className={css({ minWidth: 0 })}>{forgotPasswordLink}</div>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Log In
           </Button>
         </FormActions>

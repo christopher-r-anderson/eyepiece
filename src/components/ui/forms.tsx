@@ -39,6 +39,7 @@ export function FormError({ error }: { error?: string }) {
 export type FormProps = {
   formError?: string
   controls?: React.ReactNode
+  isPending?: boolean
 } & FormVariantProps &
   UiProps<RacFormProps>
 
@@ -57,11 +58,23 @@ export function Form({
   controls,
   surface,
   layout,
+  isPending,
+  onSubmit,
   ...props
 }: FormProps) {
   return (
     <RacForm
       {...props}
+      aria-busy={isPending || undefined}
+      // a pending submit button blocks presses but not Enter's implicit
+      // submit, which React would queue into a repeat action
+      onSubmit={(event) => {
+        if (isPending) {
+          event.preventDefault()
+          return
+        }
+        onSubmit?.(event)
+      }}
       className={cx(form({ surface, layout }), css(cssProp), className)}
     >
       {children}

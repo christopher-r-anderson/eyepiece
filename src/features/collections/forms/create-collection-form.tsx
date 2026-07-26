@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { css } from 'styled-system/css'
 import { toCollectionsResultError } from '../collections.commands'
 import { CollectionsErrorCodes } from '../collections.const'
 import { useCreateCollection } from '../collections.queries'
@@ -48,16 +47,9 @@ export function CreateCollectionForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Form
       action={formAction}
-      // the pending button blocks clicks but not Enter's implicit submit,
-      // which React would queue into a second create
-      onSubmit={(event) => {
-        if (isPending) {
-          event.preventDefault()
-        }
-      }}
+      isPending={isPending}
       validationErrors={state.fieldErrors}
       formError={state.error}
-      aria-busy={isPending || undefined}
       controls={
         <FormActions>
           <Button
@@ -67,13 +59,6 @@ export function CreateCollectionForm({ onSuccess }: { onSuccess: () => void }) {
             // focus on body (Chrome fires no blur), leaving Escape unable to
             // reach the modal; pending keeps focus while blocking interaction
             isPending={isPending}
-            css={css.raw({
-              '&[data-pending]': {
-                cursor: 'default',
-                opacity: 0.7,
-                color: 'accent.fg.muted',
-              },
-            })}
           >
             Create
           </Button>

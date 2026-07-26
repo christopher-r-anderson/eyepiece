@@ -57,13 +57,14 @@ export function UpsertProfileForm({
       surface={surface}
       layout={layout}
       aria-labelledby={headingId}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
           <Button
             variant="primary"
             type="submit"
-            isDisabled={isDisabled || isPending}
+            isDisabled={isDisabled}
+            isPending={isPending}
           >
             {isUpdating ? 'Update' : 'Create'}
           </Button>

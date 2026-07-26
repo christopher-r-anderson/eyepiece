@@ -171,10 +171,10 @@ function HandledObservabilityForm() {
       action={formAction}
       validationErrors={state.fieldErrors}
       formError={state.error}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Submit handled scenario
           </Button>
         </FormActions>

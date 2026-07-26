@@ -63,10 +63,10 @@ export function RegistrationForm({
       formError={state.error}
       surface={surface}
       aria-labelledby={id}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Register
           </Button>
         </FormActions>
