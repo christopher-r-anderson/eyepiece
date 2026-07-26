@@ -92,6 +92,44 @@ describe('getAssetPreviewSnapshotsBatchOptions', () => {
     })
   })
 
+  describe('staleness window', () => {
+    it('refetches ids whose cached entries have aged past the window', async () => {
+      const snap1 = makeSnapshot(ID_1, 'asset-1')
+      const getAssetPreviewSnapshots = vi.fn().mockResolvedValue(Ok([snap1]))
+      const repo: Pick<AssetPreviewSnapshotsRepo, 'getAssetPreviewSnapshots'> =
+        {
+          getAssetPreviewSnapshots,
+        }
+
+      const client = new QueryClient()
+      const start = Date.now()
+      const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(start)
+      try {
+        await runQueryFn(
+          getAssetPreviewSnapshotsBatchOptions({
+            assetPreviewSnapshotIds: [ID_1],
+            repo,
+          }),
+          client,
+        )
+        getAssetPreviewSnapshots.mockClear()
+
+        nowSpy.mockReturnValue(start + 5 * 60 * 1000 + 1)
+        await runQueryFn(
+          getAssetPreviewSnapshotsBatchOptions({
+            assetPreviewSnapshotIds: [ID_1],
+            repo,
+          }),
+          client,
+        )
+
+        expect(getAssetPreviewSnapshots).toHaveBeenCalledWith([ID_1])
+      } finally {
+        nowSpy.mockRestore()
+      }
+    })
+  })
+
   describe('full cache hit', () => {
     it('skips the repo entirely when all snapshots are already cached', async () => {
       const snap1 = makeSnapshot(ID_1, 'asset-1')

@@ -55,6 +55,13 @@ export function UserMenu() {
           >
             Favorites
           </MenuItem>
+          <MenuItem
+            href={{
+              to: '/collections',
+            }}
+          >
+            Your Collections
+          </MenuItem>
           <Separator />
           <MenuItem
             href={{

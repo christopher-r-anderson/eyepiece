@@ -94,6 +94,8 @@ export function getInfiniteUserFavoritesEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
+    // a focus refetch could yank rows out from under removal ghosts
+    refetchOnWindowFocus: false,
     select,
   })
 }

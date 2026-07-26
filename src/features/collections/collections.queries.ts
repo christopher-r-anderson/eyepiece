@@ -2,19 +2,26 @@ import {
   infiniteQueryOptions,
   keepPreviousData,
   queryOptions,
+  useMutation,
+  useQueryClient,
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query'
 import {
   makeCollectionsRepo,
   usePublicCollectionsRepo,
+  useUserCollectionsRepo,
 } from './collections.repo'
+import { useCollectionsCommands } from './collections.commands'
 import type { CollectionsRepo } from './collections.repo'
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type { CollectionId, CollectionItemEdge } from './collections.schema'
+import type { CollectionsErrorCode } from './collections.const'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
+import type { Result } from '@/lib/result'
 import { unwrapOrThrow } from '@/lib/result'
+import { meKey } from '@/lib/query-keys'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const collectionsKeys = {
@@ -25,6 +32,13 @@ const collectionsKeys = {
     [...collectionsKeys.detail(collectionId), 'itemEdges'] as const,
   publicCards: (ownerId: string) =>
     [...collectionsKeys.all, 'publicCards', ownerId] as const,
+}
+
+// viewer-scoped reads live under meKey so auth changes invalidate them
+const userCollectionsKeys = {
+  all: [...meKey, 'collections'] as const,
+  cards: (userId: string) =>
+    [...userCollectionsKeys.all, 'cards', userId] as const,
 }
 
 export function getPublicCollectionCardsOptions({
@@ -134,6 +148,8 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
+    // a focus refetch could yank rows out from under removal ghosts
+    refetchOnWindowFocus: false,
     select,
   })
 }
@@ -179,4 +195,110 @@ export function useSuspenseInfiniteCollectionItems(collectionId: CollectionId) {
       repo,
     }),
   )
+}
+
+export function getUserCollectionCardsOptions({
+  userId,
+  repo,
+}: {
+  userId: string
+  repo: Pick<CollectionsRepo, 'getCollectionCardsForOwner'>
+}) {
+  return queryOptions({
+    queryKey: userCollectionsKeys.cards(userId),
+    queryFn: async () => {
+      const result = await repo.getCollectionCardsForOwner(userId)
+      return unwrapOrThrow(result)
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function ensureUserCollectionCards({
+  userId,
+  queryClient,
+  userSupabaseClient,
+}: {
+  userId: string
+  queryClient: QueryClient
+  userSupabaseClient: SupabaseClient
+}) {
+  const repo = makeCollectionsRepo(userSupabaseClient)
+  return queryClient.ensureQueryData(
+    getUserCollectionCardsOptions({ userId, repo }),
+  )
+}
+
+export function useSuspenseUserCollectionCards(userId: string) {
+  const repo = useUserCollectionsRepo()
+  const { data } = useSuspenseQuery(
+    getUserCollectionCardsOptions({ userId, repo }),
+  )
+  return data
+}
+
+// every mutation can change names, counts, covers, membership, or
+// visibility, so both the viewer-scoped and public families go stale
+function invalidateCollectionsQueries(
+  queryClient: QueryClient,
+  refetchType: 'active' | 'none',
+) {
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: userCollectionsKeys.all,
+      refetchType,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: collectionsKeys.all,
+      refetchType,
+    }),
+  ])
+}
+
+function useCollectionsMutation<TInput, TData>(
+  command: (
+    input: TInput,
+  ) => Promise<Result<TData, CollectionsErrorCode | undefined>>,
+  { refetchType = 'active' }: { refetchType?: 'active' | 'none' } = {},
+) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: TInput) => unwrapOrThrow(await command(input)),
+    onSettled: () => invalidateCollectionsQueries(queryClient, refetchType),
+  })
+}
+
+export function useCreateCollection() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.createCollection)
+}
+
+export function useRenameCollection() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.renameCollection)
+}
+
+export function useSetCollectionVisibility() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.setCollectionVisibility)
+}
+
+export function useDeleteCollection() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.deleteCollection)
+}
+
+export function useAddCollectionItem() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.addCollectionItem)
+}
+
+// refetchType 'none': a removal must never refetch a mounted grid out from
+// under its dimmed undo ghost; unmounted queries are marked stale either
+// way, so everything refreshes on the next visit
+export function useRemoveCollectionItem() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.removeCollectionItem, {
+    refetchType: 'none',
+  })
 }

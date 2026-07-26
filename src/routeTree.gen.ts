@@ -35,6 +35,7 @@ import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/lo
 import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(pages)/favorites'
 import { Route as privatepagesCompleteProfileRouteImport } from './routes/(private)/(pages)/complete-profile'
 import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
+import { Route as privatepagesCollectionsIndexRouteImport } from './routes/(private)/(pages)/collections/index'
 import { Route as publicApiV1SearchRouteImport } from './routes/(public)/api/v1/search'
 import { Route as publicpagesProfileProfileIdRouteImport } from './routes/(public)/(pages)/profile.$profileId'
 import { Route as publicpagesCollectionsCollectionIdRouteImport } from './routes/(public)/(pages)/collections/$collectionId'
@@ -179,6 +180,12 @@ const privatepagesSettingsIndexRoute =
     path: '/settings/',
     getParentRoute: () => privatepagesRouteRoute,
   } as any)
+const privatepagesCollectionsIndexRoute =
+  privatepagesCollectionsIndexRouteImport.update({
+    id: '/collections/',
+    path: '/collections/',
+    getParentRoute: () => privatepagesRouteRoute,
+  } as any)
 const publicApiV1SearchRoute = publicApiV1SearchRouteImport.update({
   id: '/api/v1/search',
   path: '/api/v1/search',
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/api/v1/search': typeof publicApiV1SearchRoute
+  '/collections/': typeof privatepagesCollectionsIndexRoute
   '/settings/': typeof privatepagesSettingsIndexRoute
   '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
@@ -316,6 +324,7 @@ export interface FileRoutesByTo {
   '/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/api/v1/search': typeof publicApiV1SearchRoute
+  '/collections': typeof privatepagesCollectionsIndexRoute
   '/settings': typeof privatepagesSettingsIndexRoute
   '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
@@ -358,6 +367,7 @@ export interface FileRoutesById {
   '/(public)/(pages)/collections/$collectionId': typeof publicpagesCollectionsCollectionIdRoute
   '/(public)/(pages)/profile/$profileId': typeof publicpagesProfileProfileIdRoute
   '/(public)/api/v1/search': typeof publicApiV1SearchRoute
+  '/(private)/(pages)/collections/': typeof privatepagesCollectionsIndexRoute
   '/(private)/(pages)/settings/': typeof privatepagesSettingsIndexRoute
   '/(public)/(pages)/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/(public)/(pages)/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
@@ -395,6 +405,7 @@ export interface FileRouteTypes {
     | '/collections/$collectionId'
     | '/profile/$profileId'
     | '/api/v1/search'
+    | '/collections/'
     | '/settings/'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/collections/$collectionId'
     | '/profile/$profileId'
     | '/api/v1/search'
+    | '/collections'
     | '/settings'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
@@ -468,6 +480,7 @@ export interface FileRouteTypes {
     | '/(public)/(pages)/collections/$collectionId'
     | '/(public)/(pages)/profile/$profileId'
     | '/(public)/api/v1/search'
+    | '/(private)/(pages)/collections/'
     | '/(private)/(pages)/settings/'
     | '/(public)/(pages)/albums/$providerId/$albumId'
     | '/(public)/(pages)/assets/$providerId/$assetId'
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privatepagesSettingsIndexRouteImport
       parentRoute: typeof privatepagesRouteRoute
     }
+    '/(private)/(pages)/collections/': {
+      id: '/(private)/(pages)/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof privatepagesCollectionsIndexRouteImport
+      parentRoute: typeof privatepagesRouteRoute
+    }
     '/(public)/api/v1/search': {
       id: '/(public)/api/v1/search'
       path: '/api/v1/search'
@@ -776,6 +796,7 @@ interface privatepagesRouteRouteChildren {
   privatepagesCompleteProfileRoute: typeof privatepagesCompleteProfileRoute
   privatepagesFavoritesRoute: typeof privatepagesFavoritesRoute
   privatepagesSettingsProfileRoute: typeof privatepagesSettingsProfileRoute
+  privatepagesCollectionsIndexRoute: typeof privatepagesCollectionsIndexRoute
   privatepagesSettingsIndexRoute: typeof privatepagesSettingsIndexRoute
 }
 
@@ -783,6 +804,7 @@ const privatepagesRouteRouteChildren: privatepagesRouteRouteChildren = {
   privatepagesCompleteProfileRoute: privatepagesCompleteProfileRoute,
   privatepagesFavoritesRoute: privatepagesFavoritesRoute,
   privatepagesSettingsProfileRoute: privatepagesSettingsProfileRoute,
+  privatepagesCollectionsIndexRoute: privatepagesCollectionsIndexRoute,
   privatepagesSettingsIndexRoute: privatepagesSettingsIndexRoute,
 }
 

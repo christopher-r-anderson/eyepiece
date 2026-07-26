@@ -5,22 +5,26 @@ import { Link } from '@/components/ui/link'
 interface CollectionCardProps {
   card: CollectionCardData
   curatedBy?: string
+  showVisibility?: boolean
+  // a private collection has no viewable destination, so its card can
+  // render as static content
+  isLinked?: boolean
+  // defaults to 3 for cards under a section heading; pages whose cards sit
+  // directly under the h1 pass 2 to keep the outline gapless
+  titleLevel?: 2 | 3
 }
 
-export function CollectionCard({ card, curatedBy }: CollectionCardProps) {
+export function CollectionCard({
+  card,
+  curatedBy,
+  showVisibility,
+  isLinked = true,
+  titleLevel = 3,
+}: CollectionCardProps) {
   const { collection, itemCount, cover } = card
-  return (
-    <Link
-      to="/collections/$collectionId"
-      params={{ collectionId: collection.id }}
-      css={css.raw({
-        display: 'block',
-        minWidth: 0,
-        color: 'text',
-        textDecoration: 'none',
-        _hover: { '& img': { opacity: 0.88 } },
-      })}
-    >
+  const TitleTag = `h${titleLevel}` as const
+  const content = (
+    <>
       {cover ? (
         <img
           src={cover.thumbnail.href}
@@ -44,7 +48,7 @@ export function CollectionCard({ card, curatedBy }: CollectionCardProps) {
           })}
         />
       )}
-      <h3
+      <TitleTag
         className={css({
           textStyle: 'title.sm',
           marginTop: '2',
@@ -52,7 +56,7 @@ export function CollectionCard({ card, curatedBy }: CollectionCardProps) {
         })}
       >
         {collection.name}
-      </h3>
+      </TitleTag>
       <p
         className={css({
           marginTop: '1',
@@ -64,7 +68,28 @@ export function CollectionCard({ card, curatedBy }: CollectionCardProps) {
       >
         {itemCount} {itemCount === 1 ? 'item' : 'items'}
         {curatedBy ? ` · curated by ${curatedBy}` : ''}
+        {showVisibility ? ` · ${collection.visibility}` : ''}
       </p>
+    </>
+  )
+
+  if (!isLinked) {
+    return <div className={css({ minWidth: 0 })}>{content}</div>
+  }
+
+  return (
+    <Link
+      to="/collections/$collectionId"
+      params={{ collectionId: collection.id }}
+      css={css.raw({
+        display: 'block',
+        minWidth: 0,
+        color: 'text',
+        textDecoration: 'none',
+        _hover: { '& img': { opacity: 0.88 } },
+      })}
+    >
+      {content}
     </Link>
   )
 }

@@ -6,6 +6,7 @@ import type {
   CollectionCard,
   CollectionId,
   CollectionItemEdge,
+  CollectionVisibility,
 } from './collections.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
@@ -17,6 +18,7 @@ import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
+import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
 import {
   dbAssetPreviewSnapshotSchema,
   mapAssetPreviewSnapshot,
@@ -143,16 +145,20 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     return Ok(rows.map(mapCollection))
   }
 
-  async function getPublicCollectionCardsForOwner(
+  async function getCollectionCardsForOwnerWithVisibility(
     ownerId: string,
+    visibility: CollectionVisibility | undefined,
   ): Promise<Result<Array<CollectionCard>>> {
-    const { data, error: pgError } = await client
+    let query = client
       .from('collections')
       .select(
         `${COLLECTION_COLUMNS}, item_count:collection_items(count), cover_items:collection_items(asset_preview_snapshots(id, provider_id, external_id, title, thumb_href, thumb_width, thumb_height))`,
       )
       .eq('owner_id', ownerId)
-      .eq('visibility', 'public')
+    if (visibility) {
+      query = query.eq('visibility', visibility)
+    }
+    const { data, error: pgError } = await query
       .order('position', { ascending: true })
       .order('created_at', { ascending: true })
       .order('id', { ascending: true })
@@ -172,6 +178,16 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       return Err({ message: parseError.message, cause: parseError })
     }
     return Ok(rows.map(mapCollectionCard))
+  }
+
+  function getPublicCollectionCardsForOwner(ownerId: string) {
+    return getCollectionCardsForOwnerWithVisibility(ownerId, 'public')
+  }
+
+  // all visibilities: only meaningful on the user client, where RLS reveals
+  // the caller's own private rows
+  function getCollectionCardsForOwner(ownerId: string) {
+    return getCollectionCardsForOwnerWithVisibility(ownerId, undefined)
   }
 
   // null = missing OR private-to-someone-else; callers map both to not-found
@@ -236,6 +252,7 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     getUserCollections,
     getPublicCollectionsForOwner,
     getPublicCollectionCardsForOwner,
+    getCollectionCardsForOwner,
     getCollection,
     getCollectionItemEdges,
   }
@@ -249,5 +266,13 @@ export function usePublicCollectionsRepo() {
   return useMemo(
     () => makeCollectionsRepo(publicSupabaseClient),
     [publicSupabaseClient],
+  )
+}
+
+export function useUserCollectionsRepo() {
+  const userSupabaseClient = useUserSupabaseClient()
+  return useMemo(
+    () => makeCollectionsRepo(userSupabaseClient),
+    [userSupabaseClient],
   )
 }
