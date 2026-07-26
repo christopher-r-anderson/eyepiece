@@ -110,6 +110,7 @@ function CollectionsPage() {
                 card={card}
                 showVisibility
                 isLinked={card.collection.visibility === 'public'}
+                titleLevel={2}
               />
             </li>
           ))}
