@@ -8,14 +8,14 @@ import {
   useSuspenseInfiniteUserFavoriteAssetIds,
   userFavoritesPagesToAssetIds,
 } from '@/features/favorites/favorites.queries'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
+import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import {
   ensureAssetPreviewSnapshotsBatch,
   useAssetPreviewSnapshotsBatch,
 } from '@/features/assets/asset-preview-snapshots.queries'
 import { RouteError } from '@/app/layout/route-error'
-import { PageHeading } from '@/routes/-components/page-heading'
-import { AssetGridSkeleton } from '@/routes/-components/asset-grid-skeleton'
+import { PageHeading } from '@/components/page-heading'
+import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>

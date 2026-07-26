@@ -53,7 +53,18 @@ Use plural suffixes for collections of exports and singular for architectural la
 - _Route Loaders:_ Prefer `await` in route loaders for query preloading so route-level pending/error handling works by default. Avoid returning loader data that duplicates query cache.
 - _SUspense and Error Boundaries:_ Use route-level pending/error handling for page-critical data. If a page has multiple high-level sections, use a boundary at the section level to limit breakage to the failing section.
 
-## 5. Environment & RPC Suffixes
+## 5. Import Layering
+
+Dependency direction: `routes` -> `features` -> `components` -> `domain` / `lib`, with `integrations` at the bottom alongside `domain` and `lib`.
+
+- Features never import other features. Exceptions, allowlisted in `eslint.config.ts` until they graduate to a shared home: auth's non-UI primitives (`get-user`, auth queries, auth search params) and the asset preview snapshot modules in `features/assets`.
+- `/src/components/` is the shared, feature-free UI layer. `components/ui` is the domain-agnostic kit; other `components/` dirs may use domain types but never feature behavior (no queries, commands, or server functions).
+- Router primitives (`Link`, `useNavigate`, `useLocation`, `useRouterState`) are ambient app infrastructure, usable in features and shared components. Route-specific APIs (`Route.useSearch`, `getRouteApi`, loader data) stay in route files and their `-components/`.
+- `-components/` directories are colocation, not a layer: components scoped to a route segment live next to it, deep in the tree.
+
+ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`).
+
+## 6. Environment & RPC Suffixes
 
 When appropriate, always use TanStack Start import protection file naming conventions:
 

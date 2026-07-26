@@ -4,7 +4,7 @@ import { css } from 'styled-system/css'
 import { FavoriteButton } from '../../-components/favorite-button'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
-import { InfiniteLoader } from '@/features/listing/infinite-loader/components/infinite-loader'
+import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries'
 

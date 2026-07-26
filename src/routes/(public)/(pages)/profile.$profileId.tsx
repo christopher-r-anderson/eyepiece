@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { PageHeading } from '../../-components/page-heading'
+import { PageHeading } from '@/components/page-heading'
 import { Profile } from '@/features/profiles/components/profile'
 import {
   ensureProfile,

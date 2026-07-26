@@ -1,6 +1,63 @@
 import { tanstackConfig } from '@tanstack/eslint-config'
 import queryPlugin from '@tanstack/eslint-plugin-query'
 
+const baseRestrictedImportPaths = [
+  {
+    name: 'react',
+    importNames: ['useId'],
+    message: 'Import useId from "react-aria" instead of "react".',
+  },
+  {
+    name: 'react-aria-components',
+    message:
+      'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+  },
+  {
+    name: '@tanstack/react-router',
+    importNames: ['getRouteApi'],
+    message:
+      'Route-specific APIs stay in route files and their -components/. Pass data down as props.',
+  },
+]
+
+const baseRestrictedImportPatterns = [
+  {
+    group: ['react-aria-components/*'],
+    message:
+      'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
+  },
+  {
+    group: [
+      '../**/components/ui',
+      '../**/components/ui/*',
+      './**/components/ui',
+      './**/components/ui/*',
+    ],
+    message: 'Import UI via "@/components/ui/…" instead of relative paths.',
+  },
+]
+
+// non-UI primitives features may share until they graduate to a shared home
+const crossFeatureAllowlist = [
+  '!@/features/auth/get-user',
+  '!@/features/auth/auth.queries',
+  '!@/features/auth/auth.utils',
+  '!@/features/assets/asset-preview-snapshots.repo',
+  '!@/features/assets/asset-preview-snapshots.server',
+  '!@/features/assets/asset-preview-snapshots.const',
+]
+
+const featureDirs = [
+  'albums',
+  'assets',
+  'auth',
+  'collections',
+  'favorites',
+  'home',
+  'profiles',
+  'search',
+]
+
 export default [
   {
     ignores: [
@@ -17,46 +74,79 @@ export default [
       'no-restricted-imports': [
         'error',
         {
-          paths: [
-            {
-              name: 'react',
-              importNames: ['useId'],
-              message: 'Import useId from "react-aria" instead of "react".',
-            },
-            {
-              name: 'react-aria-components',
-              message:
-                'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
-            },
-          ],
+          paths: baseRestrictedImportPaths,
+          patterns: baseRestrictedImportPatterns,
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: baseRestrictedImportPaths,
           patterns: [
+            ...baseRestrictedImportPatterns,
             {
-              group: ['react-aria-components/*'],
-              message:
-                'Import from our UI layer (e.g. "@/components/ui/forms") instead of directly from react-aria-components.',
-            },
-            {
-              group: [
-                '../**/components/ui',
-                '../**/components/ui/*',
-                './**/components/ui',
-                './**/components/ui/*',
-              ],
-              message:
-                'Import UI via "@/components/ui/…" instead of relative paths.',
+              group: ['@/features/*', '@/features/*/**'],
+              message: 'Shared components must not import features.',
             },
           ],
         },
       ],
     },
   },
+  ...featureDirs.map((feature) => ({
+    files: [`src/features/${feature}/**/*.{ts,tsx}`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: baseRestrictedImportPaths,
+          patterns: [
+            ...baseRestrictedImportPatterns,
+            {
+              // contents-only globs: excluding the feature directory itself
+              // would make the file-level negations unmatchable (gitignore
+              // rule: no re-including under an excluded parent)
+              group: [
+                '@/features/*/**',
+                `!@/features/${feature}/**`,
+                ...crossFeatureAllowlist,
+              ],
+              message: 'Features must not import other features.',
+            },
+          ],
+        },
+      ],
+    },
+  })),
   {
-    files: [
-      'src/components/ui/**/*.{ts,tsx}',
-      'src/integrations/react-aria-components/*.{ts,tsx}',
-    ],
+    files: ['src/integrations/react-aria-components/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/features/*', '@/features/*/**'],
+              message: 'The UI kit must not import features.',
+            },
+            {
+              group: ['@/domain/*', '@/domain/**'],
+              message: 'The UI kit is domain-agnostic.',
+            },
+          ],
+        },
+      ],
     },
   },
   {
