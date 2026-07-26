@@ -4,7 +4,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
+import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -37,6 +37,7 @@ import { FormActions } from '@/components/ui/forms'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { RouteError } from '@/app/layout/route-error'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { useItemOperationQueue } from '@/lib/hooks/use-item-operation-queue'
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
@@ -262,30 +263,11 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     [removedIds],
   )
 
-  // one operation chain per item: mutateAsync (per-call mutate callbacks
-  // can be dropped under rapid calls on one observer), and each remove or
-  // undo queues behind the item's previous operation - otherwise a quick
-  // undo races the in-flight delete, or a re-removal races the undo's
-  // insert, and the server ends up opposite the UI
-  const pendingOpsRef = useRef(new Map<string, Promise<void>>())
-  // a failed operation may no longer reflect what the user last asked for
-  // (remove -> undo -> remove again while the first is in flight): rollback
-  // and toast only when the failure belongs to the item's latest intent
-  const intentRef = useRef(new Map<string, number>())
-  const nextIntent = useCallback((id: string) => {
-    const token = (intentRef.current.get(id) ?? 0) + 1
-    intentRef.current.set(id, token)
-    return token
-  }, [])
-  const enqueueItemOp = useCallback(
-    (id: string, operation: () => Promise<void>) => {
-      const prior = pendingOpsRef.current.get(id) ?? Promise.resolve()
-      // operations handle their own failures, so the chain never rejects
-      const next = prior.then(operation)
-      pendingOpsRef.current.set(id, next)
-    },
-    [],
-  )
+  const {
+    enqueue: enqueueItemOp,
+    nextIntent,
+    isCurrentIntent,
+  } = useItemOperationQueue()
 
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
@@ -324,7 +306,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                     .then(
                       () => undefined,
                       () => {
-                        if (intentRef.current.get(item.id) !== token) {
+                        if (!isCurrentIntent(item.id, token)) {
                           return
                         }
                         setRemovedIds((prev) => new Set(prev).add(item.id))
@@ -358,7 +340,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                 .then(
                   () => undefined,
                   () => {
-                    if (intentRef.current.get(item.id) !== token) {
+                    if (!isCurrentIntent(item.id, token)) {
                       return
                     }
                     setRemovedIds((prev) => {
@@ -389,6 +371,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       queueToastMessage,
       enqueueItemOp,
       nextIntent,
+      isCurrentIntent,
     ],
   )
 

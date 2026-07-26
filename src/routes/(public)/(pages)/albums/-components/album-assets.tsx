@@ -4,6 +4,7 @@ import { css } from 'styled-system/css'
 import { FavoriteButton } from '../../-components/favorite-button'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
+import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries'
@@ -14,7 +15,10 @@ export interface AlbumAssetsProps {
 
 // module-level so memoized grid rows see stable references
 const renderTileActions = (item: Asset) => (
-  <FavoriteButton assetKey={item.key} />
+  <>
+    <FavoriteButton assetKey={item.key} />
+    <AddToCollectionButton assetKey={item.key} variant="tile" />
+  </>
 )
 
 export function AlbumAssets({ albumKey }: AlbumAssetsProps) {

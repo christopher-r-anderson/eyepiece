@@ -3,6 +3,7 @@ import {
   keepPreviousData,
   queryOptions,
   useMutation,
+  useQuery,
   useQueryClient,
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
@@ -16,12 +17,14 @@ import { useCollectionsCommands } from './collections.commands'
 import type { CollectionsRepo } from './collections.repo'
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type { CollectionId, CollectionItemEdge } from './collections.schema'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { CollectionsErrorCode } from './collections.const'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { Result } from '@/lib/result'
 import { unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const collectionsKeys = {
@@ -45,6 +48,15 @@ const userCollectionsKeys = {
     [...userCollectionsKeys.all, 'detail', collectionId] as const,
   itemEdges: (collectionId: CollectionId) =>
     [...userCollectionsKeys.detail(collectionId), 'itemEdges'] as const,
+  list: (userId: string) =>
+    [...userCollectionsKeys.all, 'list', userId] as const,
+  membership: (userId: string, assetKey: AssetKey) =>
+    [
+      ...userCollectionsKeys.all,
+      'membership',
+      userId,
+      toAssetKeyString(assetKey),
+    ] as const,
 }
 
 export function getPublicCollectionCardsOptions({
@@ -350,6 +362,60 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
   )
 }
 
+export function getUserCollectionsListOptions({
+  userId,
+  repo,
+}: {
+  userId: string
+  repo: Pick<CollectionsRepo, 'getUserCollections'>
+}) {
+  return queryOptions({
+    queryKey: userCollectionsKeys.list(userId),
+    queryFn: async () => {
+      const result = await repo.getUserCollections(userId)
+      return unwrapOrThrow(result)
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useUserCollectionsList(userId: string) {
+  const repo = useUserCollectionsRepo()
+  return useQuery(getUserCollectionsListOptions({ userId, repo }))
+}
+
+export function getAssetCollectionMembershipOptions({
+  userId,
+  assetKey,
+  repo,
+}: {
+  userId: string
+  assetKey: AssetKey
+  repo: Pick<CollectionsRepo, 'getCollectionIdsForAsset'>
+}) {
+  return queryOptions({
+    queryKey: userCollectionsKeys.membership(userId, assetKey),
+    queryFn: async () => {
+      const result = await repo.getCollectionIdsForAsset(userId, assetKey)
+      return unwrapOrThrow(result)
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useAssetCollectionMembership({
+  userId,
+  assetKey,
+}: {
+  userId: string
+  assetKey: AssetKey
+}) {
+  const repo = useUserCollectionsRepo()
+  return useQuery(
+    getAssetCollectionMembershipOptions({ userId, assetKey, repo }),
+  )
+}
+
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
 // the user-family item-edge lists are marked stale but never actively
@@ -421,21 +487,15 @@ export function useAddCollectionItem() {
   return useCollectionsMutation(commands.addCollectionItem)
 }
 
-// refetchType 'none': a removal must never refetch a mounted grid out from
-// under its dimmed undo ghost; unmounted queries are marked stale either
-// way, so everything refreshes on the next visit
+// ghost safety lives in the invalidation helper (user-family item edges
+// are never actively refetched); everything else refreshes actively so an
+// open picker's membership checkboxes reflect the removal immediately
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.removeCollectionItem, {
-    refetchType: 'none',
-  })
+  return useCollectionsMutation(commands.removeCollectionItem)
 }
 
-// undo's re-add shares removal's contract: the restored tile is already
-// in place as the un-dimmed ghost
 export function useAddCollectionItemAtPosition() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.addCollectionItemAtPosition, {
-    refetchType: 'none',
-  })
+  return useCollectionsMutation(commands.addCollectionItemAtPosition)
 }

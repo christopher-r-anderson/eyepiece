@@ -14,6 +14,7 @@ import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
@@ -192,6 +193,32 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     return getCollectionCardsForOwnerWithVisibility(ownerId, undefined)
   }
 
+  // which of the owner's collections contain this asset - drives the
+  // picker's checkbox states; user client only (owner filter + RLS)
+  async function getCollectionIdsForAsset(
+    ownerId: string,
+    assetKey: AssetKey,
+  ): Promise<Result<Array<CollectionId>>> {
+    const { data, error: pgError } = await client
+      .from('collection_items')
+      .select(
+        'collection_id, collections!inner(owner_id), asset_preview_snapshots!inner(provider_id, external_id)',
+      )
+      .eq('collections.owner_id', ownerId)
+      .eq('asset_preview_snapshots.provider_id', assetKey.providerId)
+      .eq('asset_preview_snapshots.external_id', assetKey.externalId)
+    if (pgError) {
+      return Err({ message: pgError.message, cause: pgError })
+    }
+    const { data: rows, error: parseError } = z
+      .array(z.object({ collection_id: z.uuid() }))
+      .safeParse(data)
+    if (parseError) {
+      return Err({ message: parseError.message, cause: parseError })
+    }
+    return Ok(rows.map((row) => row.collection_id))
+  }
+
   // null = missing OR private-to-someone-else; callers map both to not-found
   async function getCollection(
     collectionId: CollectionId,
@@ -255,6 +282,7 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     getPublicCollectionsForOwner,
     getPublicCollectionCardsForOwner,
     getCollectionCardsForOwner,
+    getCollectionIdsForAsset,
     getCollection,
     getCollectionItemEdges,
   }

@@ -35,6 +35,8 @@ function ManageCollectionLinkContent({
         fontFamily: 'mono',
         fontSize: 'mono',
         textTransform: 'lowercase',
+        // sits inline in muted meta text: color alone can't mark it as a link
+        textDecoration: 'underline',
       })}
     >
       manage

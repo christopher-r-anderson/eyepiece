@@ -1,22 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
-import { startTransition } from 'react'
+import { startTransition, useCallback, useMemo, useState } from 'react'
 import { css } from 'styled-system/css'
+import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
+import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureInfiniteUserFavoritesEdges,
-  useSuspenseInfiniteUserFavoriteAssetIds,
+  useRefavoriteAt,
+  useSuspenseInfiniteUserFavoriteEdges,
+  useUnfavorite,
   userFavoritesPagesToAssetIds,
 } from '@/features/favorites/favorites.queries'
+import { favoriteToggleCss } from '@/features/favorites/components/toggle-favorite-button'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import {
   ensureAssetPreviewSnapshotsBatch,
   useAssetPreviewSnapshotsBatch,
 } from '@/features/assets/asset-preview-snapshots.queries'
 import { RouteError } from '@/app/layout/route-error'
+import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
+import { Button } from '@/components/ui/button'
+import { ToggleButton } from '@/components/ui/toggle-button'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { useItemOperationQueue } from '@/lib/hooks/use-item-operation-queue'
+import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
+import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.const'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
@@ -51,11 +63,32 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
   ),
 })
 
+// ghost rows: an unstarred tile keeps its slot dimmed with an always-visible
+// veil so justified rows never re-break and undo stays in place
+const ghostTileCss = css({
+  '& [data-tile-primary-link]': { pointerEvents: 'none' },
+  '& img': { opacity: 0.3 },
+  '& [data-tile-reveal], & [data-tile-controls]': {
+    opacity: 1,
+    translate: 'none',
+  },
+  '& [data-tile-controls]': { pointerEvents: 'auto' },
+})
+
 function FavoritesPage() {
-  const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
+  const favoritesResult = useSuspenseInfiniteUserFavoriteEdges()
   const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
-    favoritesResult.data,
+    favoritesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
+  const unfavorite = useUnfavorite()
+  const refavoriteAt = useRefavoriteAt()
+  const queueToastMessage = useQueueToastMessage()
+  const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  )
+  const { enqueue, nextIntent, isCurrentIntent } = useItemOperationQueue()
+  const showLoginModal = useShowLoginModal()
+
   // failed page fetches would otherwise degrade silently: an edge-page
   // error only surfaces on the result once earlier pages exist, and an
   // errored snapshot batch holds no data for its new key so the fallback
@@ -68,7 +101,144 @@ function FavoritesPage() {
     throw assetPreviewSnapshotsResult.error
   }
 
-  if (favoritesResult.data.length === 0) {
+  const edgesBySnapshotId = useMemo(() => {
+    const map = new Map<string, FavoriteEdge>()
+    for (const edge of favoritesResult.data.edges) {
+      map.set(edge.assetPreviewSnapshotId, edge)
+    }
+    return map
+  }, [favoritesResult.data.edges])
+
+  const tileClassName = useCallback(
+    (item: AssetPreviewSnapshot) =>
+      removedIds.has(item.id) ? ghostTileCss : undefined,
+    [removedIds],
+  )
+
+  const tileLinkDisabled = useCallback(
+    (item: AssetPreviewSnapshot) => removedIds.has(item.id),
+    [removedIds],
+  )
+
+  const tileActions = useCallback(
+    (item: AssetPreviewSnapshot) => {
+      const edge = edgesBySnapshotId.get(item.id)
+      if (!edge) {
+        return undefined
+      }
+      if (removedIds.has(item.id)) {
+        return (
+          <span
+            className={css({
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '2',
+            })}
+          >
+            Removed
+            <Button
+              variant="bare"
+              className={css({ textDecoration: 'underline' })}
+              onPress={() => {
+                setRemovedIds((prev) => {
+                  const next = new Set(prev)
+                  next.delete(item.id)
+                  return next
+                })
+                const token = nextIntent(item.id)
+                enqueue(item.id, () =>
+                  refavoriteAt
+                    .mutateAsync({
+                      assetKey: edge.assetKey,
+                      createdAt: edge.createdAt,
+                    })
+                    .then(
+                      () => undefined,
+                      (error: unknown) => {
+                        if (!isCurrentIntent(item.id, token)) {
+                          return
+                        }
+                        setRemovedIds((prev) => new Set(prev).add(item.id))
+                        if (
+                          error instanceof Error &&
+                          error.message ===
+                            ToggleFavoriteErrorCodes.AUTH_REQUIRED
+                        ) {
+                          showLoginModal()
+                          return
+                        }
+                        queueToastMessage({
+                          title: 'Undo failed',
+                          description: 'Please try again.',
+                        })
+                      },
+                    ),
+                )
+              }}
+            >
+              Undo
+            </Button>
+          </span>
+        )
+      }
+      return (
+        <>
+          <ToggleButton
+            aria-label="Star"
+            css={favoriteToggleCss}
+            variant="icon"
+            isSelected
+            onChange={() => {
+              setRemovedIds((prev) => new Set(prev).add(item.id))
+              const token = nextIntent(item.id)
+              enqueue(item.id, () =>
+                unfavorite.mutateAsync(edge.assetKey).then(
+                  () => undefined,
+                  (error: unknown) => {
+                    if (!isCurrentIntent(item.id, token)) {
+                      return
+                    }
+                    setRemovedIds((prev) => {
+                      const next = new Set(prev)
+                      next.delete(item.id)
+                      return next
+                    })
+                    if (
+                      error instanceof Error &&
+                      error.message === ToggleFavoriteErrorCodes.AUTH_REQUIRED
+                    ) {
+                      showLoginModal()
+                      return
+                    }
+                    queueToastMessage({
+                      title: 'Unstar failed',
+                      description: 'Please try again.',
+                    })
+                  },
+                ),
+              )
+            }}
+          >
+            <StarIcon size={20} weight="fill" />
+          </ToggleButton>
+          <AddToCollectionButton assetKey={edge.assetKey} variant="tile" />
+        </>
+      )
+    },
+    [
+      edgesBySnapshotId,
+      removedIds,
+      enqueue,
+      nextIntent,
+      isCurrentIntent,
+      unfavorite,
+      refavoriteAt,
+      queueToastMessage,
+      showLoginModal,
+    ],
+  )
+
+  if (favoritesResult.data.total === 0) {
     return (
       <>
         <FavoritesHeading />
@@ -99,7 +269,13 @@ function FavoritesPage() {
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
-        <JustifiedAssetGrid items={assetPreviewSnapshotsResult.data ?? []} />
+        <JustifiedAssetGrid
+          aria-label="Favorites"
+          items={assetPreviewSnapshotsResult.data ?? []}
+          tileActions={tileActions}
+          tileClassName={tileClassName}
+          tileLinkDisabled={tileLinkDisabled}
+        />
       </InfiniteLoader>
     </>
   )

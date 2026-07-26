@@ -15,3 +15,12 @@ export const favoriteEdgeSchema = z.object({
 })
 
 export type FavoriteEdge = z.infer<typeof favoriteEdgeSchema>
+
+// undo's re-favorite: restores the row with its original created_at (the
+// favorites ordering key), instead of a fresh timestamp
+export const refavoriteAtInputSchema = z.object({
+  assetKey: assetKeySchema,
+  createdAt: z.iso.datetime({ offset: true }),
+})
+
+export type RefavoriteAtInput = z.infer<typeof refavoriteAtInputSchema>

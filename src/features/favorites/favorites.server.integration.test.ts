@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, vi } from 'vitest'
-import { _internals } from './favorites.server'
+import { _internals, refavoriteUserFavoriteAt } from './favorites.server'
 import { ToggleFavoriteErrorCodes } from './favorites.const'
 import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
+import { resultIsError, resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 import { createAdminClient, it } from '@/test/integration-fixtures'
-import { resultIsError, resultIsSuccess } from '@/lib/result'
+import { getUser } from '@/features/auth/get-user'
+import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
 // ---------------------------------------------------------------------------
 // favorites.server.ts calls createServerOnlyFn() at module scope.
@@ -40,7 +42,7 @@ vi.mock('@/features/auth/get-user', () => ({
   getUser: vi.fn(),
 }))
 
-const { toggleFavoriteForUser } = _internals
+const { toggleFavoriteForUser, resolveSnapshotForRefavorite } = _internals
 
 // ---------------------------------------------------------------------------
 // Seed helpers
@@ -192,6 +194,88 @@ describe('toggleFavoriteForUser', () => {
     if (resultIsError(result)) {
       expect(result.error.code).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
       expect(result.error.message).toBe(ToggleFavoriteErrorCodes.UNKNOWN_ERROR)
+    }
+  })
+})
+
+describe('resolveSnapshotForRefavorite', () => {
+  // the external id is fake, so falling through to the provider-backed
+  // ensure would fail: an Ok result proves the stored snapshot was reused
+  it('resolves a stored snapshot without the provider', async ({
+    client,
+    adminClient,
+  }) => {
+    const externalId = `INTEG-REFAV-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
+    try {
+      const resolved = unwrapOrThrow(
+        await resolveSnapshotForRefavorite(client, {
+          providerId: 'nasa_ivl',
+          externalId,
+        }),
+      )
+      expect(resolved).toBe(snapshotId)
+    } finally {
+      await adminClient
+        .from('asset_preview_snapshots')
+        .delete()
+        .eq('id', snapshotId)
+    }
+  })
+
+  it('refavoriteUserFavoriteAt restores the ordering key and clamps future dates', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const externalId = `INTEG-REFAV-AT-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
+    const createdAt = '2026-01-02T03:04:05+00:00'
+    vi.mocked(getUser).mockResolvedValue({ id: user.id } as never)
+    vi.mocked(createUserSupabaseClient).mockReturnValue(client)
+    try {
+      const result = await refavoriteUserFavoriteAt({
+        assetKey: { providerId: 'nasa_ivl', externalId },
+        createdAt,
+      })
+      expect(result.isFavorited).toBe(true)
+      const { data } = await adminClient
+        .from('favorites')
+        .select('created_at')
+        .eq('owner_id', user.id)
+        .eq('asset_preview_snapshot_id', snapshotId)
+        .single()
+      expect(new Date(data?.created_at ?? 0).toISOString()).toBe(
+        new Date(createdAt).toISOString(),
+      )
+
+      await adminClient
+        .from('favorites')
+        .delete()
+        .eq('asset_preview_snapshot_id', snapshotId)
+      const future = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+      await refavoriteUserFavoriteAt({
+        assetKey: { providerId: 'nasa_ivl', externalId },
+        createdAt: future,
+      })
+      const { data: clamped } = await adminClient
+        .from('favorites')
+        .select('created_at')
+        .eq('owner_id', user.id)
+        .eq('asset_preview_snapshot_id', snapshotId)
+        .single()
+      expect(
+        new Date(clamped?.created_at ?? future).getTime(),
+      ).toBeLessThanOrEqual(Date.now())
+    } finally {
+      await adminClient
+        .from('favorites')
+        .delete()
+        .eq('asset_preview_snapshot_id', snapshotId)
+      await adminClient
+        .from('asset_preview_snapshots')
+        .delete()
+        .eq('id', snapshotId)
     }
   })
 })

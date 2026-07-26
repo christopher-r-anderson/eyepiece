@@ -21,6 +21,10 @@ vi.mock('@/features/assets/assets.queries', () => ({
   useSuspenseAsset: vi.fn(),
 }))
 
+vi.mock('@/app/add-to-collection-button', () => ({
+  AddToCollectionButton: () => null,
+}))
+
 vi.mock('../-components/favorite-button', () => ({
   FavoriteButton: () => createElement('button', { type: 'button' }, 'favorite'),
 }))

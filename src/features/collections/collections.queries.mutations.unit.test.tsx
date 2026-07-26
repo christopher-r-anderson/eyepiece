@@ -76,14 +76,28 @@ afterEach(() => {
 })
 
 describe('collections mutation invalidation', () => {
-  it('removal marks both families stale without refetching active queries', async () => {
+  it('removal never refetches an active item-edge list but refreshes the rest', async () => {
     const queryClient = new QueryClient()
-    const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
-    await waitFor(() =>
-      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce(),
+    const getCollectionItemEdges = vi
+      .fn()
+      .mockResolvedValue(
+        Ok({ items: [], pagination: { next: null, total: 0 } }),
+      )
+    renderHook(
+      () =>
+        useInfiniteQuery(
+          getInfiniteUserCollectionItemEdgesOptions({
+            collectionId: COLLECTION_ID,
+            repo: { getCollectionItemEdges },
+          }),
+        ),
+      { wrapper: makeWrapper(queryClient) },
     )
-    // a resolved public-family entry so its stale marking is observable
-    queryClient.setQueryData(['collections', 'detail', COLLECTION_ID], null)
+    const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
+    await waitFor(() => {
+      expect(getCollectionItemEdges).toHaveBeenCalledOnce()
+      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+    })
 
     vi.mocked(removeCollectionItemFn).mockResolvedValue({ removed: true })
     const { result } = renderHook(() => useRemoveCollectionItem(), {
@@ -91,18 +105,21 @@ describe('collections mutation invalidation', () => {
     })
     await result.current.mutateAsync(ITEM_INPUT)
 
-    await waitFor(() => {
-      expect(
-        queryClient.getQueryState(['me', 'collections', 'cards', USER_ID])
-          ?.isInvalidated,
-      ).toBe(true)
-      expect(
-        queryClient.getQueryState(['collections', 'detail', COLLECTION_ID])
-          ?.isInvalidated,
-      ).toBe(true)
-    })
-    // the ghost contract: the ACTIVE query stays on its data, no refetch
-    expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+    // membership/cards refresh so picker checkboxes reflect the removal...
+    await waitFor(() =>
+      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2),
+    )
+    // ...while the ghost-bearing edge list is only marked stale
+    expect(
+      queryClient.getQueryState([
+        'me',
+        'collections',
+        'detail',
+        COLLECTION_ID,
+        'itemEdges',
+      ])?.isInvalidated,
+    ).toBe(true)
+    expect(getCollectionItemEdges).toHaveBeenCalledOnce()
   })
 
   it('settings mutations never refetch an active item-edge list (mounted ghosts)', async () => {

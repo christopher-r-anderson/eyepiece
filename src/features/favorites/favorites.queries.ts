@@ -14,7 +14,7 @@ import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
-import type { FavoriteEdge } from './favorites.schema'
+import type { FavoriteEdge, RefavoriteAtInput } from './favorites.schema'
 import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
@@ -49,6 +49,25 @@ export function useUserFavoritesIndex({ enabled }: { enabled?: boolean }) {
   })
 }
 
+// the edges list is marked stale but never actively refetched: the mounted
+// favorites grid may be holding removal ghosts. Everything else (the star
+// index) refreshes actively.
+function invalidateFavoritesQueries(queryClient: QueryClient) {
+  const isEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+    queryKey.includes('edges')
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: favoritesKeys.all,
+      refetchType: 'none',
+      predicate: isEdges,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: favoritesKeys.all,
+      predicate: (query) => !isEdges(query),
+    }),
+  ])
+}
+
 export function useToggleUserFavorite() {
   const queryClient = useQueryClient()
   const commands = useUserFavoritesCommands()
@@ -60,9 +79,37 @@ export function useToggleUserFavorite() {
         throwFromErrorResult(error)
       }
     },
-    onSettled: () => {
-      return queryClient.invalidateQueries({ queryKey: favoritesKeys.all })
+    onSettled: () => invalidateFavoritesQueries(queryClient),
+  })
+}
+
+export function useUnfavorite() {
+  const queryClient = useQueryClient()
+  const commands = useUserFavoritesCommands()
+
+  return useMutation({
+    mutationFn: async (assetKey: AssetKey) => {
+      const { error } = await commands.unfavorite(assetKey)
+      if (error) {
+        throwFromErrorResult(error)
+      }
     },
+    onSettled: () => invalidateFavoritesQueries(queryClient),
+  })
+}
+
+export function useRefavoriteAt() {
+  const queryClient = useQueryClient()
+  const commands = useUserFavoritesCommands()
+
+  return useMutation({
+    mutationFn: async (input: RefavoriteAtInput) => {
+      const { error } = await commands.refavoriteAt(input)
+      if (error) {
+        throwFromErrorResult(error)
+      }
+    },
+    onSettled: () => invalidateFavoritesQueries(queryClient),
   })
 }
 
@@ -123,11 +170,20 @@ export function userFavoritesPagesToAssetIds({
   )
 }
 
-export function useSuspenseInfiniteUserFavoriteAssetIds() {
+export function userFavoritesPagesToEdgesView(
+  data: UserFavoritesEdgesInfinite,
+) {
+  return {
+    edges: data.pages.flatMap((page) => page.items),
+    total: data.pages[0]?.pagination.total ?? 0,
+  }
+}
+
+export function useSuspenseInfiniteUserFavoriteEdges() {
   const repo = useUserFavoritesRepo()
   return useSuspenseInfiniteQuery(
     getInfiniteUserFavoritesEdgesOptions({
-      select: userFavoritesPagesToAssetIds,
+      select: userFavoritesPagesToEdgesView,
       repo,
     }),
   )

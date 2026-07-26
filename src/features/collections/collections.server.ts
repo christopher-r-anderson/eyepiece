@@ -385,13 +385,19 @@ export const addCollectionItemAtPosition = createServerOnlyFn(
     const snapshotId = unwrapOrThrow(
       await resolveSnapshotForReAdd(auth.client, input.assetKey),
     )
+    // clamp to now: the timestamp restores tie ordering after an undo, not
+    // a client-chosen position in the future
+    const createdAt =
+      new Date(input.createdAt) > new Date()
+        ? new Date().toISOString()
+        : input.createdAt
     return unwrapOrThrow(
       await addCollectionItemForUser(
         auth.client,
         input,
         snapshotId,
         input.position,
-        input.createdAt,
+        createdAt,
       ),
     )
   },

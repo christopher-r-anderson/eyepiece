@@ -37,19 +37,29 @@ test('list page shows every owned collection; cards link to manage pages', async
     page.getByRole('heading', { level: 1, name: 'Your collections' }),
   ).toBeVisible()
 
-  await expect(page.getByText(`3 items · public`)).toBeVisible()
+  // meta texts scope to their card: parallel specs seed extra collections
+  // for this shared user, so bare text lookups can multi-match
+  const cardFor = (collectionName: string) =>
+    page.getByRole('listitem').filter({ hasText: collectionName })
+  await expect(
+    cardFor(publicCollection.name).getByText('3 items · public'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: publicCollection.name }),
   ).toHaveAttribute('href', `/collections/${publicCollection.id}/manage`)
 
   // private collections are manageable too - the owner surface links them
   // even though the public detail stays not-found
-  await expect(page.getByText(`0 items · private`)).toBeVisible()
+  await expect(
+    cardFor(privateCollection.name).getByText('0 items · private'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: privateCollection.name }),
   ).toHaveAttribute('href', `/collections/${privateCollection.id}/manage`)
 
-  await expect(page.getByText(`60 items · public`)).toBeVisible()
+  await expect(
+    cardFor(pagingCollection.name).getByText('60 items · public'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: pagingCollection.name }),
   ).toBeVisible()
