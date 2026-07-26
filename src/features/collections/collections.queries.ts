@@ -154,10 +154,6 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
-    // mount-only freshness: any mid-visit background refetch (focus,
-    // reconnect) could yank rows out from under removal ghosts
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
     select,
   })
 }
@@ -356,15 +352,16 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
 
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
-// item-edge lists are marked stale but never actively refetched by ANY
-// mutation: a mounted grid may be holding removal ghosts, and a background
-// replacement of its pages would yank them mid-undo
+// the user-family item-edge lists are marked stale but never actively
+// refetched by ANY mutation: the mounted manage grid may be holding removal
+// ghosts, and a background replacement of its pages would yank them
+// mid-undo. The public grid never hosts ghosts and keeps normal refetches.
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
 ) {
   const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
-    queryKey.includes('itemEdges')
+    queryKey[0] === 'me' && queryKey.includes('itemEdges')
   return Promise.all(
     [userCollectionsKeys.all, collectionsKeys.all].flatMap((queryKey) => [
       queryClient.invalidateQueries({

@@ -407,13 +407,18 @@ export const removeCollectionItem = createServerOnlyFn(
       // the sweep grace must start at orphaning, not at the last content
       // refresh: touch the snapshot (moddatetime bumps updated_at) so a
       // long-stale snapshot isn't instantly sweep-eligible and undo stays
-      // local. Best-effort - the removal itself already succeeded
-      const { error } = await createServiceSupabaseClient()
-        .from('asset_preview_snapshots')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('provider_id', input.assetKey.providerId)
-        .eq('external_id', input.assetKey.externalId)
-      if (error) {
+      // local. Best-effort in full: nothing here - including service-client
+      // construction - may fail an already-committed removal
+      try {
+        const { error } = await createServiceSupabaseClient()
+          .from('asset_preview_snapshots')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('provider_id', input.assetKey.providerId)
+          .eq('external_id', input.assetKey.externalId)
+        if (error) {
+          throw error
+        }
+      } catch (error) {
         logErrorWithObservability(
           'Collections remove-item snapshot touch failed',
           error,
