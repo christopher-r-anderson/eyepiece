@@ -352,20 +352,29 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
 
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
+// item-edge lists are marked stale but never actively refetched by ANY
+// mutation: a mounted grid may be holding removal ghosts, and a background
+// replacement of its pages would yank them mid-undo
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
 ) {
-  return Promise.all([
-    queryClient.invalidateQueries({
-      queryKey: userCollectionsKeys.all,
-      refetchType,
-    }),
-    queryClient.invalidateQueries({
-      queryKey: collectionsKeys.all,
-      refetchType,
-    }),
-  ])
+  const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+    queryKey.includes('itemEdges')
+  return Promise.all(
+    [userCollectionsKeys.all, collectionsKeys.all].flatMap((queryKey) => [
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'none',
+        predicate: isItemEdges,
+      }),
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType,
+        predicate: (query) => !isItemEdges(query),
+      }),
+    ]),
+  )
 }
 
 function useCollectionsMutation<TInput, TData>(

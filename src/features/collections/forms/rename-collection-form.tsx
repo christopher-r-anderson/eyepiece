@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { css } from 'styled-system/css'
 import { toCollectionsResultError } from '../collections.commands'
 import { CollectionsErrorCodes } from '../collections.const'
@@ -8,6 +9,7 @@ import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { Err, Ok } from '@/lib/result'
+import { useEvent } from '@/lib/hooks/use-event'
 
 // server failures carry internal codes as their messages; the form always
 // substitutes human copy
@@ -24,8 +26,10 @@ function toRenameCollectionFormError(error: unknown) {
 
 export function RenameCollectionForm({
   collection,
+  onSuccess,
 }: {
   collection: Collection
+  onSuccess?: () => void
 }) {
   const renameCollection = useRenameCollection()
 
@@ -39,6 +43,13 @@ export function RenameCollectionForm({
       }
     },
   )
+
+  const onSuccessRef = useEvent(onSuccess)
+  useEffect(() => {
+    if (state.status === 'success') {
+      onSuccessRef.current?.()
+    }
+  }, [state.status])
 
   return (
     <Form

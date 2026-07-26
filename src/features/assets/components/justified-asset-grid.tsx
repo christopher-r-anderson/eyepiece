@@ -43,6 +43,8 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   tileRelatedLinks?: (item: TItem) => ReactNode
   // extra class for a tile's row, keyed off the item (e.g. ghost dimming)
   tileClassName?: (item: TItem) => string | undefined
+  // ghost rows stay rendered but must not navigate (row action or link)
+  tileLinkDisabled?: (item: TItem) => boolean
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -51,6 +53,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileActions,
   tileRelatedLinks,
   tileClassName,
+  tileLinkDisabled,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -78,6 +81,10 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
       // Enter opens the focused tile through its own link so every
       // navigation shares one path (state, view transition)
       onAction: (key: Key) => {
+        const item = state.collection.getItem(key)?.value
+        if (item && tileLinkDisabled?.(item)) {
+          return
+        }
         gridRef.current
           ?.querySelector<HTMLAnchorElement>(
             `[data-key="${CSS.escape(String(key))}"] a[data-tile-primary-link]`,
@@ -108,6 +115,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
+            tileLinkDisabled={tileLinkDisabled}
           />
         )
       })}
@@ -124,6 +132,7 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   tileActions?: (item: TItem) => ReactNode
   tileRelatedLinks?: (item: TItem) => ReactNode
   tileClassName?: (item: TItem) => string | undefined
+  tileLinkDisabled?: (item: TItem) => boolean
 }
 
 function JustifiedGridRowInner<TItem extends AssetPreview>({
@@ -133,6 +142,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   tileActions,
   tileRelatedLinks,
   tileClassName,
+  tileLinkDisabled,
 }: JustifiedGridRowProps<TItem>) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -158,6 +168,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
           assetPreview={item}
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
+          isLinkDisabled={tileLinkDisabled?.(item)}
           // width and height both set leaves the tile's own square
           // aspect-ratio inert; the ratio lives on the row
           className={css(fillCss)}
@@ -179,6 +190,7 @@ const JustifiedGridRow = memo(JustifiedGridRowInner, (prev, next) => {
     prev.isFocused === next.isFocused &&
     prev.tileActions === next.tileActions &&
     prev.tileRelatedLinks === next.tileRelatedLinks &&
-    prev.tileClassName === next.tileClassName
+    prev.tileClassName === next.tileClassName &&
+    prev.tileLinkDisabled === next.tileLinkDisabled
   )
 }) as typeof JustifiedGridRowInner

@@ -1,5 +1,10 @@
-import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
-import { startTransition, useCallback, useMemo, useState } from 'react'
+import {
+  createFileRoute,
+  notFound,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
+import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -104,6 +109,7 @@ function ManageCollectionPage() {
   const collection = useSuspenseUserCollection(collectionId)
   const queueToastMessage = useQueueToastMessage()
   const navigate = useNavigate()
+  const router = useRouter()
   const setVisibility = useSetCollectionVisibility()
   const deleteCollection = useDeleteCollection()
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -117,7 +123,12 @@ function ManageCollectionPage() {
     <>
       <PageHeading>{collection.name}</PageHeading>
       <section aria-label="Collection settings" className={sectionCss}>
-        <RenameCollectionForm collection={collection} />
+        <RenameCollectionForm
+          collection={collection}
+          // the document title comes from the loader; invalidating reruns
+          // it so the tab reflects the new name
+          onSuccess={() => void router.invalidate()}
+        />
         <div className={css({ marginTop: '4', padding: '0 4' })}>
           <Switch
             isSelected={collection.visibility === 'public'}
@@ -244,6 +255,27 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     [removedIds],
   )
 
+  const tileLinkDisabled = useCallback(
+    (item: AssetPreviewSnapshot) => removedIds.has(item.id),
+    [removedIds],
+  )
+
+  // one operation chain per item: mutateAsync (per-call mutate callbacks
+  // can be dropped under rapid calls on one observer), and each remove or
+  // undo queues behind the item's previous operation - otherwise a quick
+  // undo races the in-flight delete, or a re-removal races the undo's
+  // insert, and the server ends up opposite the UI
+  const pendingOpsRef = useRef(new Map<string, Promise<void>>())
+  const enqueueItemOp = useCallback(
+    (id: string, operation: () => Promise<void>) => {
+      const prior = pendingOpsRef.current.get(id) ?? Promise.resolve()
+      // operations handle their own failures, so the chain never rejects
+      const next = prior.then(operation)
+      pendingOpsRef.current.set(id, next)
+    },
+    [],
+  )
+
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
       const edge = edgesBySnapshotId.get(item.id)
@@ -269,21 +301,23 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                   next.delete(item.id)
                   return next
                 })
-                reAddItem.mutate(
-                  {
-                    collectionId,
-                    assetKey: edge.assetKey,
-                    position: edge.position,
-                  },
-                  {
-                    onError: () => {
-                      setRemovedIds((prev) => new Set(prev).add(item.id))
-                      queueToastMessage({
-                        title: 'Undo failed',
-                        description: 'Please try again.',
-                      })
-                    },
-                  },
+                enqueueItemOp(item.id, () =>
+                  reAddItem
+                    .mutateAsync({
+                      collectionId,
+                      assetKey: edge.assetKey,
+                      position: edge.position,
+                    })
+                    .then(
+                      () => undefined,
+                      () => {
+                        setRemovedIds((prev) => new Set(prev).add(item.id))
+                        queueToastMessage({
+                          title: 'Undo failed',
+                          description: 'Please try again.',
+                        })
+                      },
+                    ),
                 )
               }}
             >
@@ -301,21 +335,23 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
           aria-label={`Remove ${item.title}`}
           onPress={() => {
             setRemovedIds((prev) => new Set(prev).add(item.id))
-            removeItem.mutate(
-              { collectionId, assetKey: edge.assetKey },
-              {
-                onError: () => {
-                  setRemovedIds((prev) => {
-                    const next = new Set(prev)
-                    next.delete(item.id)
-                    return next
-                  })
-                  queueToastMessage({
-                    title: 'Remove failed',
-                    description: 'Please try again.',
-                  })
-                },
-              },
+            enqueueItemOp(item.id, () =>
+              removeItem
+                .mutateAsync({ collectionId, assetKey: edge.assetKey })
+                .then(
+                  () => undefined,
+                  () => {
+                    setRemovedIds((prev) => {
+                      const next = new Set(prev)
+                      next.delete(item.id)
+                      return next
+                    })
+                    queueToastMessage({
+                      title: 'Remove failed',
+                      description: 'Please try again.',
+                    })
+                  },
+                ),
             )
           }}
         >
@@ -331,6 +367,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       removeItem,
       reAddItem,
       queueToastMessage,
+      enqueueItemOp,
     ],
   )
 
@@ -370,6 +407,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
           items={snapshotsResult.data ?? []}
           tileActions={tileActions}
           tileClassName={tileClassName}
+          tileLinkDisabled={tileLinkDisabled}
         />
       </InfiniteLoader>
     </section>

@@ -18,13 +18,22 @@ interface AssetTileProps extends Omit<
   assetPreview: AssetPreview
   relatedLinks?: ReactNode
   actions?: ReactNode
+  // ghost tiles keep their markup but must not navigate or take focus
+  isLinkDisabled?: boolean
 }
 
-const Thumbnail = ({ assetPreview }: { assetPreview: AssetPreview }) => {
+const Thumbnail = ({
+  assetPreview,
+  isLinkDisabled,
+}: {
+  assetPreview: AssetPreview
+  isLinkDisabled?: boolean
+}) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
   return (
     <Link
+      isDisabled={isLinkDisabled}
       to="/assets/$providerId/$assetId"
       params={{
         providerId: assetPreview.key.providerId,
@@ -118,11 +127,12 @@ export function AssetTile({
   relatedLinks,
   actions,
   className,
+  isLinkDisabled,
   ...props
 }: AssetTileProps) {
   return (
     <div className={cx(css(containerCss), className)} {...props}>
-      <Thumbnail assetPreview={assetPreview} />
+      <Thumbnail assetPreview={assetPreview} isLinkDisabled={isLinkDisabled} />
       {relatedLinks && (
         <div
           data-tile-reveal

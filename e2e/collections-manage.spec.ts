@@ -104,28 +104,65 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
     await page.getByText('Public collection').click()
     await expect(visibilitySwitch).toBeChecked()
 
-    // ghost removal: the tile keeps its slot, dimmed, with inline undo
+    // ghost removal: the tile keeps its slot, dimmed, with inline undo.
+    // Each mutation runs on the page-side per-item queue with no visible
+    // settle signal (by design), so the spec awaits the server-fn POST of
+    // every operation before issuing the next state-dependent step
+    const nextServerPost = () =>
+      page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          response.url().startsWith('http://localhost:8888'),
+      )
     await page.getByRole('button', { name: 'Edit items' }).click()
     const rows = page.getByRole('grid').getByRole('row')
     await expect(rows).toHaveCount(3)
     // veil controls are hit-testable only while hover-revealed
     await rows.nth(1).hover()
+    const removedOnce = nextServerPost()
     await page.getByRole('button', { name: 'Remove E2E Square' }).click()
     await expect(page.getByText('Removed')).toBeVisible()
     await expect(rows).toHaveCount(3)
+    await removedOnce
 
     // undo restores in place: the remove control comes back, nothing moved
+    const reAdded = nextServerPost()
     await page.getByRole('button', { name: 'Undo' }).click()
     await expect(page.getByText('Removed')).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: 'Remove E2E Square' }),
     ).toBeVisible()
     await expect(rows).toHaveCount(3)
+    await reAdded
 
     // remove again and let it stand: the ghost clears on the next visit
     await rows.nth(1).hover()
+    const removedAgain = nextServerPost()
     await page.getByRole('button', { name: 'Remove E2E Square' }).click()
     await expect(page.getByText('Removed')).toBeVisible()
+    await removedAgain
+
+    // a settings mutation while a ghost is showing must not refetch the
+    // grid out from under it
+    const renamedAgain = `${renamed} again`
+    await page.getByRole('textbox', { name: 'Name' }).fill(renamedAgain)
+    await page.getByRole('button', { name: 'Rename' }).click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: renamedAgain }),
+    ).toBeVisible()
+    await expect(page.getByText('Removed')).toBeVisible()
+    await expect(rows).toHaveCount(3)
+
+    // belt over the POST waits: confirm the persisted end state directly
+    await expect
+      .poll(async () => {
+        const { count } = await makeAdminClient()
+          .from('collection_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('collection_id', collectionId)
+        return count
+      })
+      .toBe(2)
     await page.reload()
     await expect(page.getByRole('grid').getByRole('row')).toHaveCount(2)
     // the visibility change survived too
@@ -143,7 +180,7 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
       .getByRole('button', { name: 'Delete', exact: true })
       .click()
     await page.waitForURL('/collections')
-    await expect(page.getByRole('link', { name: renamed })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: renamedAgain })).toHaveCount(0)
   } finally {
     await makeAdminClient().from('collections').delete().eq('id', collectionId)
   }

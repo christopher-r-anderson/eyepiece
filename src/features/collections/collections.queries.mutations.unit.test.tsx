@@ -2,18 +2,22 @@ import { createElement } from 'react'
 import {
   QueryClient,
   QueryClientProvider,
+  useInfiniteQuery,
   useQuery,
 } from '@tanstack/react-query'
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getInfiniteUserCollectionItemEdgesOptions,
   getUserCollectionCardsOptions,
   useCreateCollection,
   useRemoveCollectionItem,
+  useRenameCollection,
 } from './collections.queries'
 import {
   createCollectionFn,
   removeCollectionItemFn,
+  renameCollectionFn,
 } from './collections.functions'
 import type { CollectionsRepo } from './collections.repo'
 import type { ReactNode } from 'react'
@@ -99,6 +103,55 @@ describe('collections mutation invalidation', () => {
     })
     // the ghost contract: the ACTIVE query stays on its data, no refetch
     expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+  })
+
+  it('settings mutations never refetch an active item-edge list (mounted ghosts)', async () => {
+    const queryClient = new QueryClient()
+    const getCollectionItemEdges = vi
+      .fn()
+      .mockResolvedValue(
+        Ok({ items: [], pagination: { next: null, total: 0 } }),
+      )
+    renderHook(
+      () =>
+        useInfiniteQuery(
+          getInfiniteUserCollectionItemEdgesOptions({
+            collectionId: COLLECTION_ID,
+            repo: { getCollectionItemEdges },
+          }),
+        ),
+      { wrapper: makeWrapper(queryClient) },
+    )
+    await waitFor(() => expect(getCollectionItemEdges).toHaveBeenCalledOnce())
+
+    vi.mocked(renameCollectionFn).mockResolvedValue({
+      id: COLLECTION_ID,
+      ownerId: USER_ID,
+      name: 'renamed',
+      visibility: 'private',
+      createdAt: '2026-07-26T00:00:00+00:00',
+      updatedAt: '2026-07-26T00:00:00+00:00',
+    })
+    const { result } = renderHook(() => useRenameCollection(), {
+      wrapper: makeWrapper(queryClient),
+    })
+    await result.current.mutateAsync({
+      collectionId: COLLECTION_ID,
+      name: 'renamed',
+    })
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState([
+          'me',
+          'collections',
+          'detail',
+          COLLECTION_ID,
+          'itemEdges',
+        ])?.isInvalidated,
+      ).toBe(true)
+    })
+    expect(getCollectionItemEdges).toHaveBeenCalledOnce()
   })
 
   it('create refetches active queries (the default the other hooks share)', async () => {
