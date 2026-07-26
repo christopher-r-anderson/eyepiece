@@ -1,13 +1,36 @@
 import { expect, test } from './fixtures'
+import type { Page } from '@playwright/test'
 import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
 import {
   FEATURED_ALBUMS,
   SUGGESTED_SEARCHES,
 } from '@/features/home/home.curation'
 
+const TINY_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+  'base64',
+)
+
+function collectConsoleErrors(page: Page) {
+  const errors: Array<string> = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      errors.push(message.text())
+    }
+  })
+  return errors
+}
+
 test('homepage renders masthead, chips, strips, and collection cards', async ({
   page,
 }) => {
+  const consoleErrors = collectConsoleErrors(page)
+  // thumbnails come from live provider CDNs; a stub bitmap keeps flaky
+  // image fetches from polluting the console-error check
+  await page.route('**/*.{jpg,jpeg,png}', (route) =>
+    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
+  )
+
   const response = await page.goto('/')
 
   expect(response?.status()).toBe(200)
@@ -52,4 +75,12 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
   await expect(page.getByText('curated by')).toHaveCount(
     SHOWCASE_CURATION.collections.length,
   )
+
+  // the strips stream from the live album API, and a fetch that
+  // legitimately fails into a section boundary logs the error; the
+  // clean-console check (insurance against hydration warnings) only
+  // applies when every section settled
+  if ((await page.getByRole('alert').count()) === 0) {
+    expect(consoleErrors).toEqual([])
+  }
 })

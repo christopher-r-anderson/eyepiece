@@ -14,7 +14,7 @@ test('routes without a specific title get the default', async ({ page }) => {
 })
 
 test('routes with their own title override the default', async ({ page }) => {
-  // no q, so nothing is prefetched during SSR and the test stays hermetic
+  // no q, so nothing is prefetched during SSR and no provider requests fire
   await page.goto('/search')
 
   await expect(page).toHaveTitle(`Search | ${DEFAULT_TITLE}`)

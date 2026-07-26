@@ -24,7 +24,7 @@ Provider identity is centralized in `src/domain/provider/provider.schema.ts`.
 - `providerIdSchema` validates route params, database values, and UI state.
 - Provider-aware domain objects use `{ providerId, externalId }` keys so the same external ID can exist in more than one provider safely.
 
-This provider key shape is used across assets, albums, routes, and favorites.
+This provider key shape is used across assets, albums, routes, favorites, and collections.
 
 ### Provider Contract
 
@@ -83,10 +83,10 @@ The provider flow is consistent across search and detail pages:
 
 The main provider-aware API routes are:
 
-- `src/routes/api/v1/search.ts`
-- `src/routes/api/v1/asset/$providerId.$assetId.ts`
-- `src/routes/api/v1/asset/$providerId.$assetId.metadata.ts`
-- `src/routes/api/v1/albums/$providerId.$albumId.ts`
+- `src/routes/(public)/api/v1/search.ts`
+- `src/routes/(public)/api/v1/asset/$providerId.$assetId.ts`
+- `src/routes/(public)/api/v1/asset/$providerId.$assetId.metadata.ts`
+- `src/routes/(public)/api/v1/albums/$providerId.$albumId.ts`
 
 ## Collection Responses
 
@@ -123,25 +123,23 @@ Current filter schemas live in:
 
 ### Search API
 
-`src/routes/api/v1/search.ts` accepts query text, pagination, and provider-specific filter params. The route normalizes those values into the shared `SearchFilters` shape before calling the provider service.
+`src/routes/(public)/api/v1/search.ts` accepts query text, pagination, and provider-specific filter params. The route normalizes those values into the shared `SearchFilters` shape before calling the provider service.
 
 This keeps the public API consistent while still allowing each provider to define its own filter surface.
 
 ### Search UI
 
-Provider selection is exposed in `src/features/search/components/search-bar.tsx`.
+Provider selection is exposed as the scope tabs on the search results page (`src/features/search/components/search-scope-tabs.tsx`): all libraries, or one provider. The tabs derive from `PROVIDERS` and `PROVIDER_DISPLAY`, so a new provider appears automatically.
 
-- The landing page lets the user choose a provider before starting a search.
-- The search results page lets the user switch providers and refine filters.
-- Provider-specific UI is rendered conditionally based on `providerId`.
+The search UI splits across two components joined by one form:
 
-At the moment, NASA is the only provider with advanced filter controls. Those controls live in `src/features/search/components/providers/nasa-ivl-filters.tsx`.
+- The header search bar (`src/features/search/components/search-bar.tsx`) renders the query input and carries the active scope as hidden fields.
+- The conditions line (`src/features/search/components/search-conditions.tsx`) renders result counts and any provider-specific filter controls. The controls join the search form through the `form` attribute (`SEARCH_FORM_ID`). At the moment, NASA is the only provider with such controls: the year range inputs.
 
 If a new provider needs custom search controls, the current pattern is to:
 
 - define a provider-specific filter schema in `src/domain/search/providers/`
-- add its filter UI under `src/features/search/components/providers/`
-- render that UI conditionally from the shared search bar
+- render its filter UI conditionally from the conditions line, associated with the search form via the `form` attribute
 
 ## Persistence
 
@@ -157,18 +155,18 @@ This matters anywhere Eyepiece stores references to upstream assets, especially 
 
 `asset_preview_snapshots` stores a normalized preview record keyed by provider ID and external ID.
 
-This table is used when the application needs a durable local reference to an externally hosted asset preview, such as favorites.
+This table is used when the application needs a durable local reference to an externally hosted asset preview, such as favorites and collection items.
 
 Related code lives in:
 
 - `src/features/assets/asset-preview-snapshots.repo.ts`
 - `supabase/migrations/20260321151530_rename_asset_preview_snapshots.sql`
 
-### Favorites
+### Favorites and Collections
 
-Favorites are provider-aware indirectly through the preview snapshot they point to. The repository layer validates provider IDs when reading those records back into domain types.
+Favorites and collection items are provider-aware indirectly through the preview snapshot they point to. The repository layers validate provider IDs when reading those records back into domain types.
 
-Related code lives in `src/features/favorites/favorites.repo.ts`.
+Related code lives in `src/features/favorites/favorites.repo.ts` and `src/features/collections/collections.repo.ts`.
 
 ## Adding a New Provider
 
@@ -179,13 +177,13 @@ Adding a provider is mostly a matter of updating the provider-specific seams tha
 1. Add the new provider ID to `src/domain/provider/provider.schema.ts`.
 2. Add a provider-specific search filters schema under `src/domain/search/providers/`.
 3. Extend `searchFiltersSchema` in `src/domain/search/search.schema.ts`.
-4. Update `src/routes/api/v1/search.ts` so query params can be parsed for the new provider.
+4. Update `src/routes/(public)/api/v1/search.ts` so query params can be parsed for the new provider.
 5. Implement a new adapter under `src/server/eyepiece/providers/<provider>/` that satisfies `BaseProvider` and any optional capabilities it supports.
 6. Add or reuse an upstream integration client under `src/integrations/<provider>/`.
 7. Register the adapter in `src/server/eyepiece/service.ts`.
-8. Add provider selection and, if needed, provider-specific filter UI in `src/features/search/components/search-bar.tsx`.
+8. Extend the `AllLibrariesCount` sum in `src/features/search/components/search-conditions.tsx` - it invokes one search-total hook per shipped provider, so a provider missing there is silently omitted from the all-libraries count even though its scope tab appears. Add provider-specific filter UI in the same file if needed (the scope tabs themselves pick the provider up from `PROVIDERS`).
 9. Update any provider-facing labels in the UI.
-10. If the provider can be persisted in favorites or preview snapshots, update the Supabase enum and related migrations/types.
+10. If the provider can be persisted in preview snapshots (favorites, collection items), update the Supabase enum and related migrations/types.
 
 ### Capability Decisions
 
@@ -224,10 +222,11 @@ For most provider changes, these are the files to inspect first:
 
 - `src/domain/provider/provider.schema.ts`
 - `src/domain/search/search.schema.ts`
-- `src/routes/api/v1/search.ts`
+- `src/routes/(public)/api/v1/search.ts`
 - `src/server/eyepiece/provider.ts`
 - `src/server/eyepiece/service.ts`
 - `src/server/eyepiece/providers/`
 - `src/features/search/components/search-bar.tsx`
+- `src/features/search/components/search-conditions.tsx`
 - `src/features/favorites/favorites.repo.ts`
 - `src/features/assets/asset-preview-snapshots.repo.ts`

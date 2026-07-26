@@ -56,6 +56,17 @@ function FavoritesPage() {
   const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
     favoritesResult.data,
   )
+  // failed page fetches would otherwise degrade silently: an edge-page
+  // error only surfaces on the result once earlier pages exist, and an
+  // errored snapshot batch holds no data for its new key so the fallback
+  // below would render zero tiles. Both fail over to the route boundary,
+  // matching how a first-page failure surfaces from the loader.
+  if (favoritesResult.isError) {
+    throw favoritesResult.error
+  }
+  if (assetPreviewSnapshotsResult.isError) {
+    throw assetPreviewSnapshotsResult.error
+  }
 
   if (favoritesResult.data.length === 0) {
     return (
@@ -71,9 +82,12 @@ function FavoritesPage() {
     <>
       <FavoritesHeading />
       <InfiniteLoader
+        // isFetching, not isLoading: after an edge page lands the batch
+        // query switches keys and keepPreviousData reports isLoading
+        // false while the new snapshots are still in flight
         isFetchingNextPage={
           favoritesResult.isFetchingNextPage ||
-          assetPreviewSnapshotsResult.isLoading
+          assetPreviewSnapshotsResult.isFetching
         }
         fetchNextPage={() => {
           startTransition(async () => {

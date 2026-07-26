@@ -41,11 +41,6 @@ export const PROVIDER_CAPABILITIES = {
   [SI_OA_PROVIDER_ID]: {},
 } as const satisfies Record<ProviderId, ProviderCapabilities>
 
-export function providerSupportsAlbums(providerId: ProviderId) {
-  const capabilities: ProviderCapabilities = PROVIDER_CAPABILITIES[providerId]
-  return capabilities.albums === true
-}
-
 export function providerSupportsMetadata(providerId: ProviderId) {
   const capabilities: ProviderCapabilities = PROVIDER_CAPABILITIES[providerId]
   return capabilities.metadata === true

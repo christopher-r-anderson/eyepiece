@@ -4,7 +4,6 @@ import {
   PROVIDER_CAPABILITIES,
   SI_OA_PROVIDER_ID,
   providerIdSchema,
-  providerSupportsAlbums,
   providerSupportsMetadata,
 } from './provider.schema'
 
@@ -28,8 +27,6 @@ describe('providerIdSchema', () => {
       metadata: true,
     })
     expect(PROVIDER_CAPABILITIES[SI_OA_PROVIDER_ID]).toEqual({})
-    expect(providerSupportsAlbums(NASA_IVL_PROVIDER_ID)).toBe(true)
-    expect(providerSupportsAlbums(SI_OA_PROVIDER_ID)).toBe(false)
     expect(providerSupportsMetadata(NASA_IVL_PROVIDER_ID)).toBe(true)
     expect(providerSupportsMetadata(SI_OA_PROVIDER_ID)).toBe(false)
   })
