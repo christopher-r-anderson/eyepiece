@@ -18,7 +18,10 @@ import {
   prefetchPublicCollectionCards,
   useSuspensePublicCollectionCards,
 } from '@/features/collections/collections.queries'
-import { CollectionCard } from '@/features/collections/components/collection-card'
+import {
+  CollectionCardGrid,
+  CollectionCardGridSkeleton,
+} from '@/features/collections/components/collection-card-grid'
 import {
   getProfileOptions,
   useSuspenseProfile,
@@ -170,7 +173,7 @@ function PublicCollectionsSection() {
           />
         )}
       >
-        <Suspense fallback={<CollectionCardsSkeleton />}>
+        <Suspense fallback={<CollectionCardGridSkeleton />}>
           <CollectionCards />
         </Suspense>
       </CatchBoundary>
@@ -178,61 +181,8 @@ function PublicCollectionsSection() {
   )
 }
 
-const cardGridCss = css.raw({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, 1fr)',
-  gap: '5',
-  mdDown: { gridTemplateColumns: '1fr' },
-})
-
 function CollectionCards() {
   const cards = useSuspensePublicCollectionCards(SHOWCASE_CURATION.user.id)
   const owner = useSuspenseProfile(SHOWCASE_CURATION.user.id)
-  if (cards.length === 0) {
-    return (
-      <p className={css({ color: 'text.muted' })}>No public collections yet.</p>
-    )
-  }
-  return (
-    <ul
-      // Safari drops list semantics with list-style: none
-      role="list"
-      className={css(cardGridCss, {
-        listStyle: 'none',
-        paddingInlineStart: '0',
-      })}
-    >
-      {cards.map((card) => (
-        <li key={card.collection.id} className={css({ minWidth: 0 })}>
-          <CollectionCard card={card} curatedBy={owner?.displayName} />
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function CollectionCardsSkeleton() {
-  return (
-    <div aria-hidden="true" className={css(cardGridCss)}>
-      {Array.from({ length: 3 }, (_, index) => (
-        <div key={index}>
-          <div
-            className={css({
-              width: '100%',
-              aspectRatio: 2.1,
-              backgroundColor: 'assetTile.bg',
-            })}
-          />
-          <div
-            className={css({
-              height: '1.1875rem',
-              width: '60%',
-              marginTop: '2',
-              backgroundColor: 'bg.surface.1',
-            })}
-          />
-        </div>
-      ))}
-    </div>
-  )
+  return <CollectionCardGrid cards={cards} curatedBy={owner?.displayName} />
 }
