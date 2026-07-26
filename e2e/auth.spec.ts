@@ -28,7 +28,9 @@ test.describe('Pending auth forms', () => {
     // disable) is what keeps it there so Escape still reaches the modal
     const submit = form.getByRole('button', { name: 'Log In' })
     await submit.click()
-    await expect(submit).toHaveAttribute('aria-disabled', 'true')
+    // matches native disabled and aria-disabled alike, so the Escape
+    // behavior below is what distinguishes the pending pattern
+    await expect(submit).toBeDisabled()
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
   })
@@ -51,10 +53,7 @@ test.describe('Pending auth forms', () => {
     // Enter's implicit submit bypasses the pending button entirely; the
     // form-level guard is what keeps repeats from queueing
     await password.press('Enter')
-    await expect(form.getByRole('button', { name: 'Log In' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    )
+    await expect(form.getByRole('button', { name: 'Log In' })).toBeDisabled()
     await password.press('Enter')
     await password.press('Enter')
 
