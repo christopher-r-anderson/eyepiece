@@ -14,8 +14,9 @@ describe('useItemOperationQueue', () => {
       await gate
       order.push('first')
     })
-    result.current.enqueue('a', async () => {
+    result.current.enqueue('a', () => {
       order.push('second')
+      return Promise.resolve()
     })
     expect(order).toEqual([])
     releaseFirst()
@@ -25,7 +26,7 @@ describe('useItemOperationQueue', () => {
   it('drops settled entries so intent counters reset per item', async () => {
     const { result } = renderHook(() => useItemOperationQueue())
     expect(result.current.nextIntent('a')).toBe(1)
-    result.current.enqueue('a', async () => {})
+    result.current.enqueue('a', () => Promise.resolve())
     // without settled-entry cleanup the counter would advance to 2
     await waitFor(() => expect(result.current.nextIntent('a')).toBe(1))
   })
