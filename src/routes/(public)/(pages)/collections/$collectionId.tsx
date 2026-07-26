@@ -21,6 +21,7 @@ import {
   useSuspenseProfile,
 } from '@/features/profiles/profiles.queries'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
+import { ManageCollectionLink } from '@/features/collections/components/manage-collection-link'
 import { RouteError } from '@/app/layout/route-error'
 import { PageHeading } from '@/components/page-heading'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
@@ -142,7 +143,8 @@ function CollectionPage() {
         })}
       >
         {total} {total === 1 ? 'item' : 'items'}
-        {owner ? ` · curated by ${owner.displayName}` : ''}
+        {owner ? ` · curated by ${owner.displayName}` : ''}{' '}
+        <ManageCollectionLink collection={collection} />
       </p>
       <div className={css({ marginTop: '5' })}>
         {total === 0 ? (

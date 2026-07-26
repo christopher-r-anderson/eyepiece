@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { CollectionsErrorCodes } from './collections.const'
 import {
+  addCollectionItemAtPositionFn,
   addCollectionItemFn,
   createCollectionFn,
   deleteCollectionFn,
@@ -12,6 +13,7 @@ import type { CollectionsErrorCode } from './collections.const'
 import type {
   Collection,
   CollectionId,
+  CollectionItemAtPositionInput,
   CollectionItemInput,
   CreateCollectionInput,
   DeleteCollectionInput,
@@ -58,6 +60,12 @@ export interface CollectionsCommands {
     collectionId: CollectionId
     assetPreviewSnapshotId: AssetPreviewSnapshotId
   }>
+  addCollectionItemAtPosition: (
+    input: CollectionItemAtPositionInput,
+  ) => CommandResult<{
+    collectionId: CollectionId
+    assetPreviewSnapshotId: AssetPreviewSnapshotId
+  }>
   removeCollectionItem: (
     input: CollectionItemInput,
   ) => CommandResult<{ removed: boolean }>
@@ -82,6 +90,8 @@ export const makeCollectionsCommands = (): CollectionsCommands => {
     deleteCollection: (input) => run(() => deleteCollectionFn({ data: input })),
     addCollectionItem: (input) =>
       run(() => addCollectionItemFn({ data: input })),
+    addCollectionItemAtPosition: (input) =>
+      run(() => addCollectionItemAtPositionFn({ data: input })),
     removeCollectionItem: (input) =>
       run(() => removeCollectionItemFn({ data: input })),
   }

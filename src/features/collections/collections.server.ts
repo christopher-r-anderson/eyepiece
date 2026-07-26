@@ -5,6 +5,7 @@ import type { CollectionsErrorCode } from './collections.const'
 import type {
   Collection,
   CollectionId,
+  CollectionItemAtPositionInput,
   CollectionItemInput,
   CreateCollectionInput,
   DeleteCollectionInput,
@@ -209,6 +210,9 @@ async function addCollectionItemForUser(
   client: SupabaseClient,
   input: CollectionItemInput,
   assetPreviewSnapshotId: AssetPreviewSnapshotId,
+  // undo passes the position the removed item vacated; the default append
+  // computes max + 1
+  explicitPosition?: number,
 ): Promise<
   Result<
     {
@@ -218,20 +222,24 @@ async function addCollectionItemForUser(
     CollectionsErrorCode
   >
 > {
-  const position = await nextPosition(
-    client,
-    'collection_items',
-    'collection_id',
-    input.collectionId,
-  )
-  if (position.error) {
-    return Err(unknownError('add-item.position', position.error.cause))
+  let position = explicitPosition
+  if (position === undefined) {
+    const nextResult = await nextPosition(
+      client,
+      'collection_items',
+      'collection_id',
+      input.collectionId,
+    )
+    if (nextResult.error) {
+      return Err(unknownError('add-item.position', nextResult.error.cause))
+    }
+    position = nextResult.data
   }
 
   const { error } = await client.from('collection_items').insert({
     collection_id: input.collectionId,
     asset_preview_snapshot_id: assetPreviewSnapshotId,
-    position: position.data,
+    position,
   })
   // 23505: already in the collection - adding is idempotent
   if (error && error.code !== '23505') {
@@ -333,6 +341,29 @@ export const addCollectionItem = createServerOnlyFn(
     }
     return unwrapOrThrow(
       await addCollectionItemForUser(auth.client, input, snapshot.data),
+    )
+  },
+)
+
+export const addCollectionItemAtPosition = createServerOnlyFn(
+  async (input: CollectionItemAtPositionInput) => {
+    const auth = unwrapOrThrow(await requireUser('re-add-item'))
+    unwrapOrThrow(
+      await assertCollectionOwned(auth.client, auth.userId, input.collectionId),
+    )
+    const snapshot = await ensureAssetPreviewSnapshot(input.assetKey)
+    if (snapshot.error) {
+      throwFromErrorResult(
+        unknownError('re-add-item.ensure-snapshot', snapshot.error.cause),
+      )
+    }
+    return unwrapOrThrow(
+      await addCollectionItemForUser(
+        auth.client,
+        input,
+        snapshot.data,
+        input.position,
+      ),
     )
   },
 )

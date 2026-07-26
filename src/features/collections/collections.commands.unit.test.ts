@@ -24,6 +24,7 @@ vi.mock('./collections.functions', () => ({
   setCollectionVisibilityFn: vi.fn(),
   deleteCollectionFn: vi.fn(),
   addCollectionItemFn: vi.fn(),
+  addCollectionItemAtPositionFn: vi.fn(),
   removeCollectionItemFn: vi.fn(),
 }))
 

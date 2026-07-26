@@ -38,6 +38,7 @@ export const collectionItemEdgeSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),
   assetPreviewSnapshotId: z.uuid(),
   assetKey: assetKeySchema,
+  position: z.number().int(),
 })
 
 export type CollectionItemEdge = z.infer<typeof collectionItemEdgeSchema>
@@ -77,3 +78,14 @@ export const collectionItemInputSchema = z.object({
 })
 
 export type CollectionItemInput = z.infer<typeof collectionItemInputSchema>
+
+// undo's re-add: restores a removed item to the position it vacated,
+// instead of the default append
+export const collectionItemAtPositionInputSchema =
+  collectionItemInputSchema.extend({
+    position: z.number().int().positive(),
+  })
+
+export type CollectionItemAtPositionInput = z.infer<
+  typeof collectionItemAtPositionInputSchema
+>

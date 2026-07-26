@@ -6,9 +6,9 @@ interface CollectionCardProps {
   card: CollectionCardData
   curatedBy?: string
   showVisibility?: boolean
-  // a private collection has no viewable destination, so its card can
-  // render as static content
-  isLinked?: boolean
+  // owner surfaces link to the manage page (the only viewable destination
+  // for a private collection); public surfaces link to public detail
+  linkTarget?: 'publicDetail' | 'manage'
   // defaults to 3 for cards under a section heading; pages whose cards sit
   // directly under the h1 pass 2 to keep the outline gapless
   titleLevel?: 2 | 3
@@ -18,7 +18,7 @@ export function CollectionCard({
   card,
   curatedBy,
   showVisibility,
-  isLinked = true,
+  linkTarget = 'publicDetail',
   titleLevel = 3,
 }: CollectionCardProps) {
   const { collection, itemCount, cover } = card
@@ -73,13 +73,13 @@ export function CollectionCard({
     </>
   )
 
-  if (!isLinked) {
-    return <div className={css({ minWidth: 0 })}>{content}</div>
-  }
-
   return (
     <Link
-      to="/collections/$collectionId"
+      to={
+        linkTarget === 'manage'
+          ? '/collections/$collectionId/manage'
+          : '/collections/$collectionId'
+      }
       params={{ collectionId: collection.id }}
       css={css.raw({
         display: 'block',

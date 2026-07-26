@@ -34,11 +34,17 @@ const collectionsKeys = {
     [...collectionsKeys.all, 'publicCards', ownerId] as const,
 }
 
-// viewer-scoped reads live under meKey so auth changes invalidate them
+// viewer-scoped reads live under meKey so auth changes invalidate them.
+// They never share keys with the public family: a private collection cached
+// under the public keys would leak into the viewer-independent public route.
 const userCollectionsKeys = {
   all: [...meKey, 'collections'] as const,
   cards: (userId: string) =>
     [...userCollectionsKeys.all, 'cards', userId] as const,
+  detail: (collectionId: CollectionId) =>
+    [...userCollectionsKeys.all, 'detail', collectionId] as const,
+  itemEdges: (collectionId: CollectionId) =>
+    [...userCollectionsKeys.detail(collectionId), 'itemEdges'] as const,
 }
 
 export function getPublicCollectionCardsOptions({
@@ -237,6 +243,113 @@ export function useSuspenseUserCollectionCards(userId: string) {
   return data
 }
 
+export function getUserCollectionOptions({
+  collectionId,
+  repo,
+}: {
+  collectionId: CollectionId
+  repo: Pick<CollectionsRepo, 'getCollection'>
+}) {
+  return queryOptions({
+    queryKey: userCollectionsKeys.detail(collectionId),
+    queryFn: async () => {
+      const result = await repo.getCollection(collectionId)
+      return unwrapOrThrow(result)
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function ensureUserCollection({
+  collectionId,
+  queryClient,
+  userSupabaseClient,
+}: {
+  collectionId: CollectionId
+  queryClient: QueryClient
+  userSupabaseClient: SupabaseClient
+}) {
+  const repo = makeCollectionsRepo(userSupabaseClient)
+  return queryClient.ensureQueryData(
+    getUserCollectionOptions({ collectionId, repo }),
+  )
+}
+
+export function useSuspenseUserCollection(collectionId: CollectionId) {
+  const repo = useUserCollectionsRepo()
+  const { data } = useSuspenseQuery(
+    getUserCollectionOptions({ collectionId, repo }),
+  )
+  return data
+}
+
+export function getInfiniteUserCollectionItemEdgesOptions<
+  TSelectData = CollectionItemEdgesInfinite,
+>({
+  collectionId,
+  select,
+  repo,
+}: {
+  collectionId: CollectionId
+  select?: (data: CollectionItemEdgesInfinite) => TSelectData
+  repo: Pick<CollectionsRepo, 'getCollectionItemEdges'>
+}) {
+  return infiniteQueryOptions({
+    queryKey: userCollectionsKeys.itemEdges(collectionId),
+    queryFn: async ({ pageParam = 1 }) => {
+      const result = await repo.getCollectionItemEdges(collectionId, {
+        page: pageParam,
+        pageSize: DEFAULT_PAGE_SIZE,
+      })
+      return unwrapOrThrow(result)
+    },
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.pagination.next,
+    staleTime: 5 * 60 * 1000,
+    // a focus refetch could yank rows out from under removal ghosts
+    refetchOnWindowFocus: false,
+    select,
+  })
+}
+
+export async function ensureInfiniteUserCollectionItemEdges({
+  collectionId,
+  queryClient,
+  userSupabaseClient,
+}: {
+  collectionId: CollectionId
+  queryClient: QueryClient
+  userSupabaseClient: SupabaseClient
+}) {
+  const repo = makeCollectionsRepo(userSupabaseClient)
+  return queryClient.ensureInfiniteQueryData(
+    getInfiniteUserCollectionItemEdgesOptions({ collectionId, repo }),
+  )
+}
+
+export function collectionItemPagesToEdgesView(
+  data: CollectionItemEdgesInfinite,
+) {
+  return {
+    edges: data.pages.flatMap((page) => page.items),
+    total: data.pages[0]?.pagination.total ?? 0,
+  }
+}
+
+export function useSuspenseInfiniteUserCollectionItemEdges(
+  collectionId: CollectionId,
+) {
+  const repo = useUserCollectionsRepo()
+  return useSuspenseInfiniteQuery(
+    getInfiniteUserCollectionItemEdgesOptions({
+      collectionId,
+      select: collectionItemPagesToEdgesView,
+      repo,
+    }),
+  )
+}
+
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
 function invalidateCollectionsQueries(
@@ -283,9 +396,14 @@ export function useSetCollectionVisibility() {
   return useCollectionsMutation(commands.setCollectionVisibility)
 }
 
+// refetchType 'none': an active refetch races the post-delete navigation
+// and yanks the deleted collection out from under the still-mounted manage
+// page; every reader refetches its now-stale data on next mount
 export function useDeleteCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.deleteCollection)
+  return useCollectionsMutation(commands.deleteCollection, {
+    refetchType: 'none',
+  })
 }
 
 export function useAddCollectionItem() {
@@ -299,6 +417,15 @@ export function useAddCollectionItem() {
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
   return useCollectionsMutation(commands.removeCollectionItem, {
+    refetchType: 'none',
+  })
+}
+
+// undo's re-add shares removal's contract: the restored tile is already
+// in place as the un-dimmed ghost
+export function useAddCollectionItemAtPosition() {
+  const commands = useCollectionsCommands()
+  return useCollectionsMutation(commands.addCollectionItemAtPosition, {
     refetchType: 'none',
   })
 }

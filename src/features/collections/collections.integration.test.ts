@@ -497,6 +497,76 @@ describe('collection items', () => {
     expect(page1.pagination.total).toBe(3)
   })
 
+  it('re-adding at an explicit position restores the original order', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const collection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Undo target',
+        visibility: 'private',
+      }),
+    )
+    const externalIds = ['a', 'b', 'c'].map(
+      (tag) => `INTEG-READD-${tag}-${Date.now()}`,
+    )
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (const externalId of externalIds) {
+      ids.push(await seedAssetPreviewSnapshot(adminClient, externalId))
+    }
+    snapshotIds.push(...ids)
+    for (const [index, externalId] of externalIds.entries()) {
+      unwrapOrThrow(
+        await addCollectionItemForUser(
+          client,
+          {
+            collectionId: collection.id,
+            assetKey: { providerId: 'nasa_ivl', externalId },
+          },
+          ids[index],
+        ),
+      )
+    }
+
+    const repo = makeCollectionsRepo(client)
+    const before = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 10,
+      }),
+    )
+    const middle = before.items[1]
+    expect(middle.assetPreviewSnapshotId).toBe(ids[1])
+
+    unwrapOrThrow(
+      await removeCollectionItemForUser(client, {
+        collectionId: collection.id,
+        assetKey: middle.assetKey,
+      }),
+    )
+    unwrapOrThrow(
+      await addCollectionItemForUser(
+        client,
+        {
+          collectionId: collection.id,
+          assetKey: middle.assetKey,
+        },
+        ids[1],
+        middle.position,
+      ),
+    )
+
+    const after = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 10,
+      }),
+    )
+    expect(after.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual(ids)
+    expect(after.items.map((edge) => edge.position)).toEqual([1, 2, 3])
+  })
+
   it('adds items in position order, idempotently', async ({
     client,
     user,
