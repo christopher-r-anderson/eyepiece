@@ -49,6 +49,17 @@ export const COLLECTIONS_FIXTURE = {
     name: 'e2e paging collection',
     itemCount: 60,
   },
+  // owns only a private collection, so their profile pins the empty state
+  // as "no public rows" rather than "no rows at all"
+  privateOnlyUser: {
+    id: 'e2ec0000-0000-4000-8000-000000000002',
+    email: 'e2e-collections-private-only@example.com',
+    displayName: 'e2e private-only curator',
+    collection: {
+      id: 'e2ec0000-0000-4000-8000-00000000c004',
+      name: 'e2e private-only collection',
+    },
+  },
   unknownCollectionId: 'e2ec0000-0000-4000-8000-00000000dead',
 } as const
 

@@ -16,7 +16,7 @@ setup('seed collections fixture', async () => {
   const admin = makeAdminClient()
   const { user, snapshots, publicCollection, privateCollection } =
     COLLECTIONS_FIXTURE
-  const { pagingCollection } = COLLECTIONS_FIXTURE
+  const { pagingCollection, privateOnlyUser } = COLLECTIONS_FIXTURE
   const pagingSnapshots = Array.from(
     { length: pagingCollection.itemCount },
     (_, index) => pagingSnapshot(index),
@@ -26,6 +26,7 @@ setup('seed collections fixture', async () => {
   // deleting the user cascades collections and their items, freeing the
   // RESTRICT-protected snapshots for their own delete
   await admin.auth.admin.deleteUser(user.id).catch(() => {})
+  await admin.auth.admin.deleteUser(privateOnlyUser.id).catch(() => {})
   const { error: snapshotDeleteError } = await admin
     .from('asset_preview_snapshots')
     .delete()
@@ -118,6 +119,43 @@ setup('seed collections fixture', async () => {
   ])
   if (itemsError) {
     throw new Error(`Failed to upsert fixture items: ${itemsError.message}`)
+  }
+
+  const { error: privateOnlyUserError } = await admin.auth.admin.createUser({
+    id: privateOnlyUser.id,
+    email: privateOnlyUser.email,
+    password: randomUUID(),
+    email_confirm: true,
+  })
+  if (privateOnlyUserError) {
+    throw new Error(
+      `Failed to create private-only user: ${privateOnlyUserError.message}`,
+    )
+  }
+  const { error: privateOnlyProfileError } = await admin
+    .from('profiles')
+    .upsert({
+      id: privateOnlyUser.id,
+      display_name: privateOnlyUser.displayName,
+    })
+  if (privateOnlyProfileError) {
+    throw new Error(
+      `Failed to upsert private-only profile: ${privateOnlyProfileError.message}`,
+    )
+  }
+  const { error: privateOnlyCollectionError } = await admin
+    .from('collections')
+    .upsert({
+      id: privateOnlyUser.collection.id,
+      owner_id: privateOnlyUser.id,
+      name: privateOnlyUser.collection.name,
+      visibility: 'private',
+      position: 1,
+    })
+  if (privateOnlyCollectionError) {
+    throw new Error(
+      `Failed to upsert private-only collection: ${privateOnlyCollectionError.message}`,
+    )
   }
 })
 
