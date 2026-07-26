@@ -53,7 +53,7 @@ export function ForgotPasswordForm({
   return (
     <Form
       aria-labelledby={id}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       autoComplete="on"
       action={formAction}
       validationErrors={state.fieldErrors}
@@ -61,7 +61,7 @@ export function ForgotPasswordForm({
       surface={surface}
       controls={
         <FormActions>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Reset Password
           </Button>
         </FormActions>

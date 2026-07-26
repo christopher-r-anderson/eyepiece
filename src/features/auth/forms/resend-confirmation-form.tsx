@@ -54,10 +54,10 @@ export function ResendConfirmationForm({
       validationErrors={state.fieldErrors}
       formError={state.error}
       aria-labelledby={id}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Send
           </Button>
         </FormActions>

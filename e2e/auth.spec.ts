@@ -1,4 +1,68 @@
 import { expect, test } from './fixtures'
+import type { Page } from '@playwright/test'
+
+// a slow auth response holds the form in its pending state long enough to
+// interact mid-submission
+function delayAuthTokenResponse(page: Page) {
+  return page.route('**/auth/v1/token*', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await route.fallback()
+  })
+}
+
+test.describe('Pending auth forms', () => {
+  test('Escape dismisses the auth modal while a login is pending', async ({
+    page,
+  }) => {
+    await delayAuthTokenResponse(page)
+    await page.goto('/?auth=login')
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    // the hidden forgot-password panel keeps its fields in the DOM, so
+    // locators must scope to the login form
+    const form = dialog.getByRole('form', { name: 'Log In' })
+    await form.getByRole('textbox', { name: 'Email' }).fill('user1@example.com')
+    await form.getByRole('textbox', { name: 'Password' }).fill('hunter2')
+
+    // clicking parks focus on the button; the pending state (not a
+    // disable) is what keeps it there so Escape still reaches the modal
+    const submit = form.getByRole('button', { name: 'Log In' })
+    await submit.click()
+    await expect(submit).toHaveAttribute('aria-disabled', 'true')
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+  })
+
+  test('repeat Enter during a pending login submits once', async ({ page }) => {
+    await delayAuthTokenResponse(page)
+    let tokenRequests = 0
+    page.on('request', (request) => {
+      if (request.url().includes('/auth/v1/token')) {
+        tokenRequests++
+      }
+    })
+    await page.goto('/?auth=login')
+    const dialog = page.getByRole('dialog')
+    const form = dialog.getByRole('form', { name: 'Log In' })
+    await form.getByRole('textbox', { name: 'Email' }).fill('user1@example.com')
+    const password = form.getByRole('textbox', { name: 'Password' })
+    await password.fill('hunter2')
+
+    // Enter's implicit submit bypasses the pending button entirely; the
+    // form-level guard is what keeps repeats from queueing
+    await password.press('Enter')
+    await expect(form.getByRole('button', { name: 'Log In' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+    await password.press('Enter')
+    await password.press('Enter')
+
+    // the delayed login completes and dismisses the dialog
+    await expect(dialog).toBeHidden({ timeout: 10000 })
+    expect(tokenRequests).toBe(1)
+  })
+})
 
 test.describe('Protected Routes', () => {
   test('unauthenticated user can not visit protected settings page', async ({

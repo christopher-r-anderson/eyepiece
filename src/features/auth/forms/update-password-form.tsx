@@ -51,10 +51,10 @@ export function UpdatePasswordForm({
       validationErrors={state.fieldErrors}
       formError={state.error}
       surface={surface}
-      aria-busy={isPending || undefined}
+      isPending={isPending}
       controls={
         <FormActions>
-          <Button variant="primary" type="submit" isDisabled={isPending}>
+          <Button variant="primary" type="submit" isPending={isPending}>
             Update
           </Button>
         </FormActions>
