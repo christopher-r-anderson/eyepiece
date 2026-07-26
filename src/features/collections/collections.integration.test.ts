@@ -408,6 +408,41 @@ describe('collection items', () => {
     expect(cards[1]?.cover).toBeNull()
   })
 
+  it('owner cards include private collections; anon reads stay public-only', async ({
+    client,
+    user,
+  }) => {
+    const open = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Open',
+        visibility: 'public',
+      }),
+    )
+    const hidden = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Hidden',
+        visibility: 'private',
+      }),
+    )
+
+    const ownCards = unwrapOrThrow(
+      await makeCollectionsRepo(client).getCollectionCardsForOwner(user.id),
+    )
+    expect(
+      ownCards.map((card) => [card.collection.id, card.collection.visibility]),
+    ).toEqual([
+      [open.id, 'public'],
+      [hidden.id, 'private'],
+    ])
+
+    const anonCards = unwrapOrThrow(
+      await makeCollectionsRepo(createAnonClient()).getCollectionCardsForOwner(
+        user.id,
+      ),
+    )
+    expect(anonCards.map((card) => card.collection.id)).toEqual([open.id])
+  })
+
   // tie every item on position AND created_at so only the snapshot-id key
   // orders them; paging in twos must yield each item once, in id order, with
   // no drift (a dropped tiebreaker would duplicate or skip across pages)

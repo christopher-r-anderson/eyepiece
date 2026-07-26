@@ -21,6 +21,8 @@ const assetPreviewSnapshotsKeys = {
     [...assetPreviewSnapshotsKeys.all, 'batch', ids] as const,
 }
 
+const SNAPSHOT_STALE_TIME_MS = 5 * 60 * 1000
+
 export function getAssetPreviewSnapshotsBatchOptions({
   assetPreviewSnapshotIds,
   repo,
@@ -32,12 +34,18 @@ export function getAssetPreviewSnapshotsBatchOptions({
     queryKey: assetPreviewSnapshotsKeys.batch(assetPreviewSnapshotIds),
     placeholderData: keepPreviousData,
     queryFn: async ({ client }) => {
-      const toFetch = assetPreviewSnapshotIds.filter(
-        (id) =>
-          !client.getQueryData<AssetPreviewSnapshot>(
-            assetPreviewSnapshotsKeys.byId(id),
-          ),
-      )
+      // the byId map dedups fetches across overlapping batches; entries age
+      // out on the same window so a stale batch refetch refreshes content
+      // instead of re-reading the cache forever
+      const toFetch = assetPreviewSnapshotIds.filter((id) => {
+        const state = client.getQueryState<AssetPreviewSnapshot>(
+          assetPreviewSnapshotsKeys.byId(id),
+        )
+        return (
+          !state?.data ||
+          state.dataUpdatedAt <= Date.now() - SNAPSHOT_STALE_TIME_MS
+        )
+      })
       if (toFetch.length > 0) {
         const result = await repo.getAssetPreviewSnapshots(toFetch)
         const newSnapshots = unwrapOrThrow(result)
@@ -58,8 +66,7 @@ export function getAssetPreviewSnapshotsBatchOptions({
         return snapshot
       })
     },
-    staleTime: Infinity,
-    refetchOnMount: false,
+    staleTime: SNAPSHOT_STALE_TIME_MS,
     refetchOnWindowFocus: false,
   })
 }
