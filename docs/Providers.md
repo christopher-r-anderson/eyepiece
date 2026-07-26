@@ -129,19 +129,14 @@ This keeps the public API consistent while still allowing each provider to defin
 
 ### Search UI
 
-Provider selection is exposed in `src/features/search/components/search-bar.tsx`.
+Provider selection is exposed as the scope tabs on the search results page (`src/features/search/components/search-scope-tabs.tsx`): all libraries, or one provider. The tabs derive from `PROVIDERS` and `PROVIDER_DISPLAY`, so a new provider appears automatically.
 
-- The landing page lets the user choose a provider before starting a search.
-- The search results page lets the user switch providers and refine filters.
-- Provider-specific UI is rendered conditionally based on `providerId`.
-
-At the moment, NASA is the only provider with advanced filter controls. Those controls live in `src/features/search/components/providers/nasa-ivl-filters.tsx`.
+The search bar (`src/features/search/components/search-bar.tsx`) carries the active scope on submit and renders provider-specific filter controls conditionally based on `providerId`. At the moment, NASA is the only provider with such controls: the year range inputs.
 
 If a new provider needs custom search controls, the current pattern is to:
 
 - define a provider-specific filter schema in `src/domain/search/providers/`
-- add its filter UI under `src/features/search/components/providers/`
-- render that UI conditionally from the shared search bar
+- render its filter UI conditionally from the shared search bar
 
 ## Persistence
 
@@ -183,7 +178,7 @@ Adding a provider is mostly a matter of updating the provider-specific seams tha
 5. Implement a new adapter under `src/server/eyepiece/providers/<provider>/` that satisfies `BaseProvider` and any optional capabilities it supports.
 6. Add or reuse an upstream integration client under `src/integrations/<provider>/`.
 7. Register the adapter in `src/server/eyepiece/service.ts`.
-8. Add provider selection and, if needed, provider-specific filter UI in `src/features/search/components/search-bar.tsx`.
+8. If the provider needs custom search controls, add its filter UI in `src/features/search/components/search-bar.tsx` (the scope tabs pick the provider up from `PROVIDERS`).
 9. Update any provider-facing labels in the UI.
 10. If the provider can be persisted in favorites or preview snapshots, update the Supabase enum and related migrations/types.
 
