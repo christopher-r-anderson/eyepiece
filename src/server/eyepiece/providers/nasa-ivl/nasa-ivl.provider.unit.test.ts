@@ -95,6 +95,41 @@ describe('makeNasaIvlAdapter', () => {
     await expect(adapter.getAsset('missing-id')).resolves.toBeNull()
   })
 
+  it('returns null when fuzzy matches carry no exact id', async () => {
+    mockSearch.mockResolvedValue({
+      ...assetSearchFixture,
+      collection: {
+        ...assetSearchFixture.collection,
+        items: [
+          ...assetSearchFixture.collection.items,
+          ...assetSearchFixture.collection.items,
+        ],
+      },
+    })
+
+    const adapter = makeNasaIvlAdapter()
+
+    await expect(adapter.getAsset('Moon and Saturn')).resolves.toBeNull()
+  })
+
+  it('serves the exact id match among fuzzy extras', async () => {
+    const exactItem = assetSearchFixture.collection.items[0]
+    const fuzzyItem = structuredClone(exactItem)
+    fuzzyItem.data[0].nasa_id = 'PIA24439-different'
+    mockSearch.mockResolvedValue({
+      ...assetSearchFixture,
+      collection: {
+        ...assetSearchFixture.collection,
+        items: [fuzzyItem, exactItem],
+      },
+    })
+
+    const adapter = makeNasaIvlAdapter()
+    const result = await adapter.getAsset('PIA24439')
+
+    expect(result?.key.externalId).toBe('PIA24439')
+  })
+
   it('throws when detail lookup returns multiple assets', async () => {
     mockSearch.mockResolvedValue({
       ...assetSearchFixture,

@@ -90,14 +90,18 @@ async function getAsset(id: string): Promise<Asset | null> {
   const nasaResponse = await nasaIvlSearch({
     nasa_id: id,
   })
-  if (nasaResponse.collection.items.length === 0) {
+  // the search endpoint fuzzy-matches nasa_id, so query-shaped input can
+  // return unrelated items; only an exact id match is this asset
+  const matches = nasaResponse.collection.items.filter(
+    (item) => item.data[0]?.nasa_id === id,
+  )
+  if (matches.length === 0) {
     return null
   }
-  if (nasaResponse.collection.items.length !== 1) {
+  if (matches.length !== 1) {
     throw new Error(`Asset lookup returned multiple matches: ${id}`)
   }
-  const item = nasaResponse.collection.items[0]
-  return mapMediaItem(item)
+  return mapMediaItem(matches[0])
 }
 
 async function searchAssets(
