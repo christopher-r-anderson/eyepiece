@@ -16,6 +16,7 @@ import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { getUser } from '@/features/auth/get-user'
 import {
   expectedErrorObservability,
@@ -210,9 +211,11 @@ async function addCollectionItemForUser(
   client: SupabaseClient,
   input: CollectionItemInput,
   assetPreviewSnapshotId: AssetPreviewSnapshotId,
-  // undo passes the position the removed item vacated; the default append
-  // computes max + 1
+  // undo passes the position and created_at the removed item vacated (ties
+  // on position order by created_at then id); the default append computes
+  // max + 1 and lets the column default stamp created_at
   explicitPosition?: number,
+  explicitCreatedAt?: string,
 ): Promise<
   Result<
     {
@@ -240,6 +243,7 @@ async function addCollectionItemForUser(
     collection_id: input.collectionId,
     asset_preview_snapshot_id: assetPreviewSnapshotId,
     position,
+    ...(explicitCreatedAt ? { created_at: explicitCreatedAt } : {}),
   })
   // 23505: already in the collection - adding is idempotent
   if (error && error.code !== '23505') {
@@ -387,6 +391,7 @@ export const addCollectionItemAtPosition = createServerOnlyFn(
         input,
         snapshotId,
         input.position,
+        input.createdAt,
       ),
     )
   },
@@ -395,6 +400,26 @@ export const addCollectionItemAtPosition = createServerOnlyFn(
 export const removeCollectionItem = createServerOnlyFn(
   async (input: CollectionItemInput) => {
     const auth = unwrapOrThrow(await requireUser('remove-item'))
-    return unwrapOrThrow(await removeCollectionItemForUser(auth.client, input))
+    const result = unwrapOrThrow(
+      await removeCollectionItemForUser(auth.client, input),
+    )
+    if (result.removed) {
+      // the sweep grace must start at orphaning, not at the last content
+      // refresh: touch the snapshot (moddatetime bumps updated_at) so a
+      // long-stale snapshot isn't instantly sweep-eligible and undo stays
+      // local. Best-effort - the removal itself already succeeded
+      const { error } = await createServiceSupabaseClient()
+        .from('asset_preview_snapshots')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('provider_id', input.assetKey.providerId)
+        .eq('external_id', input.assetKey.externalId)
+      if (error) {
+        logErrorWithObservability(
+          'Collections remove-item snapshot touch failed',
+          error,
+        )
+      }
+    }
+    return result
   },
 )

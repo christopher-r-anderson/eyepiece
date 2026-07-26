@@ -266,6 +266,15 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
   // undo races the in-flight delete, or a re-removal races the undo's
   // insert, and the server ends up opposite the UI
   const pendingOpsRef = useRef(new Map<string, Promise<void>>())
+  // a failed operation may no longer reflect what the user last asked for
+  // (remove -> undo -> remove again while the first is in flight): rollback
+  // and toast only when the failure belongs to the item's latest intent
+  const intentRef = useRef(new Map<string, number>())
+  const nextIntent = useCallback((id: string) => {
+    const token = (intentRef.current.get(id) ?? 0) + 1
+    intentRef.current.set(id, token)
+    return token
+  }, [])
   const enqueueItemOp = useCallback(
     (id: string, operation: () => Promise<void>) => {
       const prior = pendingOpsRef.current.get(id) ?? Promise.resolve()
@@ -301,16 +310,21 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                   next.delete(item.id)
                   return next
                 })
+                const token = nextIntent(item.id)
                 enqueueItemOp(item.id, () =>
                   reAddItem
                     .mutateAsync({
                       collectionId,
                       assetKey: edge.assetKey,
                       position: edge.position,
+                      createdAt: edge.createdAt,
                     })
                     .then(
                       () => undefined,
                       () => {
+                        if (intentRef.current.get(item.id) !== token) {
+                          return
+                        }
                         setRemovedIds((prev) => new Set(prev).add(item.id))
                         queueToastMessage({
                           title: 'Undo failed',
@@ -335,12 +349,16 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
           aria-label={`Remove ${item.title}`}
           onPress={() => {
             setRemovedIds((prev) => new Set(prev).add(item.id))
+            const token = nextIntent(item.id)
             enqueueItemOp(item.id, () =>
               removeItem
                 .mutateAsync({ collectionId, assetKey: edge.assetKey })
                 .then(
                   () => undefined,
                   () => {
+                    if (intentRef.current.get(item.id) !== token) {
+                      return
+                    }
                     setRemovedIds((prev) => {
                       const next = new Set(prev)
                       next.delete(item.id)
@@ -368,6 +386,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       reAddItem,
       queueToastMessage,
       enqueueItemOp,
+      nextIntent,
     ],
   )
 

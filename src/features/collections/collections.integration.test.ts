@@ -555,6 +555,7 @@ describe('collection items', () => {
         },
         ids[1],
         middle.position,
+        middle.createdAt,
       ),
     )
 
@@ -566,6 +567,8 @@ describe('collection items', () => {
     )
     expect(after.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual(ids)
     expect(after.items.map((edge) => edge.position)).toEqual([1, 2, 3])
+    // the restore carries the original created_at (the position tiebreaker)
+    expect(after.items[1]?.createdAt).toBe(middle.createdAt)
   })
 
   // the external id is fake, so falling through to the provider-backed

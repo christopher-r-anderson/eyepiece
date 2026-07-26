@@ -84,6 +84,9 @@ export type CollectionItemInput = z.infer<typeof collectionItemInputSchema>
 export const collectionItemAtPositionInputSchema =
   collectionItemInputSchema.extend({
     position: z.number().int().positive(),
+    // ties on position order by created_at then id, so a true restore
+    // carries the original timestamp as well
+    createdAt: z.iso.datetime({ offset: true }),
   })
 
 export type CollectionItemAtPositionInput = z.infer<
