@@ -23,7 +23,6 @@ export function useShowAuthModal() {
       navigate({
         to: '.',
         search: (prev) => createAuthModalSearch(prev, auth),
-        viewTransition: false,
         replace: alreadyOpen,
         state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
       })

@@ -30,7 +30,6 @@ export function MetadataButton({
     navigate({
       hash: METADATA_HASH,
       replace: false,
-      viewTransition: false,
       state: (prev) => ({ ...prev, dialogPushed: true }),
     })
   const close = () => {
@@ -38,7 +37,7 @@ export function MetadataButton({
       router.history.back()
       return
     }
-    navigate({ hash: '', replace: true, viewTransition: false })
+    navigate({ hash: '', replace: true })
   }
   // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
   const prefetch = usePrefetchMetadata(assetKey)
