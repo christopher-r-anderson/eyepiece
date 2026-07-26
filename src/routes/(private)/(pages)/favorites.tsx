@@ -1,22 +1,36 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
-import { startTransition } from 'react'
+import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
+import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
+import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import { isAuthRequiredError } from '@/lib/result'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureInfiniteUserFavoritesEdges,
-  useSuspenseInfiniteUserFavoriteAssetIds,
+  useRefavoriteAt,
+  useSuspenseInfiniteUserFavoriteEdges,
+  useUnfavorite,
   userFavoritesPagesToAssetIds,
 } from '@/features/favorites/favorites.queries'
+import { favoriteToggleCss } from '@/features/favorites/components/toggle-favorite-button'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import {
   ensureAssetPreviewSnapshotsBatch,
   useAssetPreviewSnapshotsBatch,
 } from '@/features/assets/asset-preview-snapshots.queries'
+import {
+  GhostRemovedActions,
+  useGhostRemovals,
+} from '@/features/assets/components/ghost-removals'
 import { RouteError } from '@/app/layout/route-error'
+import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
+import { ToggleButton } from '@/components/ui/toggle-button'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
@@ -52,10 +66,34 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
 })
 
 function FavoritesPage() {
-  const favoritesResult = useSuspenseInfiniteUserFavoriteAssetIds()
+  const favoritesResult = useSuspenseInfiniteUserFavoriteEdges()
   const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
-    favoritesResult.data,
+    favoritesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
+  // mutateAsync alone: the mutation result object is fresh every render
+  // and would defeat the grid rows' memo through the tileActions identity
+  const { mutateAsync: unfavoriteAsync } = useUnfavorite()
+  const { mutateAsync: refavoriteAtAsync } = useRefavoriteAt()
+  const queueToastMessage = useQueueToastMessage()
+  const showLoginModal = useShowLoginModal()
+  const {
+    removedIds,
+    runRemoval,
+    runRestore,
+    tileClassName,
+    tileLinkDisabled,
+  } = useGhostRemovals()
+  const makeOpFailureHandler = useCallback(
+    (title: string) => (error: unknown) => {
+      if (isAuthRequiredError(error)) {
+        showLoginModal()
+        return
+      }
+      queueToastMessage({ title, description: 'Please try again.' })
+    },
+    [showLoginModal, queueToastMessage],
+  )
+
   // failed page fetches would otherwise degrade silently: an edge-page
   // error only surfaces on the result once earlier pages exist, and an
   // errored snapshot batch holds no data for its new key so the fallback
@@ -68,7 +106,70 @@ function FavoritesPage() {
     throw assetPreviewSnapshotsResult.error
   }
 
-  if (favoritesResult.data.length === 0) {
+  const edgesBySnapshotId = useMemo(() => {
+    const map = new Map<string, FavoriteEdge>()
+    for (const edge of favoritesResult.data.edges) {
+      map.set(edge.assetPreviewSnapshotId, edge)
+    }
+    return map
+  }, [favoritesResult.data.edges])
+
+  const tileActions = useCallback(
+    (item: AssetPreviewSnapshot) => {
+      const edge = edgesBySnapshotId.get(item.id)
+      if (!edge) {
+        return undefined
+      }
+      if (removedIds.has(item.id)) {
+        return (
+          <GhostRemovedActions
+            onUndo={() =>
+              runRestore(
+                item.id,
+                () =>
+                  refavoriteAtAsync({
+                    assetKey: edge.assetKey,
+                    createdAt: edge.createdAt,
+                  }),
+                makeOpFailureHandler('Undo failed'),
+              )
+            }
+          />
+        )
+      }
+      return (
+        <>
+          <ToggleButton
+            aria-label="Star"
+            css={favoriteToggleCss}
+            variant="icon"
+            isSelected
+            onChange={() =>
+              runRemoval(
+                item.id,
+                () => unfavoriteAsync(edge.assetKey),
+                makeOpFailureHandler('Unstar failed'),
+              )
+            }
+          >
+            <StarIcon size={20} weight="fill" />
+          </ToggleButton>
+          <AddToCollectionButton assetKey={edge.assetKey} variant="tile" />
+        </>
+      )
+    },
+    [
+      edgesBySnapshotId,
+      removedIds,
+      runRemoval,
+      runRestore,
+      unfavoriteAsync,
+      refavoriteAtAsync,
+      makeOpFailureHandler,
+    ],
+  )
+
+  if (favoritesResult.data.total === 0) {
     return (
       <>
         <FavoritesHeading />
@@ -99,7 +200,13 @@ function FavoritesPage() {
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
-        <JustifiedAssetGrid items={assetPreviewSnapshotsResult.data ?? []} />
+        <JustifiedAssetGrid
+          aria-label="Favorites"
+          items={assetPreviewSnapshotsResult.data ?? []}
+          tileActions={tileActions}
+          tileClassName={tileClassName}
+          tileLinkDisabled={tileLinkDisabled}
+        />
       </InfiniteLoader>
     </>
   )

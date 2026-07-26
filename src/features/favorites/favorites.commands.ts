@@ -1,9 +1,12 @@
 import { useMemo } from 'react'
 import { ToggleFavoriteErrorCodes } from './favorites.const'
-import { toggleFavorite } from './favorites.functions'
+import { refavoriteAt, toggleFavorite, unfavorite } from './favorites.functions'
 import type { ToggleFavoriteErrorCode } from './favorites.const'
 import type { AssetKey } from '@/domain/asset/asset.schema'
-import type { ToggleFavoriteResult } from './favorites.schema'
+import type {
+  RefavoriteAtInput,
+  ToggleFavoriteResult,
+} from './favorites.schema'
 import type { Result, ResultError } from '@/lib/result'
 import { Err, Ok, errorFromUnknown } from '@/lib/result'
 
@@ -31,6 +34,16 @@ export interface UserFavoritesCommands {
   ) => Promise<
     Result<ToggleFavoriteResult, ToggleFavoriteErrorCode | undefined>
   >
+  refavoriteAt: (
+    input: RefavoriteAtInput,
+  ) => Promise<
+    Result<ToggleFavoriteResult, ToggleFavoriteErrorCode | undefined>
+  >
+  unfavorite: (
+    input: AssetKey,
+  ) => Promise<
+    Result<{ removed: boolean }, ToggleFavoriteErrorCode | undefined>
+  >
 }
 
 export const makeUserFavoritesCommands = (): UserFavoritesCommands => {
@@ -42,6 +55,20 @@ export const makeUserFavoritesCommands = (): UserFavoritesCommands => {
     > => {
       try {
         return Ok(await toggleFavorite({ data: input }))
+      } catch (error) {
+        return Err(toToggleFavoriteResultError(error))
+      }
+    },
+    refavoriteAt: async (input) => {
+      try {
+        return Ok(await refavoriteAt({ data: input }))
+      } catch (error) {
+        return Err(toToggleFavoriteResultError(error))
+      }
+    },
+    unfavorite: async (input) => {
+      try {
+        return Ok(await unfavorite({ data: input }))
       } catch (error) {
         return Err(toToggleFavoriteResultError(error))
       }

@@ -8,6 +8,7 @@ import {
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getInfiniteCollectionItemEdgesOptions,
   getInfiniteUserCollectionItemEdgesOptions,
   getUserCollectionCardsOptions,
   useCreateCollection,
@@ -76,14 +77,45 @@ afterEach(() => {
 })
 
 describe('collections mutation invalidation', () => {
-  it('removal marks both families stale without refetching active queries', async () => {
+  it('removal never refetches an active item-edge list but refreshes the rest', async () => {
     const queryClient = new QueryClient()
-    const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
-    await waitFor(() =>
-      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce(),
+    const getCollectionItemEdges = vi
+      .fn()
+      .mockResolvedValue(
+        Ok({ items: [], pagination: { next: null, total: 0 } }),
+      )
+    renderHook(
+      () =>
+        useInfiniteQuery(
+          getInfiniteUserCollectionItemEdgesOptions({
+            collectionId: COLLECTION_ID,
+            repo: { getCollectionItemEdges },
+          }),
+        ),
+      { wrapper: makeWrapper(queryClient) },
     )
-    // a resolved public-family entry so its stale marking is observable
-    queryClient.setQueryData(['collections', 'detail', COLLECTION_ID], null)
+    // the PUBLIC grid too: it can anchor the open picker (a tile vanishing
+    // mid-refetch would unmount the popover being toggled)
+    const getPublicItemEdges = vi
+      .fn()
+      .mockResolvedValue(
+        Ok({ items: [], pagination: { next: null, total: 0 } }),
+      )
+    renderHook(
+      () =>
+        useInfiniteQuery(
+          getInfiniteCollectionItemEdgesOptions({
+            collectionId: COLLECTION_ID,
+            repo: { getCollectionItemEdges: getPublicItemEdges },
+          }),
+        ),
+      { wrapper: makeWrapper(queryClient) },
+    )
+    const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
+    await waitFor(() => {
+      expect(getCollectionItemEdges).toHaveBeenCalledOnce()
+      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+    })
 
     vi.mocked(removeCollectionItemFn).mockResolvedValue({ removed: true })
     const { result } = renderHook(() => useRemoveCollectionItem(), {
@@ -91,18 +123,30 @@ describe('collections mutation invalidation', () => {
     })
     await result.current.mutateAsync(ITEM_INPUT)
 
-    await waitFor(() => {
-      expect(
-        queryClient.getQueryState(['me', 'collections', 'cards', USER_ID])
-          ?.isInvalidated,
-      ).toBe(true)
-      expect(
-        queryClient.getQueryState(['collections', 'detail', COLLECTION_ID])
-          ?.isInvalidated,
-      ).toBe(true)
-    })
-    // the ghost contract: the ACTIVE query stays on its data, no refetch
-    expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+    // membership/cards refresh so picker checkboxes reflect the removal...
+    await waitFor(() =>
+      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2),
+    )
+    // ...while the ghost-bearing edge list is only marked stale
+    expect(
+      queryClient.getQueryState([
+        'me',
+        'collections',
+        'detail',
+        COLLECTION_ID,
+        'itemEdges',
+      ])?.isInvalidated,
+    ).toBe(true)
+    expect(getCollectionItemEdges).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState([
+        'collections',
+        'detail',
+        COLLECTION_ID,
+        'itemEdges',
+      ])?.isInvalidated,
+    ).toBe(true)
+    expect(getPublicItemEdges).toHaveBeenCalledOnce()
   })
 
   it('settings mutations never refetch an active item-edge list (mounted ghosts)', async () => {

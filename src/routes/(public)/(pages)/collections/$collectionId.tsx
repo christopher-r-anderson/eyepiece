@@ -3,6 +3,7 @@ import { startTransition } from 'react'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import type { AssetPreview } from '@/domain/asset/asset.schema'
+import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureAssetPreviewSnapshotsBatch,
@@ -29,7 +30,10 @@ import { getTitleText } from '@/lib/utils'
 
 // module-level so memoized grid rows see stable references
 const renderTileActions = (item: AssetPreview) => (
-  <FavoriteButton assetKey={item.key} />
+  <>
+    <FavoriteButton assetKey={item.key} />
+    <AddToCollectionButton assetKey={item.key} variant="tile" />
+  </>
 )
 
 export const Route = createFileRoute(

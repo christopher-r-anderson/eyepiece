@@ -165,3 +165,9 @@ export function unwrapOrThrow<TData, TErrorCode extends ErrorCode = undefined>(
   if (resultIsSuccess(result)) return result.data
   throwFromErrorResult(result.error)
 }
+
+// both features spell their session-expiry code with this literal; surfaces
+// decide between the login modal and error copy off this one predicate
+export function isAuthRequiredError(error: unknown): boolean {
+  return errorFromUnknown(error).code === 'AUTH_REQUIRED'
+}

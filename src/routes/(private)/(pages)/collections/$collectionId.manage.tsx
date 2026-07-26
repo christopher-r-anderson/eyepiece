@@ -4,7 +4,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
+import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -37,6 +37,10 @@ import { FormActions } from '@/components/ui/forms'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { RouteError } from '@/app/layout/route-error'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import {
+  GhostRemovedActions,
+  useGhostRemovals,
+} from '@/features/assets/components/ghost-removals'
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
@@ -209,31 +213,28 @@ function ManageCollectionPage() {
   )
 }
 
-// ghost rows: the removed tile keeps its slot dimmed with an always-visible
-// veil so justified rows never re-break and undo stays in place
-const ghostTileCss = css({
-  '& [data-tile-primary-link]': { pointerEvents: 'none' },
-  '& img': { opacity: 0.3 },
-  '& [data-tile-reveal], & [data-tile-controls]': {
-    opacity: 1,
-    translate: 'none',
-  },
-  // the veil only enables its controls while hover-revealed; a ghost's undo
-  // must stay clickable without hover (coarse pointers, keyboard-then-mouse)
-  '& [data-tile-controls]': { pointerEvents: 'auto' },
-})
-
 function CollectionItems({ collectionId }: { collectionId: string }) {
   const edgesResult = useSuspenseInfiniteUserCollectionItemEdges(collectionId)
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     edgesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
-  const removeItem = useRemoveCollectionItem()
-  const reAddItem = useAddCollectionItemAtPosition()
+  // mutateAsync alone: the mutation result object is fresh every render
+  // and would defeat the grid rows' memo through the tileActions identity
+  const { mutateAsync: removeItemAsync } = useRemoveCollectionItem()
+  const { mutateAsync: reAddItemAsync } = useAddCollectionItemAtPosition()
   const queueToastMessage = useQueueToastMessage()
   const [isEditing, setIsEditing] = useState(false)
-  const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(
-    () => new Set(),
+  const {
+    removedIds,
+    runRemoval,
+    runRestore,
+    tileClassName,
+    tileLinkDisabled,
+  } = useGhostRemovals()
+  const makeOpFailureHandler = useCallback(
+    (title: string) => () =>
+      queueToastMessage({ title, description: 'Please try again.' }),
+    [queueToastMessage],
   )
 
   if (edgesResult.isError) {
@@ -251,42 +252,6 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     return map
   }, [edgesResult.data.edges])
 
-  const tileClassName = useCallback(
-    (item: AssetPreviewSnapshot) =>
-      removedIds.has(item.id) ? ghostTileCss : undefined,
-    [removedIds],
-  )
-
-  const tileLinkDisabled = useCallback(
-    (item: AssetPreviewSnapshot) => removedIds.has(item.id),
-    [removedIds],
-  )
-
-  // one operation chain per item: mutateAsync (per-call mutate callbacks
-  // can be dropped under rapid calls on one observer), and each remove or
-  // undo queues behind the item's previous operation - otherwise a quick
-  // undo races the in-flight delete, or a re-removal races the undo's
-  // insert, and the server ends up opposite the UI
-  const pendingOpsRef = useRef(new Map<string, Promise<void>>())
-  // a failed operation may no longer reflect what the user last asked for
-  // (remove -> undo -> remove again while the first is in flight): rollback
-  // and toast only when the failure belongs to the item's latest intent
-  const intentRef = useRef(new Map<string, number>())
-  const nextIntent = useCallback((id: string) => {
-    const token = (intentRef.current.get(id) ?? 0) + 1
-    intentRef.current.set(id, token)
-    return token
-  }, [])
-  const enqueueItemOp = useCallback(
-    (id: string, operation: () => Promise<void>) => {
-      const prior = pendingOpsRef.current.get(id) ?? Promise.resolve()
-      // operations handle their own failures, so the chain never rejects
-      const next = prior.then(operation)
-      pendingOpsRef.current.set(id, next)
-    },
-    [],
-  )
-
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
       const edge = edgesBySnapshotId.get(item.id)
@@ -295,51 +260,21 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       }
       if (removedIds.has(item.id)) {
         return (
-          <span
-            className={css({
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '2',
-            })}
-          >
-            Removed
-            <Button
-              variant="bare"
-              className={css({ textDecoration: 'underline' })}
-              onPress={() => {
-                setRemovedIds((prev) => {
-                  const next = new Set(prev)
-                  next.delete(item.id)
-                  return next
-                })
-                const token = nextIntent(item.id)
-                enqueueItemOp(item.id, () =>
-                  reAddItem
-                    .mutateAsync({
-                      collectionId,
-                      assetKey: edge.assetKey,
-                      position: edge.position,
-                      createdAt: edge.createdAt,
-                    })
-                    .then(
-                      () => undefined,
-                      () => {
-                        if (intentRef.current.get(item.id) !== token) {
-                          return
-                        }
-                        setRemovedIds((prev) => new Set(prev).add(item.id))
-                        queueToastMessage({
-                          title: 'Undo failed',
-                          description: 'Please try again.',
-                        })
-                      },
-                    ),
-                )
-              }}
-            >
-              Undo
-            </Button>
-          </span>
+          <GhostRemovedActions
+            onUndo={() =>
+              runRestore(
+                item.id,
+                () =>
+                  reAddItemAsync({
+                    collectionId,
+                    assetKey: edge.assetKey,
+                    position: edge.position,
+                    createdAt: edge.createdAt,
+                  }),
+                makeOpFailureHandler('Undo failed'),
+              )
+            }
+          />
         )
       }
       if (!isEditing) {
@@ -349,31 +284,13 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         <Button
           variant="bare"
           aria-label={`Remove ${item.title}`}
-          onPress={() => {
-            setRemovedIds((prev) => new Set(prev).add(item.id))
-            const token = nextIntent(item.id)
-            enqueueItemOp(item.id, () =>
-              removeItem
-                .mutateAsync({ collectionId, assetKey: edge.assetKey })
-                .then(
-                  () => undefined,
-                  () => {
-                    if (intentRef.current.get(item.id) !== token) {
-                      return
-                    }
-                    setRemovedIds((prev) => {
-                      const next = new Set(prev)
-                      next.delete(item.id)
-                      return next
-                    })
-                    queueToastMessage({
-                      title: 'Remove failed',
-                      description: 'Please try again.',
-                    })
-                  },
-                ),
+          onPress={() =>
+            runRemoval(
+              item.id,
+              () => removeItemAsync({ collectionId, assetKey: edge.assetKey }),
+              makeOpFailureHandler('Remove failed'),
             )
-          }}
+          }
         >
           <XIcon size={20} weight="bold" />
         </Button>
@@ -384,11 +301,11 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       removedIds,
       isEditing,
       collectionId,
-      removeItem,
-      reAddItem,
-      queueToastMessage,
-      enqueueItemOp,
-      nextIntent,
+      runRemoval,
+      runRestore,
+      removeItemAsync,
+      reAddItemAsync,
+      makeOpFailureHandler,
     ],
   )
 

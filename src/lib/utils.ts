@@ -20,3 +20,9 @@ export function urlToNextParam(url: string) {
 export const getOrigin = createIsomorphicFn()
   .server(() => new URL(getRequest().url).origin)
   .client(() => window.location.origin)
+
+// undo restores a row's original timestamp for ordering; never a
+// client-chosen point in the future
+export function clampIsoToNow(iso: string): string {
+  return new Date(iso) > new Date() ? new Date().toISOString() : iso
+}

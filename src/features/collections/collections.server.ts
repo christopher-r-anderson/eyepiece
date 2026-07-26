@@ -25,6 +25,7 @@ import {
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { ensureAssetPreviewSnapshot } from '@/features/assets/asset-preview-snapshots.server'
+import { clampIsoToNow } from '@/lib/utils'
 
 function unknownError(operation: string, cause?: unknown) {
   const errorResult = {
@@ -385,13 +386,14 @@ export const addCollectionItemAtPosition = createServerOnlyFn(
     const snapshotId = unwrapOrThrow(
       await resolveSnapshotForReAdd(auth.client, input.assetKey),
     )
+    const createdAt = clampIsoToNow(input.createdAt)
     return unwrapOrThrow(
       await addCollectionItemForUser(
         auth.client,
         input,
         snapshotId,
         input.position,
-        input.createdAt,
+        createdAt,
       ),
     )
   },

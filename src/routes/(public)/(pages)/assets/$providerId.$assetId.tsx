@@ -5,6 +5,7 @@ import { grid } from 'styled-system/patterns'
 import { FavoriteButton } from '../-components/favorite-button'
 import { MetadataButton } from './-components/metadata/button'
 import { AssetDetail } from './-components/asset-detail'
+import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
@@ -156,6 +157,7 @@ function AssetPage() {
           })}
         >
           <FavoriteButton assetKey={assetKey} />
+          <AddToCollectionButton assetKey={assetKey} variant="detail" />
           {canViewMetadata ? <MetadataButton assetKey={assetKey} /> : null}
         </div>
       </div>

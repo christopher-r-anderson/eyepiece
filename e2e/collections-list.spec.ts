@@ -3,53 +3,43 @@ import {
   COLLECTIONS_FIXTURE,
   makeAdminClient,
 } from './support/collections-fixture'
-import type { Page } from '@playwright/test'
+import { logInAsFixtureUser } from './support/collections-helpers'
 
 const { publicCollection, privateCollection, pagingCollection, user } =
   COLLECTIONS_FIXTURE
 
-const TINY_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-)
-
-async function logInToCollections(page: Page) {
-  await page.route('**/image/e2e-collections-*/**', (route) =>
-    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
-  )
-  // the app's next= redirect avoids a post-login goto that automated
-  // firefox aborts
-  await page.goto('/login?next=%2Fcollections')
-  await page.getByRole('textbox', { name: 'Email' }).fill(user.email)
-  await page.getByRole('textbox', { name: 'Password' }).fill(user.password)
-  await Promise.all([
-    page.waitForURL('/collections'),
-    page.getByRole('button', { name: 'Log In' }).click(),
-  ])
-}
-
 test('list page shows every owned collection; cards link to manage pages', async ({
   page,
 }) => {
-  await logInToCollections(page)
+  await logInAsFixtureUser(page, '/collections')
 
   await expect(
     page.getByRole('heading', { level: 1, name: 'Your collections' }),
   ).toBeVisible()
 
-  await expect(page.getByText(`3 items · public`)).toBeVisible()
+  // meta texts scope to their card: parallel specs seed extra collections
+  // for this shared user, so bare text lookups can multi-match
+  const cardFor = (collectionName: string) =>
+    page.getByRole('listitem').filter({ hasText: collectionName })
+  await expect(
+    cardFor(publicCollection.name).getByText('3 items · public'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: publicCollection.name }),
   ).toHaveAttribute('href', `/collections/${publicCollection.id}/manage`)
 
   // private collections are manageable too - the owner surface links them
   // even though the public detail stays not-found
-  await expect(page.getByText(`0 items · private`)).toBeVisible()
+  await expect(
+    cardFor(privateCollection.name).getByText('0 items · private'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: privateCollection.name }),
   ).toHaveAttribute('href', `/collections/${privateCollection.id}/manage`)
 
-  await expect(page.getByText(`60 items · public`)).toBeVisible()
+  await expect(
+    cardFor(pagingCollection.name).getByText('60 items · public'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: pagingCollection.name }),
   ).toBeVisible()
@@ -60,7 +50,7 @@ test('create flow: dialog on #new, private by default, list updates, back stays 
 }) => {
   const createdName = `e2e created ${Date.now()}`
   try {
-    await logInToCollections(page)
+    await logInAsFixtureUser(page, '/collections')
 
     await page.getByRole('button', { name: 'New collection' }).click()
     await expect(page).toHaveURL('/collections#new')
@@ -101,7 +91,7 @@ test('create flow: dialog on #new, private by default, list updates, back stays 
 test('create dialog validates emptied names and Escape leaves no hash behind', async ({
   page,
 }) => {
-  await logInToCollections(page)
+  await logInAsFixtureUser(page, '/collections')
 
   await page.getByRole('button', { name: 'New collection' }).click()
   const dialog = page.getByRole('dialog')
