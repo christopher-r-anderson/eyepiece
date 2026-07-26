@@ -59,7 +59,6 @@ function CollectionsPage() {
     navigate({
       hash: NEW_COLLECTION_HASH,
       replace: false,
-      viewTransition: false,
       state: (prev) => ({ ...prev, dialogPushed: true }),
     })
   const closeCreate = () => {
@@ -67,7 +66,7 @@ function CollectionsPage() {
       router.history.back()
       return
     }
-    navigate({ hash: '', replace: true, viewTransition: false })
+    navigate({ hash: '', replace: true })
   }
 
   return (

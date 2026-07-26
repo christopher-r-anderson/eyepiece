@@ -59,7 +59,6 @@ export function AuthModalController({
       to: '.',
       search: stripAuthSearchParams,
       replace: true,
-      viewTransition: false,
     })
   }, [openedByPush, router, navigate])
 
@@ -122,14 +121,13 @@ function LoginSection({
             search={showForgotPasswordSearch}
             replace
             state={(prev) => prev}
-            viewTransition={false}
           >
             Forgot Password?
           </Link>
         }
       />
       <p>
-        <Link to="/login" search={{ next }} underline viewTransition={false}>
+        <Link to="/login" search={{ next }} underline>
           Visit the full log in page
         </Link>
       </p>
@@ -151,12 +149,7 @@ function ForgotPasswordSection({ next }: { next: string }) {
         next={next}
       />
       <p>
-        <Link
-          to="/auth/forgot-password"
-          search={{ next }}
-          underline
-          viewTransition={false}
-        >
+        <Link to="/auth/forgot-password" search={{ next }} underline>
           Visit the full forgot password page
         </Link>
       </p>
@@ -177,7 +170,7 @@ function RegistrationSection({ next }: { next: string }) {
         next={next}
       />
       <p>
-        <Link to="/register" search={{ next }} underline viewTransition={false}>
+        <Link to="/register" search={{ next }} underline>
           Visit the full register page
         </Link>
       </p>

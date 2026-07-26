@@ -20,7 +20,6 @@ export function LoginLink() {
           showLoginModal()
         }
       }}
-      viewTransition={false}
     >
       Log In
     </Link>

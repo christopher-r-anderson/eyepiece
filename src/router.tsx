@@ -44,7 +44,6 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultStructuralSharing: true,
     defaultNotFoundComponent: NotFoundPage,
-    defaultViewTransition: true,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
