@@ -91,9 +91,12 @@ export function RenameCollectionForm({
           isRequired
           label="Name"
           // key by the settled name so a successful rename re-seeds the
-          // field while an error round trip keeps the draft
+          // field with the canonical (trimmed) value; only error round
+          // trips keep the raw draft
           key={collection.name}
-          defaultValue={state.formData?.name ?? collection.name}
+          defaultValue={
+            state.hasErrors ? state.formData.name : collection.name
+          }
         />
       </InputGroup>
     </Form>

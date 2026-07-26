@@ -287,6 +287,7 @@ async function removeCollectionItemForUser(
 // Exported for testing only
 export const _internals = {
   assertCollectionOwned,
+  resolveSnapshotForReAdd,
   createCollectionForUser,
   renameCollectionForUser,
   setCollectionVisibilityForUser,
@@ -345,23 +346,46 @@ export const addCollectionItem = createServerOnlyFn(
   },
 )
 
+// undo must not depend on a live provider: the just-removed item's snapshot
+// still exists locally (30-day orphan grace), so reuse it and only fall back
+// to the provider-backed ensure when the row is genuinely gone
+async function resolveSnapshotForReAdd(
+  client: SupabaseClient,
+  assetKey: CollectionItemInput['assetKey'],
+): Promise<Result<AssetPreviewSnapshotId, CollectionsErrorCode>> {
+  const { data, error } = await client
+    .from('asset_preview_snapshots')
+    .select('id')
+    .eq('provider_id', assetKey.providerId)
+    .eq('external_id', assetKey.externalId)
+    .maybeSingle()
+  if (error) {
+    return Err(unknownError('re-add-item.snapshot-lookup', error))
+  }
+  if (data) {
+    return Ok(data.id)
+  }
+  const ensured = await ensureAssetPreviewSnapshot(assetKey)
+  if (ensured.error) {
+    return Err(unknownError('re-add-item.ensure-snapshot', ensured.error.cause))
+  }
+  return Ok(ensured.data)
+}
+
 export const addCollectionItemAtPosition = createServerOnlyFn(
   async (input: CollectionItemAtPositionInput) => {
     const auth = unwrapOrThrow(await requireUser('re-add-item'))
     unwrapOrThrow(
       await assertCollectionOwned(auth.client, auth.userId, input.collectionId),
     )
-    const snapshot = await ensureAssetPreviewSnapshot(input.assetKey)
-    if (snapshot.error) {
-      throwFromErrorResult(
-        unknownError('re-add-item.ensure-snapshot', snapshot.error.cause),
-      )
-    }
+    const snapshotId = unwrapOrThrow(
+      await resolveSnapshotForReAdd(auth.client, input.assetKey),
+    )
     return unwrapOrThrow(
       await addCollectionItemForUser(
         auth.client,
         input,
-        snapshot.data,
+        snapshotId,
         input.position,
       ),
     )

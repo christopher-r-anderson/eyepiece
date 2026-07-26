@@ -154,8 +154,10 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
-    // a focus refetch could yank rows out from under removal ghosts
+    // mount-only freshness: any mid-visit background refetch (focus,
+    // reconnect) could yank rows out from under removal ghosts
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     select,
   })
 }
@@ -307,8 +309,10 @@ export function getInfiniteUserCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
-    // a focus refetch could yank rows out from under removal ghosts
+    // mount-only freshness: any mid-visit background refetch (focus,
+    // reconnect) could yank rows out from under removal ghosts
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     select,
   })
 }
