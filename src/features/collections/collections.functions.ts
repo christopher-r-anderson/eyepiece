@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import {
   addCollectionItem,
+  addCollectionItemAtPosition,
   createCollection,
   deleteCollection,
   removeCollectionItem,
@@ -8,6 +9,7 @@ import {
   setCollectionVisibility,
 } from './collections.server'
 import {
+  collectionItemAtPositionInputSchema,
   collectionItemInputSchema,
   createCollectionInputSchema,
   deleteCollectionInputSchema,
@@ -38,3 +40,7 @@ export const addCollectionItemFn = createServerFn({ method: 'POST' })
 export const removeCollectionItemFn = createServerFn({ method: 'POST' })
   .inputValidator(collectionItemInputSchema)
   .handler(async ({ data }) => removeCollectionItem(data))
+
+export const addCollectionItemAtPositionFn = createServerFn({ method: 'POST' })
+  .inputValidator(collectionItemAtPositionInputSchema)
+  .handler(async ({ data }) => addCollectionItemAtPosition(data))

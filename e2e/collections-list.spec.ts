@@ -28,7 +28,7 @@ async function logInToCollections(page: Page) {
   ])
 }
 
-test('list page shows every owned collection; only public cards link out', async ({
+test('list page shows every owned collection; cards link to manage pages', async ({
   page,
 }) => {
   await logInToCollections(page)
@@ -40,14 +40,14 @@ test('list page shows every owned collection; only public cards link out', async
   await expect(page.getByText(`3 items · public`)).toBeVisible()
   await expect(
     page.getByRole('link', { name: publicCollection.name }),
-  ).toHaveAttribute('href', `/collections/${publicCollection.id}`)
+  ).toHaveAttribute('href', `/collections/${publicCollection.id}/manage`)
 
-  // a private collection has no public destination, so its card is static
-  await expect(page.getByText(privateCollection.name)).toBeVisible()
+  // private collections are manageable too - the owner surface links them
+  // even though the public detail stays not-found
   await expect(page.getByText(`0 items · private`)).toBeVisible()
   await expect(
     page.getByRole('link', { name: privateCollection.name }),
-  ).toHaveCount(0)
+  ).toHaveAttribute('href', `/collections/${privateCollection.id}/manage`)
 
   await expect(page.getByText(`60 items · public`)).toBeVisible()
   await expect(
@@ -75,12 +75,15 @@ test('create flow: dialog on #new, private by default, list updates, back stays 
     await expect(dialog).toHaveCount(0)
     await expect(page).toHaveURL('/collections')
     // the visibility switch was left off, so the new card reads private
-    // and stays a static (linkless) card
+    // and links to its manage page
     const createdCard = page
       .getByRole('listitem')
       .filter({ hasText: createdName })
     await expect(createdCard.getByText('0 items · private')).toBeVisible()
-    await expect(createdCard.getByRole('link')).toHaveCount(0)
+    await expect(createdCard.getByRole('link')).toHaveAttribute(
+      'href',
+      /\/collections\/.+\/manage$/,
+    )
 
     // closing by success popped the pushed dialog entry, so going back
     // must not resurface the dialog

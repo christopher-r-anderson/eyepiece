@@ -73,6 +73,7 @@ function mapCollectionCard(row: DbCollectionCard): CollectionCard {
 
 const dbCollectionItemEdgeSchema = z.object({
   created_at: z.iso.datetime({ offset: true }),
+  position: z.number().int(),
   asset_preview_snapshots: z.object({
     id: z.uuid(),
     provider_id: providerIdSchema,
@@ -92,6 +93,7 @@ function mapCollectionItemEdge(row: DbCollectionItemEdge): CollectionItemEdge {
       providerId: row.asset_preview_snapshots.provider_id,
       externalId: row.asset_preview_snapshots.external_id,
     },
+    position: row.position,
   }
 }
 
@@ -223,7 +225,7 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     } = await client
       .from('collection_items')
       .select(
-        'created_at, asset_preview_snapshots (id, provider_id, external_id)',
+        'created_at, position, asset_preview_snapshots (id, provider_id, external_id)',
         { count: 'exact' },
       )
       .eq('collection_id', collectionId)

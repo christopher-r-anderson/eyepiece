@@ -46,6 +46,7 @@ import { Route as privatepagesSettingsProfileRouteImport } from './routes/(priva
 import { Route as privateauthAuthUpdatePasswordRouteImport } from './routes/(private)/(auth)/auth/update-password'
 import { Route as publicpagesAssetsProviderIdAssetIdRouteImport } from './routes/(public)/(pages)/assets/$providerId.$assetId'
 import { Route as publicpagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/(pages)/albums/$providerId.$albumId'
+import { Route as privatepagesCollectionsCollectionIdManageRouteImport } from './routes/(private)/(pages)/collections/$collectionId.manage'
 import { Route as publicApiV1AssetProviderIdAssetIdRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId'
 import { Route as publicApiV1AlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/api/v1/albums/$providerId.$albumId'
 import { Route as publicApiV1AssetProviderIdAssetIdMetadataRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId.metadata'
@@ -244,6 +245,12 @@ const publicpagesAlbumsProviderIdAlbumIdRoute =
     path: '/albums/$providerId/$albumId',
     getParentRoute: () => publicpagesRouteRoute,
   } as any)
+const privatepagesCollectionsCollectionIdManageRoute =
+  privatepagesCollectionsCollectionIdManageRouteImport.update({
+    id: '/collections/$collectionId/manage',
+    path: '/collections/$collectionId/manage',
+    getParentRoute: () => privatepagesRouteRoute,
+  } as any)
 const publicApiV1AssetProviderIdAssetIdRoute =
   publicApiV1AssetProviderIdAssetIdRouteImport.update({
     id: '/api/v1/asset/$providerId/$assetId',
@@ -293,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/search': typeof publicApiV1SearchRoute
   '/collections/': typeof privatepagesCollectionsIndexRoute
   '/settings/': typeof privatepagesSettingsIndexRoute
+  '/collections/$collectionId/manage': typeof privatepagesCollectionsCollectionIdManageRoute
   '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
   '/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
@@ -326,6 +334,7 @@ export interface FileRoutesByTo {
   '/api/v1/search': typeof publicApiV1SearchRoute
   '/collections': typeof privatepagesCollectionsIndexRoute
   '/settings': typeof privatepagesSettingsIndexRoute
+  '/collections/$collectionId/manage': typeof privatepagesCollectionsCollectionIdManageRoute
   '/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
   '/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
@@ -369,6 +378,7 @@ export interface FileRoutesById {
   '/(public)/api/v1/search': typeof publicApiV1SearchRoute
   '/(private)/(pages)/collections/': typeof privatepagesCollectionsIndexRoute
   '/(private)/(pages)/settings/': typeof privatepagesSettingsIndexRoute
+  '/(private)/(pages)/collections/$collectionId/manage': typeof privatepagesCollectionsCollectionIdManageRoute
   '/(public)/(pages)/albums/$providerId/$albumId': typeof publicpagesAlbumsProviderIdAlbumIdRoute
   '/(public)/(pages)/assets/$providerId/$assetId': typeof publicpagesAssetsProviderIdAssetIdRoute
   '/(public)/api/v1/albums/$providerId/$albumId': typeof publicApiV1AlbumsProviderIdAlbumIdRoute
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/api/v1/search'
     | '/collections/'
     | '/settings/'
+    | '/collections/$collectionId/manage'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
     | '/api/v1/albums/$providerId/$albumId'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/api/v1/search'
     | '/collections'
     | '/settings'
+    | '/collections/$collectionId/manage'
     | '/albums/$providerId/$albumId'
     | '/assets/$providerId/$assetId'
     | '/api/v1/albums/$providerId/$albumId'
@@ -482,6 +494,7 @@ export interface FileRouteTypes {
     | '/(public)/api/v1/search'
     | '/(private)/(pages)/collections/'
     | '/(private)/(pages)/settings/'
+    | '/(private)/(pages)/collections/$collectionId/manage'
     | '/(public)/(pages)/albums/$providerId/$albumId'
     | '/(public)/(pages)/assets/$providerId/$assetId'
     | '/(public)/api/v1/albums/$providerId/$albumId'
@@ -757,6 +770,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicpagesAlbumsProviderIdAlbumIdRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
+    '/(private)/(pages)/collections/$collectionId/manage': {
+      id: '/(private)/(pages)/collections/$collectionId/manage'
+      path: '/collections/$collectionId/manage'
+      fullPath: '/collections/$collectionId/manage'
+      preLoaderRoute: typeof privatepagesCollectionsCollectionIdManageRouteImport
+      parentRoute: typeof privatepagesRouteRoute
+    }
     '/(public)/api/v1/asset/$providerId/$assetId': {
       id: '/(public)/api/v1/asset/$providerId/$assetId'
       path: '/api/v1/asset/$providerId/$assetId'
@@ -798,6 +818,7 @@ interface privatepagesRouteRouteChildren {
   privatepagesSettingsProfileRoute: typeof privatepagesSettingsProfileRoute
   privatepagesCollectionsIndexRoute: typeof privatepagesCollectionsIndexRoute
   privatepagesSettingsIndexRoute: typeof privatepagesSettingsIndexRoute
+  privatepagesCollectionsCollectionIdManageRoute: typeof privatepagesCollectionsCollectionIdManageRoute
 }
 
 const privatepagesRouteRouteChildren: privatepagesRouteRouteChildren = {
@@ -806,6 +827,8 @@ const privatepagesRouteRouteChildren: privatepagesRouteRouteChildren = {
   privatepagesSettingsProfileRoute: privatepagesSettingsProfileRoute,
   privatepagesCollectionsIndexRoute: privatepagesCollectionsIndexRoute,
   privatepagesSettingsIndexRoute: privatepagesSettingsIndexRoute,
+  privatepagesCollectionsCollectionIdManageRoute:
+    privatepagesCollectionsCollectionIdManageRoute,
 }
 
 const privatepagesRouteRouteWithChildren =

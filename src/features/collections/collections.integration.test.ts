@@ -10,6 +10,7 @@ import { resultIsError, resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 
 const {
   assertCollectionOwned,
+  resolveSnapshotForReAdd,
   createCollectionForUser,
   renameCollectionForUser,
   setCollectionVisibilityForUser,
@@ -495,6 +496,102 @@ describe('collection items', () => {
     expect(seen).toEqual([...ids].sort())
     expect(new Set(seen).size).toBe(3)
     expect(page1.pagination.total).toBe(3)
+  })
+
+  it('re-adding at an explicit position restores the original order', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const collection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Undo target',
+        visibility: 'private',
+      }),
+    )
+    const externalIds = ['a', 'b', 'c'].map(
+      (tag) => `INTEG-READD-${tag}-${Date.now()}`,
+    )
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (const externalId of externalIds) {
+      ids.push(await seedAssetPreviewSnapshot(adminClient, externalId))
+    }
+    snapshotIds.push(...ids)
+    for (const [index, externalId] of externalIds.entries()) {
+      unwrapOrThrow(
+        await addCollectionItemForUser(
+          client,
+          {
+            collectionId: collection.id,
+            assetKey: { providerId: 'nasa_ivl', externalId },
+          },
+          ids[index],
+        ),
+      )
+    }
+
+    const repo = makeCollectionsRepo(client)
+    const before = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 10,
+      }),
+    )
+    const middle = before.items[1]
+    expect(middle.assetPreviewSnapshotId).toBe(ids[1])
+
+    unwrapOrThrow(
+      await removeCollectionItemForUser(client, {
+        collectionId: collection.id,
+        assetKey: middle.assetKey,
+      }),
+    )
+    unwrapOrThrow(
+      await addCollectionItemForUser(
+        client,
+        {
+          collectionId: collection.id,
+          assetKey: middle.assetKey,
+        },
+        ids[1],
+        middle.position,
+        middle.createdAt,
+      ),
+    )
+
+    const after = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        page: 1,
+        pageSize: 10,
+      }),
+    )
+    expect(after.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual(ids)
+    expect(after.items.map((edge) => edge.position)).toEqual([1, 2, 3])
+    // the restore carries the original created_at (the position tiebreaker)
+    expect(after.items[1]?.createdAt).toBe(middle.createdAt)
+  })
+
+  // the external id is fake, so falling through to the provider-backed
+  // ensure would fail: an Ok result proves the stored snapshot was reused
+  it('re-add resolves a stale stored snapshot without the provider', async ({
+    client,
+    adminClient,
+  }) => {
+    const externalId = `INTEG-READD-LOCAL-${Date.now()}`
+    const snapshotId = await seedAssetPreviewSnapshot(
+      adminClient,
+      externalId,
+      daysAgoIso(10),
+    )
+    snapshotIds.push(snapshotId)
+
+    const resolved = unwrapOrThrow(
+      await resolveSnapshotForReAdd(client, {
+        providerId: 'nasa_ivl',
+        externalId,
+      }),
+    )
+    expect(resolved).toBe(snapshotId)
   })
 
   it('adds items in position order, idempotently', async ({

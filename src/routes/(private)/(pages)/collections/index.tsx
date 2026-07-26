@@ -109,7 +109,7 @@ function CollectionsPage() {
               <CollectionCard
                 card={card}
                 showVisibility
-                isLinked={card.collection.visibility === 'public'}
+                linkTarget="manage"
                 titleLevel={2}
               />
             </li>

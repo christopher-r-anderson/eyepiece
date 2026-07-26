@@ -5,6 +5,7 @@ import type { CollectionsErrorCode } from './collections.const'
 import type {
   Collection,
   CollectionId,
+  CollectionItemAtPositionInput,
   CollectionItemInput,
   CreateCollectionInput,
   DeleteCollectionInput,
@@ -15,6 +16,7 @@ import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
+import { createServiceSupabaseClient } from '@/integrations/supabase/service'
 import { getUser } from '@/features/auth/get-user'
 import {
   expectedErrorObservability,
@@ -209,6 +211,11 @@ async function addCollectionItemForUser(
   client: SupabaseClient,
   input: CollectionItemInput,
   assetPreviewSnapshotId: AssetPreviewSnapshotId,
+  // undo passes the position and created_at the removed item vacated (ties
+  // on position order by created_at then id); the default append computes
+  // max + 1 and lets the column default stamp created_at
+  explicitPosition?: number,
+  explicitCreatedAt?: string,
 ): Promise<
   Result<
     {
@@ -218,20 +225,25 @@ async function addCollectionItemForUser(
     CollectionsErrorCode
   >
 > {
-  const position = await nextPosition(
-    client,
-    'collection_items',
-    'collection_id',
-    input.collectionId,
-  )
-  if (position.error) {
-    return Err(unknownError('add-item.position', position.error.cause))
+  let position = explicitPosition
+  if (position === undefined) {
+    const nextResult = await nextPosition(
+      client,
+      'collection_items',
+      'collection_id',
+      input.collectionId,
+    )
+    if (nextResult.error) {
+      return Err(unknownError('add-item.position', nextResult.error.cause))
+    }
+    position = nextResult.data
   }
 
   const { error } = await client.from('collection_items').insert({
     collection_id: input.collectionId,
     asset_preview_snapshot_id: assetPreviewSnapshotId,
-    position: position.data,
+    position,
+    ...(explicitCreatedAt ? { created_at: explicitCreatedAt } : {}),
   })
   // 23505: already in the collection - adding is idempotent
   if (error && error.code !== '23505') {
@@ -279,6 +291,7 @@ async function removeCollectionItemForUser(
 // Exported for testing only
 export const _internals = {
   assertCollectionOwned,
+  resolveSnapshotForReAdd,
   createCollectionForUser,
   renameCollectionForUser,
   setCollectionVisibilityForUser,
@@ -337,9 +350,81 @@ export const addCollectionItem = createServerOnlyFn(
   },
 )
 
+// undo must not depend on a live provider: the just-removed item's snapshot
+// still exists locally (30-day orphan grace), so reuse it and only fall back
+// to the provider-backed ensure when the row is genuinely gone
+async function resolveSnapshotForReAdd(
+  client: SupabaseClient,
+  assetKey: CollectionItemInput['assetKey'],
+): Promise<Result<AssetPreviewSnapshotId, CollectionsErrorCode>> {
+  const { data, error } = await client
+    .from('asset_preview_snapshots')
+    .select('id')
+    .eq('provider_id', assetKey.providerId)
+    .eq('external_id', assetKey.externalId)
+    .maybeSingle()
+  if (error) {
+    return Err(unknownError('re-add-item.snapshot-lookup', error))
+  }
+  if (data) {
+    return Ok(data.id)
+  }
+  const ensured = await ensureAssetPreviewSnapshot(assetKey)
+  if (ensured.error) {
+    return Err(unknownError('re-add-item.ensure-snapshot', ensured.error.cause))
+  }
+  return Ok(ensured.data)
+}
+
+export const addCollectionItemAtPosition = createServerOnlyFn(
+  async (input: CollectionItemAtPositionInput) => {
+    const auth = unwrapOrThrow(await requireUser('re-add-item'))
+    unwrapOrThrow(
+      await assertCollectionOwned(auth.client, auth.userId, input.collectionId),
+    )
+    const snapshotId = unwrapOrThrow(
+      await resolveSnapshotForReAdd(auth.client, input.assetKey),
+    )
+    return unwrapOrThrow(
+      await addCollectionItemForUser(
+        auth.client,
+        input,
+        snapshotId,
+        input.position,
+        input.createdAt,
+      ),
+    )
+  },
+)
+
 export const removeCollectionItem = createServerOnlyFn(
   async (input: CollectionItemInput) => {
     const auth = unwrapOrThrow(await requireUser('remove-item'))
-    return unwrapOrThrow(await removeCollectionItemForUser(auth.client, input))
+    const result = unwrapOrThrow(
+      await removeCollectionItemForUser(auth.client, input),
+    )
+    if (result.removed) {
+      // the sweep grace must start at orphaning, not at the last content
+      // refresh: touch the snapshot (moddatetime bumps updated_at) so a
+      // long-stale snapshot isn't instantly sweep-eligible and undo stays
+      // local. Best-effort in full: nothing here - including service-client
+      // construction - may fail an already-committed removal
+      try {
+        const { error } = await createServiceSupabaseClient()
+          .from('asset_preview_snapshots')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('provider_id', input.assetKey.providerId)
+          .eq('external_id', input.assetKey.externalId)
+        if (error) {
+          throw error
+        }
+      } catch (error) {
+        logErrorWithObservability(
+          'Collections remove-item snapshot touch failed',
+          error,
+        )
+      }
+    }
+    return result
   },
 )

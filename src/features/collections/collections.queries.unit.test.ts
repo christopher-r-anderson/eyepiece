@@ -15,6 +15,7 @@ function edge(assetPreviewSnapshotId: string): CollectionItemEdge {
       providerId: 'nasa_ivl',
       externalId: `ext-${assetPreviewSnapshotId}`,
     },
+    position: 1,
   }
 }
 
