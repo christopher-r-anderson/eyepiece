@@ -25,6 +25,16 @@ export function useItemOperationQueue() {
     // operations handle their own failures, so the chain never rejects
     const next = prior.then(operation)
     pendingRef.current.set(id, next)
+    // drop settled entries so long sessions don't retain one per item; a
+    // newer queued operation replaces `next` in the map and the guard
+    // leaves it alone. Intent tokens go with it: every handler that could
+    // consult them has run by the time the item's whole chain settles
+    void next.finally(() => {
+      if (pendingRef.current.get(id) === next) {
+        pendingRef.current.delete(id)
+        intentRef.current.delete(id)
+      }
+    })
   }, [])
 
   return { enqueue, nextIntent, isCurrentIntent }
