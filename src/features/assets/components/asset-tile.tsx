@@ -20,14 +20,20 @@ interface AssetTileProps extends Omit<
   actions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
+  // SPIKE (overlay route masking): per-context override of the primary
+  // link's navigation target (to/params/search/state/mask); presentation
+  // props stay owned by the tile
+  linkProps?: Record<string, unknown>
 }
 
 const Thumbnail = ({
   assetPreview,
   isLinkDisabled,
+  linkProps,
 }: {
   assetPreview: AssetPreview
   isLinkDisabled?: boolean
+  linkProps?: Record<string, unknown>
 }) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
@@ -40,6 +46,7 @@ const Thumbnail = ({
         assetId: assetPreview.key.externalId,
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
+      {...linkProps}
       onClick={() => setDetailClicked(true)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
@@ -128,11 +135,16 @@ export function AssetTile({
   actions,
   className,
   isLinkDisabled,
+  linkProps,
   ...props
 }: AssetTileProps) {
   return (
     <div className={cx(css(containerCss), className)} {...props}>
-      <Thumbnail assetPreview={assetPreview} isLinkDisabled={isLinkDisabled} />
+      <Thumbnail
+        assetPreview={assetPreview}
+        isLinkDisabled={isLinkDisabled}
+        linkProps={linkProps}
+      />
       {relatedLinks && (
         <div
           data-tile-reveal

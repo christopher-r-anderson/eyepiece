@@ -10,6 +10,7 @@ import { visuallyHidden } from 'styled-system/patterns'
 import { SearchResults } from './-components/search-results'
 import { SearchPrompt } from './-components/search-prompt'
 import { AllProvidersResults } from './-components/all-providers-results'
+import { AssetViewingOverlay } from './-components/asset-viewing-overlay'
 import { QueryHeadline } from './-components/query-headline'
 import type {
   SearchPageState,
@@ -239,6 +240,7 @@ function SearchPage() {
           <ScopedSearchResults q={q} scope={scope} />
         )}
       </div>
+      <AssetViewingOverlay />
     </div>
   )
 }

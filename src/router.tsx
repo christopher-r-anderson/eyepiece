@@ -12,6 +12,7 @@ import {
   stringifyCanonicalSearchParams,
 } from './lib/search-params'
 import type { AuthInteractionStrategy } from '@/features/auth/auth.types'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 
 declare module '@tanstack/react-router' {
   interface HistoryState {
@@ -19,6 +20,10 @@ declare module '@tanstack/react-router' {
     // marks an entry a dialog pushed to open itself; close() consumes it
     // with back(), while deep-linked opens (no flag) close by replace
     dialogPushed?: boolean
+    // SPIKE (overlay route masking): the asset shown as an overlay above
+    // the list the entry belongs to; the entry's displayed URL is masked
+    // to the asset detail route
+    viewingAsset?: AssetKey
   }
   interface StaticDataRouteOption {
     authInteractionStrategy?: AuthInteractionStrategy
