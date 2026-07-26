@@ -111,10 +111,9 @@ test('create dialog validates emptied names and Escape leaves no hash behind', a
   await dialog.getByRole('button', { name: 'Create' }).click()
   await expect(dialog.locator('[slot="errorMessage"]')).toBeVisible()
 
-  // re-enter the field before Escape: the submit's pending flicker disables
-  // the Create button, which can park focus on body until the focus scope
-  // restores it - an Escape in that window lands outside the overlay
-  await nameField.click()
+  // no refocus first: this pins that the pending submit keeps focus inside
+  // the dialog (a disabled-while-pending button strands focus on body and
+  // this Escape goes dead)
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL('/collections')
