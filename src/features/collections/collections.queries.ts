@@ -148,6 +148,8 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
+    // a focus refetch could yank rows out from under removal ghosts
+    refetchOnWindowFocus: false,
     select,
   })
 }
@@ -237,10 +239,19 @@ export function useSuspenseUserCollectionCards(userId: string) {
 
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
-function invalidateCollectionsQueries(queryClient: QueryClient) {
+function invalidateCollectionsQueries(
+  queryClient: QueryClient,
+  refetchType: 'active' | 'none',
+) {
   return Promise.all([
-    queryClient.invalidateQueries({ queryKey: userCollectionsKeys.all }),
-    queryClient.invalidateQueries({ queryKey: collectionsKeys.all }),
+    queryClient.invalidateQueries({
+      queryKey: userCollectionsKeys.all,
+      refetchType,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: collectionsKeys.all,
+      refetchType,
+    }),
   ])
 }
 
@@ -248,11 +259,12 @@ function useCollectionsMutation<TInput, TData>(
   command: (
     input: TInput,
   ) => Promise<Result<TData, CollectionsErrorCode | undefined>>,
+  { refetchType = 'active' }: { refetchType?: 'active' | 'none' } = {},
 ) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: TInput) => unwrapOrThrow(await command(input)),
-    onSettled: () => invalidateCollectionsQueries(queryClient),
+    onSettled: () => invalidateCollectionsQueries(queryClient, refetchType),
   })
 }
 
@@ -281,7 +293,12 @@ export function useAddCollectionItem() {
   return useCollectionsMutation(commands.addCollectionItem)
 }
 
+// refetchType 'none': a removal must never refetch a mounted grid out from
+// under its dimmed undo ghost; unmounted queries are marked stale either
+// way, so everything refreshes on the next visit
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.removeCollectionItem)
+  return useCollectionsMutation(commands.removeCollectionItem, {
+    refetchType: 'none',
+  })
 }
