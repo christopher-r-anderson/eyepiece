@@ -219,7 +219,11 @@ function InlineCreate({
     try {
       await addItem.mutateAsync({ collectionId: created.id, assetKey })
       queueToastMessage({ title: `Added to ${created.name}` })
-    } catch {
+    } catch (error) {
+      if (isAuthRequiredError(error)) {
+        onAuthRequired?.()
+        return
+      }
       queueToastMessage({
         title: `Couldn't add to ${created.name}`,
         description: 'The collection was created. Please try again.',

@@ -21,8 +21,12 @@ vi.mock('@/features/assets/assets.queries', () => ({
   useSuspenseAsset: vi.fn(),
 }))
 
+const addToCollectionProps: Array<unknown> = []
 vi.mock('@/app/add-to-collection-button', () => ({
-  AddToCollectionButton: () => null,
+  AddToCollectionButton: (props: Record<string, unknown>) => {
+    addToCollectionProps.push(props)
+    return createElement('div', { 'data-testid': 'add-to-collection' })
+  },
 }))
 
 vi.mock('../-components/favorite-button', () => ({
@@ -79,6 +83,20 @@ describe('asset page component', () => {
     render(route.component())
 
     expect(screen.getByRole('button', { name: 'metadata' })).toBeTruthy()
+  })
+
+  it('renders the add-to-collection entry point for the current asset', () => {
+    const assetKey = {
+      providerId: NASA_IVL_PROVIDER_ID,
+      externalId: 'AS17-148-22727',
+    }
+    route.useRouteContext.mockReturnValue({ assetKey })
+    addToCollectionProps.length = 0
+
+    render(route.component())
+
+    expect(screen.getByTestId('add-to-collection')).toBeTruthy()
+    expect(addToCollectionProps).toEqual([{ assetKey, variant: 'detail' }])
   })
 
   it('hides the metadata button for providers without metadata support', () => {
