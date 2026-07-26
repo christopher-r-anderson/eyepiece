@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
-import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
+import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import { isAuthRequiredError } from '@/lib/result'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
   ensureInfiniteUserFavoritesEdges,
@@ -18,17 +19,18 @@ import {
   ensureAssetPreviewSnapshotsBatch,
   useAssetPreviewSnapshotsBatch,
 } from '@/features/assets/asset-preview-snapshots.queries'
+import {
+  GhostRemovedActions,
+  useGhostRemovals,
+} from '@/features/assets/components/ghost-removals'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
-import { Button } from '@/components/ui/button'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { useItemOperationQueue } from '@/lib/hooks/use-item-operation-queue'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
-import { ToggleFavoriteErrorCodes } from '@/features/favorites/favorites.const'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
 
@@ -63,51 +65,34 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
   ),
 })
 
-// ghost rows: an unstarred tile keeps its slot dimmed with an always-visible
-// veil so justified rows never re-break and undo stays in place
-const ghostTileCss = css({
-  '& [data-tile-primary-link]': { pointerEvents: 'none' },
-  '& img': { opacity: 0.3 },
-  '& [data-tile-reveal], & [data-tile-controls]': {
-    opacity: 1,
-    translate: 'none',
-  },
-  '& [data-tile-controls]': { pointerEvents: 'auto' },
-})
-
 function FavoritesPage() {
   const favoritesResult = useSuspenseInfiniteUserFavoriteEdges()
   const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
     favoritesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
-  const unfavorite = useUnfavorite()
-  const refavoriteAt = useRefavoriteAt()
+  // mutateAsync alone: the mutation result object is fresh every render
+  // and would defeat the grid rows' memo through the tileActions identity
+  const { mutateAsync: unfavoriteAsync } = useUnfavorite()
+  const { mutateAsync: refavoriteAtAsync } = useRefavoriteAt()
   const queueToastMessage = useQueueToastMessage()
-  const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(
-    () => new Set(),
-  )
-  const { enqueue, nextIntent, isCurrentIntent } = useItemOperationQueue()
   const showLoginModal = useShowLoginModal()
-  // rollback target for a failed operation: the last state the server
-  // CONFIRMED, not the state the failed op assumed - its predecessor in
-  // the queue may itself have failed (e.g. expired session), so blindly
-  // inverting would ghost an item that was never removed
-  const confirmedRemovedRef = useRef(new Set<string>())
-  const rollBackToConfirmed = useCallback((id: string) => {
-    setRemovedIds((prev) => {
-      const shouldBeRemoved = confirmedRemovedRef.current.has(id)
-      if (shouldBeRemoved === prev.has(id)) {
-        return prev
+  const {
+    removedIds,
+    runRemoval,
+    runRestore,
+    tileClassName,
+    tileLinkDisabled,
+  } = useGhostRemovals()
+  const makeOpFailureHandler = useCallback(
+    (title: string) => (error: unknown) => {
+      if (isAuthRequiredError(error)) {
+        showLoginModal()
+        return
       }
-      const next = new Set(prev)
-      if (shouldBeRemoved) {
-        next.add(id)
-      } else {
-        next.delete(id)
-      }
-      return next
-    })
-  }, [])
+      queueToastMessage({ title, description: 'Please try again.' })
+    },
+    [showLoginModal, queueToastMessage],
+  )
 
   // failed page fetches would otherwise degrade silently: an edge-page
   // error only surfaces on the result once earlier pages exist, and an
@@ -129,17 +114,6 @@ function FavoritesPage() {
     return map
   }, [favoritesResult.data.edges])
 
-  const tileClassName = useCallback(
-    (item: AssetPreviewSnapshot) =>
-      removedIds.has(item.id) ? ghostTileCss : undefined,
-    [removedIds],
-  )
-
-  const tileLinkDisabled = useCallback(
-    (item: AssetPreviewSnapshot) => removedIds.has(item.id),
-    [removedIds],
-  )
-
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
       const edge = edgesBySnapshotId.get(item.id)
@@ -148,59 +122,19 @@ function FavoritesPage() {
       }
       if (removedIds.has(item.id)) {
         return (
-          <span
-            className={css({
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '2',
-            })}
-          >
-            Removed
-            <Button
-              variant="bare"
-              className={css({ textDecoration: 'underline' })}
-              onPress={() => {
-                setRemovedIds((prev) => {
-                  const next = new Set(prev)
-                  next.delete(item.id)
-                  return next
-                })
-                const token = nextIntent(item.id)
-                enqueue(item.id, () =>
-                  refavoriteAt
-                    .mutateAsync({
-                      assetKey: edge.assetKey,
-                      createdAt: edge.createdAt,
-                    })
-                    .then(
-                      () => {
-                        confirmedRemovedRef.current.delete(item.id)
-                      },
-                      (error: unknown) => {
-                        if (!isCurrentIntent(item.id, token)) {
-                          return
-                        }
-                        rollBackToConfirmed(item.id)
-                        if (
-                          error instanceof Error &&
-                          error.message ===
-                            ToggleFavoriteErrorCodes.AUTH_REQUIRED
-                        ) {
-                          showLoginModal()
-                          return
-                        }
-                        queueToastMessage({
-                          title: 'Undo failed',
-                          description: 'Please try again.',
-                        })
-                      },
-                    ),
-                )
-              }}
-            >
-              Undo
-            </Button>
-          </span>
+          <GhostRemovedActions
+            onUndo={() =>
+              runRestore(
+                item.id,
+                () =>
+                  refavoriteAtAsync({
+                    assetKey: edge.assetKey,
+                    createdAt: edge.createdAt,
+                  }),
+                makeOpFailureHandler('Undo failed'),
+              )
+            }
+          />
         )
       }
       return (
@@ -210,34 +144,13 @@ function FavoritesPage() {
             css={favoriteToggleCss}
             variant="icon"
             isSelected
-            onChange={() => {
-              setRemovedIds((prev) => new Set(prev).add(item.id))
-              const token = nextIntent(item.id)
-              enqueue(item.id, () =>
-                unfavorite.mutateAsync(edge.assetKey).then(
-                  () => {
-                    confirmedRemovedRef.current.add(item.id)
-                  },
-                  (error: unknown) => {
-                    if (!isCurrentIntent(item.id, token)) {
-                      return
-                    }
-                    rollBackToConfirmed(item.id)
-                    if (
-                      error instanceof Error &&
-                      error.message === ToggleFavoriteErrorCodes.AUTH_REQUIRED
-                    ) {
-                      showLoginModal()
-                      return
-                    }
-                    queueToastMessage({
-                      title: 'Unstar failed',
-                      description: 'Please try again.',
-                    })
-                  },
-                ),
+            onChange={() =>
+              runRemoval(
+                item.id,
+                () => unfavoriteAsync(edge.assetKey),
+                makeOpFailureHandler('Unstar failed'),
               )
-            }}
+            }
           >
             <StarIcon size={20} weight="fill" />
           </ToggleButton>
@@ -248,14 +161,11 @@ function FavoritesPage() {
     [
       edgesBySnapshotId,
       removedIds,
-      enqueue,
-      nextIntent,
-      isCurrentIntent,
-      unfavorite,
-      refavoriteAt,
-      queueToastMessage,
-      showLoginModal,
-      rollBackToConfirmed,
+      runRemoval,
+      runRestore,
+      unfavoriteAsync,
+      refavoriteAtAsync,
+      makeOpFailureHandler,
     ],
   )
 

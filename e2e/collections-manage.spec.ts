@@ -4,27 +4,12 @@ import {
   COLLECTIONS_FIXTURE,
   makeAdminClient,
 } from './support/collections-fixture'
-import type { Page } from '@playwright/test'
+import {
+  logInAsFixtureUser,
+  nextServerPost,
+} from './support/collections-helpers'
 
 const { publicCollection, snapshots, user } = COLLECTIONS_FIXTURE
-
-const TINY_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-)
-
-async function logIn(page: Page, next: string) {
-  await page.route('**/image/e2e-collections-*/**', (route) =>
-    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
-  )
-  await page.goto(`/login?next=${encodeURIComponent(next)}`)
-  await page.getByRole('textbox', { name: 'Email' }).fill(user.email)
-  await page.getByRole('textbox', { name: 'Password' }).fill(user.password)
-  await Promise.all([
-    page.waitForURL(next),
-    page.getByRole('button', { name: 'Log In' }).click(),
-  ])
-}
 
 // mutating specs get their own collection (on the shared read-only fixture
 // snapshots) so the detail specs running in parallel never see the edits
@@ -79,7 +64,7 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
   const name = `e2e manage ${Date.now()}`
   const collectionId = await seedManageCollection(name)
   try {
-    await logIn(page, '/collections')
+    await logInAsFixtureUser(page, '/collections')
 
     // list cards link to the manage page; navigating by click keeps the
     // session hydrated for everything below
@@ -108,25 +93,19 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
     // Each mutation runs on the page-side per-item queue with no visible
     // settle signal (by design), so the spec awaits the server-fn POST of
     // every operation before issuing the next state-dependent step
-    const nextServerPost = () =>
-      page.waitForResponse(
-        (response) =>
-          response.request().method() === 'POST' &&
-          response.url().startsWith('http://localhost:8888'),
-      )
     await page.getByRole('button', { name: 'Edit items' }).click()
     const rows = page.getByRole('grid').getByRole('row')
     await expect(rows).toHaveCount(3)
     // veil controls are hit-testable only while hover-revealed
     await rows.nth(1).hover()
-    const removedOnce = nextServerPost()
+    const removedOnce = nextServerPost(page)
     await page.getByRole('button', { name: 'Remove E2E Square' }).click()
     await expect(page.getByText('Removed')).toBeVisible()
     await expect(rows).toHaveCount(3)
     await removedOnce
 
     // undo restores in place: the remove control comes back, nothing moved
-    const reAdded = nextServerPost()
+    const reAdded = nextServerPost(page)
     await page.getByRole('button', { name: 'Undo' }).click()
     await expect(page.getByText('Removed')).toHaveCount(0)
     await expect(
@@ -137,7 +116,7 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
 
     // remove again and let it stand: the ghost clears on the next visit
     await rows.nth(1).hover()
-    const removedAgain = nextServerPost()
+    const removedAgain = nextServerPost(page)
     await page.getByRole('button', { name: 'Remove E2E Square' }).click()
     await expect(page.getByText('Removed')).toBeVisible()
     await removedAgain

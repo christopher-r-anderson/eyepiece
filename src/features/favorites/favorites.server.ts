@@ -18,6 +18,7 @@ import {
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { ensureAssetPreviewSnapshot } from '@/features/assets/asset-preview-snapshots.server'
+import { clampIsoToNow } from '@/lib/utils'
 
 // NOTE: server and client safe. if needed elsewhere it can be extracted to a shared module
 async function toggleFavoriteForUser(
@@ -110,6 +111,43 @@ export const _internals = {
   resolveSnapshotForRefavorite,
 }
 
+// build-and-log for the operational failure shape the new write paths share
+function operationalFavoritesError(
+  operation: string,
+  logMessage: string,
+  cause: unknown,
+) {
+  const errorResult = {
+    code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+    message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
+    cause,
+    observability: operationalErrorObservability({
+      tags: { feature: 'favorites', operation },
+    }),
+  }
+  logErrorWithObservability(logMessage, errorResult)
+  return errorResult
+}
+
+async function lookupStoredSnapshotId(
+  client: SupabaseClient,
+  assetKey: AssetKey,
+  operation: string,
+): Promise<Result<AssetPreviewSnapshotId | null, ToggleFavoriteErrorCode>> {
+  const { data, error } = await client
+    .from('asset_preview_snapshots')
+    .select('id')
+    .eq('provider_id', assetKey.providerId)
+    .eq('external_id', assetKey.externalId)
+    .maybeSingle()
+  if (error) {
+    return Err(
+      operationalFavoritesError(operation, 'Snapshot lookup failed', error),
+    )
+  }
+  return Ok(data?.id ?? null)
+}
+
 // an explicit remove, not a toggle: the ghost idiom queues operations, and
 // a toggle replayed after a failed neighbor flips parity (server refavorites
 // an item the UI shows removed). Deleting is idempotent, needs no provider,
@@ -128,50 +166,32 @@ export const unfavoriteUserFavorite = createServerOnlyFn(
       })
     }
     const client = createUserSupabaseClient()
-    const { data: snapshot, error: lookupError } = await client
-      .from('asset_preview_snapshots')
-      .select('id')
-      .eq('provider_id', assetKey.providerId)
-      .eq('external_id', assetKey.externalId)
-      .maybeSingle()
-    if (lookupError) {
-      const errorResult = {
-        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: lookupError,
-        observability: operationalErrorObservability({
-          tags: { feature: 'favorites', operation: 'unfavorite.lookup' },
-        }),
-      }
-      logErrorWithObservability('Unfavorite lookup failed', errorResult)
-      throwFromErrorResult(errorResult)
-    }
-    if (!snapshot) {
+    const snapshotId = unwrapOrThrow(
+      await lookupStoredSnapshotId(client, assetKey, 'unfavorite.lookup'),
+    )
+    if (!snapshotId) {
       return { removed: false }
     }
     const { count, error } = await client
       .from('favorites')
       .delete({ count: 'exact' })
       .eq('owner_id', user.id)
-      .eq('asset_preview_snapshot_id', snapshot.id)
+      .eq('asset_preview_snapshot_id', snapshotId)
     if (error) {
-      const errorResult = {
-        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: error,
-        observability: operationalErrorObservability({
-          tags: { feature: 'favorites', operation: 'unfavorite.delete' },
-        }),
-      }
-      logErrorWithObservability('Unfavorite delete failed', errorResult)
-      throwFromErrorResult(errorResult)
+      throwFromErrorResult(
+        operationalFavoritesError(
+          'unfavorite.delete',
+          'Unfavorite delete failed',
+          error,
+        ),
+      )
     }
     if (count === 1) {
       try {
         const { error: touchError } = await createServiceSupabaseClient()
           .from('asset_preview_snapshots')
           .update({ updated_at: new Date().toISOString() })
-          .eq('id', snapshot.id)
+          .eq('id', snapshotId)
         if (touchError) {
           throw touchError
         }
@@ -192,39 +212,26 @@ async function resolveSnapshotForRefavorite(
   client: SupabaseClient,
   assetKey: AssetKey,
 ): Promise<Result<AssetPreviewSnapshotId, ToggleFavoriteErrorCode>> {
-  const { data, error } = await client
-    .from('asset_preview_snapshots')
-    .select('id')
-    .eq('provider_id', assetKey.providerId)
-    .eq('external_id', assetKey.externalId)
-    .maybeSingle()
-  if (error) {
-    const errorResult = {
-      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      cause: error,
-      observability: operationalErrorObservability({
-        tags: { feature: 'favorites', operation: 're-favorite.lookup' },
-      }),
-    }
-    logErrorWithObservability('Re-favorite snapshot lookup failed', errorResult)
-    return Err(errorResult)
+  const lookedUp = await lookupStoredSnapshotId(
+    client,
+    assetKey,
+    're-favorite.lookup',
+  )
+  if (lookedUp.error) {
+    return lookedUp
   }
-  if (data) {
-    return Ok(data.id)
+  if (lookedUp.data) {
+    return Ok(lookedUp.data)
   }
   const ensured = await ensureAssetPreviewSnapshot(assetKey)
   if (ensured.error) {
-    const errorResult = {
-      code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-      cause: ensured.error.cause,
-      observability: operationalErrorObservability({
-        tags: { feature: 'favorites', operation: 're-favorite.ensure' },
-      }),
-    }
-    logErrorWithObservability('Re-favorite snapshot ensure failed', errorResult)
-    return Err(errorResult)
+    return Err(
+      operationalFavoritesError(
+        're-favorite.ensure',
+        'Re-favorite snapshot ensure failed',
+        ensured.error.cause,
+      ),
+    )
   }
   return Ok(ensured.data)
 }
@@ -249,12 +256,7 @@ export const refavoriteUserFavoriteAt = createServerOnlyFn(
     const assetPreviewSnapshotId = unwrapOrThrow(
       await resolveSnapshotForRefavorite(client, input.assetKey),
     )
-    // clamp to now: the timestamp restores ordering after an undo, not a
-    // client-chosen position in the future
-    const createdAt =
-      new Date(input.createdAt) > new Date()
-        ? new Date().toISOString()
-        : input.createdAt
+    const createdAt = clampIsoToNow(input.createdAt)
     const { error } = await client.from('favorites').insert({
       owner_id: user.id,
       asset_preview_snapshot_id: assetPreviewSnapshotId,
@@ -262,16 +264,13 @@ export const refavoriteUserFavoriteAt = createServerOnlyFn(
     })
     // 23505: already favorited again - restoring is idempotent
     if (error && error.code !== '23505') {
-      const errorResult = {
-        code: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        message: ToggleFavoriteErrorCodes.UNKNOWN_ERROR,
-        cause: error,
-        observability: operationalErrorObservability({
-          tags: { feature: 'favorites', operation: 're-favorite.insert' },
-        }),
-      }
-      logErrorWithObservability('Re-favorite insert failed', errorResult)
-      throwFromErrorResult(errorResult)
+      throwFromErrorResult(
+        operationalFavoritesError(
+          're-favorite.insert',
+          'Re-favorite insert failed',
+          error,
+        ),
+      )
     }
     return { assetPreviewSnapshotId, isFavorited: true }
   },

@@ -24,6 +24,7 @@ import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { Result } from '@/lib/result'
 import { unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
+import { mountOnlyListFreshness } from '@/lib/query-policies'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
@@ -166,11 +167,7 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
-    // mount-only freshness, same as every grid list: tiles anchor the
-    // add-to-collection popover, and a background refetch of a stale list
-    // (tab return, reconnect) could unmount the tile mid-toggle
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    ...mountOnlyListFreshness,
     select,
   })
 }
@@ -367,7 +364,7 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
   )
 }
 
-export function getUserCollectionsListOptions({
+function getUserCollectionsListOptions({
   userId,
   repo,
 }: {
@@ -389,7 +386,7 @@ export function useUserCollectionsList(userId: string) {
   return useQuery(getUserCollectionsListOptions({ userId, repo }))
 }
 
-export function getAssetCollectionMembershipOptions({
+function getAssetCollectionMembershipOptions({
   userId,
   assetKey,
   repo,

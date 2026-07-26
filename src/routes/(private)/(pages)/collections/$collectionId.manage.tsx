@@ -4,7 +4,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
+import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -37,7 +37,10 @@ import { FormActions } from '@/components/ui/forms'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { RouteError } from '@/app/layout/route-error'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
-import { useItemOperationQueue } from '@/lib/hooks/use-item-operation-queue'
+import {
+  GhostRemovedActions,
+  useGhostRemovals,
+} from '@/features/assets/components/ghost-removals'
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
@@ -210,31 +213,28 @@ function ManageCollectionPage() {
   )
 }
 
-// ghost rows: the removed tile keeps its slot dimmed with an always-visible
-// veil so justified rows never re-break and undo stays in place
-const ghostTileCss = css({
-  '& [data-tile-primary-link]': { pointerEvents: 'none' },
-  '& img': { opacity: 0.3 },
-  '& [data-tile-reveal], & [data-tile-controls]': {
-    opacity: 1,
-    translate: 'none',
-  },
-  // the veil only enables its controls while hover-revealed; a ghost's undo
-  // must stay clickable without hover (coarse pointers, keyboard-then-mouse)
-  '& [data-tile-controls]': { pointerEvents: 'auto' },
-})
-
 function CollectionItems({ collectionId }: { collectionId: string }) {
   const edgesResult = useSuspenseInfiniteUserCollectionItemEdges(collectionId)
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     edgesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
-  const removeItem = useRemoveCollectionItem()
-  const reAddItem = useAddCollectionItemAtPosition()
+  // mutateAsync alone: the mutation result object is fresh every render
+  // and would defeat the grid rows' memo through the tileActions identity
+  const { mutateAsync: removeItemAsync } = useRemoveCollectionItem()
+  const { mutateAsync: reAddItemAsync } = useAddCollectionItemAtPosition()
   const queueToastMessage = useQueueToastMessage()
   const [isEditing, setIsEditing] = useState(false)
-  const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(
-    () => new Set(),
+  const {
+    removedIds,
+    runRemoval,
+    runRestore,
+    tileClassName,
+    tileLinkDisabled,
+  } = useGhostRemovals()
+  const makeOpFailureHandler = useCallback(
+    (title: string) => () =>
+      queueToastMessage({ title, description: 'Please try again.' }),
+    [queueToastMessage],
   )
 
   if (edgesResult.isError) {
@@ -252,42 +252,6 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     return map
   }, [edgesResult.data.edges])
 
-  const tileClassName = useCallback(
-    (item: AssetPreviewSnapshot) =>
-      removedIds.has(item.id) ? ghostTileCss : undefined,
-    [removedIds],
-  )
-
-  const tileLinkDisabled = useCallback(
-    (item: AssetPreviewSnapshot) => removedIds.has(item.id),
-    [removedIds],
-  )
-
-  const {
-    enqueue: enqueueItemOp,
-    nextIntent,
-    isCurrentIntent,
-  } = useItemOperationQueue()
-  // rollback target for a failed operation: the last state the server
-  // CONFIRMED - its predecessor in the queue may itself have failed, so
-  // blindly inverting would ghost an item that was never removed
-  const confirmedRemovedRef = useRef(new Set<string>())
-  const rollBackToConfirmed = useCallback((id: string) => {
-    setRemovedIds((prev) => {
-      const shouldBeRemoved = confirmedRemovedRef.current.has(id)
-      if (shouldBeRemoved === prev.has(id)) {
-        return prev
-      }
-      const next = new Set(prev)
-      if (shouldBeRemoved) {
-        next.add(id)
-      } else {
-        next.delete(id)
-      }
-      return next
-    })
-  }, [])
-
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
       const edge = edgesBySnapshotId.get(item.id)
@@ -296,53 +260,21 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       }
       if (removedIds.has(item.id)) {
         return (
-          <span
-            className={css({
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '2',
-            })}
-          >
-            Removed
-            <Button
-              variant="bare"
-              className={css({ textDecoration: 'underline' })}
-              onPress={() => {
-                setRemovedIds((prev) => {
-                  const next = new Set(prev)
-                  next.delete(item.id)
-                  return next
-                })
-                const token = nextIntent(item.id)
-                enqueueItemOp(item.id, () =>
-                  reAddItem
-                    .mutateAsync({
-                      collectionId,
-                      assetKey: edge.assetKey,
-                      position: edge.position,
-                      createdAt: edge.createdAt,
-                    })
-                    .then(
-                      () => {
-                        confirmedRemovedRef.current.delete(item.id)
-                      },
-                      () => {
-                        if (!isCurrentIntent(item.id, token)) {
-                          return
-                        }
-                        rollBackToConfirmed(item.id)
-                        queueToastMessage({
-                          title: 'Undo failed',
-                          description: 'Please try again.',
-                        })
-                      },
-                    ),
-                )
-              }}
-            >
-              Undo
-            </Button>
-          </span>
+          <GhostRemovedActions
+            onUndo={() =>
+              runRestore(
+                item.id,
+                () =>
+                  reAddItemAsync({
+                    collectionId,
+                    assetKey: edge.assetKey,
+                    position: edge.position,
+                    createdAt: edge.createdAt,
+                  }),
+                makeOpFailureHandler('Undo failed'),
+              )
+            }
+          />
         )
       }
       if (!isEditing) {
@@ -352,29 +284,13 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         <Button
           variant="bare"
           aria-label={`Remove ${item.title}`}
-          onPress={() => {
-            setRemovedIds((prev) => new Set(prev).add(item.id))
-            const token = nextIntent(item.id)
-            enqueueItemOp(item.id, () =>
-              removeItem
-                .mutateAsync({ collectionId, assetKey: edge.assetKey })
-                .then(
-                  () => {
-                    confirmedRemovedRef.current.add(item.id)
-                  },
-                  () => {
-                    if (!isCurrentIntent(item.id, token)) {
-                      return
-                    }
-                    rollBackToConfirmed(item.id)
-                    queueToastMessage({
-                      title: 'Remove failed',
-                      description: 'Please try again.',
-                    })
-                  },
-                ),
+          onPress={() =>
+            runRemoval(
+              item.id,
+              () => removeItemAsync({ collectionId, assetKey: edge.assetKey }),
+              makeOpFailureHandler('Remove failed'),
             )
-          }}
+          }
         >
           <XIcon size={20} weight="bold" />
         </Button>
@@ -385,13 +301,11 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       removedIds,
       isEditing,
       collectionId,
-      removeItem,
-      reAddItem,
-      queueToastMessage,
-      enqueueItemOp,
-      nextIntent,
-      isCurrentIntent,
-      rollBackToConfirmed,
+      runRemoval,
+      runRestore,
+      removeItemAsync,
+      reAddItemAsync,
+      makeOpFailureHandler,
     ],
   )
 

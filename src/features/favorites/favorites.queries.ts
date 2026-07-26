@@ -17,6 +17,7 @@ import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { FavoriteEdge, RefavoriteAtInput } from './favorites.schema'
 import { throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
+import { mountOnlyListFreshness } from '@/lib/query-policies'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const favoritesKeys = {
@@ -141,10 +142,7 @@ export function getInfiniteUserFavoritesEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
-    // mount-only freshness: any mid-visit background refetch (focus,
-    // reconnect) could yank rows out from under removal ghosts
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    ...mountOnlyListFreshness,
     select,
   })
 }

@@ -25,6 +25,7 @@ import {
 import { logErrorWithObservability } from '@/lib/error-logging'
 import { Err, Ok, throwFromErrorResult, unwrapOrThrow } from '@/lib/result'
 import { ensureAssetPreviewSnapshot } from '@/features/assets/asset-preview-snapshots.server'
+import { clampIsoToNow } from '@/lib/utils'
 
 function unknownError(operation: string, cause?: unknown) {
   const errorResult = {
@@ -385,12 +386,7 @@ export const addCollectionItemAtPosition = createServerOnlyFn(
     const snapshotId = unwrapOrThrow(
       await resolveSnapshotForReAdd(auth.client, input.assetKey),
     )
-    // clamp to now: the timestamp restores tie ordering after an undo, not
-    // a client-chosen position in the future
-    const createdAt =
-      new Date(input.createdAt) > new Date()
-        ? new Date().toISOString()
-        : input.createdAt
+    const createdAt = clampIsoToNow(input.createdAt)
     return unwrapOrThrow(
       await addCollectionItemForUser(
         auth.client,

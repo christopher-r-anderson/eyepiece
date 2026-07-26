@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CheckIcon, PlusIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { flex, stack } from 'styled-system/patterns'
@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { TextField } from '@/components/ui/forms'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
+import { isAuthRequiredError } from '@/lib/result'
 
 const checkboxCss = css({
   display: 'flex',
@@ -30,7 +31,6 @@ const checkboxCss = css({
     outline: 'focusRing',
     outlineOffset: '-2px',
   },
-  '&[data-disabled]': { opacity: 0.6, cursor: 'default' },
   '& [data-box]': {
     display: 'inline-grid',
     placeItems: 'center',
@@ -52,24 +52,27 @@ const checkboxCss = css({
 export function CollectionPicker({
   userId,
   assetKey,
+  onAuthRequired,
 }: {
   userId: string
   assetKey: AssetKey
+  // the feature layer can't reach the auth modal; the composing layer
+  // passes the prompt in
+  onAuthRequired?: () => void
 }) {
   const collections = useUserCollectionsList(userId)
   const membership = useAssetCollectionMembership({ userId, assetKey })
   const addItem = useAddCollectionItem()
   const removeItem = useRemoveCollectionItem()
   const queueToastMessage = useQueueToastMessage()
-  const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(
-    () => new Set(),
-  )
+  // nothing renders from this - a ref avoids a re-render per toggle
+  const pendingIdsRef = useRef(new Set<string>())
 
   const toggleMembership = async (
     collection: Collection,
     shouldAdd: boolean,
   ) => {
-    setPendingIds((prev) => new Set(prev).add(collection.id))
+    pendingIdsRef.current.add(collection.id)
     try {
       if (shouldAdd) {
         await addItem.mutateAsync({ collectionId: collection.id, assetKey })
@@ -77,7 +80,11 @@ export function CollectionPicker({
       } else {
         await removeItem.mutateAsync({ collectionId: collection.id, assetKey })
       }
-    } catch {
+    } catch (error) {
+      if (isAuthRequiredError(error)) {
+        onAuthRequired?.()
+        return
+      }
       queueToastMessage({
         title: shouldAdd
           ? `Couldn't add to ${collection.name}`
@@ -85,11 +92,7 @@ export function CollectionPicker({
         description: 'Please try again.',
       })
     } finally {
-      setPendingIds((prev) => {
-        const next = new Set(prev)
-        next.delete(collection.id)
-        return next
-      })
+      pendingIdsRef.current.delete(collection.id)
     }
   }
 
@@ -128,7 +131,7 @@ export function CollectionPicker({
               // guard instead of isDisabled: disabling the focused control
               // strands keyboard focus on body mid multi-add
               onChange={(isSelected) => {
-                if (pendingIds.has(collection.id)) {
+                if (pendingIdsRef.current.has(collection.id)) {
                   return
                 }
                 void toggleMembership(collection, isSelected)
@@ -148,21 +151,26 @@ export function CollectionPicker({
               </span>
             </Checkbox>
           ))}
-          <InlineCreate assetKey={assetKey} />
+          <InlineCreate assetKey={assetKey} onAuthRequired={onAuthRequired} />
         </>
       )}
     </div>
   )
 }
 
-function InlineCreate({ assetKey }: { assetKey: AssetKey }) {
+function InlineCreate({
+  assetKey,
+  onAuthRequired,
+}: {
+  assetKey: AssetKey
+  onAuthRequired?: () => void
+}) {
   const createCollection = useCreateCollection()
   const addItem = useAddCollectionItem()
   const queueToastMessage = useQueueToastMessage()
   const [isCreating, setIsCreating] = useState(false)
   const [name, setName] = useState('')
   const [isPublic, setIsPublic] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
 
   if (!isCreating) {
     return (
@@ -183,22 +191,24 @@ function InlineCreate({ assetKey }: { assetKey: AssetKey }) {
   }
 
   const submit = async () => {
-    if (isSaving || name.trim().length === 0) {
+    if (createCollection.isPending || name.trim().length === 0) {
       return
     }
-    setIsSaving(true)
     let created
     try {
       created = await createCollection.mutateAsync({
         name: name.trim(),
         visibility: isPublic ? 'public' : 'private',
       })
-    } catch {
+    } catch (error) {
+      if (isAuthRequiredError(error)) {
+        onAuthRequired?.()
+        return
+      }
       queueToastMessage({
         title: "Couldn't create the collection",
         description: 'Please try again.',
       })
-      setIsSaving(false)
       return
     }
     // the collection now exists either way; a failed add must not claim
@@ -206,7 +216,6 @@ function InlineCreate({ assetKey }: { assetKey: AssetKey }) {
     setIsCreating(false)
     setName('')
     setIsPublic(false)
-    setIsSaving(false)
     try {
       await addItem.mutateAsync({ collectionId: created.id, assetKey })
       queueToastMessage({ title: `Added to ${created.name}` })
@@ -241,7 +250,7 @@ function InlineCreate({ assetKey }: { assetKey: AssetKey }) {
       <div className={flex({ justifyContent: 'flex-end', gap: '2' })}>
         <Button
           variant="secondary"
-          isDisabled={isSaving}
+          isDisabled={createCollection.isPending}
           onPress={() => setIsCreating(false)}
         >
           Cancel
@@ -249,7 +258,7 @@ function InlineCreate({ assetKey }: { assetKey: AssetKey }) {
         <Button
           variant="primary"
           type="submit"
-          isPending={isSaving}
+          isPending={createCollection.isPending}
           css={css.raw({
             '&[data-pending]': {
               cursor: 'default',

@@ -15,6 +15,11 @@ const tileTriggerCss = css.raw({
   _hovered: { color: 'accent.emphasis' },
 })
 
+const detailTriggerCss = css.raw({
+  color: 'text.muted',
+  _hovered: { color: 'text' },
+})
+
 function TriggerButton({
   variant,
   isDisabled,
@@ -24,33 +29,22 @@ function TriggerButton({
   isDisabled?: boolean
   onPress?: () => void
 }) {
+  const shared = {
+    'aria-label': 'Add to collection',
+    isDisabled,
+    onPress,
+    children: <PlusIcon size={20} />,
+  }
   if (variant === 'tile') {
-    return (
-      <Button
-        aria-label="Add to collection"
-        variant="bare"
-        isDisabled={isDisabled}
-        onPress={onPress}
-        css={tileTriggerCss}
-      >
-        <PlusIcon size={20} />
-      </Button>
-    )
+    return <Button {...shared} variant="bare" css={tileTriggerCss} />
   }
   return (
     <Button
+      {...shared}
       variant="secondary"
       size="icon"
-      aria-label="Add to collection"
-      isDisabled={isDisabled}
-      onPress={onPress}
-      css={css.raw({
-        color: 'text.muted',
-        _hovered: { color: 'text' },
-      })}
-    >
-      <PlusIcon size={20} />
-    </Button>
+      css={detailTriggerCss}
+    />
   )
 }
 
@@ -98,7 +92,11 @@ function AddToCollectionButtonContent({
           aria-label="Add to collection"
           className={css({ outline: 'none' })}
         >
-          <CollectionPicker userId={user.id} assetKey={assetKey} />
+          <CollectionPicker
+            userId={user.id}
+            assetKey={assetKey}
+            onAuthRequired={showLoginModal}
+          />
         </Dialog>
       </Popover>
     </DialogTrigger>

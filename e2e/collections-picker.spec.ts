@@ -5,31 +5,14 @@ import {
   makeAdminClient,
   pagingSnapshot,
 } from './support/collections-fixture'
+import {
+  logInAsFixtureUser,
+  nextServerPost,
+  stubFixtureImages,
+} from './support/collections-helpers'
 import type { Page } from '@playwright/test'
 
 const { publicCollection, user } = COLLECTIONS_FIXTURE
-
-const TINY_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-)
-
-async function stubImages(page: Page) {
-  await page.route('**/image/e2e-collections-*/**', (route) =>
-    route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
-  )
-}
-
-async function logIn(page: Page, next: string) {
-  await stubImages(page)
-  await page.goto(`/login?next=${encodeURIComponent(next)}`)
-  await page.getByRole('textbox', { name: 'Email' }).fill(user.email)
-  await page.getByRole('textbox', { name: 'Password' }).fill(user.password)
-  await Promise.all([
-    page.waitForURL(next),
-    page.getByRole('button', { name: 'Log In' }).click(),
-  ])
-}
 
 // the veil's controls are hit-testable only while hover-revealed, and the
 // reveal races an atomic move-and-click - hover first, then click
@@ -43,7 +26,7 @@ async function openTilePicker(page: Page, rowIndex: number) {
 test('logged out, the picker control prompts a login instead', async ({
   page,
 }) => {
-  await stubImages(page)
+  await stubFixtureImages(page)
   await page.goto(`/collections/${publicCollection.id}`)
   // hydration gate: the enabled star means client state has settled
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
@@ -73,7 +56,7 @@ test('picker toggles membership and creates inline, staying open', async ({
   }
   const createdName = `e2e picker created ${randomUUID().slice(0, 8)}`
   try {
-    await logIn(page, `/collections/${publicCollection.id}`)
+    await logInAsFixtureUser(page, `/collections/${publicCollection.id}`)
     await expect(
       page.getByRole('button', { name: 'Star' }).first(),
     ).toBeEnabled()
@@ -153,7 +136,7 @@ test('unchecking the host collection keeps the picker and its tile in place', as
     throw new Error(`Failed to seed host items: ${itemsError.message}`)
   }
   try {
-    await logIn(page, `/collections/${collectionId}`)
+    await logInAsFixtureUser(page, `/collections/${collectionId}`)
     await expect(
       page.getByRole('button', { name: 'Star' }).first(),
     ).toBeEnabled()
@@ -202,7 +185,7 @@ test('favorites tiles unstar into ghosts with undo; removal sticks on reload', a
     throw new Error(`Failed to seed favorites: ${error.message}`)
   }
   try {
-    await logIn(page, '/favorites')
+    await logInAsFixtureUser(page, '/favorites')
     // assertions scope to this project's own rows: the parallel browser
     // projects share the fixture user, so the page may show their rows too
     const targetTitle = seeded[0].title
@@ -216,22 +199,15 @@ test('favorites tiles unstar into ghosts with undo; removal sticks on reload', a
       page.getByRole('button', { name: 'Star' }).first(),
     ).toBeEnabled()
 
-    const nextServerPost = () =>
-      page.waitForResponse(
-        (response) =>
-          response.request().method() === 'POST' &&
-          response.url().startsWith('http://localhost:8888'),
-      )
-
     // unstar: the tile stays as a dimmed ghost in its slot
     await targetRow.hover()
-    const unstarred = nextServerPost()
+    const unstarred = nextServerPost(page)
     await targetRow.getByRole('button', { name: 'Star' }).click()
     await expect(targetRow.getByText('Removed')).toBeVisible()
     await unstarred
 
     // undo restores in place
-    const restored = nextServerPost()
+    const restored = nextServerPost(page)
     await targetRow.getByRole('button', { name: 'Undo' }).click()
     await expect(targetRow.getByText('Removed')).toHaveCount(0)
     await expect(targetRow.getByRole('button', { name: 'Star' })).toBeVisible()
@@ -239,7 +215,7 @@ test('favorites tiles unstar into ghosts with undo; removal sticks on reload', a
 
     // unstar again and let it stand: gone on the next visit
     await targetRow.hover()
-    const unstarredAgain = nextServerPost()
+    const unstarredAgain = nextServerPost(page)
     await targetRow.getByRole('button', { name: 'Star' }).click()
     await expect(targetRow.getByText('Removed')).toBeVisible()
     await unstarredAgain
