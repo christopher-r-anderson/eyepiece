@@ -42,7 +42,7 @@ Use plural suffixes for collections of exports and singular for architectural la
 ## 3. Module Rules
 
 - _No Barrel Files:_ Import directly from the source file.
-- _Imports:_ Use relative paths within the same feature or directory tree; use path aliases (`@/...`) when crossing a layer or feature boundary. The layering lint rules only see the alias spelling, so a boundary crossed relatively evades them (see Import Layering).
+- _Imports:_ Use relative paths within the same feature or directory tree; use path aliases (`@/...`) when crossing a layer or feature boundary. The layering lint rules catch alias spellings and relative crossings at the depths in the tree today; a cross-feature relative import (`../auth/...`) is shape-ambiguous and always evades them (see Import Layering).
 
 ## 4. Code Organization & Colocation
 
@@ -63,7 +63,7 @@ Dependency direction: `routes` -> `app` -> `features` -> `components` -> `domain
 - Router primitives (`Link`, `useNavigate`, `useLocation`, `useRouterState`) are ambient app infrastructure, usable in features and shared components. Route-specific APIs (`Route.useSearch`, `getRouteApi`, loader data) stay in route files and their `-components/`.
 - `-components/` directories are colocation, not a layer: components scoped to a route segment live next to it, deep in the tree.
 
-ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`). The rules match import specifiers, not resolved paths, so they depend on the spelling convention in Module Rules: relative within a feature or directory, the `@/` alias when crossing a boundary. A boundary crossed with a relative specifier (`../auth/...` from another feature) is invisible to lint - flagging it is not automatic, watch for it in review.
+ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`). The rules match import specifiers, not resolved paths: alias spellings are always caught, and relative crossings are caught at the depths listed in the config. A cross-feature relative import (`../auth/...` from another feature) is shape-identical to a same-feature one and can never be flagged - watch for it in review.
 
 ## 6. Environment & RPC Suffixes
 
