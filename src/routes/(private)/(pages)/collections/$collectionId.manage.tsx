@@ -4,7 +4,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { startTransition, useCallback, useMemo, useState } from 'react'
+import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -268,6 +268,25 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     nextIntent,
     isCurrentIntent,
   } = useItemOperationQueue()
+  // rollback target for a failed operation: the last state the server
+  // CONFIRMED - its predecessor in the queue may itself have failed, so
+  // blindly inverting would ghost an item that was never removed
+  const confirmedRemovedRef = useRef(new Set<string>())
+  const rollBackToConfirmed = useCallback((id: string) => {
+    setRemovedIds((prev) => {
+      const shouldBeRemoved = confirmedRemovedRef.current.has(id)
+      if (shouldBeRemoved === prev.has(id)) {
+        return prev
+      }
+      const next = new Set(prev)
+      if (shouldBeRemoved) {
+        next.add(id)
+      } else {
+        next.delete(id)
+      }
+      return next
+    })
+  }, [])
 
   const tileActions = useCallback(
     (item: AssetPreviewSnapshot) => {
@@ -304,12 +323,14 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                       createdAt: edge.createdAt,
                     })
                     .then(
-                      () => undefined,
+                      () => {
+                        confirmedRemovedRef.current.delete(item.id)
+                      },
                       () => {
                         if (!isCurrentIntent(item.id, token)) {
                           return
                         }
-                        setRemovedIds((prev) => new Set(prev).add(item.id))
+                        rollBackToConfirmed(item.id)
                         queueToastMessage({
                           title: 'Undo failed',
                           description: 'Please try again.',
@@ -338,16 +359,14 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
               removeItem
                 .mutateAsync({ collectionId, assetKey: edge.assetKey })
                 .then(
-                  () => undefined,
+                  () => {
+                    confirmedRemovedRef.current.add(item.id)
+                  },
                   () => {
                     if (!isCurrentIntent(item.id, token)) {
                       return
                     }
-                    setRemovedIds((prev) => {
-                      const next = new Set(prev)
-                      next.delete(item.id)
-                      return next
-                    })
+                    rollBackToConfirmed(item.id)
                     queueToastMessage({
                       title: 'Remove failed',
                       description: 'Please try again.',
@@ -372,6 +391,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       enqueueItemOp,
       nextIntent,
       isCurrentIntent,
+      rollBackToConfirmed,
     ],
   )
 

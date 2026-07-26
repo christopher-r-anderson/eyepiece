@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
-import { startTransition, useCallback, useMemo, useState } from 'react'
+import { startTransition, useCallback, useMemo, useRef, useState } from 'react'
 import { css } from 'styled-system/css'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
@@ -88,6 +88,26 @@ function FavoritesPage() {
   )
   const { enqueue, nextIntent, isCurrentIntent } = useItemOperationQueue()
   const showLoginModal = useShowLoginModal()
+  // rollback target for a failed operation: the last state the server
+  // CONFIRMED, not the state the failed op assumed - its predecessor in
+  // the queue may itself have failed (e.g. expired session), so blindly
+  // inverting would ghost an item that was never removed
+  const confirmedRemovedRef = useRef(new Set<string>())
+  const rollBackToConfirmed = useCallback((id: string) => {
+    setRemovedIds((prev) => {
+      const shouldBeRemoved = confirmedRemovedRef.current.has(id)
+      if (shouldBeRemoved === prev.has(id)) {
+        return prev
+      }
+      const next = new Set(prev)
+      if (shouldBeRemoved) {
+        next.add(id)
+      } else {
+        next.delete(id)
+      }
+      return next
+    })
+  }, [])
 
   // failed page fetches would otherwise degrade silently: an edge-page
   // error only surfaces on the result once earlier pages exist, and an
@@ -153,12 +173,14 @@ function FavoritesPage() {
                       createdAt: edge.createdAt,
                     })
                     .then(
-                      () => undefined,
+                      () => {
+                        confirmedRemovedRef.current.delete(item.id)
+                      },
                       (error: unknown) => {
                         if (!isCurrentIntent(item.id, token)) {
                           return
                         }
-                        setRemovedIds((prev) => new Set(prev).add(item.id))
+                        rollBackToConfirmed(item.id)
                         if (
                           error instanceof Error &&
                           error.message ===
@@ -193,16 +215,14 @@ function FavoritesPage() {
               const token = nextIntent(item.id)
               enqueue(item.id, () =>
                 unfavorite.mutateAsync(edge.assetKey).then(
-                  () => undefined,
+                  () => {
+                    confirmedRemovedRef.current.add(item.id)
+                  },
                   (error: unknown) => {
                     if (!isCurrentIntent(item.id, token)) {
                       return
                     }
-                    setRemovedIds((prev) => {
-                      const next = new Set(prev)
-                      next.delete(item.id)
-                      return next
-                    })
+                    rollBackToConfirmed(item.id)
                     if (
                       error instanceof Error &&
                       error.message === ToggleFavoriteErrorCodes.AUTH_REQUIRED
@@ -235,6 +255,7 @@ function FavoritesPage() {
       refavoriteAt,
       queueToastMessage,
       showLoginModal,
+      rollBackToConfirmed,
     ],
   )
 
