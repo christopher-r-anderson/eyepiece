@@ -176,9 +176,7 @@ test('unchecking the host collection keeps the picker and its tile in place', as
     await expect(hostCheckbox).not.toBeChecked({ timeout: 15_000 })
     await page.waitForTimeout(3000)
     await expect(dialog).toBeVisible()
-    await expect(
-      page.getByRole('link', { name: items[0].title }),
-    ).toBeVisible()
+    await expect(page.getByRole('link', { name: items[0].title })).toBeVisible()
   } finally {
     await admin.from('collections').delete().eq('id', collectionId)
   }
