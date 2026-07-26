@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { toCollectionsResultError } from '../collections.commands'
+import { CollectionsErrorCodes } from '../collections.const'
 import { useCreateCollection } from '../collections.queries'
 import { createCollectionInputSchema } from '../collections.schema'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
@@ -8,6 +9,19 @@ import { Switch } from '@/components/ui/switch'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
 import { Err, Ok } from '@/lib/result'
 import { useEvent } from '@/lib/hooks/use-event'
+
+// server failures carry internal codes as their messages (AUTH_REQUIRED,
+// UNKNOWN_ERROR); the form always substitutes human copy
+function toCreateCollectionFormError(error: unknown) {
+  const resultError = toCollectionsResultError(error)
+  return {
+    ...resultError,
+    message:
+      resultError.code === CollectionsErrorCodes.AUTH_REQUIRED
+        ? 'Your session has ended. Log in and try again.'
+        : "Couldn't create the collection. Please try again.",
+  }
+}
 
 export function CreateCollectionForm({ onSuccess }: { onSuccess: () => void }) {
   const createCollection = useCreateCollection()
@@ -18,7 +32,7 @@ export function CreateCollectionForm({ onSuccess }: { onSuccess: () => void }) {
       try {
         return Ok(await createCollection.mutateAsync(input))
       } catch (error) {
-        return Err(toCollectionsResultError(error))
+        return Err(toCreateCollectionFormError(error))
       }
     },
   )
