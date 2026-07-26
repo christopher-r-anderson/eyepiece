@@ -94,9 +94,7 @@ export function RenameCollectionForm({
           // field with the canonical (trimmed) value; only error round
           // trips keep the raw draft
           key={collection.name}
-          defaultValue={
-            state.hasErrors ? state.formData.name : collection.name
-          }
+          defaultValue={state.hasErrors ? state.formData.name : collection.name}
         />
       </InputGroup>
     </Form>
