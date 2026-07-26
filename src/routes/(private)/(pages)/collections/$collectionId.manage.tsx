@@ -160,7 +160,9 @@ function ManageCollectionPage() {
           </Button>
         </div>
       </section>
-      <CollectionItems collectionId={collectionId} />
+      {/* param-only navigation reuses this component instance; the key
+          resets ghost and per-item operation state per collection */}
+      <CollectionItems key={collectionId} collectionId={collectionId} />
       <ModalDialog
         isOpen={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
