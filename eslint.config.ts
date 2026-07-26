@@ -59,6 +59,17 @@ const featuresGroup = layerGroup('features')
 const componentsGroup = layerGroup('components')
 const appGroup = layerGroup('app')
 const domainGroup = layerGroup('domain')
+const routesGroup = layerGroup('routes')
+
+const routesRestriction = {
+  group: routesGroup,
+  message: 'Only route files may import route modules.',
+}
+
+const serverFunctionsRestriction = {
+  group: ['*.functions', '**/*.functions'],
+  message: 'Shared components must not import server functions.',
+}
 
 // non-UI primitives features may share until they graduate to a shared home
 const crossFeatureAllowlist = [
@@ -100,7 +111,7 @@ export default [
         'error',
         {
           paths: nonRoutePaths,
-          patterns: basePatterns,
+          patterns: [...basePatterns, routesRestriction],
         },
       ],
     },
@@ -127,6 +138,7 @@ export default [
               group: appGroup,
               message: 'Features must not import the app shell.',
             },
+            routesRestriction,
           ],
         },
       ],
@@ -149,6 +161,8 @@ export default [
               group: appGroup,
               message: 'Shared components must not import the app shell.',
             },
+            routesRestriction,
+            serverFunctionsRestriction,
           ],
         },
       ],
@@ -174,6 +188,8 @@ export default [
               group: domainGroup,
               message: 'The UI kit is domain-agnostic.',
             },
+            routesRestriction,
+            serverFunctionsRestriction,
           ],
         },
       ],
@@ -205,15 +221,38 @@ export default [
               group: appGroup,
               message: 'Base layers must not import the app shell.',
             },
+            routesRestriction,
           ],
         },
       ],
     },
   },
   {
+    // the adapter needs direct react-aria-components imports, but stays a
+    // bottom layer: the layer restrictions are restated, not switched off
     files: ['src/integrations/react-aria-components/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [reactUseIdPath, routeApiPath],
+          patterns: [
+            {
+              group: featuresGroup,
+              message: 'Base layers must not import features.',
+            },
+            {
+              group: componentsGroup,
+              message: 'Base layers must not import components.',
+            },
+            {
+              group: appGroup,
+              message: 'Base layers must not import the app shell.',
+            },
+            routesRestriction,
+          ],
+        },
+      ],
     },
   },
   {
