@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useHydrated, useLocation, useNavigate } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useProfilesRepo } from '../profiles.repo'
 import { useEnsureProfileExists } from './use-ensure-profile-exists'
 import * as authQueries from '@/features/auth/auth.queries'
 import * as errorLogging from '@/lib/error-logging'
-import { useProfilesRepo } from '@/features/profiles/profiles.repo'
 import { Err, Ok } from '@/lib/result'
 
 vi.mock('@/features/auth/auth.queries')
 vi.mock('@/lib/error-logging')
-vi.mock('@/features/profiles/profiles.repo')
+vi.mock('../profiles.repo')
 vi.mock('@tanstack/react-router')
 vi.mock('@tanstack/react-query', async () => {
   const actual = await vi.importActual('@tanstack/react-query')

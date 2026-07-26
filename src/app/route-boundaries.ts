@@ -2,7 +2,7 @@ import { requireAuthenticated } from './guards'
 import {
   getPrivateDocumentCacheHeaders,
   getPublicDocumentCacheHeaders,
-} from './route-policy'
+} from '@/lib/route-policy'
 
 // Boundary factories return the complete route options for a policy root.
 // The policy-reserved keys (headers, beforeLoad) are typed `never` on the

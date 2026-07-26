@@ -1,5 +1,5 @@
-import * as Sentry from '@sentry/tanstackstart-react'
 import type { User } from './auth.types'
+import { setSentryUserIdContext } from '@/integrations/sentry/user-context'
 
 export function createSentryUserContextSync(
   setUserContext: (user: User | null | undefined) => void,
@@ -29,10 +29,6 @@ export function toSentryUser(user: User | null | undefined) {
   return {
     id: user.id,
   }
-}
-
-export function setSentryUserIdContext(userId: string | null | undefined) {
-  Sentry.setUser(userId ? { id: userId } : null)
 }
 
 export function setSentryUserContext(user: User | null | undefined) {

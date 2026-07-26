@@ -1,7 +1,7 @@
 import { useLocation } from '@tanstack/react-router'
-import { isPlainLeftClick } from '@/features/auth/auth.utils'
-import { useAuthInteractionStrategy } from '@/features/auth/hooks/use-auth-interaction-strategy'
-import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
+import { isPlainLeftClick } from '../auth.utils'
+import { useAuthInteractionStrategy } from '../hooks/use-auth-interaction-strategy'
+import { useShowLoginModal } from '../hooks/use-show-auth-modal'
 import { Link } from '@/components/ui/link'
 import { urlToNextParam } from '@/lib/utils'
 

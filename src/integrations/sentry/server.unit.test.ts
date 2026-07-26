@@ -7,10 +7,10 @@ import {
   runSentryRequestMiddleware,
   syncServerSentryUserContext,
 } from './server'
+import { setSentryUserIdContext } from './user-context'
 import { AppException } from '@/lib/result'
 import { operationalErrorObservability } from '@/lib/error-observability'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
-import { setSentryUserIdContext } from '@/features/auth/auth.sentry'
 
 vi.mock('@tanstack/react-start', () => ({
   createMiddleware: () => {
@@ -45,7 +45,7 @@ vi.mock('@/integrations/supabase/user/server.server', () => ({
   createUserSupabaseServerClient: vi.fn(),
 }))
 
-vi.mock('@/features/auth/auth.sentry', () => ({
+vi.mock('./user-context', () => ({
   setSentryUserIdContext: vi.fn(),
 }))
 

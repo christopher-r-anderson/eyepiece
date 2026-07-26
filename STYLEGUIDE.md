@@ -42,7 +42,7 @@ Use plural suffixes for collections of exports and singular for architectural la
 ## 3. Module Rules
 
 - _No Barrel Files:_ Import directly from the source file.
-- _Imports:_ Use path aliases (`@/features/...`) for cross-feature imports. Use relative paths (`./`) only when importing files within the same directory or feature.
+- _Imports:_ Use relative paths within the same feature or directory tree; use path aliases (`@/...`) when crossing a layer or feature boundary. The layering lint rules only see the alias spelling, so a boundary crossed relatively evades them (see Import Layering).
 
 ## 4. Code Organization & Colocation
 
@@ -55,14 +55,15 @@ Use plural suffixes for collections of exports and singular for architectural la
 
 ## 5. Import Layering
 
-Dependency direction: `routes` -> `features` -> `components` -> `domain` / `lib`, with `integrations` at the bottom alongside `domain` and `lib`.
+Dependency direction: `routes` -> `app` -> `features` -> `components` -> `domain` / `lib`, with `integrations` at the bottom alongside `domain` and `lib`.
 
+- `/src/app/` is the composition layer: the shell, layout, providers, and route boundaries/guards. It may import features and components; nothing below `routes` imports it.
 - Features never import other features. Exceptions, allowlisted in `eslint.config.ts` until they graduate to a shared home: auth's non-UI primitives (`get-user`, auth queries, auth search params) and the asset preview snapshot modules in `features/assets`.
 - `/src/components/` is the shared, feature-free UI layer. `components/ui` is the domain-agnostic kit; other `components/` dirs may use domain types but never feature behavior (no queries, commands, or server functions).
 - Router primitives (`Link`, `useNavigate`, `useLocation`, `useRouterState`) are ambient app infrastructure, usable in features and shared components. Route-specific APIs (`Route.useSearch`, `getRouteApi`, loader data) stay in route files and their `-components/`.
 - `-components/` directories are colocation, not a layer: components scoped to a route segment live next to it, deep in the tree.
 
-ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`).
+ESLint enforces the boundaries (`no-restricted-imports` blocks in `eslint.config.ts`). The rules match import specifiers, not resolved paths, so they depend on the spelling convention in Module Rules: relative within a feature or directory, the `@/` alias when crossing a boundary. A boundary crossed with a relative specifier (`../auth/...` from another feature) is invisible to lint - flagging it is not automatic, watch for it in review.
 
 ## 6. Environment & RPC Suffixes
 

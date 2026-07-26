@@ -2,12 +2,12 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
+import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
+import { useAuthCommands } from '../hooks/use-auth-commands'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
+import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
-import { useEmailRedirectTo } from '@/features/auth/hooks/use-email-redirect-to'
-import { useAuthCommands } from '@/features/auth/hooks/use-auth-commands'
-import { SetPasswordField } from '@/features/auth/forms/components/set-password-field'
 import {
   Form,
   FormActions,

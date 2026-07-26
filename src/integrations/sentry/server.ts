@@ -5,12 +5,12 @@ import {
 } from '@sentry/tanstackstart-react'
 import * as Sentry from '@sentry/tanstackstart-react'
 import { getServerSentryConfig } from './config'
+import { setSentryUserIdContext } from './user-context'
 import type {
   RequestMiddlewareServerFnResult,
   RequestServerFn,
   RequestServerOptions,
 } from '@tanstack/react-start'
-import { setSentryUserIdContext } from '@/features/auth/auth.sentry'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { getErrorSentryMetadata } from '@/lib/error-observability'
 

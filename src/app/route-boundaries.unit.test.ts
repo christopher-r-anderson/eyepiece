@@ -8,7 +8,7 @@ import { requireAuthenticated } from './guards'
 import {
   PRIVATE_DOCUMENT_CACHE_CONTROL,
   PUBLIC_DOCUMENT_CACHE_CONTROL,
-} from './route-policy'
+} from '@/lib/route-policy'
 
 vi.mock('./guards', () => ({
   requireAuthenticated: vi.fn(),
