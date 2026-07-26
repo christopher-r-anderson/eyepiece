@@ -8,6 +8,7 @@ import {
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getInfiniteCollectionItemEdgesOptions,
   getInfiniteUserCollectionItemEdgesOptions,
   getUserCollectionCardsOptions,
   useCreateCollection,
@@ -93,6 +94,23 @@ describe('collections mutation invalidation', () => {
         ),
       { wrapper: makeWrapper(queryClient) },
     )
+    // the PUBLIC grid too: it can anchor the open picker (a tile vanishing
+    // mid-refetch would unmount the popover being toggled)
+    const getPublicItemEdges = vi
+      .fn()
+      .mockResolvedValue(
+        Ok({ items: [], pagination: { next: null, total: 0 } }),
+      )
+    renderHook(
+      () =>
+        useInfiniteQuery(
+          getInfiniteCollectionItemEdgesOptions({
+            collectionId: COLLECTION_ID,
+            repo: { getCollectionItemEdges: getPublicItemEdges },
+          }),
+        ),
+      { wrapper: makeWrapper(queryClient) },
+    )
     const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
     await waitFor(() => {
       expect(getCollectionItemEdges).toHaveBeenCalledOnce()
@@ -120,6 +138,15 @@ describe('collections mutation invalidation', () => {
       ])?.isInvalidated,
     ).toBe(true)
     expect(getCollectionItemEdges).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState([
+        'collections',
+        'detail',
+        COLLECTION_ID,
+        'itemEdges',
+      ])?.isInvalidated,
+    ).toBe(true)
+    expect(getPublicItemEdges).toHaveBeenCalledOnce()
   })
 
   it('settings mutations never refetch an active item-edge list (mounted ghosts)', async () => {

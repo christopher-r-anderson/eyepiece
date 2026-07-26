@@ -119,6 +119,71 @@ test('picker toggles membership and creates inline, staying open', async ({
   }
 })
 
+test('unchecking the host collection keeps the picker and its tile in place', async ({
+  page,
+}, testInfo) => {
+  const admin = makeAdminClient()
+  const name = `e2e picker host ${randomUUID().slice(0, 8)}`
+  const collectionId = randomUUID()
+  // a spec-owned public collection with its own items, so unchecking the
+  // host never disturbs the shared fixture collections
+  const offset =
+    { chromium: 6, firefox: 8, webkit: 10 }[testInfo.project.name] ?? 12
+  const items = [pagingSnapshot(offset), pagingSnapshot(offset + 1)]
+  const { error: collectionError } = await admin.from('collections').insert({
+    id: collectionId,
+    owner_id: user.id,
+    name,
+    visibility: 'public',
+    position: 92,
+  })
+  if (collectionError) {
+    throw new Error(
+      `Failed to seed host collection: ${collectionError.message}`,
+    )
+  }
+  const { error: itemsError } = await admin.from('collection_items').insert(
+    items.map((snapshot, index) => ({
+      collection_id: collectionId,
+      asset_preview_snapshot_id: snapshot.id,
+      position: index + 1,
+    })),
+  )
+  if (itemsError) {
+    throw new Error(`Failed to seed host items: ${itemsError.message}`)
+  }
+  try {
+    await logIn(page, `/collections/${collectionId}`)
+    await expect(
+      page.getByRole('button', { name: 'Star' }).first(),
+    ).toBeEnabled()
+
+    const targetRow = page
+      .getByRole('grid')
+      .getByRole('row')
+      .filter({ has: page.getByRole('link', { name: items[0].title }) })
+    await targetRow.hover()
+    await targetRow.getByRole('button', { name: 'Add to collection' }).click()
+    const dialog = page.getByRole('dialog')
+    const hostCheckbox = dialog.getByRole('checkbox', { name })
+    await expect(hostCheckbox).toBeChecked()
+
+    // unchecking the collection the tile lives in must not refetch the
+    // grid out from under the anchored popover. The unchecked box proves
+    // the mutation settled; the settle window then gives a wrongly-issued
+    // grid refetch time to land before asserting nothing collapsed
+    await dialog.locator('label', { hasText: name }).click()
+    await expect(hostCheckbox).not.toBeChecked({ timeout: 15_000 })
+    await page.waitForTimeout(3000)
+    await expect(dialog).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: items[0].title }),
+    ).toBeVisible()
+  } finally {
+    await admin.from('collections').delete().eq('id', collectionId)
+  }
+})
+
 test('favorites tiles unstar into ghosts with undo; removal sticks on reload', async ({
   page,
 }, testInfo) => {

@@ -418,16 +418,18 @@ export function useAssetCollectionMembership({
 
 // every mutation can change names, counts, covers, membership, or
 // visibility, so both the viewer-scoped and public families go stale
-// the user-family item-edge lists are marked stale but never actively
-// refetched by ANY mutation: the mounted manage grid may be holding removal
-// ghosts, and a background replacement of its pages would yank them
-// mid-undo. The public grid never hosts ghosts and keeps normal refetches.
+// item-edge lists are marked stale but never actively refetched by ANY
+// mutation: a mounted grid may hold removal ghosts (manage), or anchor the
+// open picker itself (a public page's tile vanishing mid-refetch unmounts
+// the popover the user is still toggling). Grids refresh on mount and, for
+// the ghost-free public grid, on focus/reconnect - just never out from
+// under an interaction.
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
 ) {
   const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
-    queryKey[0] === 'me' && queryKey.includes('itemEdges')
+    queryKey.includes('itemEdges')
   return Promise.all(
     [userCollectionsKeys.all, collectionsKeys.all].flatMap((queryKey) => [
       queryClient.invalidateQueries({
