@@ -166,6 +166,11 @@ export function getInfiniteCollectionItemEdgesOptions<
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
+    // mount-only freshness, same as every grid list: tiles anchor the
+    // add-to-collection popover, and a background refetch of a stale list
+    // (tab return, reconnect) could unmount the tile mid-toggle
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     select,
   })
 }
@@ -421,9 +426,8 @@ export function useAssetCollectionMembership({
 // item-edge lists are marked stale but never actively refetched by ANY
 // mutation: a mounted grid may hold removal ghosts (manage), or anchor the
 // open picker itself (a public page's tile vanishing mid-refetch unmounts
-// the popover the user is still toggling). Grids refresh on mount and, for
-// the ghost-free public grid, on focus/reconnect - just never out from
-// under an interaction.
+// the popover the user is still toggling). Grid lists refresh on mount
+// only - their options also disable focus/reconnect refetches.
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
