@@ -1,11 +1,9 @@
 import { createFileRoute, useRouterState } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
 import { FavoriteButton } from '../-components/favorite-button'
-import { MetadataButton } from './-components/metadata/button'
-import { AssetDetail } from './-components/asset-detail'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
+import { AssetDetailSurface } from '@/app/asset-detail-surface'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
@@ -15,10 +13,7 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
 import { RouteError } from '@/app/layout/route-error'
-import {
-  providerIdSchema,
-  providerSupportsMetadata,
-} from '@/domain/provider/provider.schema'
+import { providerIdSchema } from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
   return (
@@ -98,36 +93,15 @@ function AssetRouteError({ error }: { error: unknown }) {
 function AssetPage() {
   const { assetKey } = Route.useRouteContext()
   const { data } = useSuspenseAsset(assetKey)
-  const canViewMetadata = providerSupportsMetadata(assetKey.providerId)
   const returnUrl = useRouterState({
     select: (s) => s.resolvedLocation?.state.returnUrl,
   })
   return (
-    <>
-      <div
-        className={grid({
-          gridTemplateColumns: 'minmax(0, 1fr) auto',
-          gridTemplateAreas: '"back actions" "title title"',
-          alignItems: 'center',
-          rowGap: '3',
-          columnGap: '3',
-          alignSelf: 'stretch',
-          width: '100%',
-          maxWidth: 'contentMax',
-          marginInline: 'auto',
-          paddingTop: '2',
-          paddingInline: '4',
-          paddingBottom: 0,
-          containerType: 'inline-size',
-          '@/2xl': {
-            gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-            gridTemplateAreas: '"back title actions"',
-            columnGap: '4',
-            rowGap: '2',
-          },
-        })}
-      >
-        {returnUrl && (
+    <AssetDetailSurface
+      asset={data}
+      titleLevel={1}
+      back={
+        returnUrl && (
           <Link
             to={returnUrl}
             aria-label="Back to search results"
@@ -137,31 +111,14 @@ function AssetPage() {
             <ArrowLeftIcon aria-hidden="true" size={18} />
             <span>Back</span>
           </Link>
-        )}
-        <div
-          className={css({
-            gridArea: 'title',
-            minWidth: 0,
-            textAlign: 'center',
-          })}
-        >
-          <AssetHeading name={data.title} />
-        </div>
-        <div
-          className={css({
-            gridArea: 'actions',
-            justifySelf: 'end',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '2',
-          })}
-        >
+        )
+      }
+      actions={
+        <>
           <FavoriteButton assetKey={assetKey} />
           <AddToCollectionButton assetKey={assetKey} variant="detail" />
-          {canViewMetadata ? <MetadataButton assetKey={assetKey} /> : null}
-        </div>
-      </div>
-      <AssetDetail asset={data} />
-    </>
+        </>
+      }
+    />
   )
 }

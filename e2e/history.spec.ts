@@ -37,47 +37,51 @@ async function stubAssetApi(page: Page) {
   )
 }
 
-test('closing the metadata dialog consumes its history entry', async ({
+test('the metadata disclosure expands in place with no history entry', async ({
   page,
 }) => {
   await stubAssetApi(page)
+  await page.route(
+    `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}/metadata`,
+    (route) => route.fulfill({ json: { Camera: 'E2E Cam' } }),
+  )
   await page.goto(`/collections/${publicCollection.id}`)
-  // enabled star = hydrated (tile links work pre-hydration, dialogs do not)
+  // enabled star = hydrated (tile links work pre-hydration, expansion does
+  // not need it, but the journey should mirror real use)
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
   await page.getByRole('link', { name: wideSnapshot.title }).click()
   await page.waitForURL(`/assets/nasa_ivl/${wideSnapshot.externalId}`)
-  await expect(
-    page.getByRole('button', { name: 'View metadata' }),
-  ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Star' })).toBeEnabled()
 
+  const trigger = page.getByRole('button', { name: 'Metadata' })
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
   const lengthBefore = await page.evaluate(() => history.length)
-  await page.getByRole('button', { name: 'View metadata' }).click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await page.waitForFunction(() => location.hash === '#metadata')
-  expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByRole('cell', { name: 'E2E Cam' })).toBeVisible()
+  // in-surface expansion: no hash, no history entry
+  expect(await page.evaluate(() => location.hash)).toBe('')
+  expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
 
-  await page.keyboard.press('Escape')
-  await page.waitForFunction(() => location.hash === '')
-  await expect(page.getByRole('dialog')).toBeHidden()
-  expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
 
   await page.goBack()
   await page.waitForURL(`/collections/${publicCollection.id}`)
-  await expect(page.getByRole('dialog')).toBeHidden()
 })
 
-test('a deep-linked metadata dialog closes in place', async ({ page }) => {
+test('a legacy #metadata deep link renders the page without a dialog', async ({
+  page,
+}) => {
   // a fresh document can't be stubbed from the page, so this uses a
-  // stable live NASA record (the same exposure the search specs carry)
+  // stable live NASA record (the same exposure the search specs carry);
+  // the dialog is retired, so the old hash spelling must land inert
   await page.goto('/assets/nasa_ivl/PIA14417#metadata')
-  await expect(page.getByRole('dialog')).toBeVisible()
-
-  const lengthBefore = await page.evaluate(() => history.length)
-  await page.keyboard.press('Escape')
-  await page.waitForFunction(() => location.hash === '')
+  await expect(page.getByRole('button', { name: 'Metadata' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  )
   await expect(page.getByRole('dialog')).toBeHidden()
-  expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
   expect(await page.evaluate(() => location.pathname)).toBe(
     '/assets/nasa_ivl/PIA14417',
   )
