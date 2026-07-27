@@ -1,6 +1,6 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { stripAuthSearchParams } from '../auth.utils'
+import { preservedMaskOptions, stripAuthSearchParams } from '../auth.utils'
 
 function createAuthModalSearch<T extends Record<string, unknown>>(
   prev: T,
@@ -20,22 +20,12 @@ export function useShowAuthModal() {
       // tab switches while open replace, so a dialog visit stays one entry
       const alreadyOpen =
         (router.state.location.search as { auth?: unknown }).auth != null
-      // a masked URL (asset overlay) survives the auth navigation
-      const maskedLocation = router.state.location.maskedLocation
       navigate({
         to: '.',
         search: (prev) => createAuthModalSearch(prev, auth),
         replace: alreadyOpen,
         state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
-        ...(maskedLocation
-          ? {
-              mask: {
-                to: maskedLocation.pathname,
-                search: maskedLocation.search,
-                unmaskOnReload: true,
-              },
-            }
-          : {}),
+        ...preservedMaskOptions(router.state.location),
       })
     },
     [navigate, router],
