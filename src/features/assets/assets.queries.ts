@@ -41,16 +41,6 @@ export function useSuspenseAsset(assetKey: AssetKey) {
   return useSuspenseQuery(getAssetOptions({ repo, assetKey }))
 }
 
-export function usePrefetchAsset(assetKey: AssetKey) {
-  const repo = useAssetsRepo()
-  const queryClient = useQueryClient()
-
-  return useCallback(() => {
-    // NOTE: this gets spammed on every hover/focus/press - add throttle if staleTime is removed
-    void queryClient.prefetchQuery(getAssetOptions({ repo, assetKey }))
-  }, [repo, queryClient, assetKey])
-}
-
 export function ensureAsset({
   assetKey,
   queryClient,

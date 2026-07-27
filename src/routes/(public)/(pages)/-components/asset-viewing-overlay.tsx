@@ -32,6 +32,8 @@ export function useViewingAssetTileLinkProps() {
     (item: { key: AssetKey }): TileLinkProps => ({
       onClick: (event: MouseEvent<Element>) => {
         if (
+          event.defaultPrevented ||
+          event.currentTarget.getAttribute('aria-disabled') === 'true' ||
           event.button !== 0 ||
           event.metaKey ||
           event.ctrlKey ||

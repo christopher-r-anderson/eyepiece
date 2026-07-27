@@ -8,6 +8,7 @@ export const toastRecipe = defineSlotRecipe({
       display: 'flex',
       flexDirection: 'column',
       position: 'fixed',
+      zIndex: 'toast',
       bottom: '7',
       right: '7',
       gap: '2',
