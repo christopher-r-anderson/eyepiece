@@ -7,7 +7,7 @@ import {
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
-import { stripAuthSearchParams } from '../auth.utils'
+import { preservedMaskOptions, stripAuthSearchParams } from '../auth.utils'
 import { LoginForm } from '../forms/login-form'
 import {
   RegistrationForm,
@@ -42,7 +42,11 @@ export function AuthModalController({
 }: {
   modal: AuthModalState
 }) {
-  const href = useLocation({ select: (location) => location.href })
+  // full-page auth flows continue to the displayed URL, which under an
+  // asset overlay is the masked detail route
+  const href = useLocation({
+    select: (location) => location.maskedLocation?.href ?? location.href,
+  })
   const next = urlToNextParam(href)
   const navigate = useNavigate()
   const router = useRouter()
@@ -59,6 +63,7 @@ export function AuthModalController({
       to: '.',
       search: stripAuthSearchParams,
       replace: true,
+      ...preservedMaskOptions(router.state.location),
     })
   }, [openedByPush, router, navigate])
 
@@ -110,6 +115,9 @@ function LoginSection({
   next: string
   onSuccess: () => void
 }) {
+  const maskedLocation = useRouterState({
+    select: (s) => s.location.maskedLocation,
+  })
   return (
     <div className={grid({ gap: '4' })}>
       <LoginForm
@@ -121,6 +129,7 @@ function LoginSection({
             search={showForgotPasswordSearch}
             replace
             state={(prev) => prev}
+            {...preservedMaskOptions({ maskedLocation })}
           >
             Forgot Password?
           </Link>

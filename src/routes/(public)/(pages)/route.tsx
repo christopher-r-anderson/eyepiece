@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { AssetViewingOverlay } from './-components/asset-viewing-overlay'
 import { pageMainCss } from '@/components/page-main'
 import {
   authModalSearchParamsSchema,
@@ -22,6 +23,7 @@ function PublicPagesLayout() {
         <Outlet />
       </main>
       <AuthModalController modal={search} />
+      <AssetViewingOverlay />
     </>
   )
 }

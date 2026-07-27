@@ -45,3 +45,22 @@ export function mapSupabaseAuthError(error: unknown): ResultError {
     message: 'An unknown error occurred',
   }
 }
+
+// a masked URL (asset overlay) survives in-place auth navigations; typed
+// as object because a runtime pathname cannot satisfy the router's static
+// mask typing
+export function preservedMaskOptions(location: {
+  maskedLocation?: { pathname: string; search: unknown }
+}): object {
+  const { maskedLocation } = location
+  if (!maskedLocation) {
+    return {}
+  }
+  return {
+    mask: {
+      to: maskedLocation.pathname,
+      search: maskedLocation.search,
+      unmaskOnReload: true,
+    },
+  }
+}

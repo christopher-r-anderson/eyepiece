@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
@@ -11,6 +10,13 @@ import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { Link } from '@/components/ui/link'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
+// navigation overrides for the primary link (target, state, mask);
+// presentation props stay owned by the tile
+export type TileLinkProps = Omit<
+  ComponentPropsWithoutRef<typeof Link>,
+  'children' | 'className' | 'style' | 'css'
+>
+
 interface AssetTileProps extends Omit<
   ComponentPropsWithRef<'div'>,
   'children'
@@ -20,16 +26,18 @@ interface AssetTileProps extends Omit<
   actions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
+  linkProps?: TileLinkProps
 }
 
 const Thumbnail = ({
   assetPreview,
   isLinkDisabled,
+  linkProps,
 }: {
   assetPreview: AssetPreview
   isLinkDisabled?: boolean
+  linkProps?: TileLinkProps
 }) => {
-  const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
   return (
     <Link
@@ -40,7 +48,8 @@ const Thumbnail = ({
         assetId: assetPreview.key.externalId,
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
-      onClick={() => setDetailClicked(true)}
+      {...(linkProps as object | undefined)}
+      data-asset-key={toAssetKeyString(assetPreview.key)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
       // the grid's row action opens the tile through this link so every
@@ -73,13 +82,7 @@ const Thumbnail = ({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          viewTransitionClass: 'asset-image',
         })}
-        style={{
-          viewTransitionName: detailClicked
-            ? `asset-${toAssetKeyString(assetPreview.key)}`
-            : undefined,
-        }}
         src={assetPreview.thumbnail.href}
         alt=""
         width={assetPreview.thumbnail.width}
@@ -128,11 +131,16 @@ export function AssetTile({
   actions,
   className,
   isLinkDisabled,
+  linkProps,
   ...props
 }: AssetTileProps) {
   return (
     <div className={cx(css(containerCss), className)} {...props}>
-      <Thumbnail assetPreview={assetPreview} isLinkDisabled={isLinkDisabled} />
+      <Thumbnail
+        assetPreview={assetPreview}
+        isLinkDisabled={isLinkDisabled}
+        linkProps={linkProps}
+      />
       {relatedLinks && (
         <div
           data-tile-reveal

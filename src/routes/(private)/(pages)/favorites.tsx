@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
+import { useViewingAssetTileLinkProps } from '../../(public)/(pages)/-components/asset-viewing-overlay'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
 import { isAuthRequiredError } from '@/lib/result'
@@ -66,6 +67,7 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
 })
 
 function FavoritesPage() {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const favoritesResult = useSuspenseInfiniteUserFavoriteEdges()
   const assetPreviewSnapshotsResult = useAssetPreviewSnapshotsBatch(
     favoritesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
@@ -201,6 +203,7 @@ function FavoritesPage() {
         className={css({ width: '100%' })}
       >
         <JustifiedAssetGrid
+          tileLinkProps={tileLinkProps}
           aria-label="Favorites"
           items={assetPreviewSnapshotsResult.data ?? []}
           tileActions={tileActions}

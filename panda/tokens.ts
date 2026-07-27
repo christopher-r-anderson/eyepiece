@@ -81,8 +81,9 @@ export const tokens = defineTokens({
     base: { value: 0 },
     sticky: { value: 5 },
     popover: { value: 10 },
-    toast: { value: 20 },
     overlay: { value: 30 },
+    // feedback must survive an open modal overlay
+    toast: { value: 40 },
   },
   durations: {
     micro: { value: '150ms' },

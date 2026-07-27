@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { startTransition } from 'react'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
+import { useViewingAssetTileLinkProps } from '../-components/asset-viewing-overlay'
 import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
@@ -104,6 +105,7 @@ export const Route = createFileRoute(
 })
 
 function CollectionPage() {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const { collectionId } = Route.useRouteContext()
   const collection = useSuspenseCollection(collectionId)
   if (!collection) {
@@ -171,6 +173,7 @@ function CollectionPage() {
             uiResetKey={collectionId}
           >
             <JustifiedAssetGrid
+              tileLinkProps={tileLinkProps}
               items={snapshotsResult.data ?? []}
               tileActions={renderTileActions}
             />

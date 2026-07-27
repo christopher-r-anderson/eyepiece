@@ -7,6 +7,7 @@ import {
 import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
+import { useViewingAssetTileLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
 import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
 import type { CollectionItemEdge } from '@/features/collections/collections.schema'
 import {
@@ -214,6 +215,7 @@ function ManageCollectionPage() {
 }
 
 function CollectionItems({ collectionId }: { collectionId: string }) {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const edgesResult = useSuspenseInfiniteUserCollectionItemEdges(collectionId)
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     edgesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
@@ -341,6 +343,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         className={css({ width: '100%', marginTop: '4' })}
       >
         <JustifiedAssetGrid
+          tileLinkProps={tileLinkProps}
           aria-label="Collection items"
           items={snapshotsResult.data ?? []}
           tileActions={tileActions}

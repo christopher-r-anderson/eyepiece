@@ -1,6 +1,6 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { stripAuthSearchParams } from '../auth.utils'
+import { preservedMaskOptions, stripAuthSearchParams } from '../auth.utils'
 
 function createAuthModalSearch<T extends Record<string, unknown>>(
   prev: T,
@@ -25,6 +25,7 @@ export function useShowAuthModal() {
         search: (prev) => createAuthModalSearch(prev, auth),
         replace: alreadyOpen,
         state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
+        ...preservedMaskOptions(router.state.location),
       })
     },
     [navigate, router],

@@ -1,7 +1,6 @@
 import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
 export function AssetDetail({ asset }: { asset: Asset }) {
   return (
@@ -43,9 +42,6 @@ export function AssetDetail({ asset }: { asset: Asset }) {
             alignSelf: 'flex-start',
           },
         })}
-        style={{
-          viewTransitionName: `asset-${toAssetKeyString(asset.key)}`,
-        }}
         src={asset.image.href}
         alt={asset.title}
         width={asset.image.width}

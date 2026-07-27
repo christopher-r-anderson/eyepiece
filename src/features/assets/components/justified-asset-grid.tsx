@@ -5,6 +5,7 @@ import { Item as StatelyItem } from '@react-stately/collections'
 import { css, cx } from 'styled-system/css'
 import { AssetTile } from './asset-tile'
 import { JustifiedKeyboardDelegate } from './justified-keyboard-delegate'
+import type { TileLinkProps } from './asset-tile'
 import type { Key } from 'react-aria'
 import type { ListState } from '@react-stately/list'
 import type { CSSProperties, ReactNode } from 'react'
@@ -45,6 +46,7 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   tileClassName?: (item: TItem) => string | undefined
   // ghost rows stay rendered but must not navigate (row action or link)
   tileLinkDisabled?: (item: TItem) => boolean
+  tileLinkProps?: (item: TItem) => TileLinkProps | undefined
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -54,6 +56,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileRelatedLinks,
   tileClassName,
   tileLinkDisabled,
+  tileLinkProps,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -116,6 +119,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
             tileLinkDisabled={tileLinkDisabled}
+            tileLinkProps={tileLinkProps}
           />
         )
       })}
@@ -133,6 +137,7 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   tileRelatedLinks?: (item: TItem) => ReactNode
   tileClassName?: (item: TItem) => string | undefined
   tileLinkDisabled?: (item: TItem) => boolean
+  tileLinkProps?: (item: TItem) => TileLinkProps | undefined
 }
 
 function JustifiedGridRowInner<TItem extends AssetPreview>({
@@ -143,6 +148,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   tileRelatedLinks,
   tileClassName,
   tileLinkDisabled,
+  tileLinkProps,
 }: JustifiedGridRowProps<TItem>) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -169,6 +175,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}
+          linkProps={tileLinkProps?.(item)}
           // width and height both set leaves the tile's own square
           // aspect-ratio inert; the ratio lives on the row
           className={css(fillCss)}
@@ -191,6 +198,7 @@ const JustifiedGridRow = memo(JustifiedGridRowInner, (prev, next) => {
     prev.tileActions === next.tileActions &&
     prev.tileRelatedLinks === next.tileRelatedLinks &&
     prev.tileClassName === next.tileClassName &&
-    prev.tileLinkDisabled === next.tileLinkDisabled
+    prev.tileLinkDisabled === next.tileLinkDisabled &&
+    prev.tileLinkProps === next.tileLinkProps
   )
 }) as typeof JustifiedGridRowInner
