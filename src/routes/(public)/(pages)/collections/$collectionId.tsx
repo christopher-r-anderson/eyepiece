@@ -30,7 +30,6 @@ import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skele
 import { getTitleText } from '@/lib/utils'
 
 // module-level so memoized grid rows see stable references
-
 const renderTileActions = (item: AssetPreview) => (
   <>
     <FavoriteButton assetKey={item.key} />

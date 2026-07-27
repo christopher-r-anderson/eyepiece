@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures'
-import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
-import { stubFixtureImages } from './support/collections-helpers'
+import { COLLECTIONS_FIXTURE, thumbHref } from './support/collections-fixture'
+import { TINY_PNG, stubFixtureImages } from './support/collections-helpers'
 import type { Page } from '@playwright/test'
 
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
@@ -9,7 +9,7 @@ const wideKey = `nasa_ivl-${wideSnapshot.externalId}`
 
 async function stubAssetApi(page: Page) {
   const image = {
-    href: `https://images-assets.nasa.gov/image/${wideSnapshot.externalId}/${wideSnapshot.externalId}~thumb.jpg`,
+    href: thumbHref(wideSnapshot.externalId),
     width: wideSnapshot.width,
     height: wideSnapshot.height,
   }
@@ -143,7 +143,7 @@ test(
       })
     })
     await page.route('https://example.com/stub.png', (route) =>
-      route.fulfill({ path: undefined, body: '', contentType: 'image/png' }),
+      route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
     )
     await page.goto('/favorites')
     await expect(

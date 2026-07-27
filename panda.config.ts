@@ -39,8 +39,7 @@ export default defineConfig({
   },
   utilities: {
     extend: {
-      // CSS properties missing from Panda's generated property set
-      viewTransitionClass: { className: 'view-transition-class' },
+      // CSS property missing from Panda's generated property set
       WebkitBoxOrient: { className: 'webkit-box-orient' },
       // expands to the app's standard micro-transition over the given
       // property list

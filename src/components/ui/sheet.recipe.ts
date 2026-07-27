@@ -35,6 +35,7 @@ export const sheetRecipe = defineSlotRecipe({
       width: '100%',
       height: '100%',
       outline: 'none',
+      borderTop: 'default',
       borderTopRadius: 'overlay',
       boxShadow: 'overlay',
       md: {

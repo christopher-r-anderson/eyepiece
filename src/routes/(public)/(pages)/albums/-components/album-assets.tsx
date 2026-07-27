@@ -15,7 +15,6 @@ export interface AlbumAssetsProps {
 }
 
 // module-level so memoized grid rows see stable references
-
 const renderTileActions = (item: Asset) => (
   <>
     <FavoriteButton assetKey={item.key} />
