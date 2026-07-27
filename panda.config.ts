@@ -10,6 +10,7 @@ import { headingRecipe } from '@/components/ui/heading.recipe'
 import { linkRecipe } from '@/components/ui/link.recipe'
 import { menuItemRecipe, menuRecipe } from '@/components/ui/menus.recipe'
 import { modalDialogRecipe } from '@/components/ui/modal-dialog.recipe'
+import { sheetRecipe } from '@/components/ui/sheet.recipe'
 import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
@@ -131,6 +132,7 @@ export default defineConfig({
     },
     slotRecipes: {
       modalDialog: modalDialogRecipe,
+      sheet: sheetRecipe,
       textField: textFieldRecipe,
       toast: toastRecipe,
     },

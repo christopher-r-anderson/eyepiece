@@ -2,8 +2,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
+import { viewingAssetLinkProps } from '../../(public)/(pages)/-components/asset-viewing-overlay'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import { isAuthRequiredError } from '@/lib/result'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
@@ -33,6 +37,9 @@ import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 
 const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
+
+const tileLinkProps = (item: { key: AssetKey }) =>
+  viewingAssetLinkProps(item.key)
 
 export const Route = createFileRoute('/(private)/(pages)/favorites')({
   component: FavoritesPage,
@@ -201,6 +208,7 @@ function FavoritesPage() {
         className={css({ width: '100%' })}
       >
         <JustifiedAssetGrid
+          tileLinkProps={tileLinkProps}
           aria-label="Favorites"
           items={assetPreviewSnapshotsResult.data ?? []}
           tileActions={tileActions}

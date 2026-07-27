@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
+import { usePrefetchAsset } from '../assets.queries'
 import type {
   ComponentPropsWithRef,
   ComponentPropsWithoutRef,
@@ -10,6 +11,13 @@ import type {
 import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { Link } from '@/components/ui/link'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
+
+// navigation overrides for the primary link (target, state, mask);
+// presentation props stay owned by the tile
+export type TileLinkProps = Omit<
+  ComponentPropsWithoutRef<typeof Link>,
+  'children' | 'className' | 'style' | 'css'
+>
 
 interface AssetTileProps extends Omit<
   ComponentPropsWithRef<'div'>,
@@ -20,17 +28,24 @@ interface AssetTileProps extends Omit<
   actions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
+  linkProps?: TileLinkProps
 }
 
 const Thumbnail = ({
   assetPreview,
   isLinkDisabled,
+  linkProps,
 }: {
   assetPreview: AssetPreview
   isLinkDisabled?: boolean
+  linkProps?: TileLinkProps
 }) => {
   const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
+  // the router's intent preload only covers real detail navigations; a
+  // masked overlay link stays on the list route, so the tile warms the
+  // asset query itself
+  const prefetch = usePrefetchAsset(assetPreview.key)
   return (
     <Link
       isDisabled={isLinkDisabled}
@@ -40,6 +55,12 @@ const Thumbnail = ({
         assetId: assetPreview.key.externalId,
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
+      // the erased override type would otherwise collapse the element's own
+      // generic inference
+      {...(linkProps as object | undefined)}
+      onHoverStart={prefetch}
+      onFocus={prefetch}
+      data-asset-key={toAssetKeyString(assetPreview.key)}
       onClick={() => setDetailClicked(true)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
@@ -128,11 +149,16 @@ export function AssetTile({
   actions,
   className,
   isLinkDisabled,
+  linkProps,
   ...props
 }: AssetTileProps) {
   return (
     <div className={cx(css(containerCss), className)} {...props}>
-      <Thumbnail assetPreview={assetPreview} isLinkDisabled={isLinkDisabled} />
+      <Thumbnail
+        assetPreview={assetPreview}
+        isLinkDisabled={isLinkDisabled}
+        linkProps={linkProps}
+      />
       {relatedLinks && (
         <div
           data-tile-reveal

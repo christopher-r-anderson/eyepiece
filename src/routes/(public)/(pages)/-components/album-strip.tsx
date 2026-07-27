@@ -5,6 +5,7 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { wrap } from 'styled-system/patterns'
 import { FavoriteButton } from './favorite-button'
+import { viewingAssetLinkProps } from './asset-viewing-overlay'
 import type { CSSProperties } from 'react'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import {
@@ -126,6 +127,7 @@ function AlbumStripItems({ albumKey }: { albumKey: AlbumKey }) {
           <AssetTile
             assetPreview={item}
             actions={<FavoriteButton assetKey={item.key} />}
+            linkProps={viewingAssetLinkProps(item.key)}
             className={css({ width: '100%', height: '100%' })}
           />
         </li>

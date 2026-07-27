@@ -1,5 +1,6 @@
 import { FavoriteButton } from '../../-components/favorite-button'
-import type { Asset } from '@/domain/asset/asset.schema'
+import { viewingAssetLinkProps } from '../../-components/asset-viewing-overlay'
+import type { Asset, AssetKey } from '@/domain/asset/asset.schema'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import { AlbumLinkList } from '@/features/albums/components/album-link-list'
@@ -14,12 +15,16 @@ const renderTileActions = (item: Asset) => (
   </>
 )
 
+const tileLinkProps = (item: { key: AssetKey }) =>
+  viewingAssetLinkProps(item.key)
+
 export function AssetResultsGrid({ items }: { items: Array<Asset> }) {
   return (
     <JustifiedAssetGrid
       items={items}
       tileRelatedLinks={renderTileRelatedLinks}
       tileActions={renderTileActions}
+      tileLinkProps={tileLinkProps}
     />
   )
 }

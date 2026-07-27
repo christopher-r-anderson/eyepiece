@@ -1,31 +1,15 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { useId } from 'react-aria'
-import { useEffect } from 'react'
 import { css } from 'styled-system/css'
 import { modalDialog } from 'styled-system/recipes'
 import { Button } from './button'
 import { Heading } from './heading'
+import { useModalOpenAttribute } from './modal-open-attribute'
 import type { HeadingLevel } from './heading'
 import type { ReactNode } from 'react'
 
 const slots = modalDialog()
-
-const MODAL_OPEN_ATTRIBUTE = 'data-modal-open'
-
-let openModalCount = 0
-
-function syncModalOpenAttribute() {
-  if (typeof document === 'undefined') {
-    return
-  }
-
-  if (openModalCount > 0) {
-    document.documentElement.setAttribute(MODAL_OPEN_ATTRIBUTE, 'true')
-  } else {
-    document.documentElement.removeAttribute(MODAL_OPEN_ATTRIBUTE)
-  }
-}
 
 export type ModalDialogProps = {
   children: ReactNode
@@ -45,20 +29,7 @@ export function ModalDialog({
   titleLevel = 2,
 }: ModalDialogProps) {
   const titleId = useId()
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    openModalCount += 1
-    syncModalOpenAttribute()
-
-    return () => {
-      openModalCount = Math.max(0, openModalCount - 1)
-      syncModalOpenAttribute()
-    }
-  }, [isOpen])
+  useModalOpenAttribute(isOpen)
 
   // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
