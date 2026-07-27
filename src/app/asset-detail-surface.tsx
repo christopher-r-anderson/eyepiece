@@ -3,7 +3,6 @@ import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
-import type { HeadingLevel } from '@/components/ui/heading'
 import { AssetDetail } from '@/features/assets/components/asset-detail'
 import { MetadataDisclosure } from '@/features/assets/components/metadata-disclosure'
 import { Heading } from '@/components/ui/heading'
@@ -21,7 +20,9 @@ export function AssetDetailSurface({
   actions,
 }: {
   asset: Asset
-  titleLevel: HeadingLevel
+  // the route passes 1, the overlay passes 2; deeper levels would push the
+  // metadata heading past h6
+  titleLevel: 1 | 2
   back?: ReactNode
   actions?: ReactNode
 }) {
@@ -85,7 +86,7 @@ export function AssetDetailSurface({
       {canViewMetadata && (
         <MetadataDisclosure
           assetKey={asset.key}
-          headingLevel={(titleLevel + 1) as HeadingLevel}
+          headingLevel={titleLevel === 1 ? 2 : 3}
           errorBoundary={(children) => (
             <CatchBoundary
               getResetKey={() => toAssetKeyString(asset.key)}
