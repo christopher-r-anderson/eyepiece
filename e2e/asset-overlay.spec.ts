@@ -82,6 +82,14 @@ test('Escape closes back to the list and refocuses the origin tile', async ({
   await expect(
     page.locator(`[data-tile-primary-link][data-asset-key="${wideKey}"]`),
   ).toBeFocused()
+
+  // Forward restores the masked entry: overlay reopens on the asset URL
+  await page.goForward()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await expect(page).toHaveURL(`/assets/nasa_ivl/${wideSnapshot.externalId}`)
+  await page.goBack()
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expect(page).toHaveURL(`/collections/${publicCollection.id}`)
 })
 
 test('clicking the backdrop closes the overlay', async ({ page }) => {
