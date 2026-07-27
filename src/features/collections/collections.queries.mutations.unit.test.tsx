@@ -11,6 +11,7 @@ import {
   getAssetCollectionMembershipOptions,
   getInfiniteCollectionItemEdgesOptions,
   getInfiniteUserCollectionItemEdgesOptions,
+  getPublicCollectionCardsOptions,
   getUserCollectionCardsOptions,
   getUserCollectionsListOptions,
   useCreateCollection,
@@ -27,10 +28,15 @@ import type { ReactNode } from 'react'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { Ok } from '@/lib/result'
 
+const { USER_ID } = vi.hoisted(() => ({
+  USER_ID: '550e8400-e29b-41d4-a716-446655440002',
+}))
+
 // ---------------------------------------------------------------------------
 // collections.functions is mocked at the top level so that importing the
 // query hooks never triggers collections.functions' module-scope
-// createServerFn() calls.
+// createServerFn() calls. auth.queries is stubbed so the owner-scoped
+// invalidators see a signed-in user.
 // ---------------------------------------------------------------------------
 
 vi.mock('./collections.functions', () => ({
@@ -43,7 +49,11 @@ vi.mock('./collections.functions', () => ({
   removeCollectionItemFn: vi.fn(),
 }))
 
-const USER_ID = '550e8400-e29b-41d4-a716-446655440002'
+vi.mock('@/features/auth/auth.queries', () => ({
+  useCurrentUserQuery: () => ({ data: { id: USER_ID } }),
+}))
+
+const OTHER_OWNER_ID = '550e8400-e29b-41d4-a716-4466554400ff'
 const COLLECTION_ID = '550e8400-e29b-41d4-a716-446655440001'
 
 const ITEM_INPUT = {
@@ -113,6 +123,24 @@ const OTHER_ASSET_KEY = {
   externalId: 'a-different-asset',
 } as const
 
+function mountActivePublicCardsQuery(
+  queryClient: QueryClient,
+  ownerId: string,
+) {
+  const getPublicCollectionCardsForOwner = vi.fn().mockResolvedValue(Ok([]))
+  renderHook(
+    () =>
+      useQuery(
+        getPublicCollectionCardsOptions({
+          ownerId,
+          repo: { getPublicCollectionCardsForOwner },
+        }),
+      ),
+    { wrapper: makeWrapper(queryClient) },
+  )
+  return { getPublicCollectionCardsForOwner }
+}
+
 afterEach(() => {
   cleanup()
   vi.resetAllMocks()
@@ -162,12 +190,20 @@ describe('collections mutation invalidation', () => {
     // the picker's collection list can only change on create/rename/delete,
     // never an item toggle - so it must not be refetched (nor awaited)
     const { getUserCollections } = mountActiveListQuery(queryClient)
+    // public cards are owner-scoped: the acting owner's refresh, another
+    // owner's (the homepage showcase, a visited profile) must not
+    const { getPublicCollectionCardsForOwner: getOwnPublicCards } =
+      mountActivePublicCardsQuery(queryClient, USER_ID)
+    const { getPublicCollectionCardsForOwner: getOtherOwnerPublicCards } =
+      mountActivePublicCardsQuery(queryClient, OTHER_OWNER_ID)
     await waitFor(() => {
       expect(getCollectionItemEdges).toHaveBeenCalledOnce()
       expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
       expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
       expect(getOtherAssetMembership).toHaveBeenCalledOnce()
       expect(getUserCollections).toHaveBeenCalledOnce()
+      expect(getOwnPublicCards).toHaveBeenCalledOnce()
+      expect(getOtherOwnerPublicCards).toHaveBeenCalledOnce()
     })
 
     vi.mocked(removeCollectionItemFn).mockResolvedValue({ removed: true })
@@ -217,6 +253,13 @@ describe('collections mutation invalidation', () => {
         USER_ID,
         `${OTHER_ASSET_KEY.providerId}-${OTHER_ASSET_KEY.externalId}`,
       ])?.isInvalidated,
+    ).toBe(false)
+    // the acting owner's public cards refresh; another owner's stay put
+    expect(getOwnPublicCards).toHaveBeenCalledTimes(2)
+    expect(getOtherOwnerPublicCards).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState(['collections', 'publicCards', OTHER_OWNER_ID])
+        ?.isInvalidated,
     ).toBe(false)
   })
 
@@ -269,15 +312,18 @@ describe('collections mutation invalidation', () => {
     expect(getCollectionItemEdges).toHaveBeenCalledOnce()
   })
 
-  it('create refetches the list and cards but not membership (a new collection is empty)', async () => {
+  it('a private create refreshes the list and cards but no membership or public cards', async () => {
     const queryClient = new QueryClient()
     const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
     const { getUserCollections } = mountActiveListQuery(queryClient)
     const { getCollectionIdsForAsset } = mountActiveMembershipQuery(queryClient)
+    const { getPublicCollectionCardsForOwner: getOwnPublicCards } =
+      mountActivePublicCardsQuery(queryClient, USER_ID)
     await waitFor(() => {
       expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
       expect(getUserCollections).toHaveBeenCalledOnce()
       expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+      expect(getOwnPublicCards).toHaveBeenCalledOnce()
     })
 
     vi.mocked(createCollectionFn).mockResolvedValue({
@@ -301,16 +347,49 @@ describe('collections mutation invalidation', () => {
       expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2)
       expect(getUserCollections).toHaveBeenCalledTimes(2)
     })
-    // ...but no asset's membership can have changed
+    // ...but no asset's membership can have changed, and a private
+    // collection appears in no public-card query at all
     expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+    expect(getOwnPublicCards).toHaveBeenCalledOnce()
     expect(
-      queryClient.getQueryState([
-        'me',
-        'collections',
-        'membership',
-        USER_ID,
-        `${ITEM_INPUT.assetKey.providerId}-${ITEM_INPUT.assetKey.externalId}`,
-      ])?.isInvalidated,
+      queryClient.getQueryState(['collections', 'publicCards', USER_ID])
+        ?.isInvalidated,
+    ).toBe(false)
+  })
+
+  it('a public create refreshes only the creator public cards', async () => {
+    const queryClient = new QueryClient()
+    const { getPublicCollectionCardsForOwner: getOwnPublicCards } =
+      mountActivePublicCardsQuery(queryClient, USER_ID)
+    const { getPublicCollectionCardsForOwner: getOtherOwnerPublicCards } =
+      mountActivePublicCardsQuery(queryClient, OTHER_OWNER_ID)
+    await waitFor(() => {
+      expect(getOwnPublicCards).toHaveBeenCalledOnce()
+      expect(getOtherOwnerPublicCards).toHaveBeenCalledOnce()
+    })
+
+    vi.mocked(createCollectionFn).mockResolvedValue({
+      id: COLLECTION_ID,
+      ownerId: USER_ID,
+      name: 'lunar landscapes',
+      visibility: 'public',
+      createdAt: '2026-07-26T00:00:00+00:00',
+      updatedAt: '2026-07-26T00:00:00+00:00',
+    })
+    const { result } = renderHook(() => useCreateCollection(), {
+      wrapper: makeWrapper(queryClient),
+    })
+    await result.current.mutateAsync({
+      name: 'lunar landscapes',
+      visibility: 'public',
+    })
+
+    await waitFor(() => expect(getOwnPublicCards).toHaveBeenCalledTimes(2))
+    // another owner's public cards cannot change from this create
+    expect(getOtherOwnerPublicCards).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState(['collections', 'publicCards', OTHER_OWNER_ID])
+        ?.isInvalidated,
     ).toBe(false)
   })
 })

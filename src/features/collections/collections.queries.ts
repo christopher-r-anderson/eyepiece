@@ -22,6 +22,7 @@ import type { CollectionsErrorCode } from './collections.const'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { Result } from '@/lib/result'
+import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
 import { mountOnlyListFreshness } from '@/lib/query-policies'
@@ -450,22 +451,20 @@ function invalidateCollectionsQueries(
   )
 }
 
-// an item add/remove only moves THIS asset's membership and the owner's
-// card counts/covers; the plain collections list, a collection's detail
-// row, and every other asset's membership cannot change, so the open
-// picker no longer awaits a list refetch that has nothing to update
+// an item add/remove only moves this asset's membership and the acting
+// owner's card counts/covers: the viewer-scoped `cards` (one per viewer)
+// plus their own `publicCards`. Another owner's public cards (the homepage
+// showcase, a visited profile) cannot change, nor can the plain list, a
+// detail row, or another asset's membership.
 function invalidateItemMembershipQueries(
   queryClient: QueryClient,
   assetKey: AssetKey,
+  ownerId: string | undefined,
 ) {
   const assetKeyString = toAssetKeyString(assetKey)
-  const isCardsOrThisMembership = ({
-    queryKey,
-  }: {
-    queryKey: ReadonlyArray<unknown>
-  }) =>
+  const isAffected = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
     queryKey.includes('cards') ||
-    queryKey.includes('publicCards') ||
+    (queryKey.includes('publicCards') && queryKey.includes(ownerId)) ||
     (queryKey.includes('membership') && queryKey.includes(assetKeyString))
   return Promise.all(
     BOTH_FAMILIES.flatMap((queryKey) => [
@@ -477,26 +476,31 @@ function invalidateItemMembershipQueries(
       queryClient.invalidateQueries({
         queryKey,
         refetchType: 'active',
-        predicate: isCardsOrThisMembership,
+        predicate: isAffected,
       }),
     ]),
   )
 }
 
 // a new collection is empty, so it only adds a row to the owner's list and
-// cards - no membership moves, no existing detail or item-edge list
-// changes. create-and-add relies on the add to refresh counts afterward.
-function invalidateNewCollectionQueries(queryClient: QueryClient) {
-  const isListOrCards = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+// cards, plus their own public cards when it is public. It touches no
+// membership, no existing detail or item-edge list, and no other owner's
+// public cards; create-and-add relies on the add to refresh counts.
+function invalidateNewCollectionQueries(
+  queryClient: QueryClient,
+  ownerId: string | undefined,
+  isPublic: boolean,
+) {
+  const isAffected = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
     queryKey.includes('list') ||
     queryKey.includes('cards') ||
-    queryKey.includes('publicCards')
+    (isPublic && queryKey.includes('publicCards') && queryKey.includes(ownerId))
   return Promise.all(
     BOTH_FAMILIES.map((queryKey) =>
       queryClient.invalidateQueries({
         queryKey,
         refetchType: 'active',
-        predicate: isListOrCards,
+        predicate: isAffected,
       }),
     ),
   )
@@ -520,9 +524,15 @@ const invalidateSettingsMutation = (queryClient: QueryClient) =>
 
 export function useCreateCollection() {
   const commands = useCollectionsCommands()
+  const { data: user } = useCurrentUserQuery()
   return useCollectionsMutation(
     commands.createCollection,
-    invalidateNewCollectionQueries,
+    (queryClient, { visibility }) =>
+      invalidateNewCollectionQueries(
+        queryClient,
+        user?.id,
+        visibility === 'public',
+      ),
   )
 }
 
@@ -554,10 +564,11 @@ export function useDeleteCollection() {
 
 export function useAddCollectionItem() {
   const commands = useCollectionsCommands()
+  const { data: user } = useCurrentUserQuery()
   return useCollectionsMutation(
     commands.addCollectionItem,
     (queryClient, { assetKey }) =>
-      invalidateItemMembershipQueries(queryClient, assetKey),
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
   )
 }
 
@@ -566,18 +577,20 @@ export function useAddCollectionItem() {
 // open picker's membership checkboxes reflect the removal immediately
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
+  const { data: user } = useCurrentUserQuery()
   return useCollectionsMutation(
     commands.removeCollectionItem,
     (queryClient, { assetKey }) =>
-      invalidateItemMembershipQueries(queryClient, assetKey),
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
   )
 }
 
 export function useAddCollectionItemAtPosition() {
   const commands = useCollectionsCommands()
+  const { data: user } = useCurrentUserQuery()
   return useCollectionsMutation(
     commands.addCollectionItemAtPosition,
     (queryClient, { assetKey }) =>
-      invalidateItemMembershipQueries(queryClient, assetKey),
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
   )
 }
