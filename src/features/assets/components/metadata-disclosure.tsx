@@ -10,9 +10,6 @@ import { Disclosure, DisclosurePanel } from '@/components/ui/disclosure'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/ui/heading'
 
-// The metadata dialog's in-surface replacement: an expandable section that
-// lazy-loads on first expand (hover/focus prefetch warms it, exactly as the
-// old trigger button did) and adds no history entry.
 export function MetadataDisclosure({
   assetKey,
   headingLevel,
@@ -20,8 +17,7 @@ export function MetadataDisclosure({
 }: {
   assetKey: AssetKey
   headingLevel: HeadingLevel
-  // boundaries stay consumer-side per convention; the panel content is
-  // wrapped so an expand that fails to load stays inside the section
+  // boundaries stay consumer-side per convention
   errorBoundary: (children: ReactNode) => ReactNode
 }) {
   // NOTE: this gets spammed on every hover/focus/press - add throttle if
@@ -66,7 +62,6 @@ export function MetadataDisclosure({
             </Button>
           </Heading>
           <DisclosurePanel>
-            {/* content mounts on first expand so the fetch stays lazy */}
             {isExpanded &&
               errorBoundary(
                 <Suspense fallback={<p role="status">Loading metadata…</p>}>

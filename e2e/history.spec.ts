@@ -46,8 +46,8 @@ test('the metadata disclosure expands in place with no history entry', async ({
     (route) => route.fulfill({ json: { Camera: 'E2E Cam' } }),
   )
   await page.goto(`/collections/${publicCollection.id}`)
-  // enabled star = hydrated (tile links work pre-hydration, expansion does
-  // not need it, but the journey should mirror real use)
+  // enabled star = hydrated (tile links work pre-hydration, the
+  // disclosure does not)
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
   await page.getByRole('link', { name: wideSnapshot.title }).click()
   await page.waitForURL(`/assets/nasa_ivl/${wideSnapshot.externalId}`)
@@ -58,7 +58,6 @@ test('the metadata disclosure expands in place with no history entry', async ({
   await trigger.click()
   await expect(trigger).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('cell', { name: 'E2E Cam' })).toBeVisible()
-  // in-surface expansion: no hash, no history entry
   expect(await page.evaluate(() => location.hash)).toBe('')
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
 

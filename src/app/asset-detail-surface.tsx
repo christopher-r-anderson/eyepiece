@@ -10,9 +10,8 @@ import { CapturedAlertError } from '@/app/layout/route-error'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
-// The one asset-detail surface: the full detail page minus app chrome, so
-// the route and the list overlay render identical content. The back slot is
-// route-only; the overlay's close affordance lives on its sheet.
+// The full detail page minus app chrome, shared by the detail route and
+// the list overlay.
 export function AssetDetailSurface({
   asset,
   titleLevel,
@@ -20,8 +19,6 @@ export function AssetDetailSurface({
   actions,
 }: {
   asset: Asset
-  // the route passes 1, the overlay passes 2; deeper levels would push the
-  // metadata heading past h6
   titleLevel: 1 | 2
   back?: ReactNode
   actions?: ReactNode
