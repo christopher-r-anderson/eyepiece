@@ -22,6 +22,7 @@ import type { CollectionsErrorCode } from './collections.const'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { Result } from '@/lib/result'
+import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { unwrapOrThrow } from '@/lib/result'
 import { meKey } from '@/lib/query-keys'
 import { mountOnlyListFreshness } from '@/lib/query-policies'
@@ -364,7 +365,7 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
   )
 }
 
-function getUserCollectionsListOptions({
+export function getUserCollectionsListOptions({
   userId,
   repo,
 }: {
@@ -386,7 +387,7 @@ export function useUserCollectionsList(userId: string) {
   return useQuery(getUserCollectionsListOptions({ userId, repo }))
 }
 
-function getAssetCollectionMembershipOptions({
+export function getAssetCollectionMembershipOptions({
   userId,
   assetKey,
   repo,
@@ -418,21 +419,24 @@ export function useAssetCollectionMembership({
   )
 }
 
-// every mutation can change names, counts, covers, membership, or
-// visibility, so both the viewer-scoped and public families go stale
+const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+  queryKey.includes('itemEdges')
+
 // item-edge lists are marked stale but never actively refetched by ANY
 // mutation: a mounted grid may hold removal ghosts (manage), or anchor the
 // open picker itself (a public page's tile vanishing mid-refetch unmounts
 // the popover the user is still toggling). Grid lists refresh on mount
 // only - their options also disable focus/reconnect refetches.
+const BOTH_FAMILIES = [userCollectionsKeys.all, collectionsKeys.all] as const
+
+// name/visibility/deletion mutations can change every card, list row, and
+// collection detail across both families
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
 ) {
-  const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
-    queryKey.includes('itemEdges')
   return Promise.all(
-    [userCollectionsKeys.all, collectionsKeys.all].flatMap((queryKey) => [
+    BOTH_FAMILIES.flatMap((queryKey) => [
       queryClient.invalidateQueries({
         queryKey,
         refetchType: 'none',
@@ -447,32 +451,105 @@ function invalidateCollectionsQueries(
   )
 }
 
+// an item add/remove only moves this asset's membership and the acting
+// owner's card counts/covers: the viewer-scoped `cards` (one per viewer)
+// plus their own `publicCards`. Another owner's public cards (the homepage
+// showcase, a visited profile) cannot change, nor can the plain list, a
+// detail row, or another asset's membership.
+function invalidateItemMembershipQueries(
+  queryClient: QueryClient,
+  assetKey: AssetKey,
+  ownerId: string | undefined,
+) {
+  const assetKeyString = toAssetKeyString(assetKey)
+  const isAffected = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+    queryKey.includes('cards') ||
+    (queryKey.includes('publicCards') && queryKey.includes(ownerId)) ||
+    (queryKey.includes('membership') && queryKey.includes(assetKeyString))
+  return Promise.all(
+    BOTH_FAMILIES.flatMap((queryKey) => [
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'none',
+        predicate: isItemEdges,
+      }),
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'active',
+        predicate: isAffected,
+      }),
+    ]),
+  )
+}
+
+// a new collection is empty, so it only adds a row to the owner's list and
+// cards, plus their own public cards when it is public. It touches no
+// membership, no existing detail or item-edge list, and no other owner's
+// public cards; create-and-add relies on the add to refresh counts.
+function invalidateNewCollectionQueries(
+  queryClient: QueryClient,
+  ownerId: string | undefined,
+  isPublic: boolean,
+) {
+  const isAffected = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+    queryKey.includes('list') ||
+    queryKey.includes('cards') ||
+    (isPublic && queryKey.includes('publicCards') && queryKey.includes(ownerId))
+  return Promise.all(
+    BOTH_FAMILIES.map((queryKey) =>
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'active',
+        predicate: isAffected,
+      }),
+    ),
+  )
+}
+
 function useCollectionsMutation<TInput, TData>(
   command: (
     input: TInput,
   ) => Promise<Result<TData, CollectionsErrorCode | undefined>>,
-  { refetchType = 'active' }: { refetchType?: 'active' | 'none' } = {},
+  invalidate: (queryClient: QueryClient, variables: TInput) => Promise<unknown>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: TInput) => unwrapOrThrow(await command(input)),
-    onSettled: () => invalidateCollectionsQueries(queryClient, refetchType),
+    onSettled: (_data, _error, variables) => invalidate(queryClient, variables),
   })
 }
 
+const invalidateSettingsMutation = (queryClient: QueryClient) =>
+  invalidateCollectionsQueries(queryClient, 'active')
+
 export function useCreateCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.createCollection)
+  const { data: user } = useCurrentUserQuery()
+  return useCollectionsMutation(
+    commands.createCollection,
+    (queryClient, { visibility }) =>
+      invalidateNewCollectionQueries(
+        queryClient,
+        user?.id,
+        visibility === 'public',
+      ),
+  )
 }
 
 export function useRenameCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.renameCollection)
+  return useCollectionsMutation(
+    commands.renameCollection,
+    invalidateSettingsMutation,
+  )
 }
 
 export function useSetCollectionVisibility() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.setCollectionVisibility)
+  return useCollectionsMutation(
+    commands.setCollectionVisibility,
+    invalidateSettingsMutation,
+  )
 }
 
 // refetchType 'none': an active refetch races the post-delete navigation
@@ -480,14 +557,19 @@ export function useSetCollectionVisibility() {
 // page; every reader refetches its now-stale data on next mount
 export function useDeleteCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.deleteCollection, {
-    refetchType: 'none',
-  })
+  return useCollectionsMutation(commands.deleteCollection, (queryClient) =>
+    invalidateCollectionsQueries(queryClient, 'none'),
+  )
 }
 
 export function useAddCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.addCollectionItem)
+  const { data: user } = useCurrentUserQuery()
+  return useCollectionsMutation(
+    commands.addCollectionItem,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
+  )
 }
 
 // ghost safety lives in the invalidation helper (user-family item edges
@@ -495,10 +577,20 @@ export function useAddCollectionItem() {
 // open picker's membership checkboxes reflect the removal immediately
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.removeCollectionItem)
+  const { data: user } = useCurrentUserQuery()
+  return useCollectionsMutation(
+    commands.removeCollectionItem,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
+  )
 }
 
 export function useAddCollectionItemAtPosition() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.addCollectionItemAtPosition)
+  const { data: user } = useCurrentUserQuery()
+  return useCollectionsMutation(
+    commands.addCollectionItemAtPosition,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey, user?.id),
+  )
 }

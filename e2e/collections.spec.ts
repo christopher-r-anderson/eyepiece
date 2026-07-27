@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
+import { TINY_PNG } from './support/collections-helpers'
 import type { Page } from '@playwright/test'
 
 const {
@@ -9,11 +10,6 @@ const {
   unknownCollectionId,
   user,
 } = COLLECTIONS_FIXTURE
-
-const TINY_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-)
 
 function collectConsoleErrors(page: Page) {
   const errors: Array<string> = []

@@ -201,8 +201,10 @@ export function makeCollectionsRepo(client: SupabaseClient) {
   ): Promise<Result<Array<CollectionId>>> {
     const { data, error: pgError } = await client
       .from('collection_items')
+      // empty embeds keep the inner joins for the owner/asset filters below
+      // without shipping their columns; only collection_id is read
       .select(
-        'collection_id, collections!inner(owner_id), asset_preview_snapshots!inner(provider_id, external_id)',
+        'collection_id, collections!inner(), asset_preview_snapshots!inner()',
       )
       .eq('collections.owner_id', ownerId)
       .eq('asset_preview_snapshots.provider_id', assetKey.providerId)
