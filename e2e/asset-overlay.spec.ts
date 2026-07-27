@@ -47,6 +47,12 @@ test('opening a tile masks the URL above the still-mounted list', async ({
   const rows = page.getByRole('grid').getByRole('row')
   await expect(rows).toHaveCount(3)
 
+  // masked links must not carry the router's current-page semantics even
+  // though their real destination is the list route itself
+  await expect(
+    page.getByRole('link', { name: wideSnapshot.title }),
+  ).not.toHaveAttribute('aria-current')
+
   const lengthBefore = await page.evaluate(() => history.length)
   await page.getByRole('link', { name: wideSnapshot.title }).click()
   const dialog = page.getByRole('dialog')

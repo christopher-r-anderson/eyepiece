@@ -14,8 +14,15 @@ function AppLink({
   className,
   variant,
   underline,
+  omitActiveProps,
   ...props
-}: UiProps<LinkProps> & LinkVariantProps) {
+}: UiProps<LinkProps> & LinkVariantProps & { omitActiveProps?: boolean }) {
+  if (omitActiveProps) {
+    // a masked link's real destination is the current route, but its href
+    // points elsewhere - announcing it as the current page would be wrong
+    delete (props as Record<string, unknown>)['aria-current']
+    delete (props as Record<string, unknown>)['data-status']
+  }
   return (
     <ReactAriaLink
       {...props}

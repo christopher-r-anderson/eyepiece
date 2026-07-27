@@ -17,7 +17,8 @@ export const sheetRecipe = defineSlotRecipe({
       // the gaps live on the overlay so clicks in them count as outside
       // the modal and dismiss it
       md: {
-        paddingTop: '10',
+        // the spacing scale ends at 8
+        paddingTop: 'calc(token(spacing.8) + token(spacing.2))',
         paddingInline: '8',
       },
     },

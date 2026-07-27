@@ -17,11 +17,13 @@ export function AssetDetailSurface({
   titleLevel,
   back,
   actions,
+  imageViewTransitionName,
 }: {
   asset: Asset
   titleLevel: 1 | 2
   back?: ReactNode
   actions?: ReactNode
+  imageViewTransitionName?: boolean
 }) {
   const canViewMetadata = providerSupportsMetadata(asset.key.providerId)
   return (
@@ -79,7 +81,10 @@ export function AssetDetailSurface({
           {actions}
         </div>
       </div>
-      <AssetDetail asset={asset} />
+      <AssetDetail
+        asset={asset}
+        withViewTransitionName={imageViewTransitionName}
+      />
       {canViewMetadata && (
         <MetadataDisclosure
           assetKey={asset.key}

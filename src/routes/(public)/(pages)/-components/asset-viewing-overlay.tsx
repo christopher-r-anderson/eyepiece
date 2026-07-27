@@ -18,6 +18,10 @@ import { useSuspenseAsset } from '@/features/assets/assets.queries'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { getTitleText } from '@/lib/utils'
 
+// the tile (or its grid row) that opened the overlay, for focus restore -
+// an asset key alone is ambiguous when the same asset sits in two strips
+let originElement: Element | null = null
+
 // Tile links that open the overlay: the entry stays on the list route with
 // the asset in history state, while the displayed URL is masked to the real
 // detail route - copy/share and reload (unmaskOnReload) land on the full
@@ -27,11 +31,15 @@ export function viewingAssetLinkProps(assetKey: AssetKey): TileLinkProps {
     to: '.',
     search: (current: Record<string, unknown>) => current,
     resetScroll: false,
-    state: (prev: HistoryState) => ({
-      ...prev,
-      viewingAsset: assetKey,
-      dialogPushed: true,
-    }),
+    // the link's real destination is the list route itself; without this
+    // the router would mark every tile aria-current="page"
+    omitActiveProps: true,
+    state: (prev: HistoryState) => {
+      // runs synchronously inside the opening interaction, before the
+      // sheet takes focus
+      originElement = document.activeElement
+      return { ...prev, viewingAsset: assetKey, dialogPushed: true }
+    },
     mask: {
       to: '/assets/$providerId/$assetId',
       params: {
@@ -66,16 +74,22 @@ export function AssetViewingOverlay() {
       return
     }
     lastViewedRef.current = undefined
+    const captured = originElement
+    originElement = null
     requestAnimationFrame(() => {
+      if (captured instanceof HTMLElement && captured.isConnected) {
+        captured.focus()
+        return
+      }
       const key = toAssetKeyString(lastViewed)
-      const origin =
+      const fallback =
         document.querySelector<HTMLElement>(
           `[role="row"][data-key="${CSS.escape(key)}"]`,
         ) ??
         document.querySelector<HTMLElement>(
           `[data-tile-primary-link][data-asset-key="${CSS.escape(key)}"]`,
         )
-      origin?.focus()
+      fallback?.focus()
     })
   }, [viewingAsset])
 
@@ -140,20 +154,34 @@ export function AssetViewingOverlay() {
 function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
   const { data } = useSuspenseAsset(assetKey)
 
-  // the masked URL shows the detail route, so the tab title follows it;
-  // the route's own head re-applies after close via the restored title
+  // the masked URL shows the detail route, so the tab title follows it. A
+  // nested navigation (auth modal, picker) makes the router head re-apply
+  // the list title, so the effect also re-runs per location; the saved
+  // title only updates when someone else wrote it
+  const locationHref = useRouterState({ select: (s) => s.location.href })
+  const appliedTitleRef = useRef<string | undefined>(undefined)
+  const previousTitleRef = useRef<string | undefined>(undefined)
   useEffect(() => {
-    const previousTitle = document.title
-    document.title = getTitleText(data.title)
-    return () => {
-      document.title = previousTitle
+    if (document.title !== appliedTitleRef.current) {
+      previousTitleRef.current = document.title
     }
-  }, [data.title])
+    const next = getTitleText(data.title)
+    appliedTitleRef.current = next
+    document.title = next
+  }, [data.title, locationHref])
+  useEffect(() => {
+    return () => {
+      if (previousTitleRef.current !== undefined) {
+        document.title = previousTitleRef.current
+      }
+    }
+  }, [])
 
   return (
     <AssetDetailSurface
       asset={data}
       titleLevel={2}
+      imageViewTransitionName={false}
       actions={
         <>
           <FavoriteButton assetKey={assetKey} />

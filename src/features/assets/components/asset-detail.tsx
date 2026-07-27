@@ -3,7 +3,15 @@ import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
-export function AssetDetail({ asset }: { asset: Asset }) {
+export function AssetDetail({
+  asset,
+  withViewTransitionName = true,
+}: {
+  asset: Asset
+  // the overlay renders above a still-mounted tile carrying the same name;
+  // duplicates make the browser skip any transition (e.g. the toast's)
+  withViewTransitionName?: boolean
+}) {
   return (
     <div
       className={stack({
@@ -44,7 +52,9 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           },
         })}
         style={{
-          viewTransitionName: `asset-${toAssetKeyString(asset.key)}`,
+          viewTransitionName: withViewTransitionName
+            ? `asset-${toAssetKeyString(asset.key)}`
+            : undefined,
         }}
         src={asset.image.href}
         alt={asset.title}

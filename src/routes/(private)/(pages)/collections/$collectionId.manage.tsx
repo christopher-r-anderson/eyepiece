@@ -7,7 +7,11 @@ import {
 import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import { viewingAssetLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import type { CollectionItemEdge } from '@/features/collections/collections.schema'
 import {
   ensureInfiniteUserCollectionItemEdges,
@@ -44,6 +48,9 @@ import {
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
+
+const tileLinkProps = (item: { key: AssetKey }) =>
+  viewingAssetLinkProps(item.key)
 
 export const Route = createFileRoute(
   '/(private)/(pages)/collections/$collectionId/manage',
@@ -341,6 +348,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         className={css({ width: '100%', marginTop: '4' })}
       >
         <JustifiedAssetGrid
+          tileLinkProps={tileLinkProps}
           aria-label="Collection items"
           items={snapshotsResult.data ?? []}
           tileActions={tileActions}
