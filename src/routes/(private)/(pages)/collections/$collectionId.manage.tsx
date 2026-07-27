@@ -8,7 +8,10 @@ import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { useViewingAssetTileLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import type { CollectionItemEdge } from '@/features/collections/collections.schema'
 import {
   ensureInfiniteUserCollectionItemEdges,
@@ -40,8 +43,10 @@ import { RouteError } from '@/app/layout/route-error'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import {
   GhostRemovedActions,
+  refocusTileControlAfterSwap,
   useGhostRemovals,
 } from '@/features/assets/components/ghost-removals'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
@@ -234,8 +239,10 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     tileLinkDisabled,
   } = useGhostRemovals()
   const makeOpFailureHandler = useCallback(
-    (title: string) => () =>
-      queueToastMessage({ title, description: 'Please try again.' }),
+    (title: string, assetKey: AssetKey) => () => {
+      refocusTileControlAfterSwap(toAssetKeyString(assetKey))
+      queueToastMessage({ title, description: 'Please try again.' })
+    },
     [queueToastMessage],
   )
 
@@ -263,7 +270,8 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       if (removedIds.has(item.id)) {
         return (
           <GhostRemovedActions
-            onUndo={() =>
+            onUndo={() => {
+              refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
               runRestore(
                 item.id,
                 () =>
@@ -273,9 +281,9 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                     position: edge.position,
                     createdAt: edge.createdAt,
                   }),
-                makeOpFailureHandler('Undo failed'),
+                makeOpFailureHandler('Undo failed', edge.assetKey),
               )
-            }
+            }}
           />
         )
       }
@@ -286,13 +294,14 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         <Button
           variant="bare"
           aria-label={`Remove ${item.title}`}
-          onPress={() =>
+          onPress={() => {
+            refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
             runRemoval(
               item.id,
               () => removeItemAsync({ collectionId, assetKey: edge.assetKey }),
-              makeOpFailureHandler('Remove failed'),
+              makeOpFailureHandler('Remove failed', edge.assetKey),
             )
-          }
+          }}
         >
           <XIcon size={20} weight="bold" />
         </Button>

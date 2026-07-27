@@ -4,7 +4,10 @@ import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
 import { useViewingAssetTileLinkProps } from '../../(public)/(pages)/-components/asset-viewing-overlay'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import { isAuthRequiredError } from '@/lib/result'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
@@ -22,8 +25,10 @@ import {
 } from '@/features/assets/asset-preview-snapshots.queries'
 import {
   GhostRemovedActions,
+  refocusTileControlAfterSwap,
   useGhostRemovals,
 } from '@/features/assets/components/ghost-removals'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
@@ -86,11 +91,12 @@ function FavoritesPage() {
     tileLinkDisabled,
   } = useGhostRemovals()
   const makeOpFailureHandler = useCallback(
-    (title: string) => (error: unknown) => {
+    (title: string, assetKey: AssetKey) => (error: unknown) => {
       if (isAuthRequiredError(error)) {
         showLoginModal()
         return
       }
+      refocusTileControlAfterSwap(toAssetKeyString(assetKey))
       queueToastMessage({ title, description: 'Please try again.' })
     },
     [showLoginModal, queueToastMessage],
@@ -125,7 +131,8 @@ function FavoritesPage() {
       if (removedIds.has(item.id)) {
         return (
           <GhostRemovedActions
-            onUndo={() =>
+            onUndo={() => {
+              refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
               runRestore(
                 item.id,
                 () =>
@@ -133,9 +140,9 @@ function FavoritesPage() {
                     assetKey: edge.assetKey,
                     createdAt: edge.createdAt,
                   }),
-                makeOpFailureHandler('Undo failed'),
+                makeOpFailureHandler('Undo failed', edge.assetKey),
               )
-            }
+            }}
           />
         )
       }
@@ -146,13 +153,14 @@ function FavoritesPage() {
             css={favoriteToggleCss}
             variant="icon"
             isSelected
-            onChange={() =>
+            onChange={() => {
+              refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
               runRemoval(
                 item.id,
                 () => unfavoriteAsync(edge.assetKey),
-                makeOpFailureHandler('Unstar failed'),
+                makeOpFailureHandler('Unstar failed', edge.assetKey),
               )
-            }
+            }}
           >
             <StarIcon size={20} weight="fill" />
           </ToggleButton>
