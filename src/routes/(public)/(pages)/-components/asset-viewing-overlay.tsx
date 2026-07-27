@@ -43,9 +43,13 @@ export function useViewingAssetTileLinkProps() {
           return
         }
         event.preventDefault()
+        // the active grid row wins for keyboard activation; stale focus
+        // elsewhere (pointer modes that do not focus links) must not
         const active = document.activeElement
         originElement =
-          active && active !== document.body ? active : event.currentTarget
+          active instanceof HTMLElement && active.contains(event.currentTarget)
+            ? active
+            : event.currentTarget
         void router.navigate({
           to: '.',
           search: (current: unknown) => current as never,
@@ -183,7 +187,7 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
     if (document.title !== appliedTitleRef.current) {
       previousTitleRef.current = document.title
     }
-    const next = getTitleText(data.title)
+    const next = getTitleText(data.title || 'NASA Media')
     appliedTitleRef.current = next
     document.title = next
   }, [data.title, locationHref])

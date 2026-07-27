@@ -42,7 +42,11 @@ export function AuthModalController({
 }: {
   modal: AuthModalState
 }) {
-  const href = useLocation({ select: (location) => location.href })
+  // full-page auth flows continue to the displayed URL, which under an
+  // asset overlay is the masked detail route
+  const href = useLocation({
+    select: (location) => location.maskedLocation?.href ?? location.href,
+  })
   const next = urlToNextParam(href)
   const navigate = useNavigate()
   const router = useRouter()
