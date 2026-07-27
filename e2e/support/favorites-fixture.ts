@@ -39,10 +39,24 @@ export async function seedUserFavorite(fixture: FavoriteFixture) {
 
 export async function deleteUserFavorite(fixture: FavoriteFixture) {
   const admin = makeAdminClient()
-  await admin
+  // the favorite must go first: the snapshot FK is ON DELETE RESTRICT, so
+  // a leftover favorite would block the snapshot delete. Surface either
+  // failure so a botched cleanup can't silently leave fixture data behind.
+  const { error: favoriteError } = await admin
     .from('favorites')
     .delete()
     .eq('owner_id', SEED_USER_ID)
     .eq('asset_preview_snapshot_id', fixture.id)
-  await admin.from('asset_preview_snapshots').delete().eq('id', fixture.id)
+  if (favoriteError) {
+    throw new Error(`Failed to delete favorite: ${favoriteError.message}`)
+  }
+  const { error: snapshotError } = await admin
+    .from('asset_preview_snapshots')
+    .delete()
+    .eq('id', fixture.id)
+  if (snapshotError) {
+    throw new Error(
+      `Failed to delete favorite snapshot: ${snapshotError.message}`,
+    )
+  }
 }

@@ -102,15 +102,20 @@ test('owner manages: rename, visibility, ghost removal with undo, delete', async
     await page.getByRole('button', { name: 'Remove E2E Square' }).click()
     await expect(page.getByText('Removed')).toBeVisible()
     await expect(rows).toHaveCount(3)
+    // the swap unmounts the pressed Remove; focus lands on the Undo that
+    // takes its slot, not on the body
+    await expect(page.getByRole('button', { name: 'Undo' })).toBeFocused()
     await removedOnce
 
     // undo restores in place: the remove control comes back, nothing moved
     const reAdded = nextServerPost(page)
     await page.getByRole('button', { name: 'Undo' }).click()
     await expect(page.getByText('Removed')).toHaveCount(0)
-    await expect(
-      page.getByRole('button', { name: 'Remove E2E Square' }),
-    ).toBeVisible()
+    const removeControl = page.getByRole('button', {
+      name: 'Remove E2E Square',
+    })
+    await expect(removeControl).toBeVisible()
+    await expect(removeControl).toBeFocused()
     await expect(rows).toHaveCount(3)
     await reAdded
 
