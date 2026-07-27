@@ -96,9 +96,6 @@ function FavoritesPage() {
         showLoginModal()
         return
       }
-      // a failed op rolls the ghost back, unmounting the acted-on control
-      // the same way the optimistic swap did; keep focus in the tile so
-      // the retry is reachable
       refocusTileControlAfterSwap(toAssetKeyString(assetKey))
       queueToastMessage({ title, description: 'Please try again.' })
     },

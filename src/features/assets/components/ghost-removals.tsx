@@ -33,6 +33,12 @@ export function refocusTileControlAfterSwap(assetKeyString: string) {
     return
   }
   requestAnimationFrame(() => {
+    // only reclaim focus if the swap dropped it to the body; if it has
+    // moved to a real target since (e.g. a modal), leave it
+    const current = document.activeElement
+    if (current && current !== document.body && !row.contains(current)) {
+      return
+    }
     const control = row.querySelector<HTMLElement>(
       '[data-tile-controls] button:not([disabled])',
     )

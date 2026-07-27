@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { expect, test } from './fixtures'
 import { TINY_PNG, nextServerPost } from './support/collections-helpers'
 import {
@@ -6,26 +5,26 @@ import {
   seedUserFavorite,
 } from './support/favorites-fixture'
 import type { FavoriteFixture } from './support/favorites-fixture'
+import type { TestInfo } from '@playwright/test'
 
-// per-run identity (fresh id/title each test) so the chromium, firefox,
-// and webkit projects never seed, restore, and delete the same row
-let fixture: FavoriteFixture
+function focusFixture({ workerIndex }: TestInfo): FavoriteFixture {
+  const slot = String(workerIndex).padStart(12, '0')
+  return {
+    id: `e2efac00-0000-4000-8000-${slot}`,
+    externalId: `e2e-favorites-focus-${workerIndex}`,
+    title: `E2E Focus Favorite ${workerIndex}`,
+  }
+}
 
 test.beforeEach(async ({ page }, testInfo) => {
-  const token = `${testInfo.project.name}-${randomUUID()}`
-  fixture = {
-    id: randomUUID(),
-    externalId: `e2e-favorites-${token}`,
-    title: `E2E Focus Favorite ${token}`,
-  }
-  await seedUserFavorite(fixture)
+  await seedUserFavorite(focusFixture(testInfo))
   await page.route('**/image/e2e-favorites-*/**', (route) =>
     route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
   )
 })
 
 test.afterEach(async () => {
-  await deleteUserFavorite(fixture)
+  await deleteUserFavorite(focusFixture(test.info()))
 })
 
 // the removal/restore swap unmounts the control being pressed; without
@@ -33,7 +32,8 @@ test.afterEach(async () => {
 test(
   'the star removal swap keeps focus in the tile',
   { tag: '@user' },
-  async ({ page }) => {
+  async ({ page }, testInfo) => {
+    const fixture = focusFixture(testInfo)
     await page.goto('/favorites')
     await expect(
       page.getByRole('button', { name: 'Star' }).first(),
@@ -43,8 +43,6 @@ test(
     // veil controls are hit-testable only while hover-revealed
     await row.hover()
 
-    // await each POST before subscribing for the next; nextServerPost
-    // matches any POST, so an un-awaited unstar could satisfy the restore
     const unstarred = nextServerPost(page)
     await row.getByRole('button', { name: 'Star' }).click()
     const undo = row.getByRole('button', { name: 'Undo' })

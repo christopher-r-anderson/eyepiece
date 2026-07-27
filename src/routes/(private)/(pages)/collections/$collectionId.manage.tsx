@@ -240,8 +240,6 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
   } = useGhostRemovals()
   const makeOpFailureHandler = useCallback(
     (title: string, assetKey: AssetKey) => () => {
-      // a failed op rolls the ghost back, unmounting the acted-on control;
-      // keep focus in the tile so the retry is reachable
       refocusTileControlAfterSwap(toAssetKeyString(assetKey))
       queueToastMessage({ title, description: 'Please try again.' })
     },
