@@ -33,11 +33,12 @@ vi.mock('../-components/favorite-button', () => ({
   FavoriteButton: () => createElement('button', { type: 'button' }, 'favorite'),
 }))
 
-vi.mock('./-components/metadata/button', () => ({
-  MetadataButton: () => createElement('button', { type: 'button' }, 'metadata'),
+vi.mock('@/features/assets/components/metadata-disclosure', () => ({
+  MetadataDisclosure: () =>
+    createElement('button', { type: 'button' }, 'metadata'),
 }))
 
-vi.mock('./-components/asset-detail', () => ({
+vi.mock('@/features/assets/components/asset-detail', () => ({
   AssetDetail: () => createElement('div', null, 'asset detail'),
 }))
 
@@ -72,7 +73,7 @@ describe('asset page component', () => {
     } as ReturnType<typeof mockUseSuspenseAsset>)
   })
 
-  it('shows the metadata button for providers with metadata support', () => {
+  it('shows the metadata disclosure for providers with metadata support', () => {
     route.useRouteContext.mockReturnValue({
       assetKey: {
         providerId: NASA_IVL_PROVIDER_ID,
@@ -99,7 +100,7 @@ describe('asset page component', () => {
     expect(addToCollectionProps).toEqual([{ assetKey, variant: 'detail' }])
   })
 
-  it('hides the metadata button for providers without metadata support', () => {
+  it('hides the metadata disclosure for providers without metadata support', () => {
     route.useRouteContext.mockReturnValue({
       assetKey: {
         providerId: SI_OA_PROVIDER_ID,
