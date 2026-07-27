@@ -1,4 +1,5 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
+import { useHydrated, useNavigate } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import {
   searchPageParamsSchema,
@@ -32,6 +33,17 @@ export function SearchBar({
   ...props
 }: SearchBarProps) {
   const navigate = useNavigate()
+
+  // RAC keeps the q input controlled, so hydration's first commit resets it
+  // and wipes keystrokes typed before it; while hydrating, seed from the
+  // live DOM value instead (the q input is unique page-wide)
+  const isHydrating = !useHydrated()
+  const [seedQuery] = useState(() =>
+    isHydrating && typeof document !== 'undefined'
+      ? (document.querySelector<HTMLInputElement>('input[name="q"]')?.value ??
+        initialQuery)
+      : initialQuery,
+  )
 
   // before hydration the form submits natively and serializes in document
   // order, so the initial scope rides along as hidden fields sorted and
@@ -73,7 +85,7 @@ export function SearchBar({
       {...props}
     >
       <HiddenScopeFields fields={fieldsBeforeQuery} />
-      <SearchInput aria-label="Search keywords" defaultValue={initialQuery} />
+      <SearchInput aria-label="Search keywords" defaultValue={seedQuery} />
       <HiddenScopeFields fields={fieldsAfterQuery} />
     </Form>
   )

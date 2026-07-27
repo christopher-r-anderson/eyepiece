@@ -271,16 +271,21 @@ test('typing that lands before hydration survives it', async ({ page }) => {
   await page.route('**/api/v1/search*', (route) =>
     route.fulfill({ json: stubSearchResponse }),
   )
-  // widen the pre-hydration window so the fill deterministically lands
-  // inside it
+  // hold scripts until the fill lands, so the typing is strictly pre-hydration
+  let releaseScripts = () => {}
+  const scriptsReleased = new Promise<void>((resolve) => {
+    releaseScripts = resolve
+  })
   await page.route('**/*.js', async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1200))
+    await scriptsReleased
     await route.continue()
   })
-  await page.goto('/search?q=moon', { waitUntil: 'domcontentloaded' })
+  // commit, not domcontentloaded: the held scripts would stall the latter
+  await page.goto('/search?q=moon', { waitUntil: 'commit' })
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
   await searchbox.fill('crab draft')
+  releaseScripts()
 
   await waitForHydratedResults(page)
   await expect(searchbox).toHaveValue('crab draft')
