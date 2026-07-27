@@ -24,6 +24,7 @@ import {
 } from './collections.functions'
 import type { CollectionsRepo } from './collections.repo'
 import type { ReactNode } from 'react'
+import type { AssetKey } from '@/domain/asset/asset.schema'
 import { Ok } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
@@ -88,14 +89,17 @@ function mountActiveListQuery(queryClient: QueryClient) {
   return { getUserCollections }
 }
 
-function mountActiveMembershipQuery(queryClient: QueryClient) {
+function mountActiveMembershipQuery(
+  queryClient: QueryClient,
+  assetKey: AssetKey = ITEM_INPUT.assetKey,
+) {
   const getCollectionIdsForAsset = vi.fn().mockResolvedValue(Ok([]))
   renderHook(
     () =>
       useQuery(
         getAssetCollectionMembershipOptions({
           userId: USER_ID,
-          assetKey: ITEM_INPUT.assetKey,
+          assetKey,
           repo: { getCollectionIdsForAsset },
         }),
       ),
@@ -103,6 +107,11 @@ function mountActiveMembershipQuery(queryClient: QueryClient) {
   )
   return { getCollectionIdsForAsset }
 }
+
+const OTHER_ASSET_KEY = {
+  providerId: 'nasa_ivl',
+  externalId: 'a-different-asset',
+} as const
 
 afterEach(() => {
   cleanup()
@@ -146,6 +155,10 @@ describe('collections mutation invalidation', () => {
     )
     const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
     const { getCollectionIdsForAsset } = mountActiveMembershipQuery(queryClient)
+    // another asset's picker membership must be untouched: removing this
+    // asset's item cannot change which collections contain a different one
+    const { getCollectionIdsForAsset: getOtherAssetMembership } =
+      mountActiveMembershipQuery(queryClient, OTHER_ASSET_KEY)
     // the picker's collection list can only change on create/rename/delete,
     // never an item toggle - so it must not be refetched (nor awaited)
     const { getUserCollections } = mountActiveListQuery(queryClient)
@@ -153,6 +166,7 @@ describe('collections mutation invalidation', () => {
       expect(getCollectionItemEdges).toHaveBeenCalledOnce()
       expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
       expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+      expect(getOtherAssetMembership).toHaveBeenCalledOnce()
       expect(getUserCollections).toHaveBeenCalledOnce()
     })
 
@@ -192,6 +206,17 @@ describe('collections mutation invalidation', () => {
     expect(
       queryClient.getQueryState(['me', 'collections', 'list', USER_ID])
         ?.isInvalidated,
+    ).toBe(false)
+    // ...and neither is the other asset's membership
+    expect(getOtherAssetMembership).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState([
+        'me',
+        'collections',
+        'membership',
+        USER_ID,
+        `${OTHER_ASSET_KEY.providerId}-${OTHER_ASSET_KEY.externalId}`,
+      ])?.isInvalidated,
     ).toBe(false)
   })
 

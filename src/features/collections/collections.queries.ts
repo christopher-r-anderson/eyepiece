@@ -450,19 +450,23 @@ function invalidateCollectionsQueries(
   )
 }
 
-// an item add/remove only moves this asset's membership and the owner's
-// card counts/covers; the plain collections list and a collection's own
-// detail row cannot change, so the open picker no longer awaits a list
-// refetch that has nothing to update
-function invalidateItemMembershipQueries(queryClient: QueryClient) {
-  const isCardsOrMembership = ({
+// an item add/remove only moves THIS asset's membership and the owner's
+// card counts/covers; the plain collections list, a collection's detail
+// row, and every other asset's membership cannot change, so the open
+// picker no longer awaits a list refetch that has nothing to update
+function invalidateItemMembershipQueries(
+  queryClient: QueryClient,
+  assetKey: AssetKey,
+) {
+  const assetKeyString = toAssetKeyString(assetKey)
+  const isCardsOrThisMembership = ({
     queryKey,
   }: {
     queryKey: ReadonlyArray<unknown>
   }) =>
     queryKey.includes('cards') ||
     queryKey.includes('publicCards') ||
-    queryKey.includes('membership')
+    (queryKey.includes('membership') && queryKey.includes(assetKeyString))
   return Promise.all(
     BOTH_FAMILIES.flatMap((queryKey) => [
       queryClient.invalidateQueries({
@@ -473,7 +477,7 @@ function invalidateItemMembershipQueries(queryClient: QueryClient) {
       queryClient.invalidateQueries({
         queryKey,
         refetchType: 'active',
-        predicate: isCardsOrMembership,
+        predicate: isCardsOrThisMembership,
       }),
     ]),
   )
@@ -502,12 +506,12 @@ function useCollectionsMutation<TInput, TData>(
   command: (
     input: TInput,
   ) => Promise<Result<TData, CollectionsErrorCode | undefined>>,
-  invalidate: (queryClient: QueryClient) => Promise<unknown>,
+  invalidate: (queryClient: QueryClient, variables: TInput) => Promise<unknown>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: TInput) => unwrapOrThrow(await command(input)),
-    onSettled: () => invalidate(queryClient),
+    onSettled: (_data, _error, variables) => invalidate(queryClient, variables),
   })
 }
 
@@ -552,7 +556,8 @@ export function useAddCollectionItem() {
   const commands = useCollectionsCommands()
   return useCollectionsMutation(
     commands.addCollectionItem,
-    invalidateItemMembershipQueries,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey),
   )
 }
 
@@ -563,7 +568,8 @@ export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
   return useCollectionsMutation(
     commands.removeCollectionItem,
-    invalidateItemMembershipQueries,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey),
   )
 }
 
@@ -571,6 +577,7 @@ export function useAddCollectionItemAtPosition() {
   const commands = useCollectionsCommands()
   return useCollectionsMutation(
     commands.addCollectionItemAtPosition,
-    invalidateItemMembershipQueries,
+    (queryClient, { assetKey }) =>
+      invalidateItemMembershipQueries(queryClient, assetKey),
   )
 }
