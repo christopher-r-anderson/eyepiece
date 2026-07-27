@@ -43,14 +43,16 @@ export const sheetRecipe = defineSlotRecipe({
       },
     },
     close: {
-      // sits in the overlay's top gap; stays inside the dialog subtree so
-      // the modal focus trap can reach it
+      // sits in the overlay's top gap, centered on it; stays inside the
+      // dialog subtree so the modal focus trap can reach it
       position: 'absolute',
-      top: 'calc(token(spacing.6) * -1)',
+      top: 'calc((token(spacing.6) + token(sizes.touchTargetMin)) / -2)',
       right: '3',
-      height: 'token(spacing.6)',
+      minWidth: 'touchTargetMin',
+      minHeight: 'touchTargetMin',
       display: 'inline-flex',
       alignItems: 'center',
+      justifyContent: 'center',
       color: 'rgba(255, 255, 255, 0.8)',
       _hovered: { color: 'white' },
       _focusVisible: {
@@ -58,9 +60,8 @@ export const sheetRecipe = defineSlotRecipe({
         outlineOffset: '2px',
       },
       md: {
-        top: 'calc(token(spacing.7) * -1)',
+        top: 'calc((token(spacing.7) + token(sizes.touchTargetMin)) / -2)',
         right: '0',
-        height: 'token(spacing.7)',
       },
     },
     body: {

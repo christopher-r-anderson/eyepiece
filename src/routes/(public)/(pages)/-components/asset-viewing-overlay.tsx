@@ -93,8 +93,9 @@ export function AssetViewingOverlay() {
       return
     }
     lastViewedRef.current = undefined
+    // not consumed: history Forward can reopen the entry, and its close
+    // should restore the same opener
     const captured = originElement
-    originElement = null
     requestAnimationFrame(() => {
       if (captured instanceof HTMLElement && captured.isConnected) {
         captured.focus()
