@@ -55,10 +55,21 @@ export function AuthModalController({
       router.history.back()
       return
     }
+    // a masked URL (asset overlay) survives the auth navigation
+    const maskedLocation = router.state.location.maskedLocation
     navigate({
       to: '.',
       search: stripAuthSearchParams,
       replace: true,
+      ...(maskedLocation
+        ? {
+            mask: {
+              to: maskedLocation.pathname,
+              search: maskedLocation.search,
+              unmaskOnReload: true,
+            },
+          }
+        : {}),
     })
   }, [openedByPush, router, navigate])
 

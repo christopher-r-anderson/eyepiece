@@ -20,11 +20,22 @@ export function useShowAuthModal() {
       // tab switches while open replace, so a dialog visit stays one entry
       const alreadyOpen =
         (router.state.location.search as { auth?: unknown }).auth != null
+      // a masked URL (asset overlay) survives the auth navigation
+      const maskedLocation = router.state.location.maskedLocation
       navigate({
         to: '.',
         search: (prev) => createAuthModalSearch(prev, auth),
         replace: alreadyOpen,
         state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
+        ...(maskedLocation
+          ? {
+              mask: {
+                to: maskedLocation.pathname,
+                search: maskedLocation.search,
+                unmaskOnReload: true,
+              },
+            }
+          : {}),
       })
     },
     [navigate, router],

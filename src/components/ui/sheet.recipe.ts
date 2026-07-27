@@ -46,7 +46,9 @@ export const sheetRecipe = defineSlotRecipe({
       // sits in the overlay's top gap, centered on it; stays inside the
       // dialog subtree so the modal focus trap can reach it
       position: 'absolute',
-      top: 'calc((token(spacing.6) + token(sizes.touchTargetMin)) / -2)',
+      // the mobile gap is smaller than the touch target, so the button
+      // anchors to the viewport top instead of centering
+      top: 'calc(token(spacing.6) * -1)',
       right: '3',
       minWidth: 'touchTargetMin',
       minHeight: 'touchTargetMin',
