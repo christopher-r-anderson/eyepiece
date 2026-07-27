@@ -8,9 +8,11 @@ import {
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getAssetCollectionMembershipOptions,
   getInfiniteCollectionItemEdgesOptions,
   getInfiniteUserCollectionItemEdgesOptions,
   getUserCollectionCardsOptions,
+  getUserCollectionsListOptions,
   useCreateCollection,
   useRemoveCollectionItem,
   useRenameCollection,
@@ -71,6 +73,37 @@ function mountActiveCardsQuery(queryClient: QueryClient) {
   return { getCollectionCardsForOwner, repo }
 }
 
+function mountActiveListQuery(queryClient: QueryClient) {
+  const getUserCollections = vi.fn().mockResolvedValue(Ok([]))
+  renderHook(
+    () =>
+      useQuery(
+        getUserCollectionsListOptions({
+          userId: USER_ID,
+          repo: { getUserCollections },
+        }),
+      ),
+    { wrapper: makeWrapper(queryClient) },
+  )
+  return { getUserCollections }
+}
+
+function mountActiveMembershipQuery(queryClient: QueryClient) {
+  const getCollectionIdsForAsset = vi.fn().mockResolvedValue(Ok([]))
+  renderHook(
+    () =>
+      useQuery(
+        getAssetCollectionMembershipOptions({
+          userId: USER_ID,
+          assetKey: ITEM_INPUT.assetKey,
+          repo: { getCollectionIdsForAsset },
+        }),
+      ),
+    { wrapper: makeWrapper(queryClient) },
+  )
+  return { getCollectionIdsForAsset }
+}
+
 afterEach(() => {
   cleanup()
   vi.resetAllMocks()
@@ -112,9 +145,15 @@ describe('collections mutation invalidation', () => {
       { wrapper: makeWrapper(queryClient) },
     )
     const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
+    const { getCollectionIdsForAsset } = mountActiveMembershipQuery(queryClient)
+    // the picker's collection list can only change on create/rename/delete,
+    // never an item toggle - so it must not be refetched (nor awaited)
+    const { getUserCollections } = mountActiveListQuery(queryClient)
     await waitFor(() => {
       expect(getCollectionItemEdges).toHaveBeenCalledOnce()
       expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+      expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+      expect(getUserCollections).toHaveBeenCalledOnce()
     })
 
     vi.mocked(removeCollectionItemFn).mockResolvedValue({ removed: true })
@@ -124,9 +163,10 @@ describe('collections mutation invalidation', () => {
     await result.current.mutateAsync(ITEM_INPUT)
 
     // membership/cards refresh so picker checkboxes reflect the removal...
-    await waitFor(() =>
-      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2),
-    )
+    await waitFor(() => {
+      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2)
+      expect(getCollectionIdsForAsset).toHaveBeenCalledTimes(2)
+    })
     // ...while the ghost-bearing edge list is only marked stale
     expect(
       queryClient.getQueryState([
@@ -147,6 +187,12 @@ describe('collections mutation invalidation', () => {
       ])?.isInvalidated,
     ).toBe(true)
     expect(getPublicItemEdges).toHaveBeenCalledOnce()
+    // the list is neither refetched nor even marked stale
+    expect(getUserCollections).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState(['me', 'collections', 'list', USER_ID])
+        ?.isInvalidated,
+    ).toBe(false)
   })
 
   it('settings mutations never refetch an active item-edge list (mounted ghosts)', async () => {
@@ -198,12 +244,16 @@ describe('collections mutation invalidation', () => {
     expect(getCollectionItemEdges).toHaveBeenCalledOnce()
   })
 
-  it('create refetches active queries (the default the other hooks share)', async () => {
+  it('create refetches the list and cards but not membership (a new collection is empty)', async () => {
     const queryClient = new QueryClient()
     const { getCollectionCardsForOwner } = mountActiveCardsQuery(queryClient)
-    await waitFor(() =>
-      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce(),
-    )
+    const { getUserCollections } = mountActiveListQuery(queryClient)
+    const { getCollectionIdsForAsset } = mountActiveMembershipQuery(queryClient)
+    await waitFor(() => {
+      expect(getCollectionCardsForOwner).toHaveBeenCalledOnce()
+      expect(getUserCollections).toHaveBeenCalledOnce()
+      expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+    })
 
     vi.mocked(createCollectionFn).mockResolvedValue({
       id: COLLECTION_ID,
@@ -221,8 +271,21 @@ describe('collections mutation invalidation', () => {
       visibility: 'private',
     })
 
-    await waitFor(() =>
-      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2),
-    )
+    // the new empty row surfaces in the list and cards...
+    await waitFor(() => {
+      expect(getCollectionCardsForOwner).toHaveBeenCalledTimes(2)
+      expect(getUserCollections).toHaveBeenCalledTimes(2)
+    })
+    // ...but no asset's membership can have changed
+    expect(getCollectionIdsForAsset).toHaveBeenCalledOnce()
+    expect(
+      queryClient.getQueryState([
+        'me',
+        'collections',
+        'membership',
+        USER_ID,
+        `${ITEM_INPUT.assetKey.providerId}-${ITEM_INPUT.assetKey.externalId}`,
+      ])?.isInvalidated,
+    ).toBe(false)
   })
 })

@@ -364,7 +364,7 @@ export function useSuspenseInfiniteUserCollectionItemEdges(
   )
 }
 
-function getUserCollectionsListOptions({
+export function getUserCollectionsListOptions({
   userId,
   repo,
 }: {
@@ -386,7 +386,7 @@ export function useUserCollectionsList(userId: string) {
   return useQuery(getUserCollectionsListOptions({ userId, repo }))
 }
 
-function getAssetCollectionMembershipOptions({
+export function getAssetCollectionMembershipOptions({
   userId,
   assetKey,
   repo,
@@ -418,21 +418,24 @@ export function useAssetCollectionMembership({
   )
 }
 
-// every mutation can change names, counts, covers, membership, or
-// visibility, so both the viewer-scoped and public families go stale
+const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+  queryKey.includes('itemEdges')
+
 // item-edge lists are marked stale but never actively refetched by ANY
 // mutation: a mounted grid may hold removal ghosts (manage), or anchor the
 // open picker itself (a public page's tile vanishing mid-refetch unmounts
 // the popover the user is still toggling). Grid lists refresh on mount
 // only - their options also disable focus/reconnect refetches.
+const BOTH_FAMILIES = [userCollectionsKeys.all, collectionsKeys.all] as const
+
+// name/visibility/deletion mutations can change every card, list row, and
+// collection detail across both families
 function invalidateCollectionsQueries(
   queryClient: QueryClient,
   refetchType: 'active' | 'none',
 ) {
-  const isItemEdges = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
-    queryKey.includes('itemEdges')
   return Promise.all(
-    [userCollectionsKeys.all, collectionsKeys.all].flatMap((queryKey) => [
+    BOTH_FAMILIES.flatMap((queryKey) => [
       queryClient.invalidateQueries({
         queryKey,
         refetchType: 'none',
@@ -447,32 +450,92 @@ function invalidateCollectionsQueries(
   )
 }
 
+// an item add/remove only moves this asset's membership and the owner's
+// card counts/covers; the plain collections list and a collection's own
+// detail row cannot change, so the open picker no longer awaits a list
+// refetch that has nothing to update
+function invalidateItemMembershipQueries(queryClient: QueryClient) {
+  const isCardsOrMembership = ({
+    queryKey,
+  }: {
+    queryKey: ReadonlyArray<unknown>
+  }) =>
+    queryKey.includes('cards') ||
+    queryKey.includes('publicCards') ||
+    queryKey.includes('membership')
+  return Promise.all(
+    BOTH_FAMILIES.flatMap((queryKey) => [
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'none',
+        predicate: isItemEdges,
+      }),
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'active',
+        predicate: isCardsOrMembership,
+      }),
+    ]),
+  )
+}
+
+// a new collection is empty, so it only adds a row to the owner's list and
+// cards - no membership moves, no existing detail or item-edge list
+// changes. create-and-add relies on the add to refresh counts afterward.
+function invalidateNewCollectionQueries(queryClient: QueryClient) {
+  const isListOrCards = ({ queryKey }: { queryKey: ReadonlyArray<unknown> }) =>
+    queryKey.includes('list') ||
+    queryKey.includes('cards') ||
+    queryKey.includes('publicCards')
+  return Promise.all(
+    BOTH_FAMILIES.map((queryKey) =>
+      queryClient.invalidateQueries({
+        queryKey,
+        refetchType: 'active',
+        predicate: isListOrCards,
+      }),
+    ),
+  )
+}
+
 function useCollectionsMutation<TInput, TData>(
   command: (
     input: TInput,
   ) => Promise<Result<TData, CollectionsErrorCode | undefined>>,
-  { refetchType = 'active' }: { refetchType?: 'active' | 'none' } = {},
+  invalidate: (queryClient: QueryClient) => Promise<unknown>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: TInput) => unwrapOrThrow(await command(input)),
-    onSettled: () => invalidateCollectionsQueries(queryClient, refetchType),
+    onSettled: () => invalidate(queryClient),
   })
 }
 
+const invalidateSettingsMutation = (queryClient: QueryClient) =>
+  invalidateCollectionsQueries(queryClient, 'active')
+
 export function useCreateCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.createCollection)
+  return useCollectionsMutation(
+    commands.createCollection,
+    invalidateNewCollectionQueries,
+  )
 }
 
 export function useRenameCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.renameCollection)
+  return useCollectionsMutation(
+    commands.renameCollection,
+    invalidateSettingsMutation,
+  )
 }
 
 export function useSetCollectionVisibility() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.setCollectionVisibility)
+  return useCollectionsMutation(
+    commands.setCollectionVisibility,
+    invalidateSettingsMutation,
+  )
 }
 
 // refetchType 'none': an active refetch races the post-delete navigation
@@ -480,14 +543,17 @@ export function useSetCollectionVisibility() {
 // page; every reader refetches its now-stale data on next mount
 export function useDeleteCollection() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.deleteCollection, {
-    refetchType: 'none',
-  })
+  return useCollectionsMutation(commands.deleteCollection, (queryClient) =>
+    invalidateCollectionsQueries(queryClient, 'none'),
+  )
 }
 
 export function useAddCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.addCollectionItem)
+  return useCollectionsMutation(
+    commands.addCollectionItem,
+    invalidateItemMembershipQueries,
+  )
 }
 
 // ghost safety lives in the invalidation helper (user-family item edges
@@ -495,10 +561,16 @@ export function useAddCollectionItem() {
 // open picker's membership checkboxes reflect the removal immediately
 export function useRemoveCollectionItem() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.removeCollectionItem)
+  return useCollectionsMutation(
+    commands.removeCollectionItem,
+    invalidateItemMembershipQueries,
+  )
 }
 
 export function useAddCollectionItemAtPosition() {
   const commands = useCollectionsCommands()
-  return useCollectionsMutation(commands.addCollectionItemAtPosition)
+  return useCollectionsMutation(
+    commands.addCollectionItemAtPosition,
+    invalidateItemMembershipQueries,
+  )
 }
