@@ -1,3 +1,4 @@
+import { useState, useSyncExternalStore } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import {
@@ -25,6 +26,17 @@ function HiddenScopeFields({ fields }: { fields: Array<[string, unknown]> }) {
   ))
 }
 
+// react serves the server snapshot during SSR and the hydration render,
+// so this is true exactly while the server DOM is being adopted
+const emptySubscribe = () => () => {}
+function useIsHydrationRender() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => false,
+    () => true,
+  )
+}
+
 export function SearchBar({
   initialQuery,
   scope,
@@ -32,6 +44,18 @@ export function SearchBar({
   ...props
 }: SearchBarProps) {
   const navigate = useNavigate()
+
+  // RAC keeps the input react-controlled even with only a defaultValue,
+  // so hydration's first commit resets it and wipes keystrokes that
+  // landed before it; the q input is unique page-wide (the header bar
+  // yields to the hero bar on home)
+  const isHydrationRender = useIsHydrationRender()
+  const [seedQuery] = useState(() =>
+    isHydrationRender && typeof document !== 'undefined'
+      ? (document.querySelector<HTMLInputElement>('input[name="q"]')?.value ??
+        initialQuery)
+      : initialQuery,
+  )
 
   // before hydration the form submits natively and serializes in document
   // order, so the initial scope rides along as hidden fields sorted and
@@ -73,7 +97,7 @@ export function SearchBar({
       {...props}
     >
       <HiddenScopeFields fields={fieldsBeforeQuery} />
-      <SearchInput aria-label="Search keywords" defaultValue={initialQuery} />
+      <SearchInput aria-label="Search keywords" defaultValue={seedQuery} />
       <HiddenScopeFields fields={fieldsAfterQuery} />
     </Form>
   )
