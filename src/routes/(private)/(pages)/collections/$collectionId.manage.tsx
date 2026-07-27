@@ -8,7 +8,10 @@ import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { useViewingAssetTileLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import type { CollectionItemEdge } from '@/features/collections/collections.schema'
 import {
   ensureInfiniteUserCollectionItemEdges,
@@ -236,8 +239,12 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     tileLinkDisabled,
   } = useGhostRemovals()
   const makeOpFailureHandler = useCallback(
-    (title: string) => () =>
-      queueToastMessage({ title, description: 'Please try again.' }),
+    (title: string, assetKey: AssetKey) => () => {
+      // a failed op rolls the ghost back, unmounting the acted-on control;
+      // keep focus in the tile so the retry is reachable
+      refocusTileControlAfterSwap(toAssetKeyString(assetKey))
+      queueToastMessage({ title, description: 'Please try again.' })
+    },
     [queueToastMessage],
   )
 
@@ -276,7 +283,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
                     position: edge.position,
                     createdAt: edge.createdAt,
                   }),
-                makeOpFailureHandler('Undo failed'),
+                makeOpFailureHandler('Undo failed', edge.assetKey),
               )
             }}
           />
@@ -294,7 +301,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
             runRemoval(
               item.id,
               () => removeItemAsync({ collectionId, assetKey: edge.assetKey }),
-              makeOpFailureHandler('Remove failed'),
+              makeOpFailureHandler('Remove failed', edge.assetKey),
             )
           }}
         >

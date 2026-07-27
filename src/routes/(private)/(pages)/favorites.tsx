@@ -4,7 +4,10 @@ import { startTransition, useCallback, useMemo } from 'react'
 import { css } from 'styled-system/css'
 import { useViewingAssetTileLinkProps } from '../../(public)/(pages)/-components/asset-viewing-overlay'
 import type { FavoriteEdge } from '@/features/favorites/favorites.schema'
-import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
+import type {
+  AssetKey,
+  AssetPreviewSnapshot,
+} from '@/domain/asset/asset.schema'
 import { isAuthRequiredError } from '@/lib/result'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
@@ -88,11 +91,15 @@ function FavoritesPage() {
     tileLinkDisabled,
   } = useGhostRemovals()
   const makeOpFailureHandler = useCallback(
-    (title: string) => (error: unknown) => {
+    (title: string, assetKey: AssetKey) => (error: unknown) => {
       if (isAuthRequiredError(error)) {
         showLoginModal()
         return
       }
+      // a failed op rolls the ghost back, unmounting the acted-on control
+      // the same way the optimistic swap did; keep focus in the tile so
+      // the retry is reachable
+      refocusTileControlAfterSwap(toAssetKeyString(assetKey))
       queueToastMessage({ title, description: 'Please try again.' })
     },
     [showLoginModal, queueToastMessage],
@@ -136,7 +143,7 @@ function FavoritesPage() {
                     assetKey: edge.assetKey,
                     createdAt: edge.createdAt,
                   }),
-                makeOpFailureHandler('Undo failed'),
+                makeOpFailureHandler('Undo failed', edge.assetKey),
               )
             }}
           />
@@ -154,7 +161,7 @@ function FavoritesPage() {
               runRemoval(
                 item.id,
                 () => unfavoriteAsync(edge.assetKey),
-                makeOpFailureHandler('Unstar failed'),
+                makeOpFailureHandler('Unstar failed', edge.assetKey),
               )
             }}
           >
