@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
 import { flex } from 'styled-system/patterns'
-import { usePrefetchAsset } from '../assets.queries'
 import type {
   ComponentPropsWithRef,
   ComponentPropsWithoutRef,
@@ -40,12 +38,7 @@ const Thumbnail = ({
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
 }) => {
-  const [detailClicked, setDetailClicked] = useState<boolean>(false)
   const { href } = useLocation()
-  // the router's intent preload only covers real detail navigations; a
-  // masked overlay link stays on the list route, so the tile warms the
-  // asset query itself
-  const prefetch = usePrefetchAsset(assetPreview.key)
   return (
     <Link
       isDisabled={isLinkDisabled}
@@ -55,13 +48,8 @@ const Thumbnail = ({
         assetId: assetPreview.key.externalId,
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
-      // the erased override type would otherwise collapse the element's own
-      // generic inference
       {...(linkProps as object | undefined)}
-      onHoverStart={prefetch}
-      onFocus={prefetch}
       data-asset-key={toAssetKeyString(assetPreview.key)}
-      onClick={() => setDetailClicked(true)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
       // the grid's row action opens the tile through this link so every
@@ -94,13 +82,7 @@ const Thumbnail = ({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          viewTransitionClass: 'asset-image',
         })}
-        style={{
-          viewTransitionName: detailClicked
-            ? `asset-${toAssetKeyString(assetPreview.key)}`
-            : undefined,
-        }}
         src={assetPreview.thumbnail.href}
         alt=""
         width={assetPreview.thumbnail.width}

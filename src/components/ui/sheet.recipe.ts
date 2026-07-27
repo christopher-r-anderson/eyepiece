@@ -1,7 +1,7 @@
 import { defineSlotRecipe } from '@pandacss/dev'
 
-// near-fullscreen modal surface: the page stays visible in gaps at the top
-// and sides on desktop; mobile goes full-bleed
+// near-fullscreen modal surface: the page stays visible in a top gap (and
+// side gaps on desktop), where the close control also lives
 export const sheetRecipe = defineSlotRecipe({
   className: 'sheet',
   slots: ['overlay', 'modal', 'dialog', 'close', 'body'],
@@ -14,11 +14,11 @@ export const sheetRecipe = defineSlotRecipe({
       inset: 0,
       zIndex: 'overlay',
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      // the gaps live on the overlay so clicks in them count as outside
-      // the modal and dismiss it
+      // gaps live on the overlay so clicks in them count as outside the
+      // modal and dismiss it
+      paddingTop: '6',
       md: {
-        // the spacing scale ends at 8
-        paddingTop: 'calc(token(spacing.8) + token(spacing.2))',
+        paddingTop: '7',
         paddingInline: '8',
       },
     },
@@ -35,18 +35,33 @@ export const sheetRecipe = defineSlotRecipe({
       width: '100%',
       height: '100%',
       outline: 'none',
+      borderTopRadius: 'overlay',
+      boxShadow: 'overlay',
       md: {
         border: 'default',
         borderBottom: 'none',
-        borderTopRadius: 'overlay',
-        boxShadow: 'overlay',
       },
     },
     close: {
+      // sits in the overlay's top gap; stays inside the dialog subtree so
+      // the modal focus trap can reach it
       position: 'absolute',
-      top: '3',
+      top: 'calc(token(spacing.6) * -1)',
       right: '3',
-      zIndex: 1,
+      height: 'token(spacing.6)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      color: 'rgba(255, 255, 255, 0.8)',
+      _hovered: { color: 'white' },
+      _focusVisible: {
+        outline: 'focusRing',
+        outlineOffset: '2px',
+      },
+      md: {
+        top: 'calc(token(spacing.7) * -1)',
+        right: '0',
+        height: 'token(spacing.7)',
+      },
     },
     body: {
       minHeight: 0,
@@ -56,8 +71,7 @@ export const sheetRecipe = defineSlotRecipe({
       flexDirection: 'column',
       alignItems: 'center',
       gap: '6',
-      // clears the floating close button
-      paddingTop: 'calc(token(spacing.8) + token(spacing.6))',
+      paddingTop: '4',
       paddingBottom: '8',
     },
   },

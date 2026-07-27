@@ -32,7 +32,7 @@ async function stubAssetApi(page: Page) {
 
 async function openOverlayFromCollection(page: Page) {
   await page.goto(`/collections/${publicCollection.id}`)
-  // enabled star = hydrated (the masked link needs the router)
+  // enabled star = hydrated (the click upgrade needs the router)
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
   await page.getByRole('link', { name: wideSnapshot.title }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
@@ -47,8 +47,6 @@ test('opening a tile masks the URL above the still-mounted list', async ({
   const rows = page.getByRole('grid').getByRole('row')
   await expect(rows).toHaveCount(3)
 
-  // masked links must not carry the router's current-page semantics even
-  // though their real destination is the list route itself
   await expect(
     page.getByRole('link', { name: wideSnapshot.title }),
   ).not.toHaveAttribute('aria-current')
@@ -80,8 +78,9 @@ test('Escape closes back to the list and refocuses the origin tile', async ({
   await expect(page.getByRole('dialog')).toBeHidden()
   await expect(page).toHaveURL(`/collections/${publicCollection.id}`)
   await expect(page).toHaveTitle(new RegExp(publicCollection.name))
+  // the exact element that opened the overlay gets focus back
   await expect(
-    page.locator(`[role="row"][data-key="${wideKey}"]`),
+    page.locator(`[data-tile-primary-link][data-asset-key="${wideKey}"]`),
   ).toBeFocused()
 })
 

@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { hashKey } from '@tanstack/react-query'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../../-components/favorite-button'
-import { viewingAssetLinkProps } from '../../-components/asset-viewing-overlay'
+import { useViewingAssetTileLinkProps } from '../../-components/asset-viewing-overlay'
 import type { AlbumKey } from '@/domain/album/album.schema'
-import type { Asset, AssetKey } from '@/domain/asset/asset.schema'
+import type { Asset } from '@/domain/asset/asset.schema'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
@@ -15,8 +15,6 @@ export interface AlbumAssetsProps {
 }
 
 // module-level so memoized grid rows see stable references
-const tileLinkProps = (item: { key: AssetKey }) =>
-  viewingAssetLinkProps(item.key)
 
 const renderTileActions = (item: Asset) => (
   <>
@@ -26,6 +24,7 @@ const renderTileActions = (item: Asset) => (
 )
 
 export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteAlbumAssets(albumKey)
 

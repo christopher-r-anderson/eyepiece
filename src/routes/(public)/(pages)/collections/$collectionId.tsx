@@ -2,8 +2,8 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { startTransition } from 'react'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
-import { viewingAssetLinkProps } from '../-components/asset-viewing-overlay'
-import type { AssetKey, AssetPreview } from '@/domain/asset/asset.schema'
+import { useViewingAssetTileLinkProps } from '../-components/asset-viewing-overlay'
+import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import {
@@ -30,8 +30,6 @@ import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skele
 import { getTitleText } from '@/lib/utils'
 
 // module-level so memoized grid rows see stable references
-const tileLinkProps = (item: { key: AssetKey }) =>
-  viewingAssetLinkProps(item.key)
 
 const renderTileActions = (item: AssetPreview) => (
   <>
@@ -108,6 +106,7 @@ export const Route = createFileRoute(
 })
 
 function CollectionPage() {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const { collectionId } = Route.useRouteContext()
   const collection = useSuspenseCollection(collectionId)
   if (!collection) {

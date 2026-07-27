@@ -7,11 +7,8 @@ import {
 import { startTransition, useCallback, useMemo, useState } from 'react'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import { viewingAssetLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
-import type {
-  AssetKey,
-  AssetPreviewSnapshot,
-} from '@/domain/asset/asset.schema'
+import { useViewingAssetTileLinkProps } from '../../../(public)/(pages)/-components/asset-viewing-overlay'
+import type { AssetPreviewSnapshot } from '@/domain/asset/asset.schema'
 import type { CollectionItemEdge } from '@/features/collections/collections.schema'
 import {
   ensureInfiniteUserCollectionItemEdges,
@@ -48,9 +45,6 @@ import {
 import { getTitleText } from '@/lib/utils'
 
 const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
-
-const tileLinkProps = (item: { key: AssetKey }) =>
-  viewingAssetLinkProps(item.key)
 
 export const Route = createFileRoute(
   '/(private)/(pages)/collections/$collectionId/manage',
@@ -221,6 +215,7 @@ function ManageCollectionPage() {
 }
 
 function CollectionItems({ collectionId }: { collectionId: string }) {
+  const tileLinkProps = useViewingAssetTileLinkProps()
   const edgesResult = useSuspenseInfiniteUserCollectionItemEdges(collectionId)
   const snapshotsResult = useAssetPreviewSnapshotsBatch(
     edgesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),

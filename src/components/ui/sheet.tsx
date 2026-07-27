@@ -32,8 +32,7 @@ export function Sheet({
           <Button
             aria-label={`Close ${ariaLabel}`}
             onPress={() => onOpenChange(false)}
-            variant="secondary"
-            size="icon"
+            variant="bare"
             className={slots.close}
             css={css.raw({
               _pressed: {
@@ -41,7 +40,7 @@ export function Sheet({
               },
             })}
           >
-            <XIcon aria-hidden="true" size={18} weight="bold" />
+            <XIcon aria-hidden="true" size={22} weight="bold" />
           </Button>
           <div className={slots.body}>{children}</div>
         </Dialog>

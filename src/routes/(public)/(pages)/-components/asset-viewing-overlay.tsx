@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useCallback, useEffect, useRef } from 'react'
 import {
   CatchBoundary,
   useNavigate,
@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from './favorite-button'
+import type { MouseEvent } from 'react'
 import type { HistoryState } from '@tanstack/react-router'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { TileLinkProps } from '@/features/assets/components/asset-tile'
@@ -18,37 +19,53 @@ import { useSuspenseAsset } from '@/features/assets/assets.queries'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { getTitleText } from '@/lib/utils'
 
-// the tile (or its grid row) that opened the overlay, for focus restore -
-// an asset key alone is ambiguous when the same asset sits in two strips
+// focus-restore target; an asset key alone is ambiguous when the same
+// asset sits in two strips
 let originElement: Element | null = null
 
-// Tile links that open the overlay: the entry stays on the list route with
-// the asset in history state, while the displayed URL is masked to the real
-// detail route - copy/share and reload (unmaskOnReload) land on the full
-// page, so the overlay only ever opens by push.
-export function viewingAssetLinkProps(assetKey: AssetKey): TileLinkProps {
-  return {
-    to: '.',
-    search: (current: Record<string, unknown>) => current,
-    resetScroll: false,
-    // the link's real destination is the list route itself; without this
-    // the router would mark every tile aria-current="page"
-    omitActiveProps: true,
-    state: (prev: HistoryState) => {
-      // runs synchronously inside the opening interaction, before the
-      // sheet takes focus
-      originElement = document.activeElement
-      return { ...prev, viewingAsset: assetKey, dialogPushed: true }
-    },
-    mask: {
-      to: '/assets/$providerId/$assetId',
-      params: {
-        providerId: assetKey.providerId,
-        assetId: assetKey.externalId,
+// Tiles keep their real detail links; a plain activation upgrades into the
+// overlay - list route + history state, displayed URL masked to the detail
+// route. Modified clicks, copy/share, and reload get the real page.
+export function useViewingAssetTileLinkProps() {
+  const router = useRouter()
+  return useCallback(
+    (item: { key: AssetKey }): TileLinkProps => ({
+      onClick: (event: MouseEvent<Element>) => {
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return
+        }
+        event.preventDefault()
+        const active = document.activeElement
+        originElement =
+          active && active !== document.body ? active : event.currentTarget
+        void router.navigate({
+          to: '.',
+          search: (current: unknown) => current as never,
+          resetScroll: false,
+          state: (prev: HistoryState) => ({
+            ...prev,
+            viewingAsset: item.key,
+            dialogPushed: true,
+          }),
+          mask: {
+            to: '/assets/$providerId/$assetId',
+            params: {
+              providerId: item.key.providerId,
+              assetId: item.key.externalId,
+            },
+            unmaskOnReload: true,
+          },
+        })
       },
-      unmaskOnReload: true,
-    },
-  } as unknown as TileLinkProps
+    }),
+    [router],
+  )
 }
 
 export function AssetViewingOverlay() {
@@ -61,8 +78,8 @@ export function AssetViewingOverlay() {
   const router = useRouter()
   const navigate = useNavigate()
 
-  // on close, focus returns to the origin tile: RAC's own restore cannot
-  // reach it across the router state change
+  // RAC's focus restore cannot reach the origin tile across the router
+  // state change
   const lastViewedRef = useRef<AssetKey | undefined>(undefined)
   useEffect(() => {
     if (viewingAsset) {
@@ -154,10 +171,8 @@ export function AssetViewingOverlay() {
 function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
   const { data } = useSuspenseAsset(assetKey)
 
-  // the masked URL shows the detail route, so the tab title follows it. A
-  // nested navigation (auth modal, picker) makes the router head re-apply
-  // the list title, so the effect also re-runs per location; the saved
-  // title only updates when someone else wrote it
+  // the tab title follows the masked URL; nested navigations make the
+  // router head re-apply the list title, so this re-runs per location
   const locationHref = useRouterState({ select: (s) => s.location.href })
   const appliedTitleRef = useRef<string | undefined>(undefined)
   const previousTitleRef = useRef<string | undefined>(undefined)
@@ -181,7 +196,6 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
     <AssetDetailSurface
       asset={data}
       titleLevel={2}
-      imageViewTransitionName={false}
       actions={
         <>
           <FavoriteButton assetKey={assetKey} />

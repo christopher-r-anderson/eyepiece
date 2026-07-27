@@ -1,17 +1,8 @@
 import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
-export function AssetDetail({
-  asset,
-  withViewTransitionName = true,
-}: {
-  asset: Asset
-  // the overlay renders above a still-mounted tile carrying the same name;
-  // duplicates make the browser skip any transition (e.g. the toast's)
-  withViewTransitionName?: boolean
-}) {
+export function AssetDetail({ asset }: { asset: Asset }) {
   return (
     <div
       className={stack({
@@ -51,11 +42,6 @@ export function AssetDetail({
             alignSelf: 'flex-start',
           },
         })}
-        style={{
-          viewTransitionName: withViewTransitionName
-            ? `asset-${toAssetKeyString(asset.key)}`
-            : undefined,
-        }}
         src={asset.image.href}
         alt={asset.title}
         width={asset.image.width}
