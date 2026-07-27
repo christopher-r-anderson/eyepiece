@@ -22,8 +22,10 @@ import {
 } from '@/features/assets/asset-preview-snapshots.queries'
 import {
   GhostRemovedActions,
+  refocusTileControlAfterSwap,
   useGhostRemovals,
 } from '@/features/assets/components/ghost-removals'
+import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
@@ -125,7 +127,8 @@ function FavoritesPage() {
       if (removedIds.has(item.id)) {
         return (
           <GhostRemovedActions
-            onUndo={() =>
+            onUndo={() => {
+              refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
               runRestore(
                 item.id,
                 () =>
@@ -135,7 +138,7 @@ function FavoritesPage() {
                   }),
                 makeOpFailureHandler('Undo failed'),
               )
-            }
+            }}
           />
         )
       }
@@ -146,13 +149,14 @@ function FavoritesPage() {
             css={favoriteToggleCss}
             variant="icon"
             isSelected
-            onChange={() =>
+            onChange={() => {
+              refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
               runRemoval(
                 item.id,
                 () => unfavoriteAsync(edge.assetKey),
                 makeOpFailureHandler('Unstar failed'),
               )
-            }
+            }}
           >
             <StarIcon size={20} weight="fill" />
           </ToggleButton>

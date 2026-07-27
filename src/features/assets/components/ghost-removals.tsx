@@ -18,6 +18,28 @@ export const ghostTileCss = css({
   '& [data-tile-controls]': { pointerEvents: 'auto' },
 })
 
+// the removal/restore swap unmounts the control being pressed and focus
+// falls to body; call in the press handler to keep it on the control that
+// takes the slot (or the row when nothing does)
+export function refocusTileControlAfterSwap(assetKeyString: string) {
+  const active = document.activeElement
+  if (!(active instanceof HTMLElement)) {
+    return
+  }
+  const row = active.closest<HTMLElement>(
+    `[role="row"][data-key="${CSS.escape(assetKeyString)}"]`,
+  )
+  if (!row) {
+    return
+  }
+  requestAnimationFrame(() => {
+    const control = row.querySelector<HTMLElement>(
+      '[data-tile-controls] button:not([disabled])',
+    )
+    ;(control ?? row).focus()
+  })
+}
+
 export function GhostRemovedActions({ onUndo }: { onUndo: () => void }) {
   return (
     <span
