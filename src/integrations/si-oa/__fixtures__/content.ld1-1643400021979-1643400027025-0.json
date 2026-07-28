@@ -1,0 +1,150 @@
+{
+  "status": 200,
+  "responseCode": 1,
+  "response": {
+    "id": "ld1-1643400021979-1643400027025-0",
+    "title": "Balloon Basket, USMC, World War I",
+    "unitCode": "NASM",
+    "type": "edanmdm",
+    "url": "edanmdm:nasm_A19740669000",
+    "content": {
+      "freetext": {
+        "notes": [
+          {
+            "label": "Physical Description",
+            "content": "63in. long, 37in. wide, 53in. high; cane basket with silver canvas cover."
+          }
+        ],
+        "place": [
+          {
+            "label": "Country of Origin",
+            "content": "United States of America"
+          }
+        ],
+        "setName": [
+          {
+            "label": "See more items in",
+            "content": "National Air and Space Museum Collection"
+          }
+        ],
+        "creditLine": [
+          {
+            "label": "Credit Line",
+            "content": "Transferred from the War Memorial Museum of Virginia"
+          }
+        ],
+        "dataSource": [
+          {
+            "label": "Data Source",
+            "content": "National Air and Space Museum"
+          }
+        ],
+        "identifier": [
+          {
+            "label": "Inventory Number",
+            "content": "A19740669000"
+          }
+        ],
+        "objectType": [
+          {
+            "label": "Type",
+            "content": "CRAFT-Balloon"
+          }
+        ],
+        "objectRights": [
+          {
+            "label": "Restrictions & Rights",
+            "content": "CC0"
+          }
+        ],
+        "physicalDescription": [
+          {
+            "label": "Materials",
+            "content": "Wicker basket w canvass outer cover."
+          },
+          {
+            "label": "Dimensions",
+            "content": "63' long x 37\" wide x 52\" high"
+          }
+        ]
+      },
+      "indexedStructured": {
+        "place": ["United States of America"],
+        "topic": ["Aeronautics"],
+        "usage_flag": ["Balloons & Airships", "Aviation", "World War I"],
+        "geoLocation": [
+          {
+            "L2": {
+              "type": "Country",
+              "content": "United States of America"
+            }
+          }
+        ],
+        "object_type": ["Baloons (aircraft)", "Aircraft"],
+        "online_media_type": ["Images"]
+      },
+      "descriptiveNonRepeating": {
+        "guid": "http://n2t.net/ark:/65665/nv9eec7d0e4-30cc-4589-9340-56db08f8e4bd",
+        "title": {
+          "label": "Object Name",
+          "content": "Balloon Basket, USMC, World War I"
+        },
+        "record_ID": "nasm_A19740669000",
+        "unit_code": "NASM",
+        "title_sort": "BALLOON BASKET, USMC, WORLD WAR I",
+        "data_source": "National Air and Space Museum",
+        "record_link": "http://n2t.net/ark:/65665/nv9eec7d0e4-30cc-4589-9340-56db08f8e4bd",
+        "online_media": {
+          "media": [
+            {
+              "id": "media:NASM-A19740669000-NASM2018-10183",
+              "guid": "http://n2t.net/ark:/65665/gf4817347d5-43ef-479c-8000-1c265ae649d9",
+              "type": "Images",
+              "idsId": "NASM-A19740669000-NASM2018-10183",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-A19740669000-NASM2018-10183",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-A19740669000-NASM2018-10183",
+              "altTextAccessibility": "Rounded box-shaped silver-canvas covered World War I USMC Balloon Basket",
+              "extDescrAccessibility": "",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19740669000-NASM2018-10183.tif",
+                  "width": 6200,
+                  "height": 8065,
+                  "dimensions": "6200x8065"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19740669000-NASM2018-10183.jpg",
+                  "width": 6200,
+                  "height": 8065,
+                  "dimensions": "6200x8065"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19740669000-NASM2018-10183_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-A19740669000-NASM2018-10183_thumb"
+                }
+              ]
+            }
+          ],
+          "mediaCount": 1
+        },
+        "metadata_usage": {
+          "access": "CC0"
+        }
+      }
+    },
+    "hash": "6fb32db38b387c7ed5d6fb2a610af668067b438d",
+    "docSignature": "f79f022d77a70d18bf2876227cb59107",
+    "timestamp": "1663784943",
+    "lastTimeUpdated": "1733304955",
+    "version": ""
+  }
+}

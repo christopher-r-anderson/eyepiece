@@ -33,3 +33,9 @@
 - Captured: 2026-04-15
 - Purpose: Real NASA metadata payload for passthrough metadata tests.
 - Notes: This fixture matches the `search.nasa-id.PIA24439.json` asset lookup fixture.
+
+## `search.nasa-id.S68-27041.json`
+
+- Source URL: `https://images-api.nasa.gov/search?nasa_id=S68-27041`
+- Captured: 2026-07-28
+- Purpose: Record whose `description` is identical to its `title`, which is how roughly 14% of NASA image records arrive. Covers dropping a description that only repeats the title.

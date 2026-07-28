@@ -26,11 +26,33 @@ export const sioaResourceItemSchema = z.object({
 
 export type SioaResourceItem = z.infer<typeof sioaResourceItemSchema>
 
+// the accessibility fields are undocumented and the published EDAN schema
+// forbids them, so nothing here can be trusted to arrive
 export const sioaMediaItemSchema = z.object({
   resources: z.array(sioaResourceItemSchema),
+  altTextAccessibility: z.string().optional(),
+  extDescrAccessibility: z.string().optional(),
 })
 
 export type SioaMediaItem = z.infer<typeof sioaMediaItemSchema>
+
+// freetext keys are open-ended and its entries have no required members, so
+// a non-string content is legal upstream and must not fail the record
+const sioaFreetextValueSchema = z
+  .unknown()
+  .transform((value) => (typeof value === 'string' ? value : undefined))
+
+const sioaFreetextEntrySchema = z.object({
+  label: sioaFreetextValueSchema,
+  content: sioaFreetextValueSchema,
+})
+
+export const sioaFreetextSchema = z.record(
+  z.string(),
+  z.array(sioaFreetextEntrySchema).catch([]),
+)
+
+export type SioaFreetext = z.infer<typeof sioaFreetextSchema>
 
 const createCollectionSchema = <T extends z.ZodTypeAny>(itemDataSchema: T) =>
   z.object({
@@ -51,6 +73,7 @@ export const sioaAssetItemSchema = z.object({
   type: z.string(),
   url: z.string(), // not a web style url
   content: z.object({
+    freetext: sioaFreetextSchema.optional(),
     descriptiveNonRepeating: z.object({
       guid: z.string().optional(),
       title: z.object({ label: z.string(), content: z.string() }),

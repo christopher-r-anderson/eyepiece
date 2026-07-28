@@ -1,6 +1,11 @@
-import { NOT_FOUND_IMAGE, paginationToRange } from '../../provider.utils'
+import {
+  NOT_FOUND_IMAGE,
+  dropTitleDuplicate,
+  paginationToRange,
+} from '../../provider.utils'
 import type {
   SioaAssetItem,
+  SioaFreetext,
   SioaResourceItem,
   SioaSearchParams,
 } from '@/integrations/si-oa/types'
@@ -79,18 +84,35 @@ function getImages(resources: Array<SioaResourceItem> = []) {
   }
 }
 
-export function mapAssetItem(assetItem: SioaAssetItem) {
-  return {
-    title: assetItem.title,
-    description: assetItem.title,
+const SUMMARY_NOTE_LABEL = 'Summary'
 
+function getSummary(freetext: SioaFreetext | undefined) {
+  const summaries = (freetext?.notes ?? [])
+    .filter((note) => note.label === SUMMARY_NOTE_LABEL)
+    .map((note) => note.content?.trim())
+    .filter(Boolean)
+  return summaries.length > 0 ? summaries.join('\n\n') : undefined
+}
+
+export function mapAssetItem(assetItem: SioaAssetItem) {
+  const { title, content } = assetItem
+  const media = content.descriptiveNonRepeating.online_media?.media[0]
+  return {
+    title,
+    // a record's summary is the curatorial description; the media item's
+    // extended accessibility text covers the records that lack a usable one,
+    // so each candidate is title-checked before the fallback is given up on
+    description:
+      dropTitleDuplicate(getSummary(content.freetext), title) ??
+      dropTitleDuplicate(media?.extDescrAccessibility, title),
+    // records say they have no alt with an empty string as often as by
+    // omitting it; whether one is present is the API's fact to keep, so the
+    // title fallback is left to the render
+    alt: media?.altTextAccessibility?.trim() || undefined,
     key: {
       externalId: assetItem.id,
       providerId: SI_OA_PROVIDER_ID,
     },
-    ...getImages(
-      assetItem.content.descriptiveNonRepeating.online_media?.media[0]
-        ?.resources,
-    ),
+    ...getImages(media?.resources),
   }
 }

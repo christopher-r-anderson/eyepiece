@@ -40,9 +40,10 @@ const assetCommonSchema = z.object({
 })
 
 export const assetSchema = assetCommonSchema.extend({
-  description: z.string(),
+  description: z.string().optional(),
   image: imageSchema,
   original: imageSchema,
+  // present only when the provider supplied a real text alternative
   alt: z.string().optional(),
 })
 

@@ -3,7 +3,15 @@ import { NOT_FOUND_IMAGE } from '../../provider.utils'
 import { buildSioaSearchParams, mapAssetItem } from './si-oa.utils'
 import type {
   SioaAssetItem,
+  SioaMediaItem,
   SioaResourceItem,
+} from '@/integrations/si-oa/types'
+import contentWithAltFixture from '@/integrations/si-oa/__fixtures__/content.ld1-1643400021979-1643400026497-0.json'
+import contentEmptyAltFixture from '@/integrations/si-oa/__fixtures__/content.ld1-1643400021979-1643400025766-0.json'
+import contentPhysicalOnlyFixture from '@/integrations/si-oa/__fixtures__/content.ld1-1643400021979-1643400027025-0.json'
+import {
+  sioaAssetItemResponseSchema,
+  sioaAssetItemSchema,
 } from '@/integrations/si-oa/types'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
@@ -143,7 +151,8 @@ describe('mapAssetItem', () => {
 
     expect(result).toEqual({
       title: 'Apollo 11 Lunar Module',
-      description: 'Apollo 11 Lunar Module',
+      description: undefined,
+      alt: undefined,
       key: {
         externalId: 'asset-123',
         providerId: SI_OA_PROVIDER_ID,
@@ -413,5 +422,144 @@ describe('mapAssetItem', () => {
     expect(result.image.href).toBe('https://example.com/image.jpg')
     expect(result.image.width).toBe(NOT_FOUND_IMAGE.width)
     expect(result.image.height).toBe(NOT_FOUND_IMAGE.height)
+  })
+})
+
+describe('mapAssetItem text', () => {
+  function parseRecord(fixture: unknown) {
+    return sioaAssetItemResponseSchema.parse(fixture).response
+  }
+
+  function createTextItem({
+    freetext,
+    media,
+  }: {
+    freetext?: Record<string, Array<{ label?: string; content?: unknown }>>
+    media?: Partial<SioaMediaItem>
+  }): SioaAssetItem {
+    return sioaAssetItemSchema.parse({
+      id: 'asset-123',
+      title: 'Lunar Module Ascent Engine',
+      unitCode: 'NASM',
+      type: 'object',
+      url: 'nasm.si.edu/asset-123',
+      hash: 'abc123',
+      docSignature: 'sig123',
+      content: {
+        freetext,
+        descriptiveNonRepeating: {
+          title: { label: 'Title', content: 'Lunar Module Ascent Engine' },
+          record_ID: 'rec-123',
+          unit_code: 'NASM',
+          data_source: 'National Air and Space Museum',
+          online_media: media
+            ? { media: [{ resources: [], ...media }], mediaCount: 1 }
+            : undefined,
+          metadata_usage: { access: 'CC0' },
+        },
+      },
+    })
+  }
+
+  it('takes alt and description from a real record', () => {
+    const result = mapAssetItem(parseRecord(contentWithAltFixture))
+
+    expect(result.alt).toBe(
+      'White, metal, bell-shaped nozzle with electrical wires and control unit on top.',
+    )
+    expect(result.description).toMatch(
+      /^This is the Lunar Module Ascent Engine used to lift up/,
+    )
+  })
+
+  it('joins every summary note into the description', () => {
+    const result = mapAssetItem(parseRecord(contentWithAltFixture))
+
+    expect(result.description?.split('\n\n')).toHaveLength(2)
+  })
+
+  it('leaves alt unset when the record supplies an empty one', () => {
+    const result = mapAssetItem(parseRecord(contentEmptyAltFixture))
+
+    expect(result.alt).toBeUndefined()
+    expect(result.description).toBeTruthy()
+  })
+
+  it('leaves the description unset when only a physical description exists', () => {
+    const result = mapAssetItem(parseRecord(contentPhysicalOnlyFixture))
+
+    expect(result.alt).toBe(
+      'Rounded box-shaped silver-canvas covered World War I USMC Balloon Basket',
+    )
+    expect(result.description).toBeUndefined()
+  })
+
+  it('falls back to the extended accessibility description without a summary', () => {
+    const result = mapAssetItem(
+      createTextItem({
+        freetext: { notes: [{ label: 'Brief Description', content: 'Brief' }] },
+        media: { extDescrAccessibility: 'Wool; 4 brass buttons; open collar.' },
+      }),
+    )
+
+    expect(result.description).toBe('Wool; 4 brass buttons; open collar.')
+  })
+
+  it('falls back to the extended description when the summary repeats the title', () => {
+    const result = mapAssetItem(
+      createTextItem({
+        freetext: {
+          notes: [{ label: 'Summary', content: 'Lunar Module Ascent Engine' }],
+        },
+        media: { extDescrAccessibility: 'Bell-shaped nozzle on a test stand.' },
+      }),
+    )
+
+    expect(result.description).toBe('Bell-shaped nozzle on a test stand.')
+  })
+
+  it('drops a description that only repeats the title', () => {
+    const result = mapAssetItem(
+      createTextItem({
+        freetext: {
+          notes: [{ label: 'Summary', content: 'Lunar Module Ascent Engine ' }],
+        },
+      }),
+    )
+
+    expect(result.description).toBeUndefined()
+  })
+
+  it('keeps a supplied alt that resembles the title', () => {
+    const result = mapAssetItem(
+      createTextItem({
+        media: { altTextAccessibility: 'lunar  module ascent engine' },
+      }),
+    )
+
+    expect(result.alt).toBe('lunar  module ascent engine')
+  })
+
+  it('survives freetext entries that are not strings', () => {
+    const result = mapAssetItem(
+      createTextItem({
+        freetext: {
+          notes: [
+            { label: 'Summary', content: { '#text': 'nested' } },
+            { label: 'Summary', content: 'The usable summary.' },
+          ],
+          physicalDescription: [{ content: 'Overall metal' }],
+        },
+      }),
+    )
+
+    expect(result.description).toBe('The usable summary.')
+  })
+
+  it('maps a record with no freetext and no media', () => {
+    const result = mapAssetItem(createTextItem({}))
+
+    expect(result.description).toBeUndefined()
+    expect(result.alt).toBeUndefined()
   })
 })
