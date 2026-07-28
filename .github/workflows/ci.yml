@@ -174,9 +174,8 @@ jobs:
       - name: Install Playwright browsers (and OS deps)
         run: pnpm exec playwright install --with-deps
 
+      # no provider key: the suite replays recorded responses (#185)
       - name: Run Playwright tests
-        env:
-          SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm test:e2e
 
       - name: Stop Supabase

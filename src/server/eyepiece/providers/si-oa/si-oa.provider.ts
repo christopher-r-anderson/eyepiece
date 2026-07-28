@@ -17,10 +17,17 @@ import {
   getContent as sioaGetContent,
   search as sioaSearch,
 } from '@/integrations/si-oa/client'
+import { getProviderFixtureMode } from '@/integrations/provider-fixtures'
 
+// the provider map is built at module scope so a deployment missing this
+// key fails at startup rather than on its first Smithsonian request; replay
+// is the one context where no request reaches the network to use it
 export function getApiKey() {
   const apiKey = process.env.SI_OA_API_KEY
   if (!apiKey) {
+    if (getProviderFixtureMode() === 'replay') {
+      return 'fixture-replay'
+    }
     throw new Error(
       'SI_OA API key is required. Please set the SI_OA_API_KEY environment variable.',
     )

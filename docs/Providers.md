@@ -14,6 +14,12 @@ This document covers the current provider model, where the main integration poin
 | NASA Image and Video Library                           | `nasa_ivl` | `src/integrations/nasa-ivl` | Search, asset detail, album detail, metadata | Year range     | None            |
 | Smithsonian Open Access, National Air and Space Museum | `si_oa`    | `src/integrations/si-oa`    | Search, asset detail                         | None today     | `SI_OA_API_KEY` |
 
+### Runtime Configuration
+
+`SI_OA_API_KEY` is read when `src/server/eyepiece/service.ts` builds the provider map, which happens at module load. A deployment without it fails to start rather than failing on its first Smithsonian request, which is deliberate: this is required configuration, and a provider adapter built on demand would hide a misconfigured environment until a visitor hit that provider. A new provider with its own credential should follow the same shape.
+
+The e2e suite replays recorded provider responses and makes no upstream request, so it runs without the key. See `docs/EnvironmentVariables.md`.
+
 ## Architecture
 
 ### Core Model

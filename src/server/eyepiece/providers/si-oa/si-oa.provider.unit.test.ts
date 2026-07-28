@@ -46,6 +46,24 @@ describe('getApiKey', () => {
     )
   })
 
+  it('stands in for the key when replaying fixtures', () => {
+    vi.stubEnv('PROVIDER_FIXTURE_MODE', 'replay')
+
+    expect(getApiKey()).toBe('fixture-replay')
+
+    vi.unstubAllEnvs()
+  })
+
+  it('still requires the key while recording fixtures', () => {
+    vi.stubEnv('PROVIDER_FIXTURE_MODE', 'record')
+
+    expect(() => getApiKey()).toThrowError(
+      'SI_OA API key is required. Please set the SI_OA_API_KEY environment variable.',
+    )
+
+    vi.unstubAllEnvs()
+  })
+
   it('throws error when SI_OA_API_KEY is empty string', () => {
     process.env.SI_OA_API_KEY = ''
 
