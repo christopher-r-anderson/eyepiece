@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   getProviderFixtureMode,
   providerFixturePath,
+  recordProviderFixture,
   redactProviderUrl,
   replayProviderFixture,
 } from './provider-fixtures'
@@ -37,6 +38,40 @@ describe('redactProviderUrl', () => {
     ).toBe(
       'https://api.si.edu/openaccess/api/v1.0/search?q=moon&api_key=REDACTED&rows=24',
     )
+  })
+})
+
+describe('recordProviderFixture', () => {
+  it('keeps a reflected api key out of the written fixture', async () => {
+    const { mkdir, readFile, mkdtemp } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const dir = await mkdtemp(join(tmpdir(), 'eyepiece-record-'))
+    const cwd = process.cwd()
+    vi.stubEnv('SI_OA_API_KEY', 'super-secret-key')
+
+    try {
+      process.chdir(dir)
+      await mkdir('e2e/__provider-fixtures__', { recursive: true })
+      const url =
+        'https://api.si.edu/openaccess/api/v1.0/search?api_key=super-secret-key'
+
+      await recordProviderFixture(
+        url,
+        new Response(
+          JSON.stringify({
+            message: 'bad key super-secret-key for api_key=super-secret-key',
+          }),
+          { status: 403, headers: { 'content-type': 'application/json' } },
+        ),
+      )
+
+      const written = await readFile(providerFixturePath(url), 'utf8')
+      expect(written).not.toContain('super-secret-key')
+      expect(written).toContain('REDACTED')
+    } finally {
+      process.chdir(cwd)
+    }
   })
 })
 

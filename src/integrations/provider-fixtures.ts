@@ -68,9 +68,21 @@ export async function replayProviderFixture(url: string): Promise<Response> {
   })
 }
 
+// only the url is redacted by the fixture name; a provider that echoes the
+// request in an error body would otherwise put the key in a committed file
+function scrubApiKey(text: string) {
+  const apiKey = process.env.SI_OA_API_KEY
+  if (!apiKey) return text
+  return text
+    .split(apiKey)
+    .join('REDACTED')
+    .split(encodeURIComponent(apiKey))
+    .join('REDACTED')
+}
+
 export async function recordProviderFixture(url: string, response: Response) {
   const { mkdir, rename, writeFile } = await import('node:fs/promises')
-  const text = await response.clone().text()
+  const text = scrubApiKey(await response.clone().text())
   const shared = {
     status: response.status,
     statusText: response.statusText,
