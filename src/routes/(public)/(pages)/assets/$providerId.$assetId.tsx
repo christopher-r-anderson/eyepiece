@@ -1,4 +1,8 @@
-import { createFileRoute, useRouterState } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  notFound,
+  useRouterState,
+} from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
@@ -13,6 +17,7 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
 import { RouteError } from '@/app/layout/route-error'
+import { isNotFoundApiError } from '@/lib/eyepiece-api-client/client'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 
 function AssetHeading({ name = 'Asset' }: { name?: string }) {
@@ -55,15 +60,28 @@ export const Route = createFileRoute(
     return { assetKey }
   },
   loader: async ({ context: { assetKey, queryClient, eyepieceClient } }) => {
-    const asset = await ensureAsset({ assetKey, queryClient, eyepieceClient })
-    return {
-      title: asset.title,
+    try {
+      const asset = await ensureAsset({ assetKey, queryClient, eyepieceClient })
+      return {
+        title: asset.title,
+      }
+    } catch (error) {
+      if (isNotFoundApiError(error)) {
+        throw notFound()
+      }
+      throw error
     }
   },
   head: ({ loaderData }) => ({
     meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
   }),
   errorComponent: AssetRouteError,
+  notFoundComponent: () => (
+    <>
+      <AssetHeading name="Asset Not Found" />
+      <p>We couldn't find that asset.</p>
+    </>
+  ),
   pendingComponent: () => (
     <>
       <AssetHeading />

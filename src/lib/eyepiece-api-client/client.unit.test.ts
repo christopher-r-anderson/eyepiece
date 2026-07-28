@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createEyepieceClient } from './client'
+import { createEyepieceClient, isNotFoundApiError } from './client'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { stubFetchJsonOnce } from '@/test/utils/fetch-mock'
 
@@ -28,6 +28,40 @@ describe('createEyepieceClient', () => {
         externalId: 'missing',
       }),
     ).rejects.toThrow('Error fetching asset: Asset does not exist')
+  })
+
+  it('carries the status and code so callers can tell missing from broken', async () => {
+    const client = createEyepieceClient({ origin: 'https://example.com' })
+    stubFetchJsonOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      json: { error: { code: 'NOT_FOUND', message: 'Asset does not exist' } },
+    })
+
+    const error = await client
+      .getAsset({ providerId: NASA_IVL_PROVIDER_ID, externalId: 'missing' })
+      .catch((thrown: unknown) => thrown)
+
+    expect(error).toMatchObject({ status: 404, code: 'NOT_FOUND' })
+    expect(isNotFoundApiError(error)).toBe(true)
+  })
+
+  it('does not report an upstream failure as not found', async () => {
+    const client = createEyepieceClient({ origin: 'https://example.com' })
+    stubFetchJsonOnce({
+      ok: false,
+      status: 502,
+      statusText: 'Bad Gateway',
+      json: { error: { code: 'PROVIDER_REQUEST_FAILED', message: 'upstream' } },
+    })
+
+    const error = await client
+      .getAsset({ providerId: NASA_IVL_PROVIDER_ID, externalId: 'anything' })
+      .catch((thrown: unknown) => thrown)
+
+    expect(error).toMatchObject({ status: 502 })
+    expect(isNotFoundApiError(error)).toBe(false)
   })
 
   it('uses structured server error messages for album 404s', async () => {

@@ -52,23 +52,41 @@ function assertSsrHasOrigin(origin: string, path: string) {
   }
 }
 
-async function readApiErrorMessage(response: Response) {
+async function readApiError(response: Response) {
   try {
     const body = (await response.json()) as ApiErrorBody
-    if (typeof body.error?.message === 'string' && body.error.message) {
-      return body.error.message
-    }
-  } catch {}
+    return { message: body.error?.message, code: body.error?.code }
+  } catch {
+    return { message: undefined, code: undefined }
+  }
+}
 
-  return response.statusText || `Request failed with status ${response.status}`
+export class EyepieceApiError extends Error {
+  readonly status: number
+  readonly code: string | undefined
+
+  constructor(message: string, status: number, code: string | undefined) {
+    super(message)
+    this.name = 'EyepieceApiError'
+    this.status = status
+    this.code = code
+  }
+}
+
+export function isNotFoundApiError(error: unknown): boolean {
+  return error instanceof EyepieceApiError && error.status === 404
 }
 
 async function throwApiClientError(
   prefix: string,
   response: Response,
 ): Promise<never> {
-  const message = await readApiErrorMessage(response)
-  throw new Error(`${prefix}: ${message}`)
+  const { message, code } = await readApiError(response)
+  const detail =
+    message ||
+    response.statusText ||
+    `Request failed with status ${response.status}`
+  throw new EyepieceApiError(`${prefix}: ${detail}`, response.status, code)
 }
 
 type EyepieceClientOptions = { origin?: string }

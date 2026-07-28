@@ -174,3 +174,13 @@ test(
     await expect(page).toHaveURL('/favorites')
   },
 )
+
+// mirrors the profile not-found pin: `netlify serve` probes several paths for
+// a 404 and hands back the last one, so the router's global not-found can
+// stand in for this route's own body
+test('an asset the provider does not have is not found', async ({ page }) => {
+  const response = await page.goto('/assets/nasa_ivl/e2e-no-such-asset')
+
+  expect(response?.status()).toBe(404)
+  await expect(page.getByText(/not found/i).first()).toBeVisible()
+})
