@@ -9,8 +9,13 @@ import {
   logInAsFixtureUser,
   nextServerPost,
   stubFixtureImages,
+  stubSeededAssetApi,
 } from './support/collections-helpers'
 import type { Page } from '@playwright/test'
+
+test.beforeEach(async ({ page }) => {
+  await stubSeededAssetApi(page)
+})
 
 const { publicCollection, user } = COLLECTIONS_FIXTURE
 

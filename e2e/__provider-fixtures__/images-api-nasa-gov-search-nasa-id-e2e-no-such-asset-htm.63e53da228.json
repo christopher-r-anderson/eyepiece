@@ -1,5 +1,7 @@
 {
   "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json",
   "body": {
     "collection": {
       "version": "1.1",

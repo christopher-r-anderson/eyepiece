@@ -56,12 +56,18 @@ describe('replayProviderFixture', () => {
       )
       await writeFile(
         join(dir, providerFixturePath(url)),
-        JSON.stringify({ status: 404, body: { reason: 'No assets found' } }),
+        JSON.stringify({
+          status: 404,
+          statusText: 'Not Found',
+          contentType: 'application/json',
+          body: { reason: 'No assets found' },
+        }),
       )
 
       const response = await replayProviderFixture(url)
 
       expect(response.status).toBe(404)
+      expect(response.statusText).toBe('Not Found')
       await expect(response.json()).resolves.toEqual({
         reason: 'No assets found',
       })

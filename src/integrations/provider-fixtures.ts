@@ -38,6 +38,8 @@ export function providerFixturePath(url: string) {
 
 interface ProviderFixture {
   status: number
+  statusText: string
+  contentType: string
   body?: unknown
   text?: string
 }
@@ -59,18 +61,26 @@ export async function replayProviderFixture(url: string): Promise<Response> {
   const body = fixture.text ?? JSON.stringify(fixture.body)
   return new Response(body, {
     status: fixture.status,
-    headers: { 'content-type': 'application/json' },
+    // both clients read the provider's error description from the body and
+    // fall back to statusText, so a replayed error has to carry both
+    statusText: fixture.statusText,
+    headers: { 'content-type': fixture.contentType },
   })
 }
 
 export async function recordProviderFixture(url: string, response: Response) {
   const { mkdir, rename, writeFile } = await import('node:fs/promises')
   const text = await response.clone().text()
+  const shared = {
+    status: response.status,
+    statusText: response.statusText,
+    contentType: response.headers.get('content-type') ?? 'application/json',
+  }
   let fixture: ProviderFixture
   try {
-    fixture = { status: response.status, body: JSON.parse(text) }
+    fixture = { ...shared, body: JSON.parse(text) }
   } catch {
-    fixture = { status: response.status, text }
+    fixture = { ...shared, text }
   }
   await mkdir(FIXTURE_DIR, { recursive: true })
   const path = providerFixturePath(url)

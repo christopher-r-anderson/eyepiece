@@ -1,7 +1,11 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
-import { TINY_PNG } from './support/collections-helpers'
+import { TINY_PNG, stubSeededAssetApi } from './support/collections-helpers'
 import type { Page } from '@playwright/test'
+
+test.beforeEach(async ({ page }) => {
+  await stubSeededAssetApi(page)
+})
 
 const {
   publicCollection,
