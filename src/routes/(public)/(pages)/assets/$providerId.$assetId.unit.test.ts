@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ReactNode } from 'react'
+import { EyepieceApiError } from '@/lib/eyepiece-api-client/client'
 import {
   NASA_IVL_PROVIDER_ID,
   SI_OA_PROVIDER_ID,
@@ -178,6 +179,47 @@ describe('asset page route', () => {
       queryClient,
     })
     expect(result).toEqual({ title: 'The Blue Marble' })
+  })
+
+  it('turns a provider not-found into a route not-found', async () => {
+    mockEnsureAsset.mockRejectedValueOnce(
+      new EyepieceApiError('Error fetching asset: gone', 404, 'NOT_FOUND'),
+    )
+
+    await expect(
+      route.loader({
+        context: {
+          assetKey: {
+            providerId: NASA_IVL_PROVIDER_ID,
+            externalId: 'missing',
+          },
+          eyepieceClient: { request: vi.fn() },
+          queryClient: { ensureQueryData: vi.fn() },
+        },
+      }),
+    ).rejects.toMatchObject({ isNotFound: true })
+  })
+
+  it('lets an upstream failure reach the error boundary', async () => {
+    const failure = new EyepieceApiError(
+      'Error fetching asset: boom',
+      502,
+      undefined,
+    )
+    mockEnsureAsset.mockRejectedValueOnce(failure)
+
+    await expect(
+      route.loader({
+        context: {
+          assetKey: {
+            providerId: NASA_IVL_PROVIDER_ID,
+            externalId: 'AS17-148-22727',
+          },
+          eyepieceClient: { request: vi.fn() },
+          queryClient: { ensureQueryData: vi.fn() },
+        },
+      }),
+    ).rejects.toBe(failure)
   })
 
   it('uses asset title in head metadata and falls back when missing', () => {
