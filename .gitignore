@@ -31,3 +31,6 @@ deno.lock
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Provider sampling output (scripts/sample-provider-text.ts), regenerated on demand
+/provider-samples/
