@@ -44,7 +44,7 @@ export const SHOWCASE_CURATION: ShowcaseCuration = {
         { providerId: 'nasa_ivl', externalId: 'as12-49-7278' },
         { providerId: 'nasa_ivl', externalId: 'as15-88-11866' },
         { providerId: 'nasa_ivl', externalId: 'as16-113-18339' },
-        { providerId: 'nasa_ivl', externalId: 'as17-134-20384' },
+        { providerId: 'nasa_ivl', externalId: 'AS17-134-20384' },
       ],
     },
     {
