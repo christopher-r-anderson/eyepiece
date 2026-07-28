@@ -115,6 +115,16 @@ Using both `VITE_SENTRY_*` and `SENTRY_*` in Netlify is recommended for producti
 
 The replay sample-rate settings are client-only and do not need `SENTRY_*` runtime equivalents.
 
+## Providers
+
+### `SI_OA_API_KEY`
+
+Smithsonian Open Access API key, from https://api.data.gov/signup/. NASA's Image and Video Library needs no key.
+
+Required in every deployed environment. The provider map is built when the module loads, so a missing key fails startup instead of surfacing on the first Smithsonian request. Keep it that way: a lazily-built adapter would turn a misconfigured deployment into an error a visitor finds.
+
+The e2e suite is the one exception. With `PROVIDER_FIXTURE_MODE=replay` no request reaches the network, so the key is not required and CI does not supply one. Recording fixtures (`pnpm test:e2e:record`) does hit the live API and needs a real key.
+
 ## Showcase Provisioning
 
 - `SHOWCASE_USER_EMAIL`: used by `pnpm provision-showcase`; set in `.env.local` for local runs and as a GitHub Actions secret for production publishes. The email address of the provisioned showcase account. Whoever controls this mailbox can access the showcase account through password reset, so it must be an address the deployment owner controls. Any placeholder address works locally.

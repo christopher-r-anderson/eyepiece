@@ -103,9 +103,8 @@ test('clicking the backdrop closes the overlay', async ({ page }) => {
 })
 
 test('reloading while open lands on the full detail page', async ({ page }) => {
-  // the reload produces a fresh document whose SSR loader cannot be
-  // stubbed, so this journey rides a live homepage strip record (the same
-  // exposure the deep-link specs carry)
+  // the reload produces a fresh document, so this journey goes through the
+  // SSR loader and its recorded provider fixture rather than a page.route stub
   await page.goto('/')
   const firstTileLink = page.locator('a[data-tile-primary-link]').first()
   await expect(firstTileLink).toBeVisible()

@@ -16,6 +16,30 @@ export async function stubFixtureImages(page: Page) {
 
 // the app's next= redirect avoids a post-login goto that automated
 // firefox aborts
+// seeded snapshots exist at no provider, and a tile hover preloads its asset,
+// so these lookups are answered from the requested key rather than reaching
+// the provider for a record that is guaranteed to be missing
+export async function stubSeededAssetApi(page: Page) {
+  await page.route('**/api/v1/asset/**', (route) => {
+    const segments = new URL(route.request().url()).pathname.split('/')
+    const [providerId, externalId] = segments.slice(-2)
+    const image = {
+      href: 'https://example.com/stub.png',
+      width: 400,
+      height: 300,
+    }
+    return route.fulfill({
+      json: {
+        key: { providerId, externalId },
+        title: 'Stubbed Asset',
+        thumbnail: image,
+        image,
+        original: image,
+      },
+    })
+  })
+}
+
 export async function logInAsFixtureUser(page: Page, next: string) {
   await stubFixtureImages(page)
   await page.goto(`/login?next=${encodeURIComponent(next)}`)
