@@ -112,6 +112,36 @@ Albums currently use `PaginatedCollection<Asset, AlbumCollectionMetadata>`, wher
 
 For NASA IVL specifically, the `/album/{id}` response does not expose a collection-level title. The adapter provides a display-friendly fallback derived from the album identifier.
 
+## Asset Text
+
+An asset carries three strings with three different jobs. Keeping them distinct is an accessibility requirement, not a style preference: if the same text lands in the image's alt, the heading and the description, a screen reader announces it two or three times.
+
+- **title** names the record. It is the page heading and the accessible name of a tile's link.
+- **alt** is a text alternative for the image, and is present only when the provider supplied a real one. Absent means no alternative exists, which is not the same as an empty one.
+- **description** is supplementary prose under the image. Absent means the record has nothing worth showing.
+
+Where each comes from:
+
+|             | Smithsonian                                                                 | NASA                                |
+| ----------- | --------------------------------------------------------------------------- | ----------------------------------- |
+| title       | the record's title                                                          | `title`                             |
+| alt         | the media item's accessibility alt text, on about two thirds of records     | nothing suitable exists             |
+| description | the Summary notes, else the media item's extended accessibility description | `description`, with markup stripped |
+
+The rules that go with it:
+
+- A description that equals the title once normalized is dropped. Roughly one in seven NASA image records repeats its title verbatim.
+- An empty string counts as absent. Smithsonian populates the alt field with an empty value on real records.
+- The title-duplicate rule does not apply to alt. The image falls back to the title when no alternative exists, so discarding an alt that resembles the title would lose the record of whether a real one exists without changing anything rendered.
+- That fallback happens where the image renders, not in the mapper, so the API keeps the distinction.
+- The image always has an alt attribute. An empty one would drop it out of the accessibility tree, which costs more than repetition on a page whose subject is the image. Grid tiles are the opposite case: their alt is empty because the surrounding link already carries the title.
+
+Two fields look like they belong here and do not. NASA's `description_508` reads like a text alternative but is a shortened copy of the description. Smithsonian's physical description is materials and dimensions, which belongs with the rest of the metadata.
+
+One caution for a future provider or a wider Smithsonian filter: alt quality is a property of the contributing unit, not of the field. The National Air and Space Museum, which the Smithsonian search is pinned to, writes real visual descriptions. Another unit fills the same field with a machine-generated credit line, which would be worse than the title fallback. A non-empty value is not evidence of a usable one.
+
+The sampling behind these numbers, and the screen reader testing behind the markup decisions, are recorded in #184.
+
 ## Search
 
 ### Search Schema
@@ -186,10 +216,11 @@ Adding a provider is mostly a matter of updating the provider-specific seams tha
 4. Update `src/routes/(public)/api/v1/search.ts` so query params can be parsed for the new provider.
 5. Implement a new adapter under `src/server/eyepiece/providers/<provider>/` that satisfies `BaseProvider` and any optional capabilities it supports.
 6. Add or reuse an upstream integration client under `src/integrations/<provider>/`.
-7. Register the adapter in `src/server/eyepiece/service.ts`.
-8. Extend the `AllLibrariesCount` sum in `src/features/search/components/search-conditions.tsx` - it invokes one search-total hook per shipped provider, so a provider missing there is silently omitted from the all-libraries count even though its scope tab appears. Add provider-specific filter UI in the same file if needed (the scope tabs themselves pick the provider up from `PROVIDERS`).
-9. Update any provider-facing labels in the UI.
-10. If the provider can be persisted in preview snapshots (favorites, collection items), update the Supabase enum and related migrations/types.
+7. Decide where its title, alt and description come from, following Asset Text above. A provider with no real alt data is expected; a provider whose alt field is populated with something other than a description is the case to watch for.
+8. Register the adapter in `src/server/eyepiece/service.ts`.
+9. Extend the `AllLibrariesCount` sum in `src/features/search/components/search-conditions.tsx` - it invokes one search-total hook per shipped provider, so a provider missing there is silently omitted from the all-libraries count even though its scope tab appears. Add provider-specific filter UI in the same file if needed (the scope tabs themselves pick the provider up from `PROVIDERS`).
+10. Update any provider-facing labels in the UI.
+11. If the provider can be persisted in preview snapshots (favorites, collection items), update the Supabase enum and related migrations/types.
 
 ### Capability Decisions
 
