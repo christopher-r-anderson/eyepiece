@@ -16,6 +16,7 @@
     "generate-db-types": "supabase gen types typescript --local > ./src/integrations/supabase/database.types.ts",
     "print-supabase-env": "./scripts/print-supabase-env.sh",
     "provision-showcase": "tsx --env-file-if-exists=.env.local scripts/provision-showcase.ts",
+    "sample-provider-text": "tsx --env-file-if-exists=.env.local scripts/sample-provider-text.ts",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "predev": "pnpm fetch-fonts",
     "dev": "vite dev --port 3000",
