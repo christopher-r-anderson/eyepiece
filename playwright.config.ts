@@ -83,6 +83,11 @@ export default defineConfig({
   webServer: {
     command: 'pnpm serve --port 8888',
     url: 'http://localhost:8888',
+    // provider calls made during SSR are out of page.route's reach, so they
+    // are served from recorded fixtures instead of the live APIs (#185)
+    env: {
+      PROVIDER_FIXTURE_MODE: process.env.PROVIDER_FIXTURE_MODE ?? 'replay',
+    },
     // currently always using false since we are running a prod-like server for tests which we don't normally run locally
     reuseExistingServer: false, // !process.env.CI,
   },

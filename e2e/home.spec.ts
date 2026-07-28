@@ -54,14 +54,10 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
       `/albums/${featured.albumKey.providerId}/${featured.albumKey.externalId}`,
     )
   }
-  // strips stream from the live album API, which this suite can't stub;
-  // the section must settle into tiles or its boundary, never hang empty
   const firstStrip = page.getByRole('region', {
     name: `editor’s picks ${FEATURED_ALBUMS[0].title}`,
   })
-  await expect(
-    firstStrip.getByRole('listitem').first().or(firstStrip.getByRole('alert')),
-  ).toBeVisible({ timeout: 20000 })
+  await expect(firstStrip.getByRole('listitem').first()).toBeVisible()
 
   for (const collection of SHOWCASE_CURATION.collections) {
     await expect(
@@ -72,11 +68,5 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
     SHOWCASE_CURATION.collections.length,
   )
 
-  // the strips stream from the live album API, and a fetch that
-  // legitimately fails into a section boundary logs the error; the
-  // clean-console check (insurance against hydration warnings) only
-  // applies when every section settled
-  if ((await page.getByRole('alert').count()) === 0) {
-    expect(consoleErrors).toEqual([])
-  }
+  expect(consoleErrors).toEqual([])
 })

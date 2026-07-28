@@ -27,6 +27,7 @@
     "test:unit": "vitest run --project unit",
     "test:integration": "pnpm require-supabase && vitest run --project integration",
     "test:e2e": "pnpm require-supabase && playwright test",
+    "test:e2e:record": "PROVIDER_FIXTURE_MODE=record pnpm test:e2e",
     "serve": "netlify serve",
     "lint": "eslint",
     "format": "prettier -c .",
