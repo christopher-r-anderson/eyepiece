@@ -11,16 +11,21 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const isCI = !!process.env.CI
+
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  retries: isCI ? 2 : 0,
+  // CI runs one worker. Locally the default scales to the machine, and the
+  // SSR paths e2e can't stub (#185) then hit the live providers once per
+  // concurrent test, which times out tests that have nothing to do with the
+  // provider. Four keeps the suite parallel without flooding upstream.
+  workers: isCI ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
