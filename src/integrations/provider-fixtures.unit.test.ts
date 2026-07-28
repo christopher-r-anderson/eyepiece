@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   getProviderFixtureMode,
+  providerFixturePath,
   redactProviderUrl,
   replayProviderFixture,
 } from './provider-fixtures'
@@ -40,6 +41,35 @@ describe('redactProviderUrl', () => {
 })
 
 describe('replayProviderFixture', () => {
+  it('reproduces the recorded status', async () => {
+    const { mkdtemp, writeFile } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const dir = await mkdtemp(join(tmpdir(), 'eyepiece-fixtures-'))
+    const cwd = process.cwd()
+
+    try {
+      const url = 'https://images-api.nasa.gov/album/gone?page=1'
+      process.chdir(dir)
+      await import('node:fs/promises').then(({ mkdir }) =>
+        mkdir('e2e/__provider-fixtures__', { recursive: true }),
+      )
+      await writeFile(
+        join(dir, providerFixturePath(url)),
+        JSON.stringify({ status: 404, body: { reason: 'No assets found' } }),
+      )
+
+      const response = await replayProviderFixture(url)
+
+      expect(response.status).toBe(404)
+      await expect(response.json()).resolves.toEqual({
+        reason: 'No assets found',
+      })
+    } finally {
+      process.chdir(cwd)
+    }
+  })
+
   it('fails on a miss instead of reaching the network', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 

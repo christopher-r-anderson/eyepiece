@@ -6,6 +6,14 @@ Server-side provider calls happen during SSR, where `page.route` cannot reach th
 
 One file per upstream URL. The name is the URL with the api key redacted, plus a hash of that redacted URL, so a rotated or per-developer key resolves the same fixture.
 
+Each file records the status alongside the payload, so a spec that exercises an upstream error replays as that error rather than as a fixture miss:
+
+```json
+{ "status": 200, "body": { "collection": {} } }
+```
+
+A response that is not JSON is stored as `text` instead of `body`.
+
 ## Re-recording
 
 ```

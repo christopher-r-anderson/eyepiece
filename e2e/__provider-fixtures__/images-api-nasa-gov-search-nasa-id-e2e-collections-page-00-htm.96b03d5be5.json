@@ -1,1 +1,13 @@
-{"collection":{"version":"1.1","href":"http://images-api.nasa.gov/search?nasa_id=e2e-collections-page-00.htm","items":[],"metadata":{"total_hits":0}}}
+{
+  "status": 200,
+  "body": {
+    "collection": {
+      "version": "1.1",
+      "href": "http://images-api.nasa.gov/search?nasa_id=e2e-collections-page-00.htm",
+      "items": [],
+      "metadata": {
+        "total_hits": 0
+      }
+    }
+  }
+}

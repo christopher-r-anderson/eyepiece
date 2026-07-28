@@ -11,6 +11,8 @@ import { createHash } from 'node:crypto'
 
 const FIXTURE_DIR = 'e2e/__provider-fixtures__'
 
+let writeCounter = 0
+
 export type ProviderFixtureMode = 'record' | 'replay'
 
 export function getProviderFixtureMode(): ProviderFixtureMode | undefined {
@@ -24,7 +26,7 @@ export function redactProviderUrl(url: string) {
 
 // the key ignores the api key so a rotated or per-developer key still
 // resolves the same fixture
-function fixtureName(url: string) {
+export function providerFixturePath(url: string) {
   const redacted = redactProviderUrl(url)
   const digest = createHash('sha1').update(redacted).digest('hex').slice(0, 10)
   const label = redacted
@@ -34,12 +36,18 @@ function fixtureName(url: string) {
   return `${FIXTURE_DIR}/${label}.${digest}.json`
 }
 
+interface ProviderFixture {
+  status: number
+  body?: unknown
+  text?: string
+}
+
 export async function replayProviderFixture(url: string): Promise<Response> {
   const { readFile } = await import('node:fs/promises')
-  const path = fixtureName(url)
-  let body: string
+  const path = providerFixturePath(url)
+  let raw: string
   try {
-    body = await readFile(path, 'utf8')
+    raw = await readFile(path, 'utf8')
   } catch {
     // falling through to the network would quietly restore the dependency
     // this mode exists to remove
@@ -47,15 +55,28 @@ export async function replayProviderFixture(url: string): Promise<Response> {
       `No provider fixture for ${redactProviderUrl(url)} (expected ${path}). Record one with pnpm test:e2e:record.`,
     )
   }
+  const fixture = JSON.parse(raw) as ProviderFixture
+  const body = fixture.text ?? JSON.stringify(fixture.body)
   return new Response(body, {
-    status: 200,
+    status: fixture.status,
     headers: { 'content-type': 'application/json' },
   })
 }
 
 export async function recordProviderFixture(url: string, response: Response) {
-  if (!response.ok) return
-  const { mkdir, writeFile } = await import('node:fs/promises')
+  const { mkdir, rename, writeFile } = await import('node:fs/promises')
+  const text = await response.clone().text()
+  let fixture: ProviderFixture
+  try {
+    fixture = { status: response.status, body: JSON.parse(text) }
+  } catch {
+    fixture = { status: response.status, text }
+  }
   await mkdir(FIXTURE_DIR, { recursive: true })
-  await writeFile(fixtureName(url), await response.clone().text())
+  const path = providerFixturePath(url)
+  // several workers can request the same url at once, and concurrent writes
+  // to one path can leave it torn
+  const pending = `${path}.${process.pid}.${writeCounter++}.tmp`
+  await writeFile(pending, JSON.stringify(fixture, null, 2))
+  await rename(pending, path)
 }
