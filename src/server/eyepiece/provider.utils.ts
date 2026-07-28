@@ -25,6 +25,18 @@ export function paginationToRange(pagination: Pagination) {
   return { start, end }
 }
 
+// both providers reuse the title as descriptive text often enough that the
+// duplicate would otherwise be read out twice on the detail page
+export function dropTitleDuplicate(
+  value: string | undefined,
+  title: string,
+): string | undefined {
+  const trimmed = value?.trim()
+  if (!trimmed) return undefined
+  const normalize = (text: string) => text.replace(/\s+/g, ' ').toLowerCase()
+  return normalize(trimmed) === normalize(title.trim()) ? undefined : trimmed
+}
+
 export function htmlToPlainText(input: string): string {
   const normalized = input
     .replace(/<\s*br\s*\/?\s*>/gi, '\n')

@@ -1,0 +1,425 @@
+{
+  "status": 200,
+  "responseCode": 1,
+  "response": {
+    "id": "ld1-1643400021979-1643400025766-0",
+    "title": "Lunar Module #2, Apollo",
+    "unitCode": "NASM",
+    "type": "edanmdm",
+    "url": "edanmdm:nasm_A19711598000",
+    "content": {
+      "freetext": {
+        "name": [
+          {
+            "label": "Manufacturer",
+            "content": "Grumman Aircraft Engineering Corporation"
+          }
+        ],
+        "notes": [
+          {
+            "label": "Summary",
+            "content": "The Apollo Lunar Module (LM) was a two-stage vehicle designed by Grumman to ferry two astronauts from lunar orbit to the lunar surface and back. The upper ascent stage consisted of a pressurized crew compartment, equipment areas, and an ascent rocket engine. The lower descent stage had the landing gear and contained the descent rocket engine and lunar surface experiments."
+          },
+          {
+            "label": "Summary",
+            "content": "LM-2 was built for a second uncrewed Earth-orbit test flight. Because the test flight of LM 1, performed as part of the Apollo 5 mission, was so successful, a second unmanned LM test mission was deemed unnecessary. LM-2 was used for ground testing prior to the first successful Moon-landing mission. In 1970 the ascent stage of LM-2 spent several months on display at the \"Expo '70\" in Osaka, Japan. When it returned to the United States, it was reunited with its descent stage, modified to appear like the Apollo 11 Lunar Module \"Eagle,\" and transferred to the Smithsonian for display."
+          },
+          {
+            "label": "Alternate Name",
+            "content": "Lunar Module LM-2"
+          },
+          {
+            "label": "Key Accomplishment(s)",
+            "content": "Landed Astronauts on the Moon"
+          },
+          {
+            "label": "Impact or Innovation",
+            "content": "This lunar module represents one of humanity’s greatest achievements: landing people on another heavenly body."
+          },
+          {
+            "label": "Brief Description",
+            "content": "Between 1969 and 1972, six lunar modules identical to this one landed a total of 12 American astronauts on the Moon. This lunar module, LM-2, never flew in space. It is configured as LM-5, Apollo 11’s lunar module Eagle."
+          }
+        ],
+        "place": [
+          {
+            "label": "Country of Origin",
+            "content": "United States of America"
+          }
+        ],
+        "setName": [
+          {
+            "label": "See more items in",
+            "content": "National Air and Space Museum Collection"
+          },
+          {
+            "label": "Location",
+            "content": "National Air and Space Museum in Washington, DC"
+          },
+          {
+            "label": "Exhibition",
+            "content": "Boeing Milestones of Flight Hall"
+          }
+        ],
+        "creditLine": [
+          {
+            "label": "Credit Line",
+            "content": "Transferred from the National Aeronautics and Space Administration"
+          }
+        ],
+        "dataSource": [
+          {
+            "label": "Data Source",
+            "content": "National Air and Space Museum"
+          }
+        ],
+        "identifier": [
+          {
+            "label": "Inventory Number",
+            "content": "A19711598000"
+          }
+        ],
+        "objectType": [
+          {
+            "label": "Type",
+            "content": "SPACECRAFT-Crewed-Test Vehicles"
+          }
+        ],
+        "objectRights": [
+          {
+            "label": "Restrictions & Rights",
+            "content": "CC0"
+          }
+        ],
+        "physicalDescription": [
+          {
+            "label": "Materials",
+            "content": "Aluminum, titanium, aluminized Mylar and aluminized Kapton blankets"
+          },
+          {
+            "label": "Dimensions",
+            "content": "Overall: 21 ft. 5 1/2 in. × 21 ft. 5 1/2 in., 8499.9lb. (654 × 654cm, 3855.5kg)"
+          }
+        ]
+      },
+      "indexedStructured": {
+        "name": ["Grumman Aircraft Engineering Corporation"],
+        "place": ["United States of America"],
+        "topic": ["Outer space", "Human spaceflight"],
+        "exhibition": [
+          {
+            "building": "NASM"
+          }
+        ],
+        "usage_flag": [
+          "Space",
+          "Moon",
+          "Spacecraft",
+          "People",
+          "Apollo Program",
+          "Exploration",
+          "Astronauts",
+          "Engineers",
+          "Human Spaceflight",
+          "Missions",
+          "Records & Firsts"
+        ],
+        "geoLocation": [
+          {
+            "L2": {
+              "type": "Country",
+              "content": "United States of America"
+            }
+          }
+        ],
+        "object_type": ["Crewed spacecraft", "Testing equipment"],
+        "onPhysicalExhibit": ["Yes"],
+        "online_media_type": ["Images"]
+      },
+      "descriptiveNonRepeating": {
+        "guid": "http://n2t.net/ark:/65665/nv950f30cee-381e-4341-ad61-757e6416e7ac",
+        "title": {
+          "label": "Object Name",
+          "content": "Lunar Module #2, Apollo"
+        },
+        "record_ID": "nasm_A19711598000",
+        "unit_code": "NASM",
+        "title_sort": "LUNAR MODULE #2, APOLLO",
+        "data_source": "National Air and Space Museum",
+        "record_link": "http://n2t.net/ark:/65665/nv950f30cee-381e-4341-ad61-757e6416e7ac",
+        "online_media": {
+          "media": [
+            {
+              "id": "media:NASM-NASM2016-03147",
+              "guid": "http://n2t.net/ark:/65665/gf422a35985-9e5e-4133-aef1-1fe9a3635997",
+              "type": "Images",
+              "idsId": "NASM-NASM2016-03147",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03147",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03147",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03147.tif",
+                  "width": 7734,
+                  "height": 5792,
+                  "dimensions": "7734x5792"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03147.jpg",
+                  "width": 7734,
+                  "height": 5792,
+                  "dimensions": "7734x5792"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03147_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03147_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-NASM2016-03151",
+              "guid": "http://n2t.net/ark:/65665/gf421547266-906f-482f-8dac-9cfc771c2b53",
+              "type": "Images",
+              "idsId": "NASM-NASM2016-03151",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03151",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03151",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03151.tif",
+                  "width": 5792,
+                  "height": 8093,
+                  "dimensions": "5792x8093"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03151.jpg",
+                  "width": 5792,
+                  "height": 8093,
+                  "dimensions": "5792x8093"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03151_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03151_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-NASM2016-03152",
+              "guid": "http://n2t.net/ark:/65665/gf417b6f9d3-831d-4d98-ac74-47604211c20c",
+              "type": "Images",
+              "idsId": "NASM-NASM2016-03152",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03152",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03152",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03152.tif",
+                  "width": 2000,
+                  "height": 3000,
+                  "dimensions": "2000x3000"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03152.jpg",
+                  "width": 2000,
+                  "height": 3000,
+                  "dimensions": "2000x3000"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03152_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03152_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-NASM2016-03148",
+              "guid": "http://n2t.net/ark:/65665/gf4508ece6c-f0b0-498f-af39-a6c7f85a7ef3",
+              "type": "Images",
+              "idsId": "NASM-NASM2016-03148",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03148",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03148",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03148.tif",
+                  "width": 7734,
+                  "height": 5792,
+                  "dimensions": "7734x5792"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03148.jpg",
+                  "width": 7734,
+                  "height": 5792,
+                  "dimensions": "7734x5792"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03148_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03148_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-SI-99-15231-2",
+              "guid": "http://n2t.net/ark:/65665/gf46aba884a-c407-4231-854f-082f1e7f8399",
+              "type": "Images",
+              "idsId": "NASM-SI-99-15231-2",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-SI-99-15231-2",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-SI-99-15231-2",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-SI-99-15231-2.tif",
+                  "width": 4056,
+                  "height": 3536,
+                  "dimensions": "4056x3536"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-SI-99-15231-2.jpg",
+                  "width": 4056,
+                  "height": 3536,
+                  "dimensions": "4056x3536"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-SI-99-15231-2_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-SI-99-15231-2_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-NASM2014-01760",
+              "guid": "http://n2t.net/ark:/65665/gf48421b27e-e7b0-4cb8-ac6f-c1d55adc2eb5",
+              "type": "Images",
+              "idsId": "NASM-NASM2014-01760",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2014-01760",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2014-01760",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2014-01760.tif",
+                  "width": 3744,
+                  "height": 5361,
+                  "dimensions": "3744x5361"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2014-01760.jpg",
+                  "width": 3744,
+                  "height": 5361,
+                  "dimensions": "3744x5361"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2014-01760_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2014-01760_thumb"
+                }
+              ]
+            },
+            {
+              "id": "media:NASM-NASM2016-03145",
+              "guid": "http://n2t.net/ark:/65665/gf474e75d65-bea6-42b8-9ac5-a454c1dcd287",
+              "type": "Images",
+              "idsId": "NASM-NASM2016-03145",
+              "usage": {
+                "access": "CC0"
+              },
+              "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03145",
+              "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2016-03145",
+              "altTextAccessibility": "",
+              "extDescrAccessibility": "Two-stage vehicle; ascent stage with 3 windows (two forward, one overhead), two hatches, docking mechanism; descent stage module with 4 legs; modified to appear like Apollo 11 Lunar Module \"Eagle\"",
+              "resources": [
+                {
+                  "label": "High-resolution TIFF",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03145.tif",
+                  "width": 7872,
+                  "height": 5611,
+                  "dimensions": "7872x5611"
+                },
+                {
+                  "label": "High-resolution JPEG",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03145.jpg",
+                  "width": 7872,
+                  "height": 5611,
+                  "dimensions": "7872x5611"
+                },
+                {
+                  "label": "Screen Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03145_screen"
+                },
+                {
+                  "label": "Thumbnail Image",
+                  "url": "https://ids.si.edu/ids/download?id=NASM-NASM2016-03145_thumb"
+                }
+              ]
+            }
+          ],
+          "mediaCount": 7
+        },
+        "metadata_usage": {
+          "access": "CC0"
+        }
+      }
+    },
+    "hash": "6648f806d150750d0ba67b5f166cb337b83ce265",
+    "docSignature": "5ffb18fbf05b486f277853712eec2a05",
+    "timestamp": "1663784943",
+    "lastTimeUpdated": "1769592851",
+    "version": ""
+  }
+}

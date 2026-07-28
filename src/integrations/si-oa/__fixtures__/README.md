@@ -18,6 +18,18 @@ Record fixture provenance here instead of inside the JSON files.
 - Captured: 2026-04-15
 - Purpose: Baseline Smithsonian content payload for client parsing and provider asset mapping tests.
 
+### `content.ld1-1643400021979-1643400025766-0.json`
+
+- Source URL: `https://api.si.edu/openaccess/api/v1.0/content/ld1-1643400021979-1643400025766-0?api_key=REDACTED`
+- Captured: 2026-07-28
+- Purpose: Record whose media supplies an empty `altTextAccessibility`, so alt mapping has to treat present-but-empty as absent. Also carries two Summary notes and seven media items.
+
+### `content.ld1-1643400021979-1643400027025-0.json`
+
+- Source URL: `https://api.si.edu/openaccess/api/v1.0/content/ld1-1643400021979-1643400027025-0?api_key=REDACTED`
+- Captured: 2026-07-28
+- Purpose: Record with real alt text but no Summary note and no extended accessibility description, only a physical description. Covers the case that maps to no description at all.
+
 ## Refresh Template
 
 When replacing or adding fixtures, document:

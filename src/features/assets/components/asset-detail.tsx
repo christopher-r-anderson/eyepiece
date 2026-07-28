@@ -19,11 +19,9 @@ export function AssetDetail({ asset }: { asset: Asset }) {
       })}
     >
       {/*
-          title as alt: it isn't ideal since it is in the h1 and not primarily describe-what-is-in-the-image
-          but there isn't specific data for that, it *often does* describe what you can see in the image
-          and the image is the focus of the page, not decorative so an empty alt doesn't seem appropriate either.
-          Description is potentially paragraphs of content going beyond what is in the image.
-          Revisit if there is feedback.
+          the title stands in when a provider has no text alternative: an empty
+          alt would drop the image out of the accessibility tree, which costs
+          more on a page whose subject is the image
         */}
       <img
         className={css({
@@ -43,11 +41,11 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           },
         })}
         src={asset.image.href}
-        alt={asset.title}
+        alt={asset.alt ?? asset.title}
         width={asset.image.width}
         height={asset.image.height}
       />
-      <figcaption>
+      {asset.description && (
         <div
           className={css({
             maxWidth: 'calc(clamp(45ch, 90%, token(sizes.readingMax)) + 1rem)',
@@ -57,7 +55,7 @@ export function AssetDetail({ asset }: { asset: Asset }) {
         >
           {asset.description}
         </div>
-      </figcaption>
+      )}
     </div>
   )
 }

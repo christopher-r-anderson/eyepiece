@@ -1,4 +1,8 @@
-import { NOT_FOUND_IMAGE, htmlToPlainText } from '../../provider.utils'
+import {
+  NOT_FOUND_IMAGE,
+  dropTitleDuplicate,
+  htmlToPlainText,
+} from '../../provider.utils'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import type {
   NasaMediaItem,
@@ -81,7 +85,10 @@ export function mapMediaItem({
   const image = getLargestAltImage(links)
   return {
     title,
-    description: description ? htmlToPlainText(description) : 'No description',
+    description: dropTitleDuplicate(
+      description ? htmlToPlainText(description) : undefined,
+      title,
+    ),
     key: {
       externalId: nasa_id,
       providerId: NASA_IVL_PROVIDER_ID,
