@@ -2,7 +2,6 @@ import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { useHydrated } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { css } from 'styled-system/css'
-import { ToggleFavoriteErrorCodes } from '../favorites.const'
 import {
   useToggleUserFavorite,
   useUserFavoritesIndex,
@@ -10,6 +9,7 @@ import {
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { assetKeyIsEqual } from '@/domain/asset/asset.utils'
+import { isAuthRequiredError } from '@/lib/result'
 
 export const favoriteToggleCss = css.raw({
   '--toggle-icon-color': 'token(colors.text.muted)',
@@ -50,10 +50,7 @@ export function ToggleFavoriteButton({
     () =>
       toggle.mutate(assetKey, {
         onError: (toggleFavoritesError) => {
-          if (
-            toggleFavoritesError.message ===
-            ToggleFavoriteErrorCodes.AUTH_REQUIRED
-          ) {
+          if (isAuthRequiredError(toggleFavoritesError)) {
             onUnauthorized()
           } else {
             onError(toggleFavoritesError)
