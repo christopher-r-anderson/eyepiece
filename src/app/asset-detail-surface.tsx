@@ -1,11 +1,9 @@
 import { CatchBoundary } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { AssetDetail } from '@/features/assets/components/asset-detail'
 import { MetadataDisclosure } from '@/features/assets/components/metadata-disclosure'
-import { Heading } from '@/components/ui/heading'
 import { CapturedAlertError } from '@/app/layout/route-error'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
@@ -27,50 +25,22 @@ export function AssetDetailSurface({
   return (
     <>
       <div
-        className={grid({
-          gridTemplateColumns: 'minmax(0, 1fr) auto',
-          gridTemplateAreas: '"back actions" "title title"',
+        className={css({
+          display: 'flex',
           alignItems: 'center',
-          rowGap: '3',
-          columnGap: '3',
+          gap: '3',
           alignSelf: 'stretch',
           width: '100%',
           maxWidth: 'contentMax',
           marginInline: 'auto',
           paddingTop: '2',
           paddingInline: '4',
-          paddingBottom: 0,
-          containerType: 'inline-size',
-          '@/2xl': {
-            gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-            gridTemplateAreas: '"back title actions"',
-            columnGap: '4',
-            rowGap: '2',
-          },
         })}
       >
         {back}
         <div
           className={css({
-            gridArea: 'title',
-            minWidth: 0,
-            textAlign: 'center',
-          })}
-        >
-          <Heading
-            level={titleLevel}
-            css={css.raw({
-              minWidth: 0,
-              overflowWrap: 'anywhere',
-            })}
-          >
-            {asset.title}
-          </Heading>
-        </div>
-        <div
-          className={css({
-            gridArea: 'actions',
-            justifySelf: 'end',
+            marginInlineStart: 'auto',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '2',
@@ -79,7 +49,7 @@ export function AssetDetailSurface({
           {actions}
         </div>
       </div>
-      <AssetDetail asset={asset} />
+      <AssetDetail asset={asset} titleLevel={titleLevel} />
       {canViewMetadata && (
         <MetadataDisclosure
           assetKey={asset.key}

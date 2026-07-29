@@ -1,21 +1,50 @@
 import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
+import { Heading } from '@/components/ui/heading'
 
-export function AssetDetail({ asset }: { asset: Asset }) {
+// Max constraints only: the box is the picture at any aspect ratio, so the
+// title sits directly beneath it. The reserve covers the chrome above, the
+// title, and the sliver of description left peeking as a scroll cue.
+const imageCss = css({
+  maxWidth: '100%',
+  maxHeight: 'calc(100dvh - 19rem)',
+  width: 'auto',
+  height: 'auto',
+  objectFit: 'contain',
+})
+
+const titleCss = css({
+  textStyle: 'display.sm',
+  textAlign: 'center',
+  textWrap: 'balance',
+  maxWidth: '40ch',
+  overflowWrap: 'anywhere',
+})
+
+const descriptionCss = css({
+  maxWidth: 'readingMax',
+  color: 'text.muted',
+  lineHeight: 'base',
+  whiteSpace: 'pre-line',
+})
+
+export function AssetDetail({
+  asset,
+  titleLevel,
+}: {
+  asset: Asset
+  titleLevel: 1 | 2
+}) {
   return (
     <div
       className={stack({
-        gap: '6',
-        alignSelf: 'stretch',
+        gap: '4',
+        alignItems: 'center',
         width: '100%',
         maxWidth: 'contentMax',
         margin: '0 auto',
         paddingInline: '4',
-        containerType: 'inline-size',
-        '@/4xl': {
-          flexDirection: 'row',
-        },
       })}
     >
       {/*
@@ -24,37 +53,17 @@ export function AssetDetail({ asset }: { asset: Asset }) {
           more on a page whose subject is the image
         */}
       <img
-        className={css({
-          width: '100%',
-          maxWidth: '100%',
-          maxHeight: '65vh',
-          height: 'auto',
-          objectFit: 'scale-down',
-          minHeight: '300px',
-          position: 'static',
-          alignSelf: 'stretch',
-          '@/4xl': {
-            width: 'auto',
-            position: 'sticky',
-            top: '6',
-            alignSelf: 'flex-start',
-          },
-        })}
+        className={imageCss}
         src={asset.image.href}
         alt={asset.alt ?? asset.title}
         width={asset.image.width}
         height={asset.image.height}
       />
+      <Heading level={titleLevel} className={titleCss}>
+        {asset.title}
+      </Heading>
       {asset.description && (
-        <div
-          className={css({
-            maxWidth: 'calc(clamp(45ch, 90%, token(sizes.readingMax)) + 1rem)',
-            lineHeight: 'base',
-            whiteSpace: 'pre-line',
-          })}
-        >
-          {asset.description}
-        </div>
+        <p className={descriptionCss}>{asset.description}</p>
       )}
     </div>
   )
