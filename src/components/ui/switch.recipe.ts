@@ -32,12 +32,4 @@ export const switchRecipe = defineRecipe({
       cursor: 'default',
     },
   },
-  variants: {
-    variant: {
-      default: {},
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
 })

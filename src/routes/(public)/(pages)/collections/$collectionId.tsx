@@ -142,8 +142,7 @@ function CollectionPage() {
       <p
         className={css({
           marginTop: '2',
-          fontFamily: 'mono',
-          fontSize: 'mono',
+          textStyle: 'meta',
           textTransform: 'lowercase',
           color: 'text.muted',
         })}

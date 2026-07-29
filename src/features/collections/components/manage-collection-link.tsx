@@ -32,8 +32,7 @@ function ManageCollectionLinkContent({
       to="/collections/$collectionId/manage"
       params={{ collectionId: collection.id }}
       css={css.raw({
-        fontFamily: 'mono',
-        fontSize: 'mono',
+        textStyle: 'meta',
         textTransform: 'lowercase',
         // sits inline in muted meta text: color alone can't mark it as a link
         textDecoration: 'underline',

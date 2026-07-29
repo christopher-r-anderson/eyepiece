@@ -33,6 +33,14 @@ export const textStyles = defineTextStyles({
       },
     },
   },
+  // the utility voice: mono captions, metadata, conditions lines. Callers
+  // add lowercase/muted themselves - both vary by site
+  meta: {
+    value: {
+      fontFamily: 'mono',
+      fontSize: 'mono',
+    },
+  },
   title: {
     // panel headings (auth card)
     lg: {

@@ -25,7 +25,6 @@ import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(p
 import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/login'
 import { Route as publicauthRegisterRouteImport } from './routes/(public)/(auth)/register'
 import { Route as publicpagesIndexRouteImport } from './routes/(public)/(pages)/index'
-import { Route as publicpagesButtonsRouteImport } from './routes/(public)/(pages)/buttons'
 import { Route as tokenCallbacksAuthConfirmRouteImport } from './routes/(token-callbacks)/auth/confirm'
 import { Route as DevObservabilityIndexRouteImport } from './routes/dev/observability/index'
 import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
@@ -124,11 +123,6 @@ const publicauthRegisterRoute = publicauthRegisterRouteImport.update({
 const publicpagesIndexRoute = publicpagesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => publicpagesRouteRoute,
-} as any)
-const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
-  id: '/buttons',
-  path: '/buttons',
   getParentRoute: () => publicpagesRouteRoute,
 } as any)
 const tokenCallbacksAuthConfirmRoute =
@@ -280,7 +274,6 @@ export interface FileRoutesByFullPath {
   '/favorites': typeof privatepagesFavoritesRoute
   '/login': typeof publicauthLoginRoute
   '/register': typeof publicauthRegisterRoute
-  '/buttons': typeof publicpagesButtonsRoute
   '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
@@ -314,7 +307,6 @@ export interface FileRoutesByTo {
   '/favorites': typeof privatepagesFavoritesRoute
   '/login': typeof publicauthLoginRoute
   '/register': typeof publicauthRegisterRoute
-  '/buttons': typeof publicpagesButtonsRoute
   '/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
@@ -358,7 +350,6 @@ export interface FileRoutesById {
   '/(private)/(pages)/favorites': typeof privatepagesFavoritesRoute
   '/(public)/(auth)/login': typeof publicauthLoginRoute
   '/(public)/(auth)/register': typeof publicauthRegisterRoute
-  '/(public)/(pages)/buttons': typeof publicpagesButtonsRoute
   '/(token-callbacks)/auth/confirm': typeof tokenCallbacksAuthConfirmRoute
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
@@ -397,7 +388,6 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/login'
     | '/register'
-    | '/buttons'
     | '/auth/confirm'
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
@@ -431,7 +421,6 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/login'
     | '/register'
-    | '/buttons'
     | '/auth/confirm'
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
@@ -474,7 +463,6 @@ export interface FileRouteTypes {
     | '/(private)/(pages)/favorites'
     | '/(public)/(auth)/login'
     | '/(public)/(auth)/register'
-    | '/(public)/(pages)/buttons'
     | '/(token-callbacks)/auth/confirm'
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
@@ -621,13 +609,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof publicpagesIndexRouteImport
-      parentRoute: typeof publicpagesRouteRoute
-    }
-    '/(public)/(pages)/buttons': {
-      id: '/(public)/(pages)/buttons'
-      path: '/buttons'
-      fullPath: '/buttons'
-      preLoaderRoute: typeof publicpagesButtonsRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
     '/(token-callbacks)/auth/confirm': {
@@ -867,7 +848,6 @@ const publicauthRouteRouteWithChildren = publicauthRouteRoute._addFileChildren(
 )
 
 interface publicpagesRouteRouteChildren {
-  publicpagesButtonsRoute: typeof publicpagesButtonsRoute
   publicpagesIndexRoute: typeof publicpagesIndexRoute
   publicpagessearchSearchRoute: typeof publicpagessearchSearchRoute
   publicpagesCollectionsCollectionIdRoute: typeof publicpagesCollectionsCollectionIdRoute
@@ -877,7 +857,6 @@ interface publicpagesRouteRouteChildren {
 }
 
 const publicpagesRouteRouteChildren: publicpagesRouteRouteChildren = {
-  publicpagesButtonsRoute: publicpagesButtonsRoute,
   publicpagesIndexRoute: publicpagesIndexRoute,
   publicpagessearchSearchRoute: publicpagessearchSearchRoute,
   publicpagesCollectionsCollectionIdRoute:

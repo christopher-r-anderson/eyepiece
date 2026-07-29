@@ -68,8 +68,7 @@ export function InfiniteLoader({
           {total !== undefined && (
             <span
               className={css({
-                fontFamily: 'mono',
-                fontSize: 'mono',
+                textStyle: 'meta',
                 textTransform: 'lowercase',
                 color: 'text.muted',
               })}

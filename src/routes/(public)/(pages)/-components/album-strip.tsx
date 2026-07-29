@@ -63,8 +63,7 @@ export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
           <span
             className={css({
               display: 'block',
-              fontFamily: 'mono',
-              fontSize: 'mono',
+              textStyle: 'meta',
               color: 'text.muted',
               marginBottom: '1',
             })}

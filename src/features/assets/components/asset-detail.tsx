@@ -61,8 +61,7 @@ const titleCss = css({
 })
 
 const sourceCss = css({
-  fontFamily: 'mono',
-  fontSize: 'mono',
+  textStyle: 'meta',
   color: 'text.muted',
   textAlign: 'center',
   textWrap: 'balance',

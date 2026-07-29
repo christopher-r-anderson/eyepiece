@@ -13,8 +13,7 @@ export function Footer(props: ComponentPropsWithoutRef<'footer'>) {
           paddingInline: 'pageInline',
           paddingBlock: '28px 36px',
           color: 'text.muted',
-          fontFamily: 'mono',
-          fontSize: 'mono',
+          textStyle: 'meta',
         }),
         props.className,
       )}

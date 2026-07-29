@@ -3,7 +3,9 @@ import { heading } from 'styled-system/recipes'
 import type { ComponentPropsWithoutRef } from 'react'
 import type { UiProps } from './style-contract'
 
-export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
+// nothing renders past 3 (the deepest computed level is titleLevel === 1 ? 2 : 3);
+// widen alongside the recipe if deeper sections ever exist
+export type HeadingLevel = 1 | 2 | 3
 
 export type HeadingProps = {
   level: HeadingLevel

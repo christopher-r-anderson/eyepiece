@@ -107,8 +107,7 @@ function HomePage() {
                   to="/search"
                   search={toSearchPageParams(query, { scope: 'all' })}
                   css={css.raw({
-                    fontFamily: 'mono',
-                    fontSize: 'mono',
+                    textStyle: 'meta',
                     textTransform: 'lowercase',
                   })}
                 >
@@ -149,8 +148,7 @@ function PublicCollectionsSection() {
         <span
           className={css({
             display: 'block',
-            fontFamily: 'mono',
-            fontSize: 'mono',
+            textStyle: 'meta',
             color: 'text.muted',
             marginBottom: '1',
           })}
