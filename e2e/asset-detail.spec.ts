@@ -24,7 +24,9 @@ async function boxOf(locator: Locator) {
   return box
 }
 
-async function expectFitsWithTitleBeneath(
+// The height reserve the image is sized against stands for chrome that lives
+// in other files, so this is what notices when one of them grows.
+async function expectImageAndTitleFillTheViewport(
   page: Page,
   image: Locator,
   title: Locator,
@@ -39,7 +41,6 @@ async function expectFitsWithTitleBeneath(
   // the box is the picture: a portrait image never spans the column
   expect(imageBox.width).toBeLessThan(imageBox.height)
   expect(imageBox.width / imageBox.height).toBeCloseTo(1200 / 1800, 1)
-  // image and title both fit without scrolling, the title beneath the image
   expect(titleBox.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height)
   expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(viewport.height)
 }
@@ -52,7 +53,7 @@ test('the detail page fits the image and its title in the viewport', async ({
 
   const image = page.getByRole('img', { name: /dumbbell nebula/i })
   await expect(image).toBeVisible()
-  await expectFitsWithTitleBeneath(
+  await expectImageAndTitleFillTheViewport(
     page,
     image,
     page.getByRole('heading', { level: 1 }),
@@ -88,7 +89,7 @@ test('the overlay sizes the image the same way', async ({ page }) => {
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
-  await expectFitsWithTitleBeneath(
+  await expectImageAndTitleFillTheViewport(
     page,
     dialog.getByRole('img', { name: wideSnapshot.title }),
     dialog.getByRole('heading', { level: 2, name: wideSnapshot.title }),

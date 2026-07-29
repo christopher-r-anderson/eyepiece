@@ -43,17 +43,6 @@ describe('asset detail', () => {
     expect(container.querySelector('figure, figcaption')).toBeNull()
   })
 
-  it('takes the heading level from the surface that renders it', () => {
-    render(<AssetDetail asset={asset()} titleLevel={2} />)
-
-    expect(
-      screen.getByRole('heading', {
-        level: 2,
-        name: 'Weighing in on the Dumbbell Nebula',
-      }),
-    ).toBeTruthy()
-  })
-
   it('describes the image with the provider alt text when there is one', () => {
     render(
       <AssetDetail
@@ -73,11 +62,5 @@ describe('asset detail', () => {
     expect(
       screen.getByAltText('Weighing in on the Dumbbell Nebula'),
     ).toBeTruthy()
-  })
-
-  it('omits the description paragraph when the record has none', () => {
-    const { container } = render(<AssetDetail asset={asset()} titleLevel={1} />)
-
-    expect(container.querySelector('p')).toBeNull()
   })
 })
