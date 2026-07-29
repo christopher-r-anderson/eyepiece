@@ -1,7 +1,6 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { sheet } from 'styled-system/recipes'
-import { css } from 'styled-system/css'
 import { Button } from './button'
 import { useModalOpenAttribute } from './modal-open-attribute'
 import type { ReactNode } from 'react'
@@ -34,11 +33,6 @@ export function Sheet({
             onPress={() => onOpenChange(false)}
             variant="bare"
             className={slots.close}
-            css={css.raw({
-              _pressed: {
-                transform: 'none',
-              },
-            })}
           >
             <XIcon aria-hidden="true" size={22} weight="bold" />
           </Button>
