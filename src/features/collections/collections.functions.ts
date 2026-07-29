@@ -18,29 +18,29 @@ import {
 } from './collections.schema'
 
 export const createCollectionFn = createServerFn({ method: 'POST' })
-  .inputValidator(createCollectionInputSchema)
+  .validator(createCollectionInputSchema)
   .handler(async ({ data }) => createCollection(data))
 
 export const renameCollectionFn = createServerFn({ method: 'POST' })
-  .inputValidator(renameCollectionInputSchema)
+  .validator(renameCollectionInputSchema)
   .handler(async ({ data }) => renameCollection(data))
 
 export const setCollectionVisibilityFn = createServerFn({ method: 'POST' })
-  .inputValidator(setCollectionVisibilityInputSchema)
+  .validator(setCollectionVisibilityInputSchema)
   .handler(async ({ data }) => setCollectionVisibility(data))
 
 export const deleteCollectionFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteCollectionInputSchema)
+  .validator(deleteCollectionInputSchema)
   .handler(async ({ data }) => deleteCollection(data))
 
 export const addCollectionItemFn = createServerFn({ method: 'POST' })
-  .inputValidator(collectionItemInputSchema)
+  .validator(collectionItemInputSchema)
   .handler(async ({ data }) => addCollectionItem(data))
 
 export const removeCollectionItemFn = createServerFn({ method: 'POST' })
-  .inputValidator(collectionItemInputSchema)
+  .validator(collectionItemInputSchema)
   .handler(async ({ data }) => removeCollectionItem(data))
 
 export const addCollectionItemAtPositionFn = createServerFn({ method: 'POST' })
-  .inputValidator(collectionItemAtPositionInputSchema)
+  .validator(collectionItemAtPositionInputSchema)
   .handler(async ({ data }) => addCollectionItemAtPosition(data))
