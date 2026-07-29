@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { urlToNextParam } from './utils'
+import { rawSearchOfHref, urlToNextParam } from './utils'
 
 describe('urlToNextParam', () => {
   it('strips auth params from url', () => {
@@ -27,5 +27,27 @@ describe('urlToNextParam', () => {
 
     expect(firstResult).toBe('/some/path?query=foo')
     expect(secondResult).toBe(firstResult)
+  })
+})
+
+describe('rawSearchOfHref', () => {
+  it('returns the verbatim query substring', () => {
+    expect(rawSearchOfHref('/search?q=moon&a=1')).toBe('?q=moon&a=1')
+  })
+
+  it('preserves a bare trailing delimiter as its own spelling', () => {
+    expect(rawSearchOfHref('/search?')).toBe('?')
+  })
+
+  it('returns empty without a query', () => {
+    expect(rawSearchOfHref('/search')).toBe('')
+  })
+
+  it('stops at the fragment', () => {
+    expect(rawSearchOfHref('/search?q=moon#panel')).toBe('?q=moon')
+  })
+
+  it('ignores a question mark inside the fragment', () => {
+    expect(rawSearchOfHref('/search#panel?tab=1')).toBe('')
   })
 })

@@ -624,3 +624,21 @@ test('exactly one scope tab is marked current in provider scope', async ({
   )
   await expect(scopeNav.locator('[aria-current="page"]')).toHaveCount(1)
 })
+
+// page.goto follows redirects, so the SSR tier's contract needs a
+// request-level pin: the 307 itself, the canonical target, and - load
+// bearing for the CDN - the absence of cache headers on the redirect
+test('a non-canonical spelling 307s uncached to the canonical one', async ({
+  page,
+}) => {
+  const response = await page.request.get(
+    '/search?q=moon&providerId=nasa_ivl',
+    {
+      maxRedirects: 0,
+    },
+  )
+  expect(response.status()).toBe(307)
+  expect(response.headers().location).toBe('/search?providerId=nasa_ivl&q=moon')
+  expect(response.headers()['cache-control']).toBeUndefined()
+  expect(response.headers()['netlify-cdn-cache-control']).toBeUndefined()
+})

@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import {
   CatchBoundary,
   createFileRoute,
+  redirect,
   useRouterState,
 } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
@@ -16,7 +17,7 @@ import type {
   SearchScope,
 } from '@/features/search/search-page-params'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
-import { getTitleText } from '@/lib/utils'
+import { getRawSearch, getTitleText } from '@/lib/utils'
 import { CapturedPrettyError, RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
 import { PageHeading } from '@/components/page-heading'
@@ -28,7 +29,10 @@ import {
   searchPageParamsSchema,
   toSearchPageState,
 } from '@/features/search/search-page-params'
-import { useCanonicalSearchReplace } from '@/features/search/hooks/use-canonical-search-replace'
+import {
+  canonicalSearchStr,
+  useCanonicalSearchReplace,
+} from '@/features/search/hooks/use-canonical-search-replace'
 import {
   NASA_IVL_PROVIDER_ID,
   PROVIDERS,
@@ -49,6 +53,23 @@ function searchTitle({ q, scope }: SearchPageState) {
 export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
   component: SearchPage,
   validateSearch: searchPageParamsSchema,
+  // the SSR tier of search canonicalization: one cached document per
+  // spelling, so non-canonical spellings 307 to the canonical one before
+  // any route work (router 1.170 dropped its built-in redirect). The
+  // client tier stays useCanonicalSearchReplace - a client-side beforeLoad
+  // redirect would cancel in-flight navigations.
+  beforeLoad: ({ location }) => {
+    if (typeof document !== 'undefined') {
+      return
+    }
+    const targetSearchStr = canonicalSearchStr(location.search)
+    if (getRawSearch() !== targetSearchStr) {
+      throw redirect({
+        href: `${location.pathname}${targetSearchStr}`,
+        statusCode: 307,
+      })
+    }
+  },
   // re-parse drops parent-route params (auth modal) from deps so modal
   // toggles don't re-fire the loader
   loaderDeps: ({ search }) => searchPageParamsSchema.parse(search),

@@ -60,23 +60,29 @@ router serializes all search params through `stringifyCanonicalSearchParams`
 values. URLs from outside - shared links, hand edits, native form submits -
 converge in two tiers.
 
-Spelling variants are redirected (307) by the server: key order, encoding
-(`+` for spaces), empty-valued params, and values the validator rewrites (a
-padded `q` lands trimmed). The redirect carries no cache headers, so the
-CDN never caches it; it works without JavaScript and costs one origin round
-trip.
+The server tier is the search route's own `beforeLoad`: any document
+request whose raw query string differs from the canonical spelling - key
+order, encoding (`+` for spaces), empty-valued params, values the
+validator rewrites (a padded `q` lands trimmed), and keys it drops (junk
+params, invalid or inverted year values, unknown `providerId`) - takes a
+307 to the canonical spelling. The redirect carries no cache headers
+(thrown redirects bypass the route's `headers()`; curl-pinned), so the
+CDN never caches it; it works without JavaScript and costs one origin
+round trip. The route owns this tier since router 1.170, which dropped
+the framework's built-in normalization redirect (and that one never
+covered dropped keys anyway - those used to serve 200s under their own
+CDN keys).
 
-Keys the validator drops rather than rewrites - junk params, invalid or
-inverted year values, unknown `providerId` - survive the redirect tier.
-Those spellings serve the content directly, under their own CDN key, and
-`useCanonicalSearchReplace` rewrites the address bar once, client-side.
+`useCanonicalSearchReplace` is the client tier for non-canonical
+spellings reached without a document load, replacing the address bar via
+`history.replace`. It stands down while an asset overlay masks the URL.
 Auth-modal params (`auth`, `next`, `fp`) survive both tiers.
 
-| Spelling                                   | Fixed by       | CDN                   |
-| ------------------------------------------ | -------------- | --------------------- |
-| order, encoding, empties, rewritten values | server 307     | redirect never cached |
-| dropped keys (junk, invalid years)         | client replace | one key per spelling  |
-| canonical                                  | -              | the one key           |
+| Spelling                            | Fixed by                  | CDN                   |
+| ----------------------------------- | ------------------------- | --------------------- |
+| any non-canonical, on document load | server 307 (`beforeLoad`) | redirect never cached |
+| any non-canonical, client-side      | client replace            | -                     |
+| canonical                           | -                         | the one key           |
 
 Native (pre-hydration) form submits ride the server tier. A GET form
 serializes every named field in document order, so the search bar pre-sorts
@@ -93,14 +99,14 @@ Constraints the client tier depends on:
 - compares raw URL strings, not parsed objects: variants that parse equal
   are still distinct cache keys, and the router drops order-only object
   replaces via structural sharing (hence the history-level replace)
-- the comparison and the target derive from one `state.location` snapshot;
-  mixing in `Route.useSearch()` tears during navigation transitions and
-  cancels in-flight navigations
+- the raw side comes from the real document url (`getRawSearch`); the
+  router's `location.searchStr` is the re-serialized parse result and
+  always reads as already canonical
+- the target derives from one `state.location` snapshot; mixing in
+  `Route.useSearch()` tears during navigation transitions and cancels
+  in-flight navigations
 - the parse is idempotent (unit-tested), so the canonical string is a fixed
-  point and the replace cannot loop
-- no app-level `beforeLoad` redirect: `publicBoundary()` responses carry
-  public cache headers, and a CDN-cached redirect would outlive its cause;
-  the framework's 307 is safe because it sends none
+  point and neither tier can loop
 
 ## The All View
 
