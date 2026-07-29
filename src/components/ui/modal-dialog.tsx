@@ -71,9 +71,6 @@ export function ModalDialog({
                 '&[data-focus-visible], &[data-pressed]': {
                   opacity: 1,
                 },
-                _pressed: {
-                  transform: 'none',
-                },
                 _focusVisible: {
                   outlineOffset: '2px',
                 },
