@@ -52,6 +52,16 @@ describe('mapMediaItem text', () => {
 
     expect(result.description).toBeUndefined()
   })
+
+  it('builds a source url from the id, escaping the ones with spaces', () => {
+    const result = mapMediaItem(
+      createItem({ nasa_id: 'APOLLO 50th_FULL COLOR_300DPI' }),
+    )
+
+    expect(result.sourceUrl).toBe(
+      'https://images.nasa.gov/details/APOLLO%2050th_FULL%20COLOR_300DPI',
+    )
+  })
 })
 
 describe('calculateNasaAlbumRequests', () => {

@@ -109,6 +109,7 @@ export function mapAssetItem(assetItem: SioaAssetItem) {
     // omitting it; whether one is present is the API's fact to keep, so the
     // title fallback is left to the render
     alt: media?.altTextAccessibility?.trim() || undefined,
+    sourceUrl: content.descriptiveNonRepeating.record_link,
     key: {
       externalId: assetItem.id,
       providerId: SI_OA_PROVIDER_ID,

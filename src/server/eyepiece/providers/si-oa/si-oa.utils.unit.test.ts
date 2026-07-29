@@ -562,4 +562,18 @@ describe('mapAssetItem text', () => {
     expect(result.description).toBeUndefined()
     expect(result.alt).toBeUndefined()
   })
+
+  it('carries the record link as the source url', () => {
+    const result = mapAssetItem(parseRecord(contentWithAltFixture))
+
+    expect(result.sourceUrl).toBe(
+      'http://n2t.net/ark:/65665/nv90b4ee9e7-085f-4851-816c-084f47ad7b1c',
+    )
+  })
+
+  it('leaves the source url unset when the record has no link', () => {
+    const result = mapAssetItem(createTextItem({}))
+
+    expect(result.sourceUrl).toBeUndefined()
+  })
 })

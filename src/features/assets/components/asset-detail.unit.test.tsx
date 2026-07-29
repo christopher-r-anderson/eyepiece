@@ -26,7 +26,7 @@ describe('asset detail', () => {
     cleanup()
   })
 
-  it('renders the image ahead of the title and description', () => {
+  it('renders the image ahead of the title and the prose under it', () => {
     const { container } = render(
       <AssetDetail
         asset={asset({ description: 'Messier 27 in infrared.' })}
@@ -37,10 +37,31 @@ describe('asset detail', () => {
     const rendered = Array.from(container.querySelectorAll('img, h1, p')).map(
       (element) => element.tagName,
     )
-    expect(rendered).toEqual(['IMG', 'H1', 'P'])
+    expect(rendered).toEqual(['IMG', 'H1', 'P', 'P'])
     // the settled markup is plain: a figure would name the image from its
     // caption in the spec but not in the screen readers we tested
     expect(container.querySelector('figure, figcaption')).toBeNull()
+  })
+
+  it('credits the source and links the record when the provider gives one', () => {
+    render(
+      <AssetDetail
+        asset={asset({ sourceUrl: 'https://images.nasa.gov/details/PIA14417' })}
+        titleLevel={1}
+      />,
+    )
+
+    expect(screen.getByText(/NASA Image and Video Library/)).toBeTruthy()
+    expect(
+      screen.getByRole('link', { name: 'source record' }).getAttribute('href'),
+    ).toBe('https://images.nasa.gov/details/PIA14417')
+  })
+
+  it('still credits the source when there is no record link', () => {
+    render(<AssetDetail asset={asset()} titleLevel={1} />)
+
+    expect(screen.getByText(/NASA Image and Video Library/)).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
   })
 
   it('describes the image with the provider alt text when there is one', () => {

@@ -2,13 +2,16 @@ import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { Heading } from '@/components/ui/heading'
+import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 
 // Max constraints only: the box is the picture at any aspect ratio, so the
 // title sits directly beneath it. The reserve covers the chrome above, the
-// title, and the sliver of description left peeking as a scroll cue.
+// title, and the sliver of description left peeking as a scroll cue. Below
+// roughly 600px of height the reserve stops leaving a usable picture, so a
+// proportion takes over.
 const imageCss = css({
   maxWidth: '100%',
-  maxHeight: 'calc(100dvh - 19rem)',
+  maxHeight: 'max(50dvh, calc(100dvh - 19rem))',
   width: 'auto',
   height: 'auto',
   objectFit: 'contain',
@@ -27,6 +30,18 @@ const descriptionCss = css({
   color: 'text.muted',
   lineHeight: 'base',
   whiteSpace: 'pre-line',
+})
+
+const sourceCss = css({
+  fontFamily: 'mono',
+  fontSize: 'mono',
+  color: 'text.muted',
+  textAlign: 'center',
+  textWrap: 'balance',
+  '& a': {
+    color: 'inherit',
+    _hovered: { color: 'text' },
+  },
 })
 
 export function AssetDetail({
@@ -62,6 +77,17 @@ export function AssetDetail({
       <Heading level={titleLevel} className={titleCss}>
         {asset.title}
       </Heading>
+      <p className={sourceCss}>
+        {PROVIDER_DISPLAY[asset.key.providerId].displayName}
+        {asset.sourceUrl && (
+          <>
+            {' · '}
+            <a href={asset.sourceUrl} target="_blank" rel="noreferrer">
+              source record
+            </a>
+          </>
+        )}
+      </p>
       {asset.description && (
         <p className={descriptionCss}>{asset.description}</p>
       )}

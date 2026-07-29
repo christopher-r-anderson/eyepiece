@@ -142,6 +142,14 @@ One caution for a future provider or a wider Smithsonian filter: alt quality is 
 
 The sampling behind these numbers, and the screen reader testing behind the markup decisions, are recorded in #184.
 
+## Source Link
+
+An asset carries a link to its own record at the provider, rendered as attribution under the detail image. Both current providers supply one for every record, but the field is optional: a provider that cannot address its records is a real possibility.
+
+Smithsonian records carry `record_link` directly, an ARK that resolves to the museum's collection page. The NASA API returns no such field, so the link is built from the id the site addresses records by, `https://images.nasa.gov/details/<nasa_id>`, escaped because ids contain spaces.
+
+Dates, creators and per-record rights were considered for the same line and left out. Coverage is lopsided: NASA has a date on every record and Smithsonian on about half, while creator and rights run the other way. Rights are stated site-wide in the footer instead.
+
 ## Search
 
 ### Search Schema
@@ -216,7 +224,7 @@ Adding a provider is mostly a matter of updating the provider-specific seams tha
 4. Update `src/routes/(public)/api/v1/search.ts` so query params can be parsed for the new provider.
 5. Implement a new adapter under `src/server/eyepiece/providers/<provider>/` that satisfies `BaseProvider` and any optional capabilities it supports.
 6. Add or reuse an upstream integration client under `src/integrations/<provider>/`.
-7. Decide where its title, alt and description come from, following Asset Text above. A provider with no real alt data is expected; a provider whose alt field is populated with something other than a description is the case to watch for.
+7. Decide where its title, alt and description come from, following Asset Text above, and where a link to the record itself comes from, following Source Link. A provider with no real alt data is expected; a provider whose alt field is populated with something other than a description is the case to watch for.
 8. Register the adapter in `src/server/eyepiece/service.ts`.
 9. Extend the `AllLibrariesCount` sum in `src/features/search/components/search-conditions.tsx` - it invokes one search-total hook per shipped provider, so a provider missing there is silently omitted from the all-libraries count even though its scope tab appears. Add provider-specific filter UI in the same file if needed (the scope tabs themselves pick the provider up from `PROVIDERS`).
 10. Update any provider-facing labels in the UI.

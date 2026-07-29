@@ -71,6 +71,12 @@ function getLargestAltImage(
   ].sort((a, b) => (b.width || 0) - (a.width || 0))[0]
 }
 
+// the API returns no link to the record's own page, so it is built from the
+// id the site addresses records by
+function buildSourceUrl(nasaId: string) {
+  return `https://images.nasa.gov/details/${encodeURIComponent(nasaId)}`
+}
+
 export function mapMediaItem({
   data,
   links,
@@ -89,6 +95,7 @@ export function mapMediaItem({
       description ? htmlToPlainText(description) : undefined,
       title,
     ),
+    sourceUrl: buildSourceUrl(nasa_id),
     key: {
       externalId: nasa_id,
       providerId: NASA_IVL_PROVIDER_ID,
