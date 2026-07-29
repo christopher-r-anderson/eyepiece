@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { z } from 'zod'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
@@ -12,6 +13,11 @@ type ProfilePageData = {
 
 export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
   component: ProfilePage,
+  // one-shot params from the native (no-JS) form post's redirect back
+  validateSearch: z.object({
+    formError: z.string().max(300).optional(),
+    status: z.enum(['updated']).optional(),
+  }),
   loader: async (args): Promise<ProfilePageData> => {
     const profile = await ensureProfile({
       id: args.context.user.id,
@@ -26,6 +32,7 @@ export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
 
 function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
+  const { formError, status } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   useEffect(() => {
     if (!showSuccessMessage) return
@@ -37,10 +44,11 @@ function ProfilePage() {
       <UpsertProfileForm
         actionType="update"
         initialData={maybeProfile}
+        initialFormError={formError}
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
       />
-      {showSuccessMessage && <p>Profile Updated.</p>}
+      {(showSuccessMessage || status === 'updated') && <p>Profile Updated.</p>}
     </>
   )
 }

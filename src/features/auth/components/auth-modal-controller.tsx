@@ -122,6 +122,7 @@ function LoginSection({
     <div className={grid({ gap: '4' })}>
       <LoginForm
         headingLevel={3}
+        next={next}
         onSuccess={onSuccess}
         forgotPasswordLink={
           <Link

@@ -7,6 +7,7 @@ import {
   Text,
 } from 'react-aria-components'
 import { useId } from 'react-aria'
+import { useHydrated } from '@tanstack/react-router'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react/dist/ssr'
 import { css, cx } from 'styled-system/css'
@@ -147,11 +148,21 @@ export function TextField({
   label,
   placeholder,
   type,
+  defaultValue,
   css: cssProp,
   className,
   ...props
 }: TextFieldProps) {
   const inputId = useId()
+  // RAC keeps the input controlled, so hydration's first commit resets it
+  // and wipes keystrokes typed before it; while hydrating, seed from the
+  // live DOM value instead (the search bar's q input set the pattern)
+  const isHydrating = !useHydrated()
+  const [domSeed] = useState(() => {
+    if (!isHydrating || typeof document === 'undefined') return undefined
+    const dom = document.getElementById(inputId)
+    return dom instanceof HTMLInputElement ? dom.value : undefined
+  })
   const [showPassword, setShowPassword] = useState(false)
   const isPasswordField = type === 'password'
   const actualType = isPasswordField
@@ -164,6 +175,7 @@ export function TextField({
       id={inputId}
       type={actualType}
       {...props}
+      defaultValue={domSeed ?? defaultValue}
       className={cx(textFieldSlots.root, css(cssProp), className)}
     >
       <Label className={textFieldSlots.label}>{label}</Label>

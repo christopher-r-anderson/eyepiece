@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
+import { registerFormAction } from '../auth.form-actions'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import { SetPasswordField } from './components/set-password-field'
@@ -16,7 +17,10 @@ import {
   formStatusPanelCss,
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { profileSchema } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
@@ -31,11 +35,13 @@ const registrationSchema = z.object({
 export function RegistrationForm({
   headingLevel,
   next,
+  initialFormError,
   onSuccess,
   surface,
 }: {
   headingLevel: HeadingLevel
   next?: string
+  initialFormError?: string
   onSuccess: () => void
   surface?: FormProps['surface']
 }) {
@@ -47,6 +53,7 @@ export function RegistrationForm({
     registrationSchema,
     commands.register,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -58,9 +65,13 @@ export function RegistrationForm({
   return (
     <Form
       autoComplete="on"
-      action={formAction}
+      action={registerFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       surface={surface}
       aria-labelledby={id}
       isPending={isPending}
@@ -77,6 +88,7 @@ export function RegistrationForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
+        {next && <input type="hidden" name="next" value={next} />}
         <TextField
           name="displayName"
           type="text"

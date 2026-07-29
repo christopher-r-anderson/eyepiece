@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LoginForm } from '@/features/auth/forms/login-form'
-import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
 import { AuthAltAction } from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
@@ -10,19 +9,19 @@ export const Route = createFileRoute('/(public)/(auth)/login')({
 })
 
 function LoginPage() {
-  const { next } = Route.useSearch()
+  const { next, formError } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { shouldShowAuthForm } = useRedirectAuthenticatedUser(next)
-
-  if (!shouldShowAuthForm) {
-    return <AuthPageSessionCheck heading="Log In" />
-  }
+  // the form must SSR for pre-hydration submits; a logged-in visitor still
+  // gets the client-side redirect once their session is known
+  useRedirectAuthenticatedUser(next)
 
   return (
     <>
       <LoginForm
         headingLevel={1}
         surface="panel"
+        next={next}
+        initialFormError={formError}
         onSuccess={() => {
           navigate({ to: next ?? '/' })
         }}

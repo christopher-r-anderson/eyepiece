@@ -4,6 +4,7 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
+import { resendConfirmationFormAction } from '../auth.form-actions'
 import type { HeadingLevel } from '@/components/ui/heading'
 import {
   Form,
@@ -13,7 +14,10 @@ import {
   formStatusPanelCss,
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
 
@@ -25,10 +29,14 @@ const resendConfirmationSchema = z.object({
 export function ResendConfirmationForm({
   headingLevel,
   next,
+  backHref,
+  initialFormError,
   onSuccess,
 }: {
   headingLevel: HeadingLevel
   next?: string
+  backHref?: string
+  initialFormError?: string
   onSuccess?: () => void
 }) {
   const id = useId()
@@ -39,6 +47,7 @@ export function ResendConfirmationForm({
     resendConfirmationSchema,
     commands.resendRegisterConfirmation,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -50,9 +59,13 @@ export function ResendConfirmationForm({
   return (
     <Form
       autoComplete="on"
-      action={formAction}
+      action={resendConfirmationFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       aria-labelledby={id}
       isPending={isPending}
       controls={
@@ -68,6 +81,8 @@ export function ResendConfirmationForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
+        {next && <input type="hidden" name="next" value={next} />}
+        {backHref && <input type="hidden" name="back" value={backHref} />}
         <TextField
           name="email"
           type="email"

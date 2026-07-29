@@ -1,4 +1,4 @@
-import { useActionState } from 'react'
+import { startTransition, useActionState, useCallback } from 'react'
 import { z } from 'zod'
 import { createFormState } from './forms.types'
 import type {
@@ -40,6 +40,20 @@ export function useTypedActionState<
     : actionState
 
   return [state, formAction, isPending] as const
+}
+
+// pairs with a native action URL (a server fn's .url): pre-hydration the
+// form posts as a document request, hydrated submits divert to the typed
+// client action instead
+export function useHydratedFormSubmit(dispatch: (formData: FormData) => void) {
+  return useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      const formData = new FormData(event.currentTarget)
+      startTransition(() => dispatch(formData))
+    },
+    [dispatch],
+  )
 }
 
 export function createTypedAction<

@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
 import { Heading } from '@/components/ui/heading'
 import { urlToNextParam } from '@/lib/utils'
-import { redirectSearchParamsSchema } from '@/lib/route.schema'
+import { authPageSearchParamsSchema } from '@/features/auth/auth.schema'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher, formStatusPanelCss } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
@@ -11,12 +11,12 @@ import { Link } from '@/components/ui/link'
 
 export const Route = createFileRoute('/(private)/(pages)/complete-profile')({
   component: CompleteProfilePage,
-  validateSearch: redirectSearchParamsSchema,
+  validateSearch: authPageSearchParamsSchema,
 })
 
 function CompleteProfilePage() {
   const { user } = Route.useRouteContext()
-  const { next: nextParam } = Route.useSearch()
+  const { next: nextParam, formError } = Route.useSearch()
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -49,6 +49,8 @@ function CompleteProfilePage() {
     >
       <UpsertProfileForm
         actionType="create"
+        next={next}
+        initialFormError={formError}
         onSuccess={onUpdateSuccess}
         headingLevel={1}
         surface="panel"

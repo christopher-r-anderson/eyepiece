@@ -1,13 +1,17 @@
 import { useEffect } from 'react'
 import { useId } from 'react-aria'
 import { useProfilesCommands } from '../profiles.commands'
+import { upsertProfileFormAction } from '../profiles.form-actions'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
 import type { FormProps } from '@/components/ui/forms'
 import { Heading } from '@/components/ui/heading'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { profileSchema } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 
@@ -17,14 +21,18 @@ export function UpsertProfileForm({
   actionType,
   headingLevel,
   initialData,
+  initialFormError,
   isDisabled,
+  next,
   onSuccess,
   surface,
 }: {
   actionType: ActionType
   headingLevel: HeadingLevel
   initialData?: FormDataObject
+  initialFormError?: string
   isDisabled?: boolean
+  next?: string
   onSuccess: () => void
   surface?: FormProps['surface']
 }) {
@@ -36,6 +44,7 @@ export function UpsertProfileForm({
     profilesCommands.upsertProfile,
     initialData,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -49,9 +58,13 @@ export function UpsertProfileForm({
   return (
     <Form
       autoComplete="on"
-      action={formAction}
+      action={upsertProfileFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       surface={surface}
       aria-labelledby={headingId}
       isPending={isPending}
@@ -73,6 +86,12 @@ export function UpsertProfileForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="id" defaultValue={state.formData?.id} />
+        <input
+          type="hidden"
+          name="context"
+          value={actionType === 'create' ? 'complete' : 'settings'}
+        />
+        {next && <input type="hidden" name="next" value={next} />}
         <TextField
           name="displayName"
           type="text"

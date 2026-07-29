@@ -4,7 +4,6 @@ import {
   RegistrationForm,
   RegistrationSuccessMessage,
 } from '@/features/auth/forms/registration-form'
-import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
 import { AuthAltAction } from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { Link } from '@/components/ui/link'
@@ -16,23 +15,22 @@ export const Route = createFileRoute('/(public)/(auth)/register')({
 })
 
 function RegisterPage() {
-  const { next } = Route.useSearch()
+  const { next, formError, status } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const { shouldShowAuthForm } = useRedirectAuthenticatedUser(next)
-
-  if (!shouldShowAuthForm) {
-    return <AuthPageSessionCheck heading="Register" />
-  }
+  // the form must SSR for pre-hydration submits; a logged-in visitor still
+  // gets the client-side redirect once their session is known
+  useRedirectAuthenticatedUser(next)
 
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage}
+        showStatus={showSuccessMessage || status === 'sent'}
         status={<RegistrationSuccessMessage headingLevel={1} />}
       >
         <RegistrationForm
           headingLevel={1}
           surface="panel"
+          initialFormError={formError}
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}
         />

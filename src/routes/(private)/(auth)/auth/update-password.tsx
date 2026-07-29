@@ -11,7 +11,7 @@ export const Route = createFileRoute('/(private)/(auth)/auth/update-password')({
 })
 
 function UpdatePasswordPage() {
-  const { next: nextParam } = Route.useSearch()
+  const { next: nextParam, formError, status } = Route.useSearch()
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -33,7 +33,7 @@ function UpdatePasswordPage() {
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage}
+        showStatus={showSuccessMessage || status === 'updated'}
         status={
           next ? (
             <StatusMessage next={next} seconds={seconds} />
@@ -45,6 +45,8 @@ function UpdatePasswordPage() {
         <UpdatePasswordForm
           headingLevel={1}
           surface="panel"
+          next={nextParam}
+          initialFormError={formError}
           onSuccess={onUpdateSuccess}
         />
       </FormStatusSwitcher>
