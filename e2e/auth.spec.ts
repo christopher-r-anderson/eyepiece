@@ -129,4 +129,6 @@ test('a logged-out star click prompts login without a server call', async ({
   await star.click()
   await expect(page.getByRole('dialog')).toBeVisible()
   expect(posts).toEqual([])
+  // the prompt star must not commit a selected state - nothing was starred
+  await expect(star).toHaveAttribute('aria-pressed', 'false')
 })

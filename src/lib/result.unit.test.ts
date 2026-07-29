@@ -301,9 +301,10 @@ describe('unwrapOrThrow', () => {
 
 describe('isAuthRequiredError', () => {
   it('matches an AppException carrying the AUTH_REQUIRED code', () => {
+    // a non-matching message keeps this pinned to the code branch alone
     expect(
       isAuthRequiredError(
-        new AppException({ code: 'AUTH_REQUIRED', message: 'AUTH_REQUIRED' }),
+        new AppException({ code: 'AUTH_REQUIRED', message: 'Session expired' }),
       ),
     ).toBe(true)
   })

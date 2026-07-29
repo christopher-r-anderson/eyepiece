@@ -60,6 +60,9 @@ function FavoriteButtonContent({
         variant="icon"
         css={favoriteToggleCss}
         isDisabled={isPending}
+        // controlled and never selected: an uncontrolled toggle would
+        // commit aria-pressed=true even though nothing was favorited
+        isSelected={false}
         onChange={onUnauthorized}
       >
         <StarIcon size={20} weight="regular" />
