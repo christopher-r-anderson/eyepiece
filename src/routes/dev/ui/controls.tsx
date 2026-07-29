@@ -109,7 +109,6 @@ function DevUiControlsPage() {
           headingLevel={3}
         />
         <Form
-          layout="page"
           controls={
             <FormActions>
               <Button type="submit">Submit</Button>

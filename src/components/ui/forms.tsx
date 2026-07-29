@@ -57,7 +57,6 @@ export function Form({
   formError,
   controls,
   surface,
-  layout,
   isPending,
   onSubmit,
   ...props
@@ -75,7 +74,7 @@ export function Form({
         }
         onSubmit?.(event)
       }}
-      className={cx(form({ surface, layout }), css(cssProp), className)}
+      className={cx(form({ surface }), css(cssProp), className)}
     >
       {children}
       {formError && <FormError error={formError} />}
@@ -84,8 +83,6 @@ export function Form({
   )
 }
 
-// stacked full-width actions; inside a page-layout form with room they
-// collapse to an end-aligned row of intrinsic widths
 export function FormActions({
   className,
   ...props
@@ -93,18 +90,7 @@ export function FormActions({
   return (
     <div
       {...props}
-      className={cx(
-        grid({
-          gap: '3',
-          alignItems: 'center',
-          '@form/2xl': {
-            gridAutoFlow: 'column',
-            gridTemplateColumns: 'none',
-            justifyContent: 'flex-end',
-          },
-        }),
-        className,
-      )}
+      className={cx(grid({ gap: '3', alignItems: 'center' }), className)}
     />
   )
 }
@@ -143,15 +129,7 @@ export function InputGroup({
     <div
       {...props}
       className={cx(
-        grid({
-          gridTemplateColumns: 'minmax(0, 1fr)',
-          rowGap: '4',
-          '@form/2xl': {
-            gridTemplateColumns: 'auto minmax(6rem, 17rem)',
-            columnGap: '3',
-            rowGap: '5',
-          },
-        }),
+        grid({ gridTemplateColumns: 'minmax(0, 1fr)', rowGap: '4' }),
         className,
       )}
     />

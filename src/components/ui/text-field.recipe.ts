@@ -4,11 +4,8 @@ export const textFieldRecipe = defineSlotRecipe({
   className: 'text-field',
   slots: ['root', 'label', 'control', 'input', 'description', 'error'],
   base: {
-    // spans and subdivides the InputGroup grid
     root: {
-      gridColumn: '1 / -1',
       display: 'grid',
-      gridTemplateColumns: 'subgrid',
       minWidth: 0,
     },
     label: {
@@ -59,12 +56,10 @@ export const textFieldRecipe = defineSlotRecipe({
     description: {
       fontSize: 'xs',
       marginTop: '2',
-      gridColumn: '1 / -1',
     },
     error: {
       color: 'danger.text',
       fontSize: 'sm',
-      gridColumn: '1 / -1',
       paddingBlockStart: '2',
     },
   },
