@@ -4,6 +4,7 @@ import { grid, wrap } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
+import { panelSurfaceStyles } from '@/components/ui/surface.styles'
 import { Link } from '@/components/ui/link'
 import { Heading } from '@/components/ui/heading'
 import { PageHeading } from '@/components/page-heading'
@@ -23,10 +24,7 @@ export const devCardGridCss = css.raw({
 const devSurfaceCss = css.raw({
   display: 'grid',
   gap: '4',
-  padding: '5',
-  border: 'default',
-  borderRadius: 'sm',
-  backgroundColor: 'bg.surface.2',
+  ...panelSurfaceStyles,
 })
 
 const devTextStackCss = css.raw({

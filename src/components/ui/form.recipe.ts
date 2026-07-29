@@ -1,4 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
+import { panelSurfaceStyles } from './surface.styles'
 
 export const formRecipe = defineRecipe({
   className: 'form',
@@ -16,12 +17,7 @@ export const formRecipe = defineRecipe({
   variants: {
     surface: {
       plain: {},
-      panel: {
-        padding: '5',
-        border: 'default',
-        borderRadius: 'sm',
-        backgroundColor: 'bg.surface.2',
-      },
+      panel: panelSurfaceStyles,
     },
   },
   defaultVariants: {

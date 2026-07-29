@@ -2,8 +2,7 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const headingRecipe = defineRecipe({
   className: 'heading',
-  // level is drilled and even computed (PrettyException renders level + 1),
-  // which no jit tracking can see
+  // level is drilled and computed, which no jit tracking can see
   staticCss: [{ level: ['*'] }],
   base: {
     color: 'inherit',
@@ -16,9 +15,6 @@ export const headingRecipe = defineRecipe({
       1: { fontSize: '2xl' },
       2: { fontSize: 'xl' },
       3: { fontSize: 'lg' },
-      4: { fontSize: 'base' },
-      5: { fontSize: 'sm' },
-      6: { fontSize: 'xs' },
     },
   },
 })

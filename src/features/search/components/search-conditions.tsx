@@ -46,8 +46,7 @@ export function SearchConditions({
         alignItems: 'center',
         gap: '3',
         minHeight: 'touchTargetMin',
-        fontFamily: 'mono',
-        fontSize: 'mono',
+        textStyle: 'meta',
         textTransform: 'lowercase',
         color: 'text.muted',
       })}

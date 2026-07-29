@@ -41,6 +41,14 @@ beforeAll(() => {
   sheet = readFileSync(outfile, 'utf8')
 }, 120_000)
 
+// the documented "off" values of two-value axes: an empty style object is
+// the point, not dead vocabulary
+// layout_action leaves with the two-column retirement (#195)
+const EMPTY_VALUE_ALLOWLIST = new Set([
+  'form--surface_plain',
+  'form--layout_action',
+])
+
 // a variant declared on a recipe is part of the component's typed api, but
 // jit only emits css for values it can see (literal call sites or staticCss).
 // a failure here means dead vocabulary: delete the variant or cover it
@@ -50,12 +58,16 @@ describe('every declared recipe variant has generated css', () => {
 
     for (const [axis, values] of variants) {
       for (const [value, styles] of Object.entries(values)) {
+        const name = `${recipe.className}--${axis}_${value}`
         if (Object.keys(styles).length === 0) {
+          it(`${name} is a documented off value`, () => {
+            expect(EMPTY_VALUE_ALLOWLIST).toContain(name)
+          })
           continue
         }
 
-        it(`${recipe.className}--${axis}_${value}`, () => {
-          expect(sheet).toContain(`.${recipe.className}--${axis}_${value}`)
+        it(name, () => {
+          expect(sheet).toContain(`.${name}`)
         })
       }
     }

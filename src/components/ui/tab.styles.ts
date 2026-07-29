@@ -1,9 +1,8 @@
 import { defineStyles } from '@pandacss/dev'
 
-// plain style objects, shared by definition: tabs.tsx composes them for RAC
-// Tabs and link.recipe.ts reuses them for links that navigate between
-// scope panels. Keep this module free of react or styled-system imports -
-// it is evaluated inside panda.config.
+// plain style objects composed by tabs.tsx for RAC Tabs. Keep this module
+// free of react or styled-system imports - it is evaluated inside
+// panda.config.
 
 export const tabVisualStyles = defineStyles({
   minHeight: 'controlHeight',

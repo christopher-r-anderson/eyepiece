@@ -49,10 +49,6 @@ export function MetadataDisclosure({
                 fontSize: 'base',
                 fontWeight: 600,
                 _hovered: { color: 'text' },
-                _focusVisible: {
-                  outline: 'focusRing',
-                  outlineOffset: '2px',
-                },
                 '& svg': { transitionFast: 'rotate' },
                 '&[aria-expanded="true"] svg': { rotate: '90deg' },
               })}

@@ -60,8 +60,7 @@ export function CollectionCard({
       <p
         className={css({
           marginTop: '1',
-          fontFamily: 'mono',
-          fontSize: 'mono',
+          textStyle: 'meta',
           textTransform: 'lowercase',
           color: 'text.muted',
         })}

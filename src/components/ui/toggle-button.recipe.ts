@@ -36,7 +36,6 @@ export const toggleButtonRecipe = defineRecipe({
   },
   variants: {
     variant: {
-      default: {},
       // the --toggle-icon-* custom properties are the per-instance theming
       // channel; consumers set them through the css prop
       icon: {
@@ -69,8 +68,5 @@ export const toggleButtonRecipe = defineRecipe({
         },
       },
     },
-  },
-  defaultVariants: {
-    variant: 'default',
   },
 })
