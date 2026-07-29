@@ -24,7 +24,12 @@ function redirectWithParams(
   const url = new URL(href, 'http://relative.local')
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) {
-      url.searchParams.set(key, value)
+      // the route schemas cap formError at 300; an overlong upstream
+      // message must not turn the redirect into a validation failure
+      url.searchParams.set(
+        key,
+        key === 'formError' ? value.slice(0, 300) : value,
+      )
     }
   }
   // 303 turns the form POST into a GET at the target; 307 would re-POST
@@ -185,8 +190,10 @@ export const updatePasswordFormAction = createServerFn({ method: 'POST' })
         next: data.next,
       })
     }
-    redirectWithParams('/auth/update-password', {
-      status: 'updated',
-      next: data.next,
-    })
+    if (data.next) {
+      // the status page's countdown is client code; a no-JS user would
+      // wait forever, so the native flow completes server-side
+      throw redirect({ href: data.next, statusCode: 303 })
+    }
+    redirectWithParams('/auth/update-password', { status: 'updated' })
   })

@@ -25,6 +25,7 @@ export function SetPasswordField({
       type={type}
       autoComplete={autoComplete}
       isRequired={isRequired}
+      minLength={PASSWORD_MIN_LENGTH}
       label={label}
       placeholder={placeholder}
     />

@@ -23,7 +23,12 @@ function withParams(href: string, params: Record<string, string | undefined>) {
   const url = new URL(href, 'http://relative.local')
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) {
-      url.searchParams.set(key, value)
+      // the route schemas cap formError at 300; an overlong upstream
+      // message must not turn the redirect into a validation failure
+      url.searchParams.set(
+        key,
+        key === 'formError' ? value.slice(0, 300) : value,
+      )
     }
   }
   return `${url.pathname}${url.search}${url.hash}`

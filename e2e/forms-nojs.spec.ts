@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures'
+import { makeAdminClient } from './support/collections-fixture'
 
 // The mutation forms post natively to their server-fn action URLs before
 // hydration; these journeys run with JavaScript off entirely, so every
@@ -59,4 +60,36 @@ test('a no-JS forgot-password submit lands on the sent panel', async ({
 
   await page.waitForURL((url) => url.searchParams.get('status') === 'sent')
   await expect(page.getByText('Password reset sent!')).toBeVisible()
+})
+
+test('a no-JS registration lands on the sent panel', async ({
+  page,
+}, testInfo) => {
+  const email = `e2e-nojs-register-${testInfo.workerIndex}@example.com`
+  const admin = makeAdminClient()
+  const deleteRegisteredUser = async () => {
+    const { data } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const user = data.users.find((candidate) => candidate.email === email)
+    if (user) {
+      await admin.auth.admin.deleteUser(user.id)
+    }
+  }
+  // a previous interrupted run may have left the user behind
+  await deleteRegisteredUser()
+  try {
+    await page.goto('/register')
+    await page
+      .getByRole('textbox', { name: 'Display Name (shown publicly)' })
+      .fill('No-JS Register Probe')
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await page
+      .getByRole('textbox', { name: 'Password' })
+      .fill('a-long-enough-passphrase')
+    await page.getByRole('button', { name: 'Register' }).click()
+
+    await page.waitForURL((url) => url.searchParams.get('status') === 'sent')
+    await expect(page.getByText('Registration successful!')).toBeVisible()
+  } finally {
+    await deleteRegisteredUser()
+  }
 })
