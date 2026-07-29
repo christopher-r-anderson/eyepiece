@@ -256,6 +256,7 @@ describe('sentryRequestMiddleware', () => {
       next,
       context: undefined,
       pathname: '/test',
+      handlerType: 'router',
       request: new Request('https://example.com/test'),
     })
 
@@ -312,12 +313,14 @@ describe('sentryRequestMiddleware', () => {
       next: vi.fn().mockResolvedValue('first-ok'),
       context: undefined,
       pathname: '/first',
+      handlerType: 'router',
       request: new Request('https://example.com/first'),
     })
     const secondRequest = runSentryRequestMiddleware({
       next: vi.fn().mockResolvedValue('second-ok'),
       context: undefined,
       pathname: '/second',
+      handlerType: 'router',
       request: new Request('https://example.com/second'),
     })
 

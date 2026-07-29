@@ -11,9 +11,10 @@ const mockState = { key: 'k1', dialogPushed: true }
 let mockLocation = makeLocation('')
 
 function makeLocation(searchStr: string, hash = '') {
+  // the hook compares against the real document url, not the router state
+  window.history.replaceState(null, '', `/search${searchStr}`)
   return {
     pathname: '/search',
-    searchStr,
     search: defaultParseSearch(searchStr),
     hash,
     state: mockState,
@@ -133,6 +134,18 @@ describe('useCanonicalSearchReplace', () => {
       canonicalHref({ q: 'moon' }, '#results'),
       mockState,
     )
+  })
+
+  it('stands down while a masked location is displayed', () => {
+    // an open asset overlay masks the URL; replacing would tear it down
+    mockLocation = {
+      ...makeLocation('?providerId=bogus&q=moon'),
+      maskedLocation: { href: '/assets/nasa_ivl/x' },
+    }
+
+    render(createElement(Harness))
+
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 
   it('is a fixed point: the replaced URL does not replace again', () => {

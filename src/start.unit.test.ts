@@ -4,6 +4,7 @@ import { startInstance } from './start'
 
 vi.mock('@tanstack/react-start', () => ({
   createStart: vi.fn((factory: () => unknown) => factory()),
+  createCsrfMiddleware: vi.fn(() => 'csrf-middleware'),
 }))
 
 vi.mock('@/integrations/sentry/server', () => ({
@@ -34,6 +35,7 @@ describe('startInstance', () => {
     expect(startInstance).toEqual({
       requestMiddleware: [
         'sentry-request-middleware',
+        'csrf-middleware',
         'session-read-tripwire-middleware',
         'development-logging-middleware',
         'error-response-cache-safety-middleware',
