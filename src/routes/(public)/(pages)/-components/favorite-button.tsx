@@ -5,6 +5,7 @@ import { css } from 'styled-system/css'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
+import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import {
   ToggleFavoriteButton,
@@ -31,12 +32,49 @@ export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
 
   return (
     <ClientOnly fallback={<FavoriteButtonFallback />}>
-      <ToggleFavoriteButton
+      <FavoriteButtonContent
         assetKey={assetKey}
         onUnauthorized={showLoginModal}
         onError={showErrorToast}
       />
     </ClientOnly>
+  )
+}
+
+function FavoriteButtonContent({
+  assetKey,
+  onUnauthorized,
+  onError,
+}: {
+  assetKey: AssetKey
+  onUnauthorized: () => void
+  onError: () => void
+}) {
+  const { data: user, isPending } = useCurrentUserQuery()
+  if (!user) {
+    // the known-logged-out case prompts without a server round trip; the
+    // real button's AUTH_REQUIRED handling stays for mid-session expiry
+    return (
+      <ToggleButton
+        aria-label="Star"
+        variant="icon"
+        css={favoriteToggleCss}
+        isDisabled={isPending}
+        // controlled and never selected: an uncontrolled toggle would
+        // commit aria-pressed=true even though nothing was favorited
+        isSelected={false}
+        onChange={onUnauthorized}
+      >
+        <StarIcon size={20} weight="regular" />
+      </ToggleButton>
+    )
+  }
+  return (
+    <ToggleFavoriteButton
+      assetKey={assetKey}
+      onUnauthorized={onUnauthorized}
+      onError={onError}
+    />
   )
 }
 

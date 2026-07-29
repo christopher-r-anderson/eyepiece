@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures'
+import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 
 test.describe('Pending auth forms', () => {
   test('Escape dismisses the auth modal while a login is pending', async ({
@@ -108,4 +109,26 @@ test.describe('Protected Routes', () => {
     )
     expect(redirectResponse.headers().location).toContain('/auth/confirm-error')
   })
+})
+
+test('a logged-out star click prompts login without a server call', async ({
+  page,
+}) => {
+  await page.goto(`/collections/${COLLECTIONS_FIXTURE.publicCollection.id}`)
+  const tile = page.getByRole('grid').getByRole('row').first()
+  const star = tile.getByRole('button', { name: 'Star' })
+  await expect(star).toBeEnabled()
+  await tile.hover()
+
+  const posts: Array<string> = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST') {
+      posts.push(request.url())
+    }
+  })
+  await star.click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  expect(posts).toEqual([])
+  // the prompt star must not commit a selected state - nothing was starred
+  await expect(star).toHaveAttribute('aria-pressed', 'false')
 })

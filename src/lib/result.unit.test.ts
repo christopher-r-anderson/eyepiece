@@ -6,6 +6,7 @@ import {
   errorFromUnknown,
   getEmbeddedResultError,
   isAppException,
+  isAuthRequiredError,
   isResultError,
   resultIsError,
   resultIsSuccess,
@@ -295,5 +296,31 @@ describe('unwrapOrThrow', () => {
       expect((e as Error).name).toBe('AppException')
       expect((e as Error).cause).toBe(original)
     }
+  })
+})
+
+describe('isAuthRequiredError', () => {
+  it('matches an AppException carrying the AUTH_REQUIRED code', () => {
+    // a non-matching message keeps this pinned to the code branch alone
+    expect(
+      isAuthRequiredError(
+        new AppException({ code: 'AUTH_REQUIRED', message: 'Session expired' }),
+      ),
+    ).toBe(true)
+  })
+
+  it('matches a wire-transported error stripped down to its message', () => {
+    // the server-fn serializer keeps only the message; the appError code
+    // does not survive the network boundary
+    expect(isAuthRequiredError(new Error('AUTH_REQUIRED'))).toBe(true)
+  })
+
+  it('rejects unrelated errors', () => {
+    expect(isAuthRequiredError(new Error('boom'))).toBe(false)
+    expect(
+      isAuthRequiredError(
+        new AppException({ message: 'AUTH_REQUIRED failed' }),
+      ),
+    ).toBe(false)
   })
 })
