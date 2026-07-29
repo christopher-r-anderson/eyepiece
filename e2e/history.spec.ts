@@ -1,5 +1,10 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
+import { TINY_PNG } from './support/collections-helpers'
+import {
+  deleteUserFavorite,
+  seedUserFavorite,
+} from './support/favorites-fixture'
 import type { Page } from '@playwright/test'
 
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
@@ -142,3 +147,85 @@ test('the auth dialog occupies one history entry from open to close', async ({
   await page.waitForURL('/')
   await expect(page.getByRole('dialog')).toBeHidden()
 })
+
+test(
+  'a deep-linked auth dialog on a private page renders and closes in place',
+  { tag: '@user' },
+  async ({ page }) => {
+    await page.goto('/favorites?auth=login')
+    await expect(page.getByRole('dialog')).toBeVisible()
+
+    const lengthBefore = await page.evaluate(() => history.length)
+    await page
+      .getByRole('button', { name: 'Close Log In or Register dialog' })
+      .click()
+    await page.waitForFunction(() => !location.search.includes('auth'))
+    await expect(page.getByRole('dialog')).toBeHidden()
+    expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
+    expect(await page.evaluate(() => location.pathname)).toBe('/favorites')
+  },
+)
+
+test(
+  'an auth-required action on a private page opens the modal as one entry',
+  { tag: '@user' },
+  async ({ page }, testInfo) => {
+    const fixture = {
+      id: `e2eaa000-0000-4000-8000-${String(testInfo.workerIndex).padStart(12, '0')}`,
+      externalId: `e2e-history-auth-${testInfo.workerIndex}`,
+      title: `E2E History Auth ${testInfo.workerIndex}`,
+    }
+    await seedUserFavorite(fixture)
+    try {
+      await page.route('**/image/e2e-history-auth-*/**', (route) =>
+        route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
+      )
+      await page.goto('/favorites')
+      const row = page.getByRole('row', { name: fixture.title })
+      await expect(row.getByRole('button', { name: 'Star' })).toBeEnabled()
+
+      // the server loses the session while the client still holds one: the
+      // route guard passes but the mutation comes back AUTH_REQUIRED, and
+      // the modal must own its pushed entry instead of leaving a dialogless
+      // one behind. Replays a recorded server-fn error response in Start's
+      // framed wire format (the wire keeps only the error's message);
+      // re-record via a cookie-cleared unfavorite if the protocol changes.
+      const serial =
+        '{"t":10,"i":0,"p":{"k":["result","error","context"],"v":[{"t":2,"s":1},{"t":25,"i":1,"s":{"message":{"t":1,"s":"AUTH_REQUIRED"}},"c":"$TSR/Error"},{"t":10,"i":2,"p":{"k":[],"v":[]},"o":0}]},"o":0}'
+      const payload = Buffer.from(serial, 'utf8')
+      const frameHeader = Buffer.alloc(9)
+      frameHeader.writeUInt8(0, 0) // JSON frame, stream id 0
+      frameHeader.writeUInt32BE(payload.length, 5)
+      await page.route('**/_serverFn/**', (route) => {
+        if (route.request().method() !== 'POST') {
+          return route.fallback()
+        }
+        return route.fulfill({
+          status: 200,
+          headers: {
+            'content-type': 'application/x-tss-framed; v=1',
+            'x-tss-serialized': 'true',
+          },
+          body: Buffer.concat([frameHeader, payload]),
+        })
+      })
+      await row.hover()
+      const lengthBefore = await page.evaluate(() => history.length)
+      await row.getByRole('button', { name: 'Star' }).click()
+
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await page.waitForFunction(() => location.search.includes('auth=login'))
+      expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+
+      await page
+        .getByRole('button', { name: 'Close Log In or Register dialog' })
+        .click()
+      await page.waitForFunction(() => !location.search.includes('auth'))
+      await expect(page.getByRole('dialog')).toBeHidden()
+      expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+      expect(await page.evaluate(() => location.pathname)).toBe('/favorites')
+    } finally {
+      await deleteUserFavorite(fixture)
+    }
+  },
+)

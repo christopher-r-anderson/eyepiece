@@ -35,6 +35,11 @@ export function useCanonicalSearchReplace() {
       return
     }
     const hashStr = location.hash ? `#${location.hash}` : ''
-    router.history.replace(`${location.pathname}${targetSearchStr}${hashStr}`)
+    // carry the entry's state: a bare replace rebuilds it as {key, index},
+    // stripping dialogPushed/viewingAsset from an open dialog's entry
+    router.history.replace(
+      `${location.pathname}${targetSearchStr}${hashStr}`,
+      location.state,
+    )
   }, [location, router])
 }

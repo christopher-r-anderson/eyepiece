@@ -6,6 +6,8 @@ import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { stringifySearchParams } from '@/lib/search-params'
 
 const mockReplace = vi.fn()
+// a replace must carry the entry's state (dialogPushed etc.), not rebuild it
+const mockState = { key: 'k1', dialogPushed: true }
 let mockLocation = makeLocation('')
 
 function makeLocation(searchStr: string, hash = '') {
@@ -14,6 +16,7 @@ function makeLocation(searchStr: string, hash = '') {
     searchStr,
     search: defaultParseSearch(searchStr),
     hash,
+    state: mockState,
   }
 }
 
@@ -58,7 +61,10 @@ describe('useCanonicalSearchReplace', () => {
     render(createElement(Harness))
 
     expect(mockReplace).toHaveBeenCalledTimes(1)
-    expect(mockReplace).toHaveBeenCalledWith(canonicalHref({ q: 'moon' }))
+    expect(mockReplace).toHaveBeenCalledWith(
+      canonicalHref({ q: 'moon' }),
+      mockState,
+    )
   })
 
   it('does not replace a canonical URL', () => {
@@ -82,6 +88,7 @@ describe('useCanonicalSearchReplace', () => {
 
     expect(mockReplace).toHaveBeenCalledWith(
       canonicalHref({ q: 'moon', providerId: NASA_IVL_PROVIDER_ID }),
+      mockState,
     )
   })
 
@@ -92,7 +99,7 @@ describe('useCanonicalSearchReplace', () => {
 
       render(createElement(Harness))
 
-      expect(mockReplace).toHaveBeenCalledWith('/search')
+      expect(mockReplace).toHaveBeenCalledWith('/search', mockState)
     },
   )
 
@@ -103,6 +110,7 @@ describe('useCanonicalSearchReplace', () => {
 
     expect(mockReplace).toHaveBeenCalledWith(
       canonicalHref({ q: 'moon', auth: 'login', fp: 1 }),
+      mockState,
     )
   })
 
@@ -123,6 +131,7 @@ describe('useCanonicalSearchReplace', () => {
 
     expect(mockReplace).toHaveBeenCalledWith(
       canonicalHref({ q: 'moon' }, '#results'),
+      mockState,
     )
   })
 

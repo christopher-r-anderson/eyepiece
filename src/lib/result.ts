@@ -166,8 +166,15 @@ export function unwrapOrThrow<TData, TErrorCode extends ErrorCode = undefined>(
   throwFromErrorResult(result.error)
 }
 
-// both features spell their session-expiry code with this literal; surfaces
-// decide between the login modal and error copy off this one predicate
+// both features spell their session-expiry code AND message with this
+// literal; surfaces decide between the login modal and error copy off this
+// one predicate. The message check is load-bearing: the server-fn wire
+// serializer keeps only an Error's message, so a transported auth error
+// arrives without its appError code.
 export function isAuthRequiredError(error: unknown): boolean {
-  return errorFromUnknown(error).code === 'AUTH_REQUIRED'
+  const resultError = errorFromUnknown(error)
+  return (
+    resultError.code === 'AUTH_REQUIRED' ||
+    resultError.message === 'AUTH_REQUIRED'
+  )
 }
