@@ -33,7 +33,18 @@ export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
 function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
   const { formError, status } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  // the native (no-JS) redirect's status is one-shot: seed the same local
+  // message and strip the param so it expires like the hydrated one
+  useEffect(() => {
+    if (status !== 'updated') return
+    setShowSuccessMessage(true)
+    void navigate({
+      search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
+      replace: true,
+    })
+  }, [status, navigate])
   useEffect(() => {
     if (!showSuccessMessage) return
     const timer = setTimeout(() => setShowSuccessMessage(false), 5000)

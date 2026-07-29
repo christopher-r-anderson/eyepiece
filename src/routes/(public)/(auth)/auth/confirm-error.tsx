@@ -41,7 +41,7 @@ function ConfirmationErrorPage() {
 }
 
 function RecoveryOtpError() {
-  const { formError, status } = Route.useSearch()
+  const { formError, status, next } = Route.useSearch()
   // native posts return here rather than the form's home page; strip the
   // one-shot params so a stale error never rides along
   const backHref = urlToNextParam(useLocation({ select: (l) => l.href }))
@@ -59,6 +59,7 @@ function RecoveryOtpError() {
       >
         <ForgotPasswordForm
           headingLevel={2}
+          next={next}
           backHref={backHref}
           initialFormError={formError}
           onSuccess={() => setSuccessfulResend(true)}
@@ -69,7 +70,7 @@ function RecoveryOtpError() {
 }
 
 function EmailOtpError() {
-  const { formError, status } = Route.useSearch()
+  const { formError, status, next } = Route.useSearch()
   const backHref = urlToNextParam(useLocation({ select: (l) => l.href }))
   const [successfulResend, setSuccessfulResend] = useState(false)
   return (
@@ -85,6 +86,7 @@ function EmailOtpError() {
       >
         <ResendConfirmationForm
           headingLevel={2}
+          next={next}
           backHref={backHref}
           initialFormError={formError}
           onSuccess={() => setSuccessfulResend(true)}

@@ -37,11 +37,17 @@ function redirectWithParams(
 function parseOrRedirectBack<TSchema extends z.ZodType>(
   schema: TSchema,
   data: unknown,
-  backHref: string,
+  defaultBackHref: string,
 ): z.output<TSchema> {
   const formData = data instanceof FormData ? Object.fromEntries(data) : {}
   const parsed = schema.safeParse(formData)
   if (!parsed.success) {
+    // a posted back field wins even when the rest of the form is invalid,
+    // so the error lands on the page that was actually submitted
+    const backHref =
+      nextSchema.parse(
+        typeof formData.back === 'string' ? formData.back : undefined,
+      ) ?? defaultBackHref
     redirectWithParams(backHref, {
       formError: INVALID_FORM_MESSAGE,
       next: nextSchema.parse(

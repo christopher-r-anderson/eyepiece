@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
@@ -30,6 +30,13 @@ function UpdatePasswordPage() {
       start()
     }
   }, [next, start])
+  // a native (no-JS) update redirects back with the status param; run the
+  // same success flow once hydrated so the countdown still fires
+  useEffect(() => {
+    if (status === 'updated') {
+      onUpdateSuccess()
+    }
+  }, [status, onUpdateSuccess])
   return (
     <>
       <FormStatusSwitcher

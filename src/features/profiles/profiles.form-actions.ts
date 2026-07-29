@@ -41,6 +41,9 @@ export const upsertProfileFormAction = createServerFn({ method: 'POST' })
       throw redirect({
         href: withParams(backHref, {
           formError: 'Please check the form and try again.',
+          next: nextSchema.parse(
+            typeof raw.next === 'string' ? raw.next : undefined,
+          ),
         }),
         statusCode: 303,
       })
