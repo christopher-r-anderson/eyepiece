@@ -15,24 +15,40 @@ export const favoriteToggleCss = css.raw({
   '--toggle-icon-color': 'token(colors.text.muted)',
   '--toggle-icon-hover-color': 'token(colors.star)',
   '--toggle-icon-selected-color': 'token(colors.star)',
-  _hovered: {
-    transform: 'scale(1.06)',
-  },
-  _selected: {
-    transform: 'scale(1.02)',
-  },
 })
+
+// both labels occupy the same cell so the control's width never shifts on
+// toggle; the accessible name stays on the button
+const labelSwapCss = css({
+  display: 'inline-grid',
+  justifyItems: 'start',
+  '& > span': { gridArea: '1 / 1' },
+  '& > span[data-inactive]': { visibility: 'hidden' },
+})
+
+export type ToggleFavoriteVariant = 'tile' | 'detail'
 
 interface ToggleFavoriteButtonProps {
   assetKey: AssetKey
   onUnauthorized: () => void
   onError: (error: unknown) => void
+  variant?: ToggleFavoriteVariant
+}
+
+export function FavoriteLabelSwap({ isSelected }: { isSelected: boolean }) {
+  return (
+    <span className={labelSwapCss} aria-hidden="true">
+      <span data-inactive={isSelected ? '' : undefined}>star</span>
+      <span data-inactive={isSelected ? undefined : ''}>starred</span>
+    </span>
+  )
 }
 
 export function ToggleFavoriteButton({
   assetKey,
   onUnauthorized,
   onError,
+  variant = 'tile',
 }: ToggleFavoriteButtonProps) {
   const isHydrated = useHydrated()
   const favorites = useUserFavoritesIndex({ enabled: isHydrated })
@@ -63,12 +79,13 @@ export function ToggleFavoriteButton({
     <ToggleButton
       aria-label="Star"
       css={favoriteToggleCss}
-      variant="icon"
+      variant={variant === 'detail' ? 'text' : 'icon'}
       isSelected={isSelected}
       isDisabled={isDisabled}
       onChange={onChange}
     >
       <StarIcon size={20} weight={isSelected ? 'fill' : 'regular'} />
+      {variant === 'detail' && <FavoriteLabelSwap isSelected={isSelected} />}
     </ToggleButton>
   )
 }

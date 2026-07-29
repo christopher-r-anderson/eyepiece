@@ -36,6 +36,32 @@ export const toggleButtonRecipe = defineRecipe({
   },
   variants: {
     variant: {
+      // an inline toggle set as prose (the mockups' text-btn voice on the
+      // detail action row); shares the icon variant's theming channel
+      text: {
+        minHeight: 'touchTargetMin',
+        minWidth: 'auto',
+        padding: 0,
+        gap: '2',
+        border: 'none',
+        borderRadius: 0,
+        backgroundColor: 'transparent',
+        fontSize: 'control',
+        fontWeight: 400,
+        color: 'var(--toggle-icon-color, token(colors.text.muted))',
+        transitionFast: 'color, transform, outline-color',
+        _hovered: {
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          color: 'var(--toggle-icon-hover-color, token(colors.text))',
+        },
+        _selected: {
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          color:
+            'var(--toggle-icon-selected-color, token(colors.accent.emphasis))',
+        },
+      },
       // the --toggle-icon-* custom properties are the per-instance theming
       // channel; consumers set them through the css prop
       icon: {

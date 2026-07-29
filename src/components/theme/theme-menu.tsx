@@ -26,15 +26,14 @@ export function ThemeMenu() {
         aria-label="Theme"
         variant="bare"
         css={{
-          width: '34px',
-          height: '34px',
+          // the nav chips share the compact control square
+          width: 'controlHeightSm',
+          height: 'controlHeightSm',
           display: 'inline-grid',
           placeItems: 'center',
           borderRadius: 'full',
           color: 'text.muted',
-          transitionProperty: 'color, background-color',
-          transitionDuration: 'standard',
-          transitionTimingFunction: 'out',
+          transitionFast: 'color, background-color',
           _hovered: { color: 'text', backgroundColor: 'bg.surface.2' },
         }}
       >

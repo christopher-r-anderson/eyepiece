@@ -24,7 +24,6 @@ export type ButtonProps = {
 export function Button({
   children,
   variant,
-  size,
   icon: Icon,
   css: cssProp,
   className,
@@ -33,7 +32,7 @@ export function Button({
   return (
     <ReactAriaButton
       {...props}
-      className={cx(button({ variant, size }), css(cssProp), className)}
+      className={cx(button({ variant }), css(cssProp), className)}
     >
       {(state) => (
         <>
