@@ -5,13 +5,10 @@ import type { Asset } from '@/domain/asset/asset.schema'
 import { Heading } from '@/components/ui/heading'
 import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 
-// Where the height the image fits into comes from: the detail route measures
-// it off the viewport, while the overlay sheet already hands its content a
-// bounded one.
+// the route measures the height off the viewport; the sheet already bounds it
 export type AssetDetailHeightModel = 'viewport' | 'container'
 
-// The box only ever sets a floor, so a long title moves the caption down
-// instead of overlapping the prose under it.
+// a floor, not a fixed height: a long title moves the caption, never overlaps
 const boxCss = css.raw({
   display: 'flex',
   flexDirection: 'column',
@@ -24,10 +21,8 @@ const boxCss = css.raw({
 })
 
 const viewportBoxCss = css(boxCss, {
-  // the sticky header and the page's own top padding sit above it, and the
-  // last subtraction leaves a sliver of prose showing as the scroll cue.
-  // Short viewports take the proportion instead, where subtracting fixed
-  // chrome leaves almost nothing.
+  // the header and page padding sit above it; the last term leaves a sliver of
+  // prose showing. Short viewports take the proportion instead.
   minHeight:
     'max(60dvh, calc(100dvh - token(sizes.stickyHeader) - token(spacing.4) - token(spacing.8)))',
 })
@@ -46,10 +41,8 @@ const viewerCss = css({
   gap: '4',
 })
 
-// The image is bounded by the viewport, not by what the title leaves: a
-// picture squeezed to a strip is worse than a caption that starts below the
-// fold. The subtraction covers the chrome above and a caption of a line or
-// two, and the floor keeps short viewports from bounding it away entirely.
+// bounded by the viewport, not by what the title leaves. The subtraction
+// covers the chrome above and a caption of a line or two.
 const imageCss = css({
   maxWidth: '100%',
   maxHeight: 'max(45dvh, calc(100dvh - 19rem))',
@@ -106,11 +99,7 @@ export function AssetDetail({
       >
         {chrome}
         <div className={viewerCss}>
-          {/*
-            the title stands in when a provider has no text alternative: an
-            empty alt would drop the image out of the accessibility tree,
-            which costs more on a page whose subject is the image
-          */}
+          {/* an empty alt would drop the image out of the accessibility tree */}
           <img
             className={imageCss}
             src={asset.image.href}

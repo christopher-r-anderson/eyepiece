@@ -39,8 +39,7 @@ describe('asset detail', () => {
       (element) => element.tagName,
     )
     expect(rendered).toEqual(['IMG', 'H1', 'P', 'P'])
-    // the settled markup is plain: a figure would name the image from its
-    // caption in the spec but not in the screen readers we tested
+    // the spec names an image from its figcaption; real screen readers do not
     expect(container.querySelector('figure, figcaption')).toBeNull()
   })
 

@@ -5,14 +5,11 @@ import type { Locator, Page } from '@playwright/test'
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
 const wideSnapshot = snapshots[0]
 
-// a portrait stub regardless of what the record claims: the box the image
-// occupies has to come from the picture itself, not from the column or from
-// provider dimensions, which Smithsonian records routinely get wrong
-// long enough to wrap to several lines at any width, like the provider titles
-// that run to 95 characters
+// wraps to several lines at any width, like real provider titles
 const LONG_TITLE =
   'Expedition 74 crew members pose for a portrait at the Johnson Space Center in Houston, Texas'
 
+// a different shape than the record claims: the box comes from the picture
 const PORTRAIT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1800"><rect width="1200" height="1800" fill="#402f6b"/></svg>`
 
 async function stubPortraitImages(page: Page, pattern: string) {
@@ -29,8 +26,7 @@ async function boxOf(locator: Locator) {
   return box
 }
 
-// The budget the image is sized against stands for chrome that lives in other
-// files, so this is what notices when one of them grows.
+// the budget stands for chrome in other files, so this notices when one grows
 async function expectPictureSizedToViewport(
   page: Page,
   image: Locator,
@@ -43,7 +39,6 @@ async function expectPictureSizedToViewport(
   const imageBox = await boxOf(image)
   const titleBox = await boxOf(title)
 
-  // the box is the picture: a portrait image never spans the column
   expect(imageBox.width).toBeLessThan(imageBox.height)
   expect(imageBox.width / imageBox.height).toBeCloseTo(1200 / 1800, 1)
   expect(imageBox.height).toBeLessThanOrEqual(viewport.height)
@@ -101,13 +96,11 @@ test('the overlay sizes the image the same way', async ({ page }) => {
   const title = dialog.getByRole('heading', { level: 2, name: LONG_TITLE })
   await expectPictureSizedToViewport(page, picture, title)
 
-  // a title this long wraps to several lines, and the picture keeps its size
-  // rather than giving the room back
+  // the wrapped title costs caption position, not picture size
   const viewport = page.viewportSize()
   expect((await boxOf(picture)).height).toBeGreaterThan(
     (viewport?.height ?? 0) * 0.4,
   )
-  // whatever the title costs, it never lands on top of the prose beneath
   const titleBox = await boxOf(title)
   const source = await boxOf(dialog.getByText(/NASA Image and Video Library/))
   expect(source.y).toBeGreaterThanOrEqual(titleBox.y + titleBox.height)

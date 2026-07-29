@@ -71,8 +71,7 @@ function getLargestAltImage(
   ].sort((a, b) => (b.width || 0) - (a.width || 0))[0]
 }
 
-// the API returns no link to the record's own page, so it is built from the
-// id the site addresses records by
+// the API returns no link to the record's own page, so it is built from the id
 function buildSourceUrl(nasaId: string) {
   return `https://images.nasa.gov/details/${encodeURIComponent(nasaId)}`
 }
