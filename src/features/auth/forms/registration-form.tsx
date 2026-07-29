@@ -21,7 +21,10 @@ import {
   useHydratedFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
-import { profileSchema } from '@/domain/profile/profile.schema'
+import {
+  DISPLAY_NAME_MAX_LENGTH,
+  profileSchema,
+} from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
 
@@ -94,6 +97,8 @@ export function RegistrationForm({
           type="text"
           autoComplete="name"
           isRequired
+          maxLength={DISPLAY_NAME_MAX_LENGTH}
+          pattern=".*\S.*"
           defaultValue={state.formData?.displayName}
           label="Display Name (shown publicly)"
         />

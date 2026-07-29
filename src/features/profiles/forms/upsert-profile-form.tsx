@@ -12,7 +12,10 @@ import {
   useHydratedFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
-import { profileSchema } from '@/domain/profile/profile.schema'
+import {
+  DISPLAY_NAME_MAX_LENGTH,
+  profileSchema,
+} from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 
 type ActionType = 'create' | 'update'
@@ -97,6 +100,8 @@ export function UpsertProfileForm({
           type="text"
           autoComplete="name"
           isRequired
+          maxLength={DISPLAY_NAME_MAX_LENGTH}
+          pattern=".*\S.*"
           isDisabled={isDisabled}
           defaultValue={state.formData?.displayName}
           label="Display Name (shown publicly)"
