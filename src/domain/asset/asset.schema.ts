@@ -45,6 +45,8 @@ export const assetSchema = assetCommonSchema.extend({
   original: imageSchema,
   // present only when the provider supplied a real text alternative
   alt: z.string().optional(),
+  // the record's page at the provider, not the image file
+  sourceUrl: z.url().optional(),
 })
 
 export type Asset = z.infer<typeof assetSchema>

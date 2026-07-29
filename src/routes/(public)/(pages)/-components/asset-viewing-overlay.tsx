@@ -203,6 +203,7 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
     <AssetDetailSurface
       asset={data}
       titleLevel={2}
+      heightModel="container"
       actions={
         <>
           <FavoriteButton assetKey={assetKey} />

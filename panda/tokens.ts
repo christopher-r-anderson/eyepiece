@@ -38,6 +38,8 @@ export const tokens = defineTokens({
     formMax: { value: '32rem' },
     pageColMax: { value: '40rem' },
     touchTargetMin: { value: '44px' },
+    // what the sticky header takes off the viewport, with a little slack
+    stickyHeader: { value: '4.5rem' },
     controlHeight: { value: 'clamp(2.25rem, 2.1rem + 0.5vw, 2.75rem)' },
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
   },
