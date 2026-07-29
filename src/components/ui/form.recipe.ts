@@ -2,17 +2,16 @@ import { defineRecipe } from '@pandacss/dev'
 
 export const formRecipe = defineRecipe({
   className: 'form',
-  // surface and layout are prop-drilled through the feature form
-  // components, so jit tracking never sees a literal value
-  staticCss: [{ surface: ['*'], layout: ['*'] }],
+  // surface is prop-drilled through the feature form components, so jit
+  // tracking never sees a literal value
+  staticCss: [{ surface: ['*'] }],
   base: {
     display: 'grid',
     gap: '4',
     width: '100%',
+    maxWidth: 'formMax',
     padding: '4',
     margin: '0 auto',
-    // the container context for the @/* conditions used by form descendants
-    containerType: 'inline-size',
   },
   variants: {
     surface: {
@@ -24,17 +23,8 @@ export const formRecipe = defineRecipe({
         backgroundColor: 'bg.surface.2',
       },
     },
-    // action forms are always stacked; page forms name their container so
-    // descendants' '@form/*' states can respond to real width
-    layout: {
-      action: {},
-      page: {
-        containerName: 'form',
-      },
-    },
   },
   defaultVariants: {
     surface: 'plain',
-    layout: 'action',
   },
 })

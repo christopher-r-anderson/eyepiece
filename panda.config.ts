@@ -93,9 +93,6 @@ export default defineConfig({
     },
     // standard container query ladder, used as '@/xl' etc. against the
     // nearest containerType ancestor
-    // 'form' is set by the form recipe's page layout so '@form/*' states
-    // only exist inside page-kind forms
-    containerNames: ['form'],
     containerSizes: {
       xs: '20rem',
       sm: '24rem',

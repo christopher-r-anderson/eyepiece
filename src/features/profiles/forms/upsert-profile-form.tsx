@@ -20,7 +20,6 @@ export function UpsertProfileForm({
   isDisabled,
   onSuccess,
   surface,
-  layout,
 }: {
   actionType: ActionType
   headingLevel: HeadingLevel
@@ -28,7 +27,6 @@ export function UpsertProfileForm({
   isDisabled?: boolean
   onSuccess: () => void
   surface?: FormProps['surface']
-  layout?: FormProps['layout']
 }) {
   const headingId = useId()
   const profilesCommands = useProfilesCommands()
@@ -55,7 +53,6 @@ export function UpsertProfileForm({
       validationErrors={state.fieldErrors}
       formError={state.error}
       surface={surface}
-      layout={layout}
       aria-labelledby={headingId}
       isPending={isPending}
       controls={
