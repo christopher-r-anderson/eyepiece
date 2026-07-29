@@ -8,6 +8,11 @@ const wideSnapshot = snapshots[0]
 // a portrait stub regardless of what the record claims: the box the image
 // occupies has to come from the picture itself, not from the column or from
 // provider dimensions, which Smithsonian records routinely get wrong
+// long enough to wrap to several lines at any width, like the provider titles
+// that run to 95 characters
+const LONG_TITLE =
+  'Expedition 74 crew members pose for a portrait at the Johnson Space Center in Houston, Texas'
+
 const PORTRAIT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1800"><rect width="1200" height="1800" fill="#402f6b"/></svg>`
 
 async function stubPortraitImages(page: Page, pattern: string) {
@@ -24,9 +29,9 @@ async function boxOf(locator: Locator) {
   return box
 }
 
-// The height reserve the image is sized against stands for chrome that lives
-// in other files, so this is what notices when one of them grows.
-async function expectImageAndTitleFillTheViewport(
+// The budget the image is sized against stands for chrome that lives in other
+// files, so this is what notices when one of them grows.
+async function expectPictureSizedToViewport(
   page: Page,
   image: Locator,
   title: Locator,
@@ -41,8 +46,8 @@ async function expectImageAndTitleFillTheViewport(
   // the box is the picture: a portrait image never spans the column
   expect(imageBox.width).toBeLessThan(imageBox.height)
   expect(imageBox.width / imageBox.height).toBeCloseTo(1200 / 1800, 1)
+  expect(imageBox.height).toBeLessThanOrEqual(viewport.height)
   expect(titleBox.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height)
-  expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(viewport.height)
 }
 
 test('the detail page fits the image and its title in the viewport', async ({
@@ -53,10 +58,13 @@ test('the detail page fits the image and its title in the viewport', async ({
 
   const image = page.getByRole('img', { name: /dumbbell nebula/i })
   await expect(image).toBeVisible()
-  await expectImageAndTitleFillTheViewport(
-    page,
-    image,
-    page.getByRole('heading', { level: 1 }),
+  const title = page.getByRole('heading', { level: 1 })
+  await expectPictureSizedToViewport(page, image, title)
+
+  const viewport = page.viewportSize()
+  const titleBox = await boxOf(title)
+  expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(
+    viewport?.height ?? 0,
   )
 })
 
@@ -72,7 +80,7 @@ test('the overlay sizes the image the same way', async ({ page }) => {
       route.fulfill({
         json: {
           key: { providerId: 'nasa_ivl', externalId: wideSnapshot.externalId },
-          title: wideSnapshot.title,
+          title: LONG_TITLE,
           description: 'Stubbed asset for the detail layout journeys',
           thumbnail: image,
           image,
@@ -89,9 +97,18 @@ test('the overlay sizes the image the same way', async ({ page }) => {
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
-  await expectImageAndTitleFillTheViewport(
-    page,
-    dialog.getByRole('img', { name: wideSnapshot.title }),
-    dialog.getByRole('heading', { level: 2, name: wideSnapshot.title }),
+  const picture = dialog.getByRole('img', { name: LONG_TITLE })
+  const title = dialog.getByRole('heading', { level: 2, name: LONG_TITLE })
+  await expectPictureSizedToViewport(page, picture, title)
+
+  // a title this long wraps to several lines, and the picture keeps its size
+  // rather than giving the room back
+  const viewport = page.viewportSize()
+  expect((await boxOf(picture)).height).toBeGreaterThan(
+    (viewport?.height ?? 0) * 0.4,
   )
+  // whatever the title costs, it never lands on top of the prose beneath
+  const titleBox = await boxOf(title)
+  const source = await boxOf(dialog.getByText(/NASA Image and Video Library/))
+  expect(source.y).toBeGreaterThanOrEqual(titleBox.y + titleBox.height)
 })

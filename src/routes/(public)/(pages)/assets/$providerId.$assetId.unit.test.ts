@@ -40,7 +40,8 @@ vi.mock('@/features/assets/components/metadata-disclosure', () => ({
 }))
 
 vi.mock('@/features/assets/components/asset-detail', () => ({
-  AssetDetail: () => createElement('div', null, 'asset detail'),
+  AssetDetail: ({ chrome }: { chrome?: ReactNode }) =>
+    createElement('div', null, 'asset detail', chrome),
 }))
 
 vi.mock('@/components/ui/link', () => ({

@@ -118,6 +118,7 @@ function AssetPage() {
     <AssetDetailSurface
       asset={data}
       titleLevel={1}
+      heightModel="viewport"
       back={
         returnUrl && (
           <Link

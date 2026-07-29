@@ -31,6 +31,7 @@ describe('asset detail', () => {
       <AssetDetail
         asset={asset({ description: 'Messier 27 in infrared.' })}
         titleLevel={1}
+        heightModel="viewport"
       />,
     )
 
@@ -48,6 +49,7 @@ describe('asset detail', () => {
       <AssetDetail
         asset={asset({ sourceUrl: 'https://images.nasa.gov/details/PIA14417' })}
         titleLevel={1}
+        heightModel="viewport"
       />,
     )
 
@@ -58,7 +60,9 @@ describe('asset detail', () => {
   })
 
   it('still credits the source when there is no record link', () => {
-    render(<AssetDetail asset={asset()} titleLevel={1} />)
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
 
     expect(screen.getByText(/NASA Image and Video Library/)).toBeTruthy()
     expect(screen.queryByRole('link')).toBeNull()
@@ -69,6 +73,7 @@ describe('asset detail', () => {
       <AssetDetail
         asset={asset({ alt: 'A green nebula against a dense starfield.' })}
         titleLevel={1}
+        heightModel="viewport"
       />,
     )
 
@@ -78,7 +83,9 @@ describe('asset detail', () => {
   })
 
   it('falls back to the title so the image keeps a real alt attribute', () => {
-    render(<AssetDetail asset={asset()} titleLevel={1} />)
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
 
     expect(
       screen.getByAltText('Weighing in on the Dumbbell Nebula'),

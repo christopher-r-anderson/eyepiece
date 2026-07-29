@@ -2,6 +2,7 @@ import { CatchBoundary } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
+import type { AssetDetailHeightModel } from '@/features/assets/components/asset-detail'
 import { AssetDetail } from '@/features/assets/components/asset-detail'
 import { MetadataDisclosure } from '@/features/assets/components/metadata-disclosure'
 import { CapturedAlertError } from '@/app/layout/route-error'
@@ -13,43 +14,46 @@ import { toAssetKeyString } from '@/domain/asset/asset.utils'
 export function AssetDetailSurface({
   asset,
   titleLevel,
+  heightModel,
   back,
   actions,
 }: {
   asset: Asset
   titleLevel: 1 | 2
+  heightModel: AssetDetailHeightModel
   back?: ReactNode
   actions?: ReactNode
 }) {
   const canViewMetadata = providerSupportsMetadata(asset.key.providerId)
   return (
     <>
-      <div
-        className={css({
-          display: 'flex',
-          alignItems: 'center',
-          gap: '3',
-          alignSelf: 'stretch',
-          width: '100%',
-          maxWidth: 'contentMax',
-          marginInline: 'auto',
-          paddingTop: '2',
-          paddingInline: '4',
-        })}
-      >
-        {back}
-        <div
-          className={css({
-            marginInlineStart: 'auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '2',
-          })}
-        >
-          {actions}
-        </div>
-      </div>
-      <AssetDetail asset={asset} titleLevel={titleLevel} />
+      <AssetDetail
+        asset={asset}
+        titleLevel={titleLevel}
+        heightModel={heightModel}
+        chrome={
+          <div
+            className={css({
+              display: 'flex',
+              alignItems: 'center',
+              gap: '3',
+              flexShrink: 0,
+            })}
+          >
+            {back}
+            <div
+              className={css({
+                marginInlineStart: 'auto',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '2',
+              })}
+            >
+              {actions}
+            </div>
+          </div>
+        }
+      />
       {canViewMetadata && (
         <MetadataDisclosure
           assetKey={asset.key}
