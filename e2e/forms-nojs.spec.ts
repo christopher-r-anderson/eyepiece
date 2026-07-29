@@ -93,3 +93,23 @@ test('a no-JS registration lands on the sent panel', async ({
     await deleteRegisteredUser()
   }
 })
+
+// the back field is the one bespoke redirect input: a form hosted away
+// from its home page must round-trip failures to its actual posting URL
+test('a no-JS resend failure returns to the confirm-error spelling', async ({
+  page,
+}) => {
+  await page.goto('/auth/confirm-error?err=otp_expired&type=email')
+  // 'a@b' satisfies native email validation but fails the schema's
+  await page.getByRole('textbox', { name: 'Email' }).fill('a@b')
+  await page.getByRole('button', { name: 'Send' }).click()
+
+  await page.waitForURL((url) => url.searchParams.has('formError'))
+  const url = new URL(page.url())
+  expect(url.pathname).toBe('/auth/confirm-error')
+  expect(url.searchParams.get('err')).toBe('otp_expired')
+  expect(url.searchParams.get('type')).toBe('email')
+  await expect(
+    page.getByText('Please check the form and try again.'),
+  ).toBeVisible()
+})

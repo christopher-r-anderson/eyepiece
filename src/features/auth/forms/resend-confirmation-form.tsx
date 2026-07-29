@@ -81,8 +81,10 @@ export function ResendConfirmationForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
-        {next && <input type="hidden" name="next" value={next} />}
-        {backHref && <input type="hidden" name="back" value={backHref} />}
+        {next && <input type="hidden" name="next" defaultValue={next} />}
+        {backHref && (
+          <input type="hidden" name="back" defaultValue={backHref} />
+        )}
         <TextField
           name="email"
           type="email"

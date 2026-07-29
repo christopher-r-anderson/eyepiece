@@ -18,8 +18,6 @@ export const Route = createFileRoute('/(public)/(auth)/register')({
 function RegisterPage() {
   const { next, formError, status } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  // the form must SSR for pre-hydration submits; a logged-in visitor still
-  // gets the client-side redirect once their session is known
   useRedirectAuthenticatedUser(next)
 
   return (

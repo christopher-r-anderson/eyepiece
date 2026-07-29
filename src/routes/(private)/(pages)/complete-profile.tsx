@@ -4,7 +4,10 @@ import { css } from 'styled-system/css'
 import { formErrorCopy } from '@/components/form-errors'
 import { Heading } from '@/components/ui/heading'
 import { urlToNextParam } from '@/lib/utils'
-import { authPageSearchParamsSchema } from '@/features/auth/auth.schema'
+import {
+  formResultSearchParamsSchema,
+  redirectSearchParamsSchema,
+} from '@/lib/route.schema'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher, formStatusPanelCss } from '@/components/ui/forms'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
@@ -12,7 +15,9 @@ import { Link } from '@/components/ui/link'
 
 export const Route = createFileRoute('/(private)/(pages)/complete-profile')({
   component: CompleteProfilePage,
-  validateSearch: authPageSearchParamsSchema,
+  validateSearch: redirectSearchParamsSchema.extend(
+    formResultSearchParamsSchema.shape,
+  ),
 })
 
 function CompleteProfilePage() {

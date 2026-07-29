@@ -12,9 +12,14 @@ export function stripAuthSearchParams<T extends Record<string, unknown>>(
   return newParams as Omit<T, (typeof STRIP_PARAMS)[number]>
 }
 
+// the params search canonicalization PRESERVES - deliberately narrower
+// than STRIP_PARAMS, which also strips one-shot form-result params that
+// canonicalization should drop as junk
+const AUTH_PRESERVED_PARAMS = ['auth', 'next', 'fp'] as const
+
 export function pickAuthSearchParams(params: Record<string, unknown>) {
   const picked: Record<string, unknown> = {}
-  for (const key of STRIP_PARAMS) {
+  for (const key of AUTH_PRESERVED_PARAMS) {
     if (params[key] !== undefined) {
       picked[key] = params[key]
     }

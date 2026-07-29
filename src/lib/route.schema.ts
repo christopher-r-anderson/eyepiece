@@ -19,6 +19,15 @@ const redirectValueSchema = z
     return val
   })
 
+export const nextSchema = redirectValueSchema
+
 export const redirectSearchParamsSchema = z.object({
   next: redirectValueSchema,
+})
+
+// the one-shot params a native (no-JS) form post's redirect carries back:
+// formError is an error code, mapped to copy client-side
+export const formResultSearchParamsSchema = z.object({
+  formError: z.string().max(64).optional(),
+  status: z.enum(['sent', 'updated']).optional(),
 })

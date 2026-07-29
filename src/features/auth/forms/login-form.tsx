@@ -79,7 +79,7 @@ export function LoginForm({
         Log In
       </Heading>
       <InputGroup>
-        {next && <input type="hidden" name="next" value={next} />}
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         <TextField
           name="email"
           type="email"

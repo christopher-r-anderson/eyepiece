@@ -77,7 +77,7 @@ export function UpdatePasswordForm({
         Update Password
       </Heading>
       <InputGroup>
-        {next && <input type="hidden" name="next" value={next} />}
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         {/* for the browser save password prompt */}
         <input
           type="email"

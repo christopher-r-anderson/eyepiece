@@ -31,7 +31,6 @@ export const Route = createFileRoute('/(public)/(auth)/auth/confirm-error')({
 
 function ConfirmationErrorPage() {
   const { err, type } = Route.useSearch()
-
   if (err === ERR_CODE_OTP_EXPIRED && type === 'email') {
     return <EmailOtpError />
   } else if (err === ERR_CODE_OTP_EXPIRED && type === 'recovery') {

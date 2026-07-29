@@ -12,8 +12,6 @@ export const Route = createFileRoute('/(public)/(auth)/login')({
 function LoginPage() {
   const { next, formError } = Route.useSearch()
   const navigate = Route.useNavigate()
-  // the form must SSR for pre-hydration submits; a logged-in visitor still
-  // gets the client-side redirect once their session is known
   useRedirectAuthenticatedUser(next)
 
   return (

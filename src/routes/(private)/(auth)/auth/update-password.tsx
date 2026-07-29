@@ -31,8 +31,9 @@ function UpdatePasswordPage() {
       start()
     }
   }, [next, start])
-  // a native (no-JS) update redirects back with the status param; run the
-  // same success flow once hydrated so the countdown still fires
+  // a native (no-JS) update without a destination redirects back with the
+  // status param; seed the same success state (with next, the action
+  // redirects straight there instead)
   useEffect(() => {
     if (status === 'updated') {
       onUpdateSuccess()

@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import { redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 import { makeProfilesCommands } from './profiles.commands'
-import { INVALID_FORM_CODE } from '@/components/form-errors'
-import { redirectSearchParamsSchema } from '@/lib/route.schema'
+import { INVALID_INPUT_CODE } from '@/components/form-errors'
+import { nextSchema } from '@/lib/route.schema'
+import { redirectWithParams } from '@/lib/form-action-redirect'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { profileSchema } from '@/domain/profile/profile.schema'
 import { resultIsError } from '@/lib/result'
@@ -11,29 +11,12 @@ import { resultIsError } from '@/lib/result'
 // Native (no-JS) fallback for the profile forms; hydrated submits intercept
 // and run the client command instead. Must always end in a redirect.
 
-const nextSchema = redirectSearchParamsSchema.shape.next
-
 const upsertProfileFormSchema = profileSchema.extend({
   // which page posted: settings returns with a status, complete-profile
   // moves on to its destination
   context: z.enum(['settings', 'complete']),
   next: nextSchema,
 })
-
-function withParams(href: string, params: Record<string, string | undefined>) {
-  const url = new URL(href, 'http://relative.local')
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) {
-      // the route schemas cap formError at 300; an overlong upstream
-      // message must not turn the redirect into a validation failure
-      url.searchParams.set(
-        key,
-        key === 'formError' ? value.slice(0, 300) : value,
-      )
-    }
-  }
-  return `${url.pathname}${url.search}${url.hash}`
-}
 
 export const upsertProfileFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
@@ -43,15 +26,11 @@ export const upsertProfileFormAction = createServerFn({ method: 'POST' })
       raw.context === 'complete' ? '/complete-profile' : '/settings/profile'
     const parsed = upsertProfileFormSchema.safeParse(raw)
     if (!parsed.success) {
-      // 303 turns the form POST into a GET at the target; 307 would re-POST
-      throw redirect({
-        href: withParams(backHref, {
-          formError: INVALID_FORM_CODE,
-          next: nextSchema.parse(
-            typeof raw.next === 'string' ? raw.next : undefined,
-          ),
-        }),
-        statusCode: 303,
+      redirectWithParams(backHref, {
+        formError: INVALID_INPUT_CODE,
+        next: nextSchema.parse(
+          typeof raw.next === 'string' ? raw.next : undefined,
+        ),
       })
     }
     const { context, next, ...profile } = parsed.data
@@ -59,19 +38,13 @@ export const upsertProfileFormAction = createServerFn({ method: 'POST' })
       createUserSupabaseServerClient(),
     ).upsertProfile(profile)
     if (resultIsError(result)) {
-      throw redirect({
-        href: withParams(backHref, {
-          formError: result.error.code,
-          next,
-        }),
-        statusCode: 303,
+      redirectWithParams(backHref, {
+        formError: result.error.code,
+        next,
       })
     }
     if (context === 'complete') {
-      throw redirect({ href: next ?? '/', statusCode: 303 })
+      redirectWithParams(next ?? '/')
     }
-    throw redirect({
-      href: withParams(backHref, { status: 'updated' }),
-      statusCode: 303,
-    })
+    redirectWithParams(backHref, { status: 'updated' })
   })

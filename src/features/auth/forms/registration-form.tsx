@@ -88,7 +88,7 @@ export function RegistrationForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
-        {next && <input type="hidden" name="next" value={next} />}
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         <TextField
           name="displayName"
           type="text"

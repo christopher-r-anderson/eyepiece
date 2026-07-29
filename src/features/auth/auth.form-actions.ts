@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 import { makeAuthCommands } from './auth.commands'
 import { setPasswordFieldSchema } from './forms/components/set-password-field.schema'
-import { INVALID_FORM_CODE } from '@/components/form-errors'
-import { redirectSearchParamsSchema } from '@/lib/route.schema'
+import { INVALID_INPUT_CODE } from '@/components/form-errors'
+import { nextSchema } from '@/lib/route.schema'
+import { redirectWithParams } from '@/lib/form-action-redirect'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { profileSchema } from '@/domain/profile/profile.schema'
 import { resultIsError } from '@/lib/result'
@@ -14,52 +14,29 @@ import { resultIsError } from '@/lib/result'
 // the client command, so these only answer full-document POSTs and must
 // always end in a redirect - a returned value would render as raw JSON.
 
-const nextSchema = redirectSearchParamsSchema.shape.next
-
-function redirectWithParams(
-  href: string,
-  params: Record<string, string | undefined>,
-): never {
-  const url = new URL(href, 'http://relative.local')
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) {
-      // the route schemas cap formError at 300; an overlong upstream
-      // message must not turn the redirect into a validation failure
-      url.searchParams.set(
-        key,
-        key === 'formError' ? value.slice(0, 300) : value,
-      )
-    }
-  }
-  // 303 turns the form POST into a GET at the target; 307 would re-POST
-  throw redirect({
-    href: `${url.pathname}${url.search}${url.hash}`,
-    statusCode: 303,
-  })
-}
-
 function parseOrRedirectBack<TSchema extends z.ZodType>(
   schema: TSchema,
   data: unknown,
   defaultBackHref: string,
-): z.output<TSchema> {
+): { data: z.output<TSchema>; backHref: string } {
   const formData = data instanceof FormData ? Object.fromEntries(data) : {}
+  // a posted back field (the confirm-error page's err/type spelling) wins
+  // even when the rest of the form is invalid, so every redirect lands on
+  // the page that was actually submitted
+  const backHref =
+    nextSchema.parse(
+      typeof formData.back === 'string' ? formData.back : undefined,
+    ) ?? defaultBackHref
   const parsed = schema.safeParse(formData)
   if (!parsed.success) {
-    // a posted back field wins even when the rest of the form is invalid,
-    // so the error lands on the page that was actually submitted
-    const backHref =
-      nextSchema.parse(
-        typeof formData.back === 'string' ? formData.back : undefined,
-      ) ?? defaultBackHref
     redirectWithParams(backHref, {
-      formError: INVALID_FORM_CODE,
+      formError: INVALID_INPUT_CODE,
       next: nextSchema.parse(
         typeof formData.next === 'string' ? formData.next : undefined,
       ),
     })
   }
-  return parsed.data
+  return { data: parsed.data, backHref }
 }
 
 function authCommands() {
@@ -69,7 +46,7 @@ function authCommands() {
 export const loginFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
-    const data = parseOrRedirectBack(
+    const { data, backHref } = parseOrRedirectBack(
       z.object({ email: z.email(), password: z.string(), next: nextSchema }),
       formData,
       '/login',
@@ -79,18 +56,18 @@ export const loginFormAction = createServerFn({ method: 'POST' })
       password: data.password,
     })
     if (resultIsError(result)) {
-      redirectWithParams('/login', {
+      redirectWithParams(backHref, {
         formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
-    throw redirect({ href: data.next ?? '/', statusCode: 303 })
+    redirectWithParams(data.next ?? '/')
   })
 
 export const registerFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
-    const data = parseOrRedirectBack(
+    const { data, backHref } = parseOrRedirectBack(
       z.object({
         email: z.email(),
         displayName: profileSchema.shape.displayName,
@@ -108,29 +85,27 @@ export const registerFormAction = createServerFn({ method: 'POST' })
       redirectTo: data.redirectTo,
     })
     if (resultIsError(result)) {
-      redirectWithParams('/register', {
+      redirectWithParams(backHref, {
         formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
-    redirectWithParams('/register', { status: 'sent', next: data.next })
+    redirectWithParams(backHref, { status: 'sent', next: data.next })
   })
 
 export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
-    const data = parseOrRedirectBack(
+    const { data, backHref } = parseOrRedirectBack(
       z.object({
         email: z.email(),
         redirectTo: z.url(),
         next: nextSchema,
-        // the posting page when it is not the default (confirm-error)
         back: nextSchema,
       }),
       formData,
       '/auth/forgot-password',
     )
-    const backHref = data.back ?? '/auth/forgot-password'
     const result = await authCommands().resetPassword({
       email: data.email,
       redirectTo: data.redirectTo,
@@ -147,18 +122,16 @@ export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
 export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
-    const data = parseOrRedirectBack(
+    const { data, backHref } = parseOrRedirectBack(
       z.object({
         email: z.email(),
         redirectTo: z.url(),
         next: nextSchema,
-        // the posting page (confirm-error's err/type spelling)
         back: nextSchema,
       }),
       formData,
       '/auth/confirm-error',
     )
-    const backHref = data.back ?? '/auth/confirm-error'
     const result = await authCommands().resendRegisterConfirmation({
       email: data.email,
       redirectTo: data.redirectTo,
@@ -175,7 +148,7 @@ export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
 export const updatePasswordFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
-    const data = parseOrRedirectBack(
+    const { data, backHref } = parseOrRedirectBack(
       z.object({ password: setPasswordFieldSchema, next: nextSchema }),
       formData,
       '/auth/update-password',
@@ -184,7 +157,7 @@ export const updatePasswordFormAction = createServerFn({ method: 'POST' })
       password: data.password,
     })
     if (resultIsError(result)) {
-      redirectWithParams('/auth/update-password', {
+      redirectWithParams(backHref, {
         formError: result.error.code ?? 'unknown',
         next: data.next,
       })
@@ -192,7 +165,7 @@ export const updatePasswordFormAction = createServerFn({ method: 'POST' })
     if (data.next) {
       // the status page's countdown is client code; a no-JS user would
       // wait forever, so the native flow completes server-side
-      throw redirect({ href: data.next, statusCode: 303 })
+      redirectWithParams(data.next)
     }
-    redirectWithParams('/auth/update-password', { status: 'updated' })
+    redirectWithParams(backHref, { status: 'updated' })
   })

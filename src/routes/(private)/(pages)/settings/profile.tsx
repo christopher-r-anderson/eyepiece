@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { z } from 'zod'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { formErrorCopy } from '@/components/form-errors'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
+import { formResultSearchParamsSchema } from '@/lib/route.schema'
 
 type MaybeProfile = Partial<Profile> & Pick<Profile, 'id'>
 
@@ -15,10 +15,7 @@ type ProfilePageData = {
 export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
   component: ProfilePage,
   // one-shot params from the native (no-JS) form post's redirect back
-  validateSearch: z.object({
-    formError: z.string().max(300).optional(),
-    status: z.enum(['updated']).optional(),
-  }),
+  validateSearch: formResultSearchParamsSchema,
   loader: async (args): Promise<ProfilePageData> => {
     const profile = await ensureProfile({
       id: args.context.user.id,

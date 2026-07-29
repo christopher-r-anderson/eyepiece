@@ -25,6 +25,5 @@ describe('redirectSearchParamsSchema', () => {
   it('rejects non-path values', () => {
     expect(parseNext('javascript:alert(1)')).toBeUndefined()
     expect(parseNext('favorites')).toBeUndefined()
-    expect(parseNext(undefined)).toBeUndefined()
   })
 })

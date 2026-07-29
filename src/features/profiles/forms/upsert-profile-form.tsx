@@ -91,7 +91,7 @@ export function UpsertProfileForm({
           name="context"
           value={actionType === 'create' ? 'complete' : 'settings'}
         />
-        {next && <input type="hidden" name="next" value={next} />}
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         <TextField
           name="displayName"
           type="text"
