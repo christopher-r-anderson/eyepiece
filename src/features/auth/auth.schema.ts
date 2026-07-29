@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { redirectSearchParamsSchema } from '@/lib/route.schema'
+import {
+  formResultSearchParamsSchema,
+  redirectSearchParamsSchema,
+} from '@/lib/route.schema'
 
 // applied to `(pages)` route group which does not contain auth so all non auth pages can open the modal
 export const authModalSearchParamsSchema = z.discriminatedUnion('auth', [
@@ -32,7 +35,9 @@ export type AuthModalSearchParams = z.infer<typeof authModalSearchParamsSchema>
 export type AuthModalState = z.infer<typeof authModalStateSchema>
 
 // applied to all auth pages via the `(auth)` route group
-export const authPageSearchParamsSchema = redirectSearchParamsSchema
+export const authPageSearchParamsSchema = redirectSearchParamsSchema.extend(
+  formResultSearchParamsSchema.shape,
+)
 
 export const confirmationTypeSchema = z.enum(['email', 'recovery'])
 

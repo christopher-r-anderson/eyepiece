@@ -4,13 +4,17 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useCurrentUserQuery } from '../auth.queries'
 import { useAuthCommands } from '../hooks/use-auth-commands'
+import { updatePasswordFormAction } from '../auth.form-actions'
 import { setPasswordFieldSchema } from './components/set-password-field.schema'
 import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
 import { Form, FormActions, InputGroup } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
 
@@ -20,10 +24,14 @@ const updatePasswordSchema = z.object({
 
 export function UpdatePasswordForm({
   headingLevel,
+  next,
+  initialFormError,
   onSuccess,
   surface,
 }: {
   headingLevel: HeadingLevel
+  next?: string
+  initialFormError?: string
   onSuccess: () => void
   surface?: FormProps['surface']
 }) {
@@ -35,6 +43,7 @@ export function UpdatePasswordForm({
     updatePasswordSchema,
     commands.updatePassword,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -47,9 +56,13 @@ export function UpdatePasswordForm({
     <Form
       aria-labelledby={id}
       autoComplete="on"
-      action={formAction}
+      action={updatePasswordFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       surface={surface}
       isPending={isPending}
       controls={
@@ -64,6 +77,7 @@ export function UpdatePasswordForm({
         Update Password
       </Heading>
       <InputGroup>
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         {/* for the browser save password prompt */}
         <input
           type="email"

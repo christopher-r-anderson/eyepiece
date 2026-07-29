@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { formErrorCopy } from '@/components/form-errors'
 import {
   ForgotPasswordForm,
   ForgotPasswordSuccessMessage,
 } from '@/features/auth/forms/forgot-password-form'
-import { AuthPageSessionCheck } from '@/features/auth/components/auth-page-session-check'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 
@@ -13,23 +13,20 @@ export const Route = createFileRoute('/(public)/(auth)/auth/forgot-password')({
 })
 
 function ForgotPasswordPage() {
-  const { next } = Route.useSearch()
+  const { next, formError, status } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const { shouldShowAuthForm } = useRedirectAuthenticatedUser(next)
-
-  if (!shouldShowAuthForm) {
-    return <AuthPageSessionCheck heading="Reset Password" />
-  }
+  useRedirectAuthenticatedUser(next)
 
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage}
+        showStatus={showSuccessMessage || status === 'sent'}
         status={<ForgotPasswordSuccessMessage headingLevel={1} />}
       >
         <ForgotPasswordForm
           headingLevel={1}
           next={next}
+          initialFormError={formErrorCopy(formError)}
           surface="panel"
           onSuccess={() => setShowSuccessMessage(true)}
         />

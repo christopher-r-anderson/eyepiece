@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { formErrorCopy } from '@/components/form-errors'
 import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/(private)/(auth)/auth/update-password')({
 })
 
 function UpdatePasswordPage() {
-  const { next: nextParam } = Route.useSearch()
+  const { next: nextParam, formError, status } = Route.useSearch()
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -30,10 +31,18 @@ function UpdatePasswordPage() {
       start()
     }
   }, [next, start])
+  // a native (no-JS) update without a destination redirects back with the
+  // status param; seed the same success state (with next, the action
+  // redirects straight there instead)
+  useEffect(() => {
+    if (status === 'updated') {
+      onUpdateSuccess()
+    }
+  }, [status, onUpdateSuccess])
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage}
+        showStatus={showSuccessMessage || status === 'updated'}
         status={
           next ? (
             <StatusMessage next={next} seconds={seconds} />
@@ -45,6 +54,8 @@ function UpdatePasswordPage() {
         <UpdatePasswordForm
           headingLevel={1}
           surface="panel"
+          next={nextParam}
+          initialFormError={formErrorCopy(formError)}
           onSuccess={onUpdateSuccess}
         />
       </FormStatusSwitcher>

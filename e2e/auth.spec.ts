@@ -132,3 +132,39 @@ test('a logged-out star click prompts login without a server call', async ({
   // the prompt star must not commit a selected state - nothing was starred
   await expect(star).toHaveAttribute('aria-pressed', 'false')
 })
+
+test('login typing that lands before hydration survives it', async ({
+  page,
+}) => {
+  // hold scripts until the fills land, so the typing is strictly
+  // pre-hydration; the TextField must adopt the DOM values at hydration
+  let releaseScripts = () => {}
+  const scriptsReleased = new Promise<void>((resolve) => {
+    releaseScripts = resolve
+  })
+  await page.route('**/*.js', async (route) => {
+    await scriptsReleased
+    await route.continue()
+  })
+  await page.goto('/login', { waitUntil: 'commit' })
+
+  const email = page.getByRole('textbox', { name: 'Email' })
+  const password = page.getByRole('textbox', { name: 'Password' })
+  await email.fill('user1@example.com')
+  await password.fill('hunter2')
+  releaseScripts()
+
+  // the toggle only works hydrated, so its effect doubles as the marker;
+  // clicks before hydration land on inert markup, so keep trying
+  await expect(async () => {
+    await page
+      .getByRole('button', { name: 'Toggle password visibility' })
+      .click()
+    await expect(password).toHaveAttribute('type', 'text', { timeout: 500 })
+  }).toPass()
+  await expect(email).toHaveValue('user1@example.com')
+  await expect(password).toHaveValue('hunter2')
+
+  await page.getByRole('button', { name: 'Log In' }).click()
+  await page.waitForURL('/')
+})

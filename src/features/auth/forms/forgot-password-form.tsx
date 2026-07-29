@@ -4,6 +4,7 @@ import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
+import { forgotPasswordFormAction } from '../auth.form-actions'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
 import { Heading } from '@/components/ui/heading'
@@ -15,7 +16,10 @@ import {
   formStatusPanelCss,
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 
 const forgotPasswordSchema = z.object({
@@ -26,11 +30,15 @@ const forgotPasswordSchema = z.object({
 export function ForgotPasswordForm({
   headingLevel,
   next,
+  backHref,
+  initialFormError,
   onSuccess,
   surface,
 }: {
   headingLevel: HeadingLevel
   next?: string
+  backHref?: string
+  initialFormError?: string
   onSuccess: () => void
   surface?: FormProps['surface']
 }) {
@@ -42,6 +50,7 @@ export function ForgotPasswordForm({
     forgotPasswordSchema,
     commands.resetPassword,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -55,9 +64,13 @@ export function ForgotPasswordForm({
       aria-labelledby={id}
       isPending={isPending}
       autoComplete="on"
-      action={formAction}
+      action={forgotPasswordFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       surface={surface}
       controls={
         <FormActions>
@@ -72,6 +85,10 @@ export function ForgotPasswordForm({
       </Heading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
+        {next && <input type="hidden" name="next" defaultValue={next} />}
+        {backHref && (
+          <input type="hidden" name="back" defaultValue={backHref} />
+        )}
         <TextField
           name="email"
           type="email"

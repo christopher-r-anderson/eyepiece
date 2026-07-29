@@ -1,8 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import type { Profile } from '@/domain/profile/profile.schema'
+import { formErrorCopy } from '@/components/form-errors'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
+import { formResultSearchParamsSchema } from '@/lib/route.schema'
 
 type MaybeProfile = Partial<Profile> & Pick<Profile, 'id'>
 
@@ -12,6 +14,8 @@ type ProfilePageData = {
 
 export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
   component: ProfilePage,
+  // one-shot params from the native (no-JS) form post's redirect back
+  validateSearch: formResultSearchParamsSchema,
   loader: async (args): Promise<ProfilePageData> => {
     const profile = await ensureProfile({
       id: args.context.user.id,
@@ -26,7 +30,19 @@ export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
 
 function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
+  const { formError, status } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  // the native (no-JS) redirect's status is one-shot: seed the same local
+  // message and strip the param so it expires like the hydrated one
+  useEffect(() => {
+    if (status !== 'updated') return
+    setShowSuccessMessage(true)
+    void navigate({
+      search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
+      replace: true,
+    })
+  }, [status, navigate])
   useEffect(() => {
     if (!showSuccessMessage) return
     const timer = setTimeout(() => setShowSuccessMessage(false), 5000)
@@ -37,10 +53,11 @@ function ProfilePage() {
       <UpsertProfileForm
         actionType="update"
         initialData={maybeProfile}
+        initialFormError={formErrorCopy(formError)}
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
       />
-      {showSuccessMessage && <p>Profile Updated.</p>}
+      {(showSuccessMessage || status === 'updated') && <p>Profile Updated.</p>}
     </>
   )
 }

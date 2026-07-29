@@ -3,12 +3,16 @@ import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useAuthCommands } from '../hooks/use-auth-commands'
+import { loginFormAction } from '../auth.form-actions'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
-import { useTypedActionState } from '@/components/ui/forms.hooks'
+import {
+  useHydratedFormSubmit,
+  useTypedActionState,
+} from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
 
@@ -19,12 +23,16 @@ const loginSchema = z.object({
 
 type LoginProps = {
   headingLevel: HeadingLevel
+  next?: string
+  initialFormError?: string
   onSuccess: () => void
   forgotPasswordLink: ReactNode
 } & Pick<FormProps, 'surface'>
 
 export function LoginForm({
   headingLevel,
+  next,
+  initialFormError,
   onSuccess,
   forgotPasswordLink,
   surface,
@@ -36,6 +44,7 @@ export function LoginForm({
     loginSchema,
     commands.login,
   )
+  const onHydratedSubmit = useHydratedFormSubmit(formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -47,9 +56,13 @@ export function LoginForm({
   return (
     <Form
       autoComplete="on"
-      action={formAction}
+      action={loginFormAction.url}
+      method="post"
+      onSubmit={onHydratedSubmit}
       validationErrors={state.fieldErrors}
-      formError={state.error}
+      formError={
+        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
+      }
       surface={surface}
       aria-labelledby={id}
       isPending={isPending}
@@ -66,6 +79,7 @@ export function LoginForm({
         Log In
       </Heading>
       <InputGroup>
+        {next && <input type="hidden" name="next" defaultValue={next} />}
         <TextField
           name="email"
           type="email"
