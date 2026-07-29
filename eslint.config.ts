@@ -87,6 +87,7 @@ export default [
       '.netlify/**',
       './src/integrations/supabase/database.types.ts',
       'playwright-report/**',
+      'src/routeTree.gen.ts',
       'styled-system/**',
     ],
   },

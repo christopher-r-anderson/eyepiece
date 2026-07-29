@@ -3,6 +3,7 @@ pnpm-lock.yaml
 yarn.lock
 .pnpm-store
 src/integrations/supabase/database.types.ts
+src/routeTree.gen.ts
 
 # recorded provider payloads, rewritten wholesale by pnpm test:e2e:record
 e2e/__provider-fixtures__/*.json

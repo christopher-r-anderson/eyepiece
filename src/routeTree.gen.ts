@@ -9,59 +9,80 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DevRouteRouteImport } from './routes/dev/route'
-import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as privateRouteRouteImport } from './routes/(private)/route'
-import { Route as DevIndexRouteImport } from './routes/dev/index'
-import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
-import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
-import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
-import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/route'
-import { Route as publicauthRouteRouteImport } from './routes/(public)/(auth)/route'
-import { Route as privatepagesRouteRouteImport } from './routes/(private)/(pages)/route'
+import { Route as publicRouteRouteImport } from './routes/(public)/route'
+import { Route as DevRouteRouteImport } from './routes/dev/route'
 import { Route as privateauthRouteRouteImport } from './routes/(private)/(auth)/route'
-import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
-import { Route as DevObservabilityIndexRouteImport } from './routes/dev/observability/index'
-import { Route as publicpagesIndexRouteImport } from './routes/(public)/(pages)/index'
-import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
-import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
-import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
-import { Route as DevObservabilityRootBoundaryRouteImport } from './routes/dev/observability/root-boundary'
-import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
-import { Route as tokenCallbacksAuthConfirmRouteImport } from './routes/(token-callbacks)/auth/confirm'
-import { Route as publicpagesButtonsRouteImport } from './routes/(public)/(pages)/buttons'
-import { Route as publicauthRegisterRouteImport } from './routes/(public)/(auth)/register'
-import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/login'
-import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(pages)/favorites'
+import { Route as privatepagesRouteRouteImport } from './routes/(private)/(pages)/route'
+import { Route as publicauthRouteRouteImport } from './routes/(public)/(auth)/route'
+import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/route'
+import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
+import { Route as DevIndexRouteImport } from './routes/dev/index'
+import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
+import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as privatepagesCompleteProfileRouteImport } from './routes/(private)/(pages)/complete-profile'
-import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
-import { Route as privatepagesCollectionsIndexRouteImport } from './routes/(private)/(pages)/collections/index'
-import { Route as publicApiV1SearchRouteImport } from './routes/(public)/api/v1/search'
-import { Route as publicpagesProfileProfileIdRouteImport } from './routes/(public)/(pages)/profile.$profileId'
-import { Route as publicpagesCollectionsCollectionIdRouteImport } from './routes/(public)/(pages)/collections/$collectionId'
-import { Route as publicpagessearchSearchRouteImport } from './routes/(public)/(pages)/(search)/search'
-import { Route as publicauthAuthForgotPasswordRouteImport } from './routes/(public)/(auth)/auth/forgot-password'
-import { Route as publicauthAuthConfirmErrorRouteImport } from './routes/(public)/(auth)/auth/confirm-error'
-import { Route as privatepagesSettingsProfileRouteImport } from './routes/(private)/(pages)/settings/profile'
+import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(pages)/favorites'
+import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/login'
+import { Route as publicauthRegisterRouteImport } from './routes/(public)/(auth)/register'
+import { Route as publicpagesIndexRouteImport } from './routes/(public)/(pages)/index'
+import { Route as publicpagesButtonsRouteImport } from './routes/(public)/(pages)/buttons'
+import { Route as tokenCallbacksAuthConfirmRouteImport } from './routes/(token-callbacks)/auth/confirm'
+import { Route as DevObservabilityIndexRouteImport } from './routes/dev/observability/index'
+import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/observability/handled-400'
+import { Route as DevObservabilityRootBoundaryRouteImport } from './routes/dev/observability/root-boundary'
+import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
+import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
+import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
+import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as privateauthAuthUpdatePasswordRouteImport } from './routes/(private)/(auth)/auth/update-password'
-import { Route as publicpagesAssetsProviderIdAssetIdRouteImport } from './routes/(public)/(pages)/assets/$providerId.$assetId'
-import { Route as publicpagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/(pages)/albums/$providerId.$albumId'
+import { Route as privatepagesCollectionsIndexRouteImport } from './routes/(private)/(pages)/collections/index'
+import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
+import { Route as privatepagesSettingsProfileRouteImport } from './routes/(private)/(pages)/settings/profile'
+import { Route as publicauthAuthConfirmErrorRouteImport } from './routes/(public)/(auth)/auth/confirm-error'
+import { Route as publicauthAuthForgotPasswordRouteImport } from './routes/(public)/(auth)/auth/forgot-password'
+import { Route as publicpagessearchSearchRouteImport } from './routes/(public)/(pages)/(search)/search'
+import { Route as publicpagesCollectionsCollectionIdRouteImport } from './routes/(public)/(pages)/collections/$collectionId'
+import { Route as publicpagesProfileProfileIdRouteImport } from './routes/(public)/(pages)/profile.$profileId'
+import { Route as publicApiV1SearchRouteImport } from './routes/(public)/api/v1/search'
 import { Route as privatepagesCollectionsCollectionIdManageRouteImport } from './routes/(private)/(pages)/collections/$collectionId.manage'
-import { Route as publicApiV1AssetProviderIdAssetIdRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId'
+import { Route as publicpagesAlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/(pages)/albums/$providerId.$albumId'
+import { Route as publicpagesAssetsProviderIdAssetIdRouteImport } from './routes/(public)/(pages)/assets/$providerId.$assetId'
 import { Route as publicApiV1AlbumsProviderIdAlbumIdRouteImport } from './routes/(public)/api/v1/albums/$providerId.$albumId'
+import { Route as publicApiV1AssetProviderIdAssetIdRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId'
 import { Route as publicApiV1AssetProviderIdAssetIdMetadataRouteImport } from './routes/(public)/api/v1/asset/$providerId.$assetId.metadata'
 
-const DevRouteRoute = DevRouteRouteImport.update({
-  id: '/dev',
-  path: '/dev',
+const privateRouteRoute = privateRouteRouteImport.update({
+  id: '/(private)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const publicRouteRoute = publicRouteRouteImport.update({
   id: '/(public)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const privateRouteRoute = privateRouteRouteImport.update({
-  id: '/(private)',
+const DevRouteRoute = DevRouteRouteImport.update({
+  id: '/dev',
+  path: '/dev',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const privateauthRouteRoute = privateauthRouteRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => privateRouteRoute,
+} as any)
+const privatepagesRouteRoute = privatepagesRouteRouteImport.update({
+  id: '/(pages)',
+  getParentRoute: () => privateRouteRoute,
+} as any)
+const publicauthRouteRoute = publicauthRouteRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicpagesRouteRoute = publicpagesRouteRouteImport.update({
+  id: '/(pages)',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const tokenCallbacksAuthRouteRoute = tokenCallbacksAuthRouteRouteImport.update({
+  id: '/(token-callbacks)/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevIndexRoute = DevIndexRouteImport.update({
@@ -69,66 +90,62 @@ const DevIndexRoute = DevIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DevRouteRoute,
 } as any)
-const DevUiRouteRoute = DevUiRouteRouteImport.update({
-  id: '/ui',
-  path: '/ui',
-  getParentRoute: () => DevRouteRoute,
-} as any)
 const DevObservabilityRouteRoute = DevObservabilityRouteRouteImport.update({
   id: '/observability',
   path: '/observability',
   getParentRoute: () => DevRouteRoute,
 } as any)
-const tokenCallbacksAuthRouteRoute = tokenCallbacksAuthRouteRouteImport.update({
-  id: '/(token-callbacks)/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
+const DevUiRouteRoute = DevUiRouteRouteImport.update({
+  id: '/ui',
+  path: '/ui',
+  getParentRoute: () => DevRouteRoute,
 } as any)
-const publicpagesRouteRoute = publicpagesRouteRouteImport.update({
-  id: '/(pages)',
-  getParentRoute: () => publicRouteRoute,
+const privatepagesCompleteProfileRoute =
+  privatepagesCompleteProfileRouteImport.update({
+    id: '/complete-profile',
+    path: '/complete-profile',
+    getParentRoute: () => privatepagesRouteRoute,
+  } as any)
+const privatepagesFavoritesRoute = privatepagesFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => privatepagesRouteRoute,
 } as any)
-const publicauthRouteRoute = publicauthRouteRouteImport.update({
-  id: '/(auth)',
-  getParentRoute: () => publicRouteRoute,
+const publicauthLoginRoute = publicauthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => publicauthRouteRoute,
 } as any)
-const privatepagesRouteRoute = privatepagesRouteRouteImport.update({
-  id: '/(pages)',
-  getParentRoute: () => privateRouteRoute,
-} as any)
-const privateauthRouteRoute = privateauthRouteRouteImport.update({
-  id: '/(auth)',
-  getParentRoute: () => privateRouteRoute,
-} as any)
-const DevUiIndexRoute = DevUiIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DevUiRouteRoute,
-} as any)
-const DevObservabilityIndexRoute = DevObservabilityIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DevObservabilityRouteRoute,
+const publicauthRegisterRoute = publicauthRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => publicauthRouteRoute,
 } as any)
 const publicpagesIndexRoute = publicpagesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => publicpagesRouteRoute,
 } as any)
-const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => DevUiRouteRoute,
+const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => publicpagesRouteRoute,
 } as any)
-const DevUiControlsRoute = DevUiControlsRouteImport.update({
-  id: '/controls',
-  path: '/controls',
-  getParentRoute: () => DevUiRouteRoute,
+const tokenCallbacksAuthConfirmRoute =
+  tokenCallbacksAuthConfirmRouteImport.update({
+    id: '/confirm',
+    path: '/confirm',
+    getParentRoute: () => tokenCallbacksAuthRouteRoute,
+  } as any)
+const DevObservabilityIndexRoute = DevObservabilityIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevObservabilityRouteRoute,
 } as any)
-const DevObservabilityServerErrorRoute =
-  DevObservabilityServerErrorRouteImport.update({
-    id: '/server-error',
-    path: '/server-error',
+const DevObservabilityHandled400Route =
+  DevObservabilityHandled400RouteImport.update({
+    id: '/handled-400',
+    path: '/handled-400',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
 const DevObservabilityRootBoundaryRoute =
@@ -137,42 +154,37 @@ const DevObservabilityRootBoundaryRoute =
     path: '/root-boundary',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
-const DevObservabilityHandled400Route =
-  DevObservabilityHandled400RouteImport.update({
-    id: '/handled-400',
-    path: '/handled-400',
+const DevObservabilityServerErrorRoute =
+  DevObservabilityServerErrorRouteImport.update({
+    id: '/server-error',
+    path: '/server-error',
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
-const tokenCallbacksAuthConfirmRoute =
-  tokenCallbacksAuthConfirmRouteImport.update({
-    id: '/confirm',
-    path: '/confirm',
-    getParentRoute: () => tokenCallbacksAuthRouteRoute,
+const DevUiIndexRoute = DevUiIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
+const DevUiControlsRoute = DevUiControlsRouteImport.update({
+  id: '/controls',
+  path: '/controls',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
+const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => DevUiRouteRoute,
+} as any)
+const privateauthAuthUpdatePasswordRoute =
+  privateauthAuthUpdatePasswordRouteImport.update({
+    id: '/auth/update-password',
+    path: '/auth/update-password',
+    getParentRoute: () => privateauthRouteRoute,
   } as any)
-const publicpagesButtonsRoute = publicpagesButtonsRouteImport.update({
-  id: '/buttons',
-  path: '/buttons',
-  getParentRoute: () => publicpagesRouteRoute,
-} as any)
-const publicauthRegisterRoute = publicauthRegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => publicauthRouteRoute,
-} as any)
-const publicauthLoginRoute = publicauthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => publicauthRouteRoute,
-} as any)
-const privatepagesFavoritesRoute = privatepagesFavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
-  getParentRoute: () => privatepagesRouteRoute,
-} as any)
-const privatepagesCompleteProfileRoute =
-  privatepagesCompleteProfileRouteImport.update({
-    id: '/complete-profile',
-    path: '/complete-profile',
+const privatepagesCollectionsIndexRoute =
+  privatepagesCollectionsIndexRouteImport.update({
+    id: '/collections/',
+    path: '/collections/',
     getParentRoute: () => privatepagesRouteRoute,
   } as any)
 const privatepagesSettingsIndexRoute =
@@ -181,39 +193,11 @@ const privatepagesSettingsIndexRoute =
     path: '/settings/',
     getParentRoute: () => privatepagesRouteRoute,
   } as any)
-const privatepagesCollectionsIndexRoute =
-  privatepagesCollectionsIndexRouteImport.update({
-    id: '/collections/',
-    path: '/collections/',
+const privatepagesSettingsProfileRoute =
+  privatepagesSettingsProfileRouteImport.update({
+    id: '/settings/profile',
+    path: '/settings/profile',
     getParentRoute: () => privatepagesRouteRoute,
-  } as any)
-const publicApiV1SearchRoute = publicApiV1SearchRouteImport.update({
-  id: '/api/v1/search',
-  path: '/api/v1/search',
-  getParentRoute: () => publicRouteRoute,
-} as any)
-const publicpagesProfileProfileIdRoute =
-  publicpagesProfileProfileIdRouteImport.update({
-    id: '/profile/$profileId',
-    path: '/profile/$profileId',
-    getParentRoute: () => publicpagesRouteRoute,
-  } as any)
-const publicpagesCollectionsCollectionIdRoute =
-  publicpagesCollectionsCollectionIdRouteImport.update({
-    id: '/collections/$collectionId',
-    path: '/collections/$collectionId',
-    getParentRoute: () => publicpagesRouteRoute,
-  } as any)
-const publicpagessearchSearchRoute = publicpagessearchSearchRouteImport.update({
-  id: '/(search)/search',
-  path: '/search',
-  getParentRoute: () => publicpagesRouteRoute,
-} as any)
-const publicauthAuthForgotPasswordRoute =
-  publicauthAuthForgotPasswordRouteImport.update({
-    id: '/auth/forgot-password',
-    path: '/auth/forgot-password',
-    getParentRoute: () => publicauthRouteRoute,
   } as any)
 const publicauthAuthConfirmErrorRoute =
   publicauthAuthConfirmErrorRouteImport.update({
@@ -221,23 +205,39 @@ const publicauthAuthConfirmErrorRoute =
     path: '/auth/confirm-error',
     getParentRoute: () => publicauthRouteRoute,
   } as any)
-const privatepagesSettingsProfileRoute =
-  privatepagesSettingsProfileRouteImport.update({
-    id: '/settings/profile',
-    path: '/settings/profile',
-    getParentRoute: () => privatepagesRouteRoute,
+const publicauthAuthForgotPasswordRoute =
+  publicauthAuthForgotPasswordRouteImport.update({
+    id: '/auth/forgot-password',
+    path: '/auth/forgot-password',
+    getParentRoute: () => publicauthRouteRoute,
   } as any)
-const privateauthAuthUpdatePasswordRoute =
-  privateauthAuthUpdatePasswordRouteImport.update({
-    id: '/auth/update-password',
-    path: '/auth/update-password',
-    getParentRoute: () => privateauthRouteRoute,
-  } as any)
-const publicpagesAssetsProviderIdAssetIdRoute =
-  publicpagesAssetsProviderIdAssetIdRouteImport.update({
-    id: '/assets/$providerId/$assetId',
-    path: '/assets/$providerId/$assetId',
+const publicpagessearchSearchRoute = publicpagessearchSearchRouteImport.update({
+  id: '/(search)/search',
+  path: '/search',
+  getParentRoute: () => publicpagesRouteRoute,
+} as any)
+const publicpagesCollectionsCollectionIdRoute =
+  publicpagesCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
     getParentRoute: () => publicpagesRouteRoute,
+  } as any)
+const publicpagesProfileProfileIdRoute =
+  publicpagesProfileProfileIdRouteImport.update({
+    id: '/profile/$profileId',
+    path: '/profile/$profileId',
+    getParentRoute: () => publicpagesRouteRoute,
+  } as any)
+const publicApiV1SearchRoute = publicApiV1SearchRouteImport.update({
+  id: '/api/v1/search',
+  path: '/api/v1/search',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const privatepagesCollectionsCollectionIdManageRoute =
+  privatepagesCollectionsCollectionIdManageRouteImport.update({
+    id: '/collections/$collectionId/manage',
+    path: '/collections/$collectionId/manage',
+    getParentRoute: () => privatepagesRouteRoute,
   } as any)
 const publicpagesAlbumsProviderIdAlbumIdRoute =
   publicpagesAlbumsProviderIdAlbumIdRouteImport.update({
@@ -245,22 +245,22 @@ const publicpagesAlbumsProviderIdAlbumIdRoute =
     path: '/albums/$providerId/$albumId',
     getParentRoute: () => publicpagesRouteRoute,
   } as any)
-const privatepagesCollectionsCollectionIdManageRoute =
-  privatepagesCollectionsCollectionIdManageRouteImport.update({
-    id: '/collections/$collectionId/manage',
-    path: '/collections/$collectionId/manage',
-    getParentRoute: () => privatepagesRouteRoute,
-  } as any)
-const publicApiV1AssetProviderIdAssetIdRoute =
-  publicApiV1AssetProviderIdAssetIdRouteImport.update({
-    id: '/api/v1/asset/$providerId/$assetId',
-    path: '/api/v1/asset/$providerId/$assetId',
-    getParentRoute: () => publicRouteRoute,
+const publicpagesAssetsProviderIdAssetIdRoute =
+  publicpagesAssetsProviderIdAssetIdRouteImport.update({
+    id: '/assets/$providerId/$assetId',
+    path: '/assets/$providerId/$assetId',
+    getParentRoute: () => publicpagesRouteRoute,
   } as any)
 const publicApiV1AlbumsProviderIdAlbumIdRoute =
   publicApiV1AlbumsProviderIdAlbumIdRouteImport.update({
     id: '/api/v1/albums/$providerId/$albumId',
     path: '/api/v1/albums/$providerId/$albumId',
+    getParentRoute: () => publicRouteRoute,
+  } as any)
+const publicApiV1AssetProviderIdAssetIdRoute =
+  publicApiV1AssetProviderIdAssetIdRouteImport.update({
+    id: '/api/v1/asset/$providerId/$assetId',
+    path: '/api/v1/asset/$providerId/$assetId',
     getParentRoute: () => publicRouteRoute,
   } as any)
 const publicApiV1AssetProviderIdAssetIdMetadataRoute =
@@ -511,11 +511,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/dev': {
-      id: '/dev'
-      path: '/dev'
-      fullPath: '/dev'
-      preLoaderRoute: typeof DevRouteRouteImport
+    '/(private)': {
+      id: '/(private)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof privateRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(public)': {
@@ -525,11 +525,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(private)': {
-      id: '/(private)'
+    '/dev': {
+      id: '/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(private)/(auth)': {
+      id: '/(private)/(auth)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof privateRouteRouteImport
+      preLoaderRoute: typeof privateauthRouteRouteImport
+      parentRoute: typeof privateRouteRoute
+    }
+    '/(private)/(pages)': {
+      id: '/(private)/(pages)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof privatepagesRouteRouteImport
+      parentRoute: typeof privateRouteRoute
+    }
+    '/(public)/(auth)': {
+      id: '/(public)/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof publicauthRouteRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/(pages)': {
+      id: '/(public)/(pages)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof publicpagesRouteRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(token-callbacks)/auth': {
+      id: '/(token-callbacks)/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof tokenCallbacksAuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dev/': {
@@ -539,13 +574,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevIndexRouteImport
       parentRoute: typeof DevRouteRoute
     }
-    '/dev/ui': {
-      id: '/dev/ui'
-      path: '/ui'
-      fullPath: '/dev/ui'
-      preLoaderRoute: typeof DevUiRouteRouteImport
-      parentRoute: typeof DevRouteRoute
-    }
     '/dev/observability': {
       id: '/dev/observability'
       path: '/observability'
@@ -553,54 +581,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityRouteRouteImport
       parentRoute: typeof DevRouteRoute
     }
-    '/(token-callbacks)/auth': {
-      id: '/(token-callbacks)/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof tokenCallbacksAuthRouteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dev/ui': {
+      id: '/dev/ui'
+      path: '/ui'
+      fullPath: '/dev/ui'
+      preLoaderRoute: typeof DevUiRouteRouteImport
+      parentRoute: typeof DevRouteRoute
     }
-    '/(public)/(pages)': {
-      id: '/(public)/(pages)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof publicpagesRouteRouteImport
-      parentRoute: typeof publicRouteRoute
+    '/(private)/(pages)/complete-profile': {
+      id: '/(private)/(pages)/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/complete-profile'
+      preLoaderRoute: typeof privatepagesCompleteProfileRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/(public)/(auth)': {
-      id: '/(public)/(auth)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof publicauthRouteRouteImport
-      parentRoute: typeof publicRouteRoute
+    '/(private)/(pages)/favorites': {
+      id: '/(private)/(pages)/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof privatepagesFavoritesRouteImport
+      parentRoute: typeof privatepagesRouteRoute
     }
-    '/(private)/(pages)': {
-      id: '/(private)/(pages)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof privatepagesRouteRouteImport
-      parentRoute: typeof privateRouteRoute
+    '/(public)/(auth)/login': {
+      id: '/(public)/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof publicauthLoginRouteImport
+      parentRoute: typeof publicauthRouteRoute
     }
-    '/(private)/(auth)': {
-      id: '/(private)/(auth)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof privateauthRouteRouteImport
-      parentRoute: typeof privateRouteRoute
-    }
-    '/dev/ui/': {
-      id: '/dev/ui/'
-      path: '/'
-      fullPath: '/dev/ui/'
-      preLoaderRoute: typeof DevUiIndexRouteImport
-      parentRoute: typeof DevUiRouteRoute
-    }
-    '/dev/observability/': {
-      id: '/dev/observability/'
-      path: '/'
-      fullPath: '/dev/observability/'
-      preLoaderRoute: typeof DevObservabilityIndexRouteImport
-      parentRoute: typeof DevObservabilityRouteRoute
+    '/(public)/(auth)/register': {
+      id: '/(public)/(auth)/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof publicauthRegisterRouteImport
+      parentRoute: typeof publicauthRouteRoute
     }
     '/(public)/(pages)/': {
       id: '/(public)/(pages)/'
@@ -609,32 +623,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicpagesIndexRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
-    '/dev/ui/feedback': {
-      id: '/dev/ui/feedback'
-      path: '/feedback'
-      fullPath: '/dev/ui/feedback'
-      preLoaderRoute: typeof DevUiFeedbackRouteImport
-      parentRoute: typeof DevUiRouteRoute
+    '/(public)/(pages)/buttons': {
+      id: '/(public)/(pages)/buttons'
+      path: '/buttons'
+      fullPath: '/buttons'
+      preLoaderRoute: typeof publicpagesButtonsRouteImport
+      parentRoute: typeof publicpagesRouteRoute
     }
-    '/dev/ui/controls': {
-      id: '/dev/ui/controls'
-      path: '/controls'
-      fullPath: '/dev/ui/controls'
-      preLoaderRoute: typeof DevUiControlsRouteImport
-      parentRoute: typeof DevUiRouteRoute
+    '/(token-callbacks)/auth/confirm': {
+      id: '/(token-callbacks)/auth/confirm'
+      path: '/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof tokenCallbacksAuthConfirmRouteImport
+      parentRoute: typeof tokenCallbacksAuthRouteRoute
     }
-    '/dev/observability/server-error': {
-      id: '/dev/observability/server-error'
-      path: '/server-error'
-      fullPath: '/dev/observability/server-error'
-      preLoaderRoute: typeof DevObservabilityServerErrorRouteImport
-      parentRoute: typeof DevObservabilityRouteRoute
-    }
-    '/dev/observability/root-boundary': {
-      id: '/dev/observability/root-boundary'
-      path: '/root-boundary'
-      fullPath: '/dev/observability/root-boundary'
-      preLoaderRoute: typeof DevObservabilityRootBoundaryRouteImport
+    '/dev/observability/': {
+      id: '/dev/observability/'
+      path: '/'
+      fullPath: '/dev/observability/'
+      preLoaderRoute: typeof DevObservabilityIndexRouteImport
       parentRoute: typeof DevObservabilityRouteRoute
     }
     '/dev/observability/handled-400': {
@@ -644,46 +651,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityHandled400RouteImport
       parentRoute: typeof DevObservabilityRouteRoute
     }
-    '/(token-callbacks)/auth/confirm': {
-      id: '/(token-callbacks)/auth/confirm'
-      path: '/confirm'
-      fullPath: '/auth/confirm'
-      preLoaderRoute: typeof tokenCallbacksAuthConfirmRouteImport
-      parentRoute: typeof tokenCallbacksAuthRouteRoute
+    '/dev/observability/root-boundary': {
+      id: '/dev/observability/root-boundary'
+      path: '/root-boundary'
+      fullPath: '/dev/observability/root-boundary'
+      preLoaderRoute: typeof DevObservabilityRootBoundaryRouteImport
+      parentRoute: typeof DevObservabilityRouteRoute
     }
-    '/(public)/(pages)/buttons': {
-      id: '/(public)/(pages)/buttons'
-      path: '/buttons'
-      fullPath: '/buttons'
-      preLoaderRoute: typeof publicpagesButtonsRouteImport
-      parentRoute: typeof publicpagesRouteRoute
+    '/dev/observability/server-error': {
+      id: '/dev/observability/server-error'
+      path: '/server-error'
+      fullPath: '/dev/observability/server-error'
+      preLoaderRoute: typeof DevObservabilityServerErrorRouteImport
+      parentRoute: typeof DevObservabilityRouteRoute
     }
-    '/(public)/(auth)/register': {
-      id: '/(public)/(auth)/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof publicauthRegisterRouteImport
-      parentRoute: typeof publicauthRouteRoute
+    '/dev/ui/': {
+      id: '/dev/ui/'
+      path: '/'
+      fullPath: '/dev/ui/'
+      preLoaderRoute: typeof DevUiIndexRouteImport
+      parentRoute: typeof DevUiRouteRoute
     }
-    '/(public)/(auth)/login': {
-      id: '/(public)/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof publicauthLoginRouteImport
-      parentRoute: typeof publicauthRouteRoute
+    '/dev/ui/controls': {
+      id: '/dev/ui/controls'
+      path: '/controls'
+      fullPath: '/dev/ui/controls'
+      preLoaderRoute: typeof DevUiControlsRouteImport
+      parentRoute: typeof DevUiRouteRoute
     }
-    '/(private)/(pages)/favorites': {
-      id: '/(private)/(pages)/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof privatepagesFavoritesRouteImport
-      parentRoute: typeof privatepagesRouteRoute
+    '/dev/ui/feedback': {
+      id: '/dev/ui/feedback'
+      path: '/feedback'
+      fullPath: '/dev/ui/feedback'
+      preLoaderRoute: typeof DevUiFeedbackRouteImport
+      parentRoute: typeof DevUiRouteRoute
     }
-    '/(private)/(pages)/complete-profile': {
-      id: '/(private)/(pages)/complete-profile'
-      path: '/complete-profile'
-      fullPath: '/complete-profile'
-      preLoaderRoute: typeof privatepagesCompleteProfileRouteImport
+    '/(private)/(auth)/auth/update-password': {
+      id: '/(private)/(auth)/auth/update-password'
+      path: '/auth/update-password'
+      fullPath: '/auth/update-password'
+      preLoaderRoute: typeof privateauthAuthUpdatePasswordRouteImport
+      parentRoute: typeof privateauthRouteRoute
+    }
+    '/(private)/(pages)/collections/': {
+      id: '/(private)/(pages)/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof privatepagesCollectionsIndexRouteImport
       parentRoute: typeof privatepagesRouteRoute
     }
     '/(private)/(pages)/settings/': {
@@ -693,25 +707,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privatepagesSettingsIndexRouteImport
       parentRoute: typeof privatepagesRouteRoute
     }
-    '/(private)/(pages)/collections/': {
-      id: '/(private)/(pages)/collections/'
-      path: '/collections'
-      fullPath: '/collections/'
-      preLoaderRoute: typeof privatepagesCollectionsIndexRouteImport
+    '/(private)/(pages)/settings/profile': {
+      id: '/(private)/(pages)/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof privatepagesSettingsProfileRouteImport
       parentRoute: typeof privatepagesRouteRoute
     }
-    '/(public)/api/v1/search': {
-      id: '/(public)/api/v1/search'
-      path: '/api/v1/search'
-      fullPath: '/api/v1/search'
-      preLoaderRoute: typeof publicApiV1SearchRouteImport
-      parentRoute: typeof publicRouteRoute
+    '/(public)/(auth)/auth/confirm-error': {
+      id: '/(public)/(auth)/auth/confirm-error'
+      path: '/auth/confirm-error'
+      fullPath: '/auth/confirm-error'
+      preLoaderRoute: typeof publicauthAuthConfirmErrorRouteImport
+      parentRoute: typeof publicauthRouteRoute
     }
-    '/(public)/(pages)/profile/$profileId': {
-      id: '/(public)/(pages)/profile/$profileId'
-      path: '/profile/$profileId'
-      fullPath: '/profile/$profileId'
-      preLoaderRoute: typeof publicpagesProfileProfileIdRouteImport
+    '/(public)/(auth)/auth/forgot-password': {
+      id: '/(public)/(auth)/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof publicauthAuthForgotPasswordRouteImport
+      parentRoute: typeof publicauthRouteRoute
+    }
+    '/(public)/(pages)/(search)/search': {
+      id: '/(public)/(pages)/(search)/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof publicpagessearchSearchRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
     '/(public)/(pages)/collections/$collectionId': {
@@ -721,54 +742,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicpagesCollectionsCollectionIdRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
-    '/(public)/(pages)/(search)/search': {
-      id: '/(public)/(pages)/(search)/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof publicpagessearchSearchRouteImport
+    '/(public)/(pages)/profile/$profileId': {
+      id: '/(public)/(pages)/profile/$profileId'
+      path: '/profile/$profileId'
+      fullPath: '/profile/$profileId'
+      preLoaderRoute: typeof publicpagesProfileProfileIdRouteImport
       parentRoute: typeof publicpagesRouteRoute
     }
-    '/(public)/(auth)/auth/forgot-password': {
-      id: '/(public)/(auth)/auth/forgot-password'
-      path: '/auth/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof publicauthAuthForgotPasswordRouteImport
-      parentRoute: typeof publicauthRouteRoute
-    }
-    '/(public)/(auth)/auth/confirm-error': {
-      id: '/(public)/(auth)/auth/confirm-error'
-      path: '/auth/confirm-error'
-      fullPath: '/auth/confirm-error'
-      preLoaderRoute: typeof publicauthAuthConfirmErrorRouteImport
-      parentRoute: typeof publicauthRouteRoute
-    }
-    '/(private)/(pages)/settings/profile': {
-      id: '/(private)/(pages)/settings/profile'
-      path: '/settings/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof privatepagesSettingsProfileRouteImport
-      parentRoute: typeof privatepagesRouteRoute
-    }
-    '/(private)/(auth)/auth/update-password': {
-      id: '/(private)/(auth)/auth/update-password'
-      path: '/auth/update-password'
-      fullPath: '/auth/update-password'
-      preLoaderRoute: typeof privateauthAuthUpdatePasswordRouteImport
-      parentRoute: typeof privateauthRouteRoute
-    }
-    '/(public)/(pages)/assets/$providerId/$assetId': {
-      id: '/(public)/(pages)/assets/$providerId/$assetId'
-      path: '/assets/$providerId/$assetId'
-      fullPath: '/assets/$providerId/$assetId'
-      preLoaderRoute: typeof publicpagesAssetsProviderIdAssetIdRouteImport
-      parentRoute: typeof publicpagesRouteRoute
-    }
-    '/(public)/(pages)/albums/$providerId/$albumId': {
-      id: '/(public)/(pages)/albums/$providerId/$albumId'
-      path: '/albums/$providerId/$albumId'
-      fullPath: '/albums/$providerId/$albumId'
-      preLoaderRoute: typeof publicpagesAlbumsProviderIdAlbumIdRouteImport
-      parentRoute: typeof publicpagesRouteRoute
+    '/(public)/api/v1/search': {
+      id: '/(public)/api/v1/search'
+      path: '/api/v1/search'
+      fullPath: '/api/v1/search'
+      preLoaderRoute: typeof publicApiV1SearchRouteImport
+      parentRoute: typeof publicRouteRoute
     }
     '/(private)/(pages)/collections/$collectionId/manage': {
       id: '/(private)/(pages)/collections/$collectionId/manage'
@@ -777,18 +763,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privatepagesCollectionsCollectionIdManageRouteImport
       parentRoute: typeof privatepagesRouteRoute
     }
-    '/(public)/api/v1/asset/$providerId/$assetId': {
-      id: '/(public)/api/v1/asset/$providerId/$assetId'
-      path: '/api/v1/asset/$providerId/$assetId'
-      fullPath: '/api/v1/asset/$providerId/$assetId'
-      preLoaderRoute: typeof publicApiV1AssetProviderIdAssetIdRouteImport
-      parentRoute: typeof publicRouteRoute
+    '/(public)/(pages)/albums/$providerId/$albumId': {
+      id: '/(public)/(pages)/albums/$providerId/$albumId'
+      path: '/albums/$providerId/$albumId'
+      fullPath: '/albums/$providerId/$albumId'
+      preLoaderRoute: typeof publicpagesAlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
+    }
+    '/(public)/(pages)/assets/$providerId/$assetId': {
+      id: '/(public)/(pages)/assets/$providerId/$assetId'
+      path: '/assets/$providerId/$assetId'
+      fullPath: '/assets/$providerId/$assetId'
+      preLoaderRoute: typeof publicpagesAssetsProviderIdAssetIdRouteImport
+      parentRoute: typeof publicpagesRouteRoute
     }
     '/(public)/api/v1/albums/$providerId/$albumId': {
       id: '/(public)/api/v1/albums/$providerId/$albumId'
       path: '/api/v1/albums/$providerId/$albumId'
       fullPath: '/api/v1/albums/$providerId/$albumId'
       preLoaderRoute: typeof publicApiV1AlbumsProviderIdAlbumIdRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/api/v1/asset/$providerId/$assetId': {
+      id: '/(public)/api/v1/asset/$providerId/$assetId'
+      path: '/api/v1/asset/$providerId/$assetId'
+      fullPath: '/api/v1/asset/$providerId/$assetId'
+      preLoaderRoute: typeof publicApiV1AssetProviderIdAssetIdRouteImport
       parentRoute: typeof publicRouteRoute
     }
     '/(public)/api/v1/asset/$providerId/$assetId/metadata': {
