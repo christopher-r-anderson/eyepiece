@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { formErrorCopy } from '@/components/form-errors'
 import {
   ForgotPasswordForm,
   ForgotPasswordSuccessMessage,
@@ -27,7 +28,7 @@ function ForgotPasswordPage() {
         <ForgotPasswordForm
           headingLevel={1}
           next={next}
-          initialFormError={formError}
+          initialFormError={formErrorCopy(formError)}
           surface="panel"
           onSuccess={() => setShowSuccessMessage(true)}
         />

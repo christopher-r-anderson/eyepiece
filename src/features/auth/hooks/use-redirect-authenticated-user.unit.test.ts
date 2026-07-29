@@ -24,25 +24,18 @@ describe('useRedirectAuthenticatedUser', () => {
     } as any)
   })
 
-  it('keeps checking until hydration completes', () => {
+  it('does not redirect before hydration completes', () => {
     vi.mocked(useHydrated).mockReturnValue(false)
 
-    const { result } = renderHook(() => useRedirectAuthenticatedUser('/next'))
+    renderHook(() => useRedirectAuthenticatedUser('/next'))
 
-    expect(result.current).toEqual({
-      isChecking: true,
-      shouldShowAuthForm: false,
-    })
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it('shows the auth form when hydration and anonymous auth state are ready', () => {
-    const { result } = renderHook(() => useRedirectAuthenticatedUser('/next'))
+  it('does not redirect anonymous visitors', () => {
+    renderHook(() => useRedirectAuthenticatedUser('/next'))
 
-    expect(result.current).toEqual({
-      isChecking: false,
-      shouldShowAuthForm: true,
-    })
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 
   it('does not redirect while auth state is still fetching', () => {
@@ -52,12 +45,8 @@ describe('useRedirectAuthenticatedUser', () => {
       isFetching: true,
     } as any)
 
-    const { result } = renderHook(() => useRedirectAuthenticatedUser('/next'))
+    renderHook(() => useRedirectAuthenticatedUser('/next'))
 
-    expect(result.current).toEqual({
-      isChecking: true,
-      shouldShowAuthForm: false,
-    })
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

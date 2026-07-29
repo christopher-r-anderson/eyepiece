@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import type { Profile } from '@/domain/profile/profile.schema'
+import { formErrorCopy } from '@/components/form-errors'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
 
@@ -55,7 +56,7 @@ function ProfilePage() {
       <UpsertProfileForm
         actionType="update"
         initialData={maybeProfile}
-        initialFormError={formError}
+        initialFormError={formErrorCopy(formError)}
         onSuccess={() => setShowSuccessMessage(true)}
         headingLevel={1}
       />

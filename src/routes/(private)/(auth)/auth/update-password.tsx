@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
+import { formErrorCopy } from '@/components/form-errors'
 import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
 import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
@@ -53,7 +54,7 @@ function UpdatePasswordPage() {
           headingLevel={1}
           surface="panel"
           next={nextParam}
-          initialFormError={formError}
+          initialFormError={formErrorCopy(formError)}
           onSuccess={onUpdateSuccess}
         />
       </FormStatusSwitcher>

@@ -126,3 +126,26 @@ describe('isPlainLeftClick', () => {
     ).toBe(false)
   })
 })
+
+describe('mapSupabaseAuthError codes', () => {
+  it('carries the code and takes the app copy for known codes', () => {
+    expect(
+      mapSupabaseAuthError({
+        message: 'Invalid login credentials',
+        code: 'invalid_credentials',
+      }),
+    ).toEqual({
+      code: 'invalid_credentials',
+      message: 'Email or password is incorrect.',
+    })
+  })
+
+  it('keeps the upstream message for unknown codes', () => {
+    expect(
+      mapSupabaseAuthError({
+        message: 'Zone flux imminent',
+        code: 'zone_flux',
+      }),
+    ).toEqual({ code: 'zone_flux', message: 'Zone flux imminent' })
+  })
+})

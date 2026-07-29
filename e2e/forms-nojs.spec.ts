@@ -15,7 +15,7 @@ test('a no-JS login failure returns to the form with the error', async ({
   await page.getByRole('button', { name: 'Log In' }).click()
 
   await page.waitForURL((url) => url.searchParams.has('formError'))
-  await expect(page.getByText('Invalid login credentials')).toBeVisible()
+  await expect(page.getByText('Email or password is incorrect.')).toBeVisible()
   // the next target survives the round trip
   expect(new URL(page.url()).searchParams.get('next')).toBe('/favorites')
 })

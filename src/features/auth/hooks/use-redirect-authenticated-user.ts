@@ -18,9 +18,4 @@ export function useRedirectAuthenticatedUser(next?: string) {
       replace: true,
     })
   }, [isHydrated, isSuccess, isFetching, user, next, navigate])
-
-  return {
-    isChecking: !isHydrated || !isSuccess || isFetching,
-    shouldShowAuthForm: isHydrated && isSuccess && !isFetching && !user,
-  }
 }

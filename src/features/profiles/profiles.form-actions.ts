@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 import { makeProfilesCommands } from './profiles.commands'
+import { INVALID_FORM_CODE } from '@/components/form-errors'
 import { redirectSearchParamsSchema } from '@/lib/route.schema'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -35,7 +36,7 @@ function withParams(href: string, params: Record<string, string | undefined>) {
 }
 
 export const upsertProfileFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const raw = formData instanceof FormData ? Object.fromEntries(formData) : {}
     const backHref =
@@ -45,7 +46,7 @@ export const upsertProfileFormAction = createServerFn({ method: 'POST' })
       // 303 turns the form POST into a GET at the target; 307 would re-POST
       throw redirect({
         href: withParams(backHref, {
-          formError: 'Please check the form and try again.',
+          formError: INVALID_FORM_CODE,
           next: nextSchema.parse(
             typeof raw.next === 'string' ? raw.next : undefined,
           ),
@@ -60,7 +61,7 @@ export const upsertProfileFormAction = createServerFn({ method: 'POST' })
     if (resultIsError(result)) {
       throw redirect({
         href: withParams(backHref, {
-          formError: result.error.message,
+          formError: result.error.code,
           next,
         }),
         statusCode: 303,

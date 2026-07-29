@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { formErrorCopy } from '@/components/form-errors'
 import {
   RegistrationForm,
   RegistrationSuccessMessage,
@@ -30,7 +31,7 @@ function RegisterPage() {
         <RegistrationForm
           headingLevel={1}
           surface="panel"
-          initialFormError={formError}
+          initialFormError={formErrorCopy(formError)}
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}
         />

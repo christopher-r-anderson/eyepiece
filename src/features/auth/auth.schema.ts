@@ -31,10 +31,11 @@ export const authModalStateSchema = authModalSearchParamsSchema.transform(
 export type AuthModalSearchParams = z.infer<typeof authModalSearchParamsSchema>
 export type AuthModalState = z.infer<typeof authModalStateSchema>
 
-// applied to all auth pages via the `(auth)` route group. formError and
-// status arrive on the redirect back from a native (no-JS) form post
+// applied to all auth pages via the `(auth)` route group. formError (an
+// error code, mapped to copy client-side) and status arrive on the
+// redirect back from a native (no-JS) form post
 export const authPageSearchParamsSchema = redirectSearchParamsSchema.extend({
-  formError: z.string().max(300).optional(),
+  formError: z.string().max(64).optional(),
   status: z.enum(['sent', 'updated']).optional(),
 })
 

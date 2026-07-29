@@ -10,7 +10,16 @@ const mockReplace = vi.fn()
 const mockState = { key: 'k1', dialogPushed: true }
 let mockLocation = makeLocation('')
 
-function makeLocation(searchStr: string, hash = '') {
+function makeLocation(
+  searchStr: string,
+  hash = '',
+): {
+  pathname: string
+  search: unknown
+  hash: string
+  state: typeof mockState
+  maskedLocation?: { href: string }
+} {
   // the hook compares against the real document url, not the router state
   window.history.replaceState(null, '', `/search${searchStr}`)
   return {

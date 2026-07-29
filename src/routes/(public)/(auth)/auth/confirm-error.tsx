@@ -1,6 +1,7 @@
 import { createFileRoute, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import { formErrorCopy } from '@/components/form-errors'
 import { PageHeading } from '@/components/page-heading'
 import {
   ResendConfirmationForm,
@@ -61,7 +62,7 @@ function RecoveryOtpError() {
           headingLevel={2}
           next={next}
           backHref={backHref}
-          initialFormError={formError}
+          initialFormError={formErrorCopy(formError)}
           onSuccess={() => setSuccessfulResend(true)}
         />
       </FormStatusSwitcher>
@@ -88,7 +89,7 @@ function EmailOtpError() {
           headingLevel={2}
           next={next}
           backHref={backHref}
-          initialFormError={formError}
+          initialFormError={formErrorCopy(formError)}
           onSuccess={() => setSuccessfulResend(true)}
         />
       </FormStatusSwitcher>

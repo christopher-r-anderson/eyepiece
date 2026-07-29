@@ -3,6 +3,7 @@ import { redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 import { makeAuthCommands } from './auth.commands'
 import { setPasswordFieldSchema } from './forms/components/set-password-field.schema'
+import { INVALID_FORM_CODE } from '@/components/form-errors'
 import { redirectSearchParamsSchema } from '@/lib/route.schema'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -14,8 +15,6 @@ import { resultIsError } from '@/lib/result'
 // always end in a redirect - a returned value would render as raw JSON.
 
 const nextSchema = redirectSearchParamsSchema.shape.next
-
-export const INVALID_FORM_MESSAGE = 'Please check the form and try again.'
 
 function redirectWithParams(
   href: string,
@@ -54,7 +53,7 @@ function parseOrRedirectBack<TSchema extends z.ZodType>(
         typeof formData.back === 'string' ? formData.back : undefined,
       ) ?? defaultBackHref
     redirectWithParams(backHref, {
-      formError: INVALID_FORM_MESSAGE,
+      formError: INVALID_FORM_CODE,
       next: nextSchema.parse(
         typeof formData.next === 'string' ? formData.next : undefined,
       ),
@@ -68,7 +67,7 @@ function authCommands() {
 }
 
 export const loginFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const data = parseOrRedirectBack(
       z.object({ email: z.email(), password: z.string(), next: nextSchema }),
@@ -81,7 +80,7 @@ export const loginFormAction = createServerFn({ method: 'POST' })
     })
     if (resultIsError(result)) {
       redirectWithParams('/login', {
-        formError: result.error.message,
+        formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
@@ -89,7 +88,7 @@ export const loginFormAction = createServerFn({ method: 'POST' })
   })
 
 export const registerFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const data = parseOrRedirectBack(
       z.object({
@@ -110,7 +109,7 @@ export const registerFormAction = createServerFn({ method: 'POST' })
     })
     if (resultIsError(result)) {
       redirectWithParams('/register', {
-        formError: result.error.message,
+        formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
@@ -118,7 +117,7 @@ export const registerFormAction = createServerFn({ method: 'POST' })
   })
 
 export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const data = parseOrRedirectBack(
       z.object({
@@ -138,7 +137,7 @@ export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
     })
     if (resultIsError(result)) {
       redirectWithParams(backHref, {
-        formError: result.error.message,
+        formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
@@ -146,7 +145,7 @@ export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
   })
 
 export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const data = parseOrRedirectBack(
       z.object({
@@ -166,7 +165,7 @@ export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
     })
     if (resultIsError(result)) {
       redirectWithParams(backHref, {
-        formError: result.error.message,
+        formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
@@ -174,7 +173,7 @@ export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
   })
 
 export const updatePasswordFormAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: FormData) => data)
+  .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const data = parseOrRedirectBack(
       z.object({ password: setPasswordFieldSchema, next: nextSchema }),
@@ -186,7 +185,7 @@ export const updatePasswordFormAction = createServerFn({ method: 'POST' })
     })
     if (resultIsError(result)) {
       redirectWithParams('/auth/update-password', {
-        formError: result.error.message,
+        formError: result.error.code ?? 'unknown',
         next: data.next,
       })
     }
