@@ -200,6 +200,20 @@ export type Database = {
         }
         Returns: string
       }
+      select_stale_referenced_snapshots: {
+        Args: {
+          p_after_id?: string
+          p_after_updated_at?: string
+          p_limit?: number
+          p_stale_before: string
+        }
+        Returns: {
+          external_id: string
+          id: string
+          provider_id: Database["public"]["Enums"]["provider_id"]
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
       collection_visibility: "public" | "private"

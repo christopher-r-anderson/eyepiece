@@ -6,6 +6,7 @@ import { createAdminClient, it } from '@/test/integration-fixtures'
 
 const PREFIX = `REVAL-${Date.now()}`
 const STALE_AT = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+const STALE_BEFORE = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
 // other suites and earlier runs leave their own stale rows behind, so
 // fetchAsset stubs answer by key and assertions read rows, not totals
@@ -34,20 +35,42 @@ async function seedSnapshot(
   externalId: string,
   updatedAt?: string,
 ) {
-  const { error } = await admin.from('asset_preview_snapshots').insert({
-    provider_id: 'nasa_ivl',
-    external_id: externalId,
-    title: `Seeded ${externalId}`,
-    image_width: 200,
-    image_height: 150,
-    renditions: [
-      { href: 'https://example.com/old.jpg', width: 200, height: 150 },
-    ],
-    // moddatetime fires only on UPDATE, so an explicit updated_at survives
-    // the insert and places the row inside or outside the stale window
-    ...(updatedAt ? { updated_at: updatedAt } : {}),
+  const { data, error } = await admin
+    .from('asset_preview_snapshots')
+    .insert({
+      provider_id: 'nasa_ivl',
+      external_id: externalId,
+      title: `Seeded ${externalId}`,
+      image_width: 200,
+      image_height: 150,
+      renditions: [
+        { href: 'https://example.com/old.jpg', width: 200, height: 150 },
+      ],
+      // moddatetime fires only on UPDATE, so an explicit updated_at survives
+      // the insert and places the row inside or outside the stale window
+      ...(updatedAt ? { updated_at: updatedAt } : {}),
+    })
+    .select('id')
+    .single()
+  expect(error).toBeNull()
+  return data!.id
+}
+
+// the selection reads referenced rows only, so most tests pin their
+// snapshot to a favorite; the orphan test is the one that does not
+async function seedReferencedSnapshot(
+  admin: ReturnType<typeof createAdminClient>,
+  ownerId: string,
+  externalId: string,
+  updatedAt?: string,
+) {
+  const snapshotId = await seedSnapshot(admin, externalId, updatedAt)
+  const { error } = await admin.from('favorites').insert({
+    owner_id: ownerId,
+    asset_preview_snapshot_id: snapshotId,
   })
   expect(error).toBeNull()
+  return snapshotId
 }
 
 async function readSnapshot(
@@ -64,19 +87,26 @@ async function readSnapshot(
 
 describe('revalidateStaleSnapshots', () => {
   afterEach(async () => {
-    await createAdminClient()
+    const admin = createAdminClient()
+    const { data } = await admin
       .from('asset_preview_snapshots')
-      .delete()
+      .select('id')
       .like('external_id', `${PREFIX}%`)
+    const ids = (data ?? []).map((row) => row.id)
+    if (ids.length === 0) return
+    // favorites RESTRICT the snapshot delete, so they go first
+    await admin.from('favorites').delete().in('asset_preview_snapshot_id', ids)
+    await admin.from('asset_preview_snapshots').delete().in('id', ids)
   })
 
   it('refreshes a stale row and leaves a fresh one alone', async ({
     adminClient,
+    user,
   }) => {
     const staleId = `${PREFIX}-stale`
     const freshId = `${PREFIX}-fresh`
-    await seedSnapshot(adminClient, staleId, STALE_AT)
-    await seedSnapshot(adminClient, freshId)
+    await seedReferencedSnapshot(adminClient, user.id, staleId, STALE_AT)
+    await seedReferencedSnapshot(adminClient, user.id, freshId)
     const fetchAsset = makeFetchAsset({
       [staleId]: makeAsset(staleId, 'Refreshed title'),
     })
@@ -84,7 +114,7 @@ describe('revalidateStaleSnapshots', () => {
     const result = await revalidateStaleSnapshots({
       client: adminClient,
       fetchAsset,
-      staleBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      staleBefore: STALE_BEFORE,
       spacingMs: 0,
     })
 
@@ -105,32 +135,83 @@ describe('revalidateStaleSnapshots', () => {
     })
   })
 
-  it('leaves a gone-upstream row untouched and stale', async ({
+  it('skips an orphan so the sweep still sees it age', async ({
     adminClient,
   }) => {
-    const goneId = `${PREFIX}-gone`
-    await seedSnapshot(adminClient, goneId, STALE_AT)
+    const orphanId = `${PREFIX}-orphan`
+    await seedSnapshot(adminClient, orphanId, STALE_AT)
+    const fetchAsset = makeFetchAsset({
+      [orphanId]: makeAsset(orphanId, 'Should never land'),
+    })
 
-    const result = await revalidateStaleSnapshots({
+    await revalidateStaleSnapshots({
       client: adminClient,
-      fetchAsset: makeFetchAsset({ [goneId]: null }),
-      staleBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      fetchAsset,
+      staleBefore: STALE_BEFORE,
       spacingMs: 0,
     })
 
+    expect(fetchAsset).not.toHaveBeenCalledWith(
+      expect.objectContaining({ externalId: orphanId }),
+    )
+    await expect(readSnapshot(adminClient, orphanId)).resolves.toMatchObject({
+      title: `Seeded ${orphanId}`,
+    })
+  })
+
+  it('pages past rows it leaves stale instead of starving the rest', async ({
+    adminClient,
+    user,
+  }) => {
+    // three stale rows, one-row pages; the first stays gone-upstream and
+    // must not block the later pages from being reached
+    const goneId = `${PREFIX}-page-gone`
+    const laterA = `${PREFIX}-page-a`
+    const laterB = `${PREFIX}-page-b`
+    await seedReferencedSnapshot(adminClient, user.id, goneId, STALE_AT)
+    await seedReferencedSnapshot(
+      adminClient,
+      user.id,
+      laterA,
+      new Date(Date.parse(STALE_AT) + 60_000).toISOString(),
+    )
+    await seedReferencedSnapshot(
+      adminClient,
+      user.id,
+      laterB,
+      new Date(Date.parse(STALE_AT) + 120_000).toISOString(),
+    )
+    const fetchAsset = makeFetchAsset({
+      [laterA]: makeAsset(laterA, 'Refreshed A'),
+      [laterB]: makeAsset(laterB, 'Refreshed B'),
+    })
+
+    const result = await revalidateStaleSnapshots({
+      client: adminClient,
+      fetchAsset,
+      staleBefore: STALE_BEFORE,
+      spacingMs: 0,
+      pageSize: 1,
+    })
+
     expect(result.missing).toBeGreaterThanOrEqual(1)
-    // untouched includes updated_at, so the next run asks about it again
+    await expect(readSnapshot(adminClient, laterA)).resolves.toMatchObject({
+      title: 'Refreshed A',
+    })
+    await expect(readSnapshot(adminClient, laterB)).resolves.toMatchObject({
+      title: 'Refreshed B',
+    })
     await expect(readSnapshot(adminClient, goneId)).resolves.toMatchObject({
       title: `Seeded ${goneId}`,
-      updated_at: expect.stringContaining(STALE_AT.slice(0, 19)),
     })
   })
 
   it('reports a failed fetch and keeps the row for the next run', async ({
     adminClient,
+    user,
   }) => {
     const failId = `${PREFIX}-fail`
-    await seedSnapshot(adminClient, failId, STALE_AT)
+    await seedReferencedSnapshot(adminClient, user.id, failId, STALE_AT)
 
     const result = await revalidateStaleSnapshots({
       client: adminClient,
@@ -139,7 +220,7 @@ describe('revalidateStaleSnapshots', () => {
           ? Promise.reject(new Error('provider down'))
           : Promise.resolve(null),
       ),
-      staleBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      staleBefore: STALE_BEFORE,
       spacingMs: 0,
     })
 
@@ -153,9 +234,10 @@ describe('revalidateStaleSnapshots', () => {
 
   it('refreshes the title but keeps the stored image when the asset has none', async ({
     adminClient,
+    user,
   }) => {
     const imagelessId = `${PREFIX}-imageless`
-    await seedSnapshot(adminClient, imagelessId, STALE_AT)
+    await seedReferencedSnapshot(adminClient, user.id, imagelessId, STALE_AT)
 
     await revalidateStaleSnapshots({
       client: adminClient,
@@ -165,7 +247,7 @@ describe('revalidateStaleSnapshots', () => {
           title: 'Title only now',
         },
       }),
-      staleBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      staleBefore: STALE_BEFORE,
       spacingMs: 0,
     })
 
