@@ -7,115 +7,23 @@
 //
 // Requests are sequential and spaced; raw responses are cached under
 // provider-samples/raw so re-runs analyze without touching the APIs.
-import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
-import { createHash } from 'node:crypto'
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises'
+import {
+  NASA_QUERIES,
+  OUT_DIR,
+  RAW_DIR,
+  SI_QUERIES,
+  SI_SEARCH_FILTER,
+  asArray,
+  asRecord,
+  asString,
+  bump,
+  counts,
+  csvCell,
+  edgeCaseDir,
+  fetchJson,
+} from './provider-sampling'
 import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
-
-const OUT_DIR = 'provider-samples'
-const RAW_DIR = `${OUT_DIR}/raw`
-const EDGE_CASE_DIR = `${OUT_DIR}/edge-cases`
-
-const REQUEST_SPACING_MS = 1500
-const MAX_ATTEMPTS = 3
-const USER_AGENT =
-  'eyepiece-research/1.0 (+https://github.com/christopher-r-anderson/eyepiece)'
-
-const NASA_QUERIES = [
-  'apollo',
-  'mars rover',
-  'hubble',
-  'earth from orbit',
-  'saturn',
-  'astronaut portrait',
-  'launch',
-  'nebula',
-  'international space station',
-  'space shuttle',
-  'eclipse',
-  'spacewalk',
-]
-
-const SI_QUERIES = [
-  'apollo',
-  'spacesuit',
-  'wright brothers',
-  'rocket engine',
-  'lunar module',
-  'aircraft',
-  'satellite',
-  'helicopter',
-  'jet engine',
-  'balloon',
-  'telescope',
-  'uniform',
-]
-
-const SI_SEARCH_FILTER =
-  'online_media_type:Images AND data_source:"National Air and Space Museum"'
-
-const sleep = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-
-// the api key is redacted before both the digest and the label, so a rotated
-// or per-developer key still hits the same cache entry
-function cacheName(url: string) {
-  const redacted = redact(url)
-  const digest = createHash('sha1').update(redacted).digest('hex').slice(0, 10)
-  const label = redacted
-    .replace(/^https?:\/\//, '')
-    .replace(/[^a-z0-9]+/gi, '-')
-  return `${label.slice(0, 90)}.${digest}.json`
-}
-
-async function fetchJson(url: string, refetch: boolean): Promise<unknown> {
-  const file = `${RAW_DIR}/${cacheName(url)}`
-  if (!refetch) {
-    try {
-      return JSON.parse(await readFile(file, 'utf8'))
-    } catch {}
-  }
-  for (let attempt = 1; ; attempt++) {
-    await sleep(REQUEST_SPACING_MS)
-    const response = await fetch(url, {
-      headers: { 'user-agent': USER_AGENT, accept: 'application/json' },
-    })
-    if (response.ok) {
-      const body = await response.text()
-      await writeFile(file, body)
-      return JSON.parse(body)
-    }
-    // 429 and 5xx are the only ones worth waiting out; anything else is our bug
-    if (
-      attempt >= MAX_ATTEMPTS ||
-      (response.status !== 429 && response.status < 500)
-    ) {
-      throw new Error(
-        `${response.status} ${response.statusText} for ${redact(url)}`,
-      )
-    }
-    await sleep(attempt * 10_000)
-  }
-}
-
-function redact(url: string) {
-  return url.replace(/api_key=[^&]+/, 'api_key=REDACTED')
-}
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === 'object'
-    ? (value as Record<string, unknown>)
-    : {}
-}
-
-function asArray(value: unknown): Array<unknown> {
-  return Array.isArray(value) ? value : []
-}
-
-function asString(value: unknown): string {
-  return typeof value === 'string' ? value : ''
-}
 
 interface Sample {
   id: string
@@ -189,10 +97,6 @@ interface SiStructure {
   recordsWithMedia: number
   recordsWithoutFreetext: number
   mediaCounts: Array<number>
-}
-
-function bump(tally: Record<string, number>, key: string) {
-  tally[key] = (tally[key] ?? 0) + 1
 }
 
 function siNotes(freetext: Record<string, unknown>, label: string) {
@@ -477,7 +381,7 @@ async function writeEdgeCases(
   samples: Array<Sample>,
   rules: Array<EdgeRule>,
 ) {
-  const dir = EDGE_CASE_DIR
+  const dir = edgeCaseDir('text')
   await mkdir(dir, { recursive: true })
   const lines: Array<string> = []
   for (const rule of rules) {
@@ -510,10 +414,6 @@ function statsTable(samples: Array<Sample>, fields: Array<string>) {
   return lines.join('\n')
 }
 
-function csvCell(value: string) {
-  return `"${value.replace(/\s+/g, ' ').trim().slice(0, 300).replace(/"/g, '""')}"`
-}
-
 async function writeCsv(
   name: string,
   samples: Array<Sample>,
@@ -528,13 +428,6 @@ async function writeCsv(
     ].join(','),
   )
   await writeFile(`${OUT_DIR}/${name}`, [header, ...rows].join('\n'))
-}
-
-function counts(record: Record<string, number>) {
-  return Object.entries(record)
-    .sort(([, a], [, b]) => b - a)
-    .map(([key, count]) => `${key} (${count})`)
-    .join(', ')
 }
 
 async function main() {
@@ -571,7 +464,7 @@ async function main() {
 
   // a later run can select fewer records for a rule, and leftovers from an
   // earlier one would still read as current when fixtures get picked
-  await rm(EDGE_CASE_DIR, { recursive: true, force: true })
+  await rm(edgeCaseDir('text'), { recursive: true, force: true })
   const nasaEdges = await writeEdgeCases('nasa', nasa, NASA_EDGE_RULES)
   const siEdges = await writeEdgeCases('si', si, SI_EDGE_RULES)
 
