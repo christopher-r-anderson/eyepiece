@@ -221,9 +221,11 @@ Related code lives in:
 
 #### Changing the shape
 
-A snapshot is written only when someone stars an asset or adds it to a collection, and refreshed on that path once it is past the stale window. Nothing refreshes it on a read, and `favorites` and `collection_items` both reference it `ON DELETE RESTRICT`.
+A snapshot is written only when someone stars an asset or adds it to a collection, and refreshed on that path once it is past the stale window. Nothing refreshes it on a read, and `favorites` and `collection_items` both reference it `ON DELETE RESTRICT`. A weekly workflow (`revalidate-snapshots`) re-ensures every referenced row past the same window - orphans are skipped so the nightly sweep still sees them age; a record gone upstream leaves its row untouched, and the next run asks about it again.
 
 The stored image is nullable. A provider record can carry no file we can render, and a placeholder would hand the layout a dimension it then believes; the width, height and ladder are written together or not at all. Surfaces render the tile's own background in that case.
+
+A refresh never clears stored image data. An absent image on a fetched record can mean the record has no media, or that a transient lookup failed to size it, and the contract does not distinguish them - so the ensure call keeps what is stored rather than let a network blip erase a good ladder. The accepted cost: a record whose image was genuinely withdrawn upstream keeps its stale ladder until the row is unreferenced and swept. If a favorited record ever renders a dead ladder while the record itself lives on, this is the trade-off to revisit; clearing safely needs the mapper to say which kind of absent it saw.
 
 A stored snapshot is therefore the only copy of that preview the site holds. Changing the table's shape requires:
 
