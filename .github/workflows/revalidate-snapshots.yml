@@ -1,9 +1,7 @@
 name: Revalidate Snapshots
 
-# the read model refreshes only on the star/collect write path, so this job
-# is the revalidate half of its stale-while-revalidate (#205). Weekly: the
-# content is archival and the stale window is seven days, so every row
-# refreshes on a one-to-two week rhythm.
+# weekly: the content is archival and the stale window is seven days, so
+# every row refreshes on a one-to-two week rhythm (#205)
 on:
   schedule:
     # off the hour: GitHub delays or drops runs scheduled on round times

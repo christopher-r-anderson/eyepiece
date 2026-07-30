@@ -1,13 +1,11 @@
 -- Selection for the weekly snapshot revalidation job (#205).
 --
--- Referenced rows only: the nightly orphan sweep deletes unreferenced
--- snapshots whose updated_at is 30 days old, and revalidating an orphan
--- would bump that timestamp every week and keep the row ahead of the sweep
--- forever. A row nothing displays needs no fresh data.
+-- Referenced rows only: revalidating an orphan would bump updated_at every
+-- week and keep it ahead of the nightly 30-day sweep forever.
 --
 -- Keyset-paginated: PostgREST caps a response at 1000 rows, and rows the
--- job deliberately leaves stale (gone upstream, failed) sort first, so a
--- plain limited query would eventually starve everything behind them.
+-- job deliberately leaves stale sort first, so a plain limited query would
+-- starve everything behind them.
 
 CREATE OR REPLACE FUNCTION public.select_stale_referenced_snapshots(
   p_stale_before timestamptz,

@@ -1,7 +1,6 @@
 // Re-ensures asset preview snapshots older than the stale window through
-// their providers, so titles and rendition ladders track upstream without
-// reintroducing the read-path fan-out the read model exists to avoid (#205).
-// Runs weekly from .github/workflows/revalidate-snapshots.yml; safe by hand:
+// their providers (#205). Runs weekly from
+// .github/workflows/revalidate-snapshots.yml; safe by hand:
 //
 //   pnpm revalidate-snapshots
 import { createClient } from '@supabase/supabase-js'
@@ -40,9 +39,7 @@ async function main() {
   for (const failure of result.failures) {
     process.stdout.write(`  ${failure}\n`)
   }
-  // a failed row keeps its data and is retried next run; going red here
-  // makes a provider outage visible in the workflow list without blocking
-  // anything else
+  // failed rows are retried next run; going red makes an outage visible
   if (result.failures.length > 0) process.exitCode = 1
 }
 

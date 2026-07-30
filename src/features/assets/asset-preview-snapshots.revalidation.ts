@@ -2,12 +2,9 @@ import type { Asset, AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 
 export interface RevalidateStaleSnapshotsOptions {
-  // service role: reads every row and writes through the ensure RPC
   client: SupabaseClient
   fetchAsset: (assetKey: AssetKey) => Promise<Asset | null>
   staleBefore: Date
-  // providers are public APIs with their own budgets, and a scheduled job
-  // has no deadline worth spending one on
   spacingMs?: number
   pageSize?: number
   log?: (line: string) => void
@@ -25,15 +22,9 @@ const sleep = (ms: number) =>
     setTimeout(resolve, ms)
   })
 
-// Re-ensures snapshots older than the stale window through their providers.
-// The read model refreshes only on the star/collect write path, so without
-// this a title or ladder stays stale until the same user stars the same
-// asset again (#205).
-//
-// Selection lives in select_stale_referenced_snapshots: referenced rows
-// only, so the orphan sweep still sees an orphan age past its window, and
-// keyset-paginated so rows this job deliberately leaves stale cannot starve
-// the ones behind them.
+// Re-ensures referenced snapshots older than the stale window; nothing else
+// refreshes a row unless the same user stars the same asset again. The
+// selection rules live with select_stale_referenced_snapshots.
 export async function revalidateStaleSnapshots({
   client,
   fetchAsset,
@@ -75,9 +66,8 @@ export async function revalidateStaleSnapshots({
           externalId: row.external_id,
         })
         if (!asset) {
-          // the provider no longer has the record; the stored row is the
-          // only copy left, so it stays as it is. Its updated_at stays old
-          // too, so the next run asks again in case the record returns.
+          // gone upstream: the row stays as it is, updated_at included, so
+          // the next run asks again
           missing++
           log(`gone upstream, left alone: ${label}`)
           continue
@@ -98,7 +88,6 @@ export async function revalidateStaleSnapshots({
         if (ensureError) throw new Error(ensureError.message)
         refreshed++
       } catch (caught) {
-        // the row keeps its data and stays stale, so the next run retries it
         failures.push(`${label}: ${(caught as Error).message}`)
       }
     }

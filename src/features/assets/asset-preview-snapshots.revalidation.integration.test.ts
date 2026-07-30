@@ -8,8 +8,8 @@ const PREFIX = `REVAL-${Date.now()}`
 const STALE_AT = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
 const STALE_BEFORE = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
-// other suites and earlier runs leave their own stale rows behind, so
-// fetchAsset stubs answer by key and assertions read rows, not totals
+// other suites leave stale rows behind, so stubs answer by key and
+// assertions read rows, not totals
 function makeFetchAsset(assets: Record<string, Asset | null>) {
   return vi.fn((key: { externalId: string }) =>
     Promise.resolve(assets[key.externalId] ?? null),
@@ -56,8 +56,6 @@ async function seedSnapshot(
   return data!.id
 }
 
-// the selection reads referenced rows only, so most tests pin their
-// snapshot to a favorite; the orphan test is the one that does not
 async function seedReferencedSnapshot(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
@@ -163,8 +161,6 @@ describe('revalidateStaleSnapshots', () => {
     adminClient,
     user,
   }) => {
-    // three stale rows, one-row pages; the first stays gone-upstream and
-    // must not block the later pages from being reached
     const goneId = `${PREFIX}-page-gone`
     const laterA = `${PREFIX}-page-a`
     const laterB = `${PREFIX}-page-b`
