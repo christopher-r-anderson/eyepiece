@@ -3,11 +3,13 @@ import { StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { useCallback } from 'react'
 import { css } from 'styled-system/css'
 import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { ToggleFavoriteVariant } from '@/features/favorites/components/toggle-favorite-button'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 import {
+  FavoriteLabelSwap,
   ToggleFavoriteButton,
   favoriteToggleCss,
 } from '@/features/favorites/components/toggle-favorite-button'
@@ -17,7 +19,13 @@ const favoriteToggleFallbackCss = css.raw(favoriteToggleCss, {
   opacity: 0.75,
 })
 
-export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
+export function FavoriteButton({
+  assetKey,
+  variant = 'tile',
+}: {
+  assetKey: AssetKey
+  variant?: ToggleFavoriteVariant
+}) {
   const queueToastMessage = useQueueToastMessage()
   const showLoginModal = useShowLoginModal()
   const showErrorToast = useCallback(
@@ -31,9 +39,10 @@ export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
   )
 
   return (
-    <ClientOnly fallback={<FavoriteButtonFallback />}>
+    <ClientOnly fallback={<FavoriteButtonFallback variant={variant} />}>
       <FavoriteButtonContent
         assetKey={assetKey}
+        variant={variant}
         onUnauthorized={showLoginModal}
         onError={showErrorToast}
       />
@@ -43,10 +52,12 @@ export function FavoriteButton({ assetKey }: { assetKey: AssetKey }) {
 
 function FavoriteButtonContent({
   assetKey,
+  variant,
   onUnauthorized,
   onError,
 }: {
   assetKey: AssetKey
+  variant: ToggleFavoriteVariant
   onUnauthorized: () => void
   onError: () => void
 }) {
@@ -57,7 +68,7 @@ function FavoriteButtonContent({
     return (
       <ToggleButton
         aria-label="Star"
-        variant="icon"
+        variant={variant === 'detail' ? 'text' : 'icon'}
         css={favoriteToggleCss}
         isDisabled={isPending}
         // controlled and never selected: an uncontrolled toggle would
@@ -66,27 +77,34 @@ function FavoriteButtonContent({
         onChange={onUnauthorized}
       >
         <StarIcon size={20} weight="regular" />
+        {variant === 'detail' && <FavoriteLabelSwap isSelected={false} />}
       </ToggleButton>
     )
   }
   return (
     <ToggleFavoriteButton
       assetKey={assetKey}
+      variant={variant}
       onUnauthorized={onUnauthorized}
       onError={onError}
     />
   )
 }
 
-function FavoriteButtonFallback() {
+function FavoriteButtonFallback({
+  variant,
+}: {
+  variant: ToggleFavoriteVariant
+}) {
   return (
     <ToggleButton
       aria-label="Star"
-      variant="icon"
+      variant={variant === 'detail' ? 'text' : 'icon'}
       css={favoriteToggleFallbackCss}
       isDisabled
     >
       <StarIcon size={20} weight="regular" />
+      {variant === 'detail' && <FavoriteLabelSwap isSelected={false} />}
     </ToggleButton>
   )
 }

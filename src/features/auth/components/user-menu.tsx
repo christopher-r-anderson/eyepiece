@@ -22,8 +22,9 @@ export function UserMenu() {
         aria-label="User Menu"
         variant="bare"
         css={{
-          width: '30px',
-          height: '30px',
+          // the nav chips share the compact control square
+          width: 'controlHeightSm',
+          height: 'controlHeightSm',
           borderRadius: 'full',
           backgroundColor: 'bg.surface.3',
           color: 'text',
@@ -31,6 +32,7 @@ export function UserMenu() {
           placeItems: 'center',
           fontWeight: 600,
           fontSize: 'sm',
+          transitionFast: 'background-color',
           _hovered: { backgroundColor: 'bg.surface.4' },
         }}
       >

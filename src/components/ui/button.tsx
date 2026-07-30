@@ -6,25 +6,15 @@ import type { ButtonProps as RacButtonProps } from 'react-aria-components'
 import type { ButtonVariantProps } from 'styled-system/recipes'
 import type { UiProps } from './style-contract'
 
-// an icon-only button renders no text, so the size demands an accessible name
-type IconSizeProps =
-  | { size?: undefined }
-  | ({ size: 'icon' } & (
-      | { 'aria-label': string }
-      | { 'aria-labelledby': string }
-    ))
-
 export type ButtonProps = {
   ref?: Ref<HTMLButtonElement>
   icon?: React.ComponentType<{ size: number }>
-} & Omit<ButtonVariantProps, 'size'> &
-  IconSizeProps &
+} & ButtonVariantProps &
   UiProps<RacButtonProps>
 
 export function Button({
   children,
   variant,
-  size,
   icon: Icon,
   css: cssProp,
   className,
@@ -33,7 +23,7 @@ export function Button({
   return (
     <ReactAriaButton
       {...props}
-      className={cx(button({ variant, size }), css(cssProp), className)}
+      className={cx(button({ variant }), css(cssProp), className)}
     >
       {(state) => (
         <>

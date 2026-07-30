@@ -11,7 +11,8 @@ export const modalDialogRecipe = defineSlotRecipe({
       position: 'fixed',
       inset: 0,
       zIndex: 'overlay',
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+      // one backdrop strength across modal surfaces (the sheet set it)
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     modal: {
       maxHeight: '100vh',

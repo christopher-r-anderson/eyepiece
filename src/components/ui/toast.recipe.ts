@@ -19,10 +19,12 @@ export const toastRecipe = defineSlotRecipe({
       display: 'flex',
       alignItems: 'flex-start',
       gap: '2',
-      backgroundColor: 'bg.surface.2',
+      backgroundColor: 'bg.canvas',
       color: 'text',
-      // decorative surface outline, deliberately not the focusRing border token
-      outline: '1px solid token(colors.separator)',
+      // toasts are floating layers: same paper as popover/menu/dialog
+      border: 'default',
+      borderRadius: 'overlay',
+      boxShadow: 'overlay',
       padding: '4',
     },
     content: {

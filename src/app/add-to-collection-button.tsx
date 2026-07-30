@@ -15,9 +15,17 @@ const tileTriggerCss = css.raw({
   _hovered: { color: 'accent.emphasis' },
 })
 
+// the detail action row speaks in prose controls (the mockups' text-btn
+// voice), so the trigger is an icon-and-label line, not a boxed button
 const detailTriggerCss = css.raw({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '2',
+  minHeight: 'touchTargetMin',
+  borderBottom: 'none',
+  fontWeight: 400,
   color: 'text.muted',
-  _hovered: { color: 'text' },
+  _hovered: { color: 'text', borderBottomColor: 'transparent' },
 })
 
 function TriggerButton({
@@ -33,18 +41,19 @@ function TriggerButton({
     'aria-label': 'Add to collection',
     isDisabled,
     onPress,
-    children: <PlusIcon size={20} />,
   }
   if (variant === 'tile') {
-    return <Button {...shared} variant="bare" css={tileTriggerCss} />
+    return (
+      <Button {...shared} variant="bare" css={tileTriggerCss}>
+        <PlusIcon size={20} />
+      </Button>
+    )
   }
   return (
-    <Button
-      {...shared}
-      variant="secondary"
-      size="icon"
-      css={detailTriggerCss}
-    />
+    <Button {...shared} variant="text" css={detailTriggerCss}>
+      <PlusIcon size={20} />
+      collect
+    </Button>
   )
 }
 

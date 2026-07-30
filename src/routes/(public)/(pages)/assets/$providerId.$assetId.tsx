@@ -134,7 +134,7 @@ function AssetPage() {
       }
       actions={
         <>
-          <FavoriteButton assetKey={assetKey} />
+          <FavoriteButton assetKey={assetKey} variant="detail" />
           <AddToCollectionButton assetKey={assetKey} variant="detail" />
         </>
       }

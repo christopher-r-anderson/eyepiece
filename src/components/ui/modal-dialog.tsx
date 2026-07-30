@@ -48,6 +48,8 @@ export function ModalDialog({
               css={css.raw({
                 flex: '1 1 auto',
                 minWidth: 0,
+                // dialogs are panels; their titles take the section voice
+                textStyle: 'title.md',
               })}
             >
               {title}
