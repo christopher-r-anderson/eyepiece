@@ -18,6 +18,7 @@
     "provision-showcase": "tsx --env-file-if-exists=.env.local scripts/provision-showcase.ts",
     "sample-provider-text": "tsx --env-file-if-exists=.env.local scripts/sample-provider-text.ts",
     "sample-provider-renditions": "tsx --env-file-if-exists=.env.local scripts/sample-provider-renditions.ts",
+    "backfill-snapshot-renditions": "tsx --env-file-if-exists=.env.local scripts/backfill-snapshot-renditions.ts",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "predev": "pnpm fetch-fonts",
     "dev": "vite dev --port 3000",

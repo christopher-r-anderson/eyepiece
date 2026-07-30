@@ -1,21 +1,19 @@
 import { expect, test } from './fixtures'
+import { singleRenditionImage } from './support/asset-image'
 import type { Page } from '@playwright/test'
 
 const NASA_PROVIDER_ID = 'nasa_ivl'
 
 function stubAsset(externalId: string, title: string) {
-  const image = {
-    href: `https://images-assets.nasa.gov/image/${externalId}/${externalId}~thumb.jpg`,
-    width: 640,
-    height: 480,
-  }
   return {
     key: { providerId: NASA_PROVIDER_ID, externalId },
     title,
-    thumbnail: image,
     description: `${title} description`,
-    image,
-    original: image,
+    image: singleRenditionImage(
+      `https://images-assets.nasa.gov/image/${externalId}/${externalId}~thumb.jpg`,
+      640,
+      480,
+    ),
   }
 }
 

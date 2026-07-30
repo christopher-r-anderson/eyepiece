@@ -46,9 +46,15 @@ async function seedAssetPreviewSnapshot(
       provider_id: 'nasa_ivl',
       external_id: externalId,
       title: `Integration test asset ${externalId}`,
-      thumb_href: 'https://images.example.com/thumb.jpg',
-      thumb_width: 200,
-      thumb_height: 150,
+      image_width: 200,
+      image_height: 150,
+      renditions: [
+        {
+          href: 'https://images.example.com/thumb.jpg',
+          width: 200,
+          height: 150,
+        },
+      ],
       ...(updatedAt ? { updated_at: updatedAt } : {}),
     })
     .select('id')
@@ -404,7 +410,7 @@ describe('collection items', () => {
     ])
     expect(cards[0]?.itemCount).toBe(2)
     expect(cards[0]?.cover?.id).toBe(snapshotA)
-    expect(cards[0]?.cover?.thumbnail.width).toBe(200)
+    expect(cards[0]?.cover?.image?.width).toBe(200)
     expect(cards[1]?.itemCount).toBe(0)
     expect(cards[1]?.cover).toBeNull()
   })
@@ -940,9 +946,15 @@ describe('snapshot lifecycle guards', () => {
       p_provider_id: 'nasa_ivl',
       p_external_id: externalId,
       p_title: `Integration test asset ${externalId}`,
-      p_thumb_href: 'https://images.example.com/thumb.jpg',
-      p_thumb_width: 200,
-      p_thumb_height: 150,
+      p_image_width: 200,
+      p_image_height: 150,
+      p_renditions: [
+        {
+          href: 'https://images.example.com/thumb.jpg',
+          width: 200,
+          height: 150,
+        },
+      ],
     })
     expect(error).toBeNull()
 
@@ -1037,11 +1049,126 @@ describe('snapshot lifecycle guards', () => {
         p_provider_id: 'nasa_ivl',
         p_external_id: 'NON-SERVICE-SHOULD-NOT-WRITE',
         p_title: 'nope',
-        p_thumb_href: 'https://example.com/no.jpg',
-        p_thumb_width: 1,
-        p_thumb_height: 1,
+        p_image_width: 1,
+        p_image_height: 1,
+        p_renditions: [
+          { href: 'https://example.com/no.jpg', width: 1, height: 1 },
+        ],
       })
       expect(error).not.toBeNull()
     }
+  })
+
+  it('stores a snapshot with no image rather than inventing one', async ({
+    adminClient,
+  }) => {
+    const externalId = `INTEG-NO-IMAGE-${Date.now()}`
+    const { error } = await adminClient.rpc('ensure_asset_preview_snapshot', {
+      p_provider_id: 'nasa_ivl',
+      p_external_id: externalId,
+      p_title: 'Nothing renderable',
+    })
+    expect(error).toBeNull()
+
+    const { data: row } = await adminClient
+      .from('asset_preview_snapshots')
+      .select('image_width, image_height, renditions')
+      .eq('external_id', externalId)
+      .single()
+    expect(row).toEqual({
+      image_width: null,
+      image_height: null,
+      renditions: null,
+    })
+  })
+
+  it('rejects an image that is only half stored', async ({ adminClient }) => {
+    const { error } = await adminClient.rpc('ensure_asset_preview_snapshot', {
+      p_provider_id: 'nasa_ivl',
+      p_external_id: `INTEG-HALF-IMAGE-${Date.now()}`,
+      p_title: 'A size with no file to put in it',
+      p_image_width: 800,
+      p_image_height: 600,
+    })
+    expect(error).not.toBeNull()
+  })
+
+  it('a malformed rendition is rejected without disturbing the stored row', async ({
+    adminClient,
+  }) => {
+    const externalId = `INTEG-LADDER-${Date.now()}`
+    const good = [
+      { href: 'https://example.com/a.jpg', width: 800, height: 600 },
+      { href: 'https://example.com/b.jpg', width: 400, height: 300 },
+    ]
+    const { error: seedError } = await adminClient.rpc(
+      'ensure_asset_preview_snapshot',
+      {
+        p_provider_id: 'nasa_ivl',
+        p_external_id: externalId,
+        p_title: 'Keeps its ladder',
+        p_image_width: 800,
+        p_image_height: 600,
+        p_renditions: good,
+      },
+    )
+    expect(seedError).toBeNull()
+
+    // shapes the app's schema rejects; the constraint must agree, since a
+    // stored one fails the whole batch read
+    const malformed = [
+      [{ href: 'https://example.com/c.jpg', width: 0, height: 5 }],
+      [{ href: null, width: 1, height: 1 }],
+      [{ href: 123, width: 1.5, height: 2 }],
+      [{ href: 'not-a-url', width: 800, height: 600 }],
+      [{ href: '   ', width: 800, height: 600 }],
+      [{ href: 'https://', width: 800, height: 600 }],
+      // a raw space would also make the whole srcset unparseable
+      [{ href: 'https://a/b c.jpg', width: 800, height: 600 }],
+      [{ href: 'https://example.com/c.jpg', width: '800', height: 600 }],
+      [{ href: 'https://example.com/c.jpg', width: 800 }],
+      ['not-an-object'],
+    ]
+    for (const renditions of malformed) {
+      const { error: rejected } = await adminClient.rpc(
+        'ensure_asset_preview_snapshot',
+        {
+          p_provider_id: 'nasa_ivl',
+          p_external_id: externalId,
+          p_title: 'Should not land',
+          p_image_width: 999,
+          p_image_height: 999,
+          p_renditions: renditions,
+        },
+      )
+      expect(rejected, JSON.stringify(renditions)).not.toBeNull()
+    }
+
+    // a partial image against this fully-populated row would slip past the
+    // all-or-nothing row CHECK by coalescing with the stored fields, so the
+    // function rejects it up front
+    const { error: partial } = await adminClient.rpc(
+      'ensure_asset_preview_snapshot',
+      {
+        p_provider_id: 'nasa_ivl',
+        p_external_id: externalId,
+        p_title: 'Should not land either',
+        p_image_width: 999,
+      },
+    )
+    expect(partial).not.toBeNull()
+
+    // the upsert is one statement, so a rejected write costs the caller its
+    // update and nothing else: the row keeps the ladder it already had
+    const { data: row } = await adminClient
+      .from('asset_preview_snapshots')
+      .select('title, image_width, renditions')
+      .eq('external_id', externalId)
+      .single()
+    expect(row).toMatchObject({
+      title: 'Keeps its ladder',
+      image_width: 800,
+      renditions: good,
+    })
   })
 })

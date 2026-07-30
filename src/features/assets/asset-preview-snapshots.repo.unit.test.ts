@@ -33,18 +33,20 @@ function makeDbRow(overrides?: {
   provider_id?: string
   external_id?: string
   title?: string | null
-  thumb_href?: string
-  thumb_width?: number
-  thumb_height?: number
+  image_width?: number
+  image_height?: number
+  renditions?: unknown
 }) {
   return {
     id: overrides?.id ?? UUID_1,
     provider_id: overrides?.provider_id ?? 'nasa_ivl',
     external_id: overrides?.external_id ?? 'asset-001',
     title: overrides?.title !== undefined ? overrides.title : 'A Title',
-    thumb_href: overrides?.thumb_href ?? 'https://example.com/thumb.jpg',
-    thumb_width: overrides?.thumb_width ?? 320,
-    thumb_height: overrides?.thumb_height ?? 240,
+    image_width: overrides?.image_width ?? 320,
+    image_height: overrides?.image_height ?? 240,
+    renditions: overrides?.renditions ?? [
+      { href: 'https://example.com/thumb.jpg', width: 320, height: 240 },
+    ],
   }
 }
 
@@ -72,7 +74,7 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
       await repo.getAssetPreviewSnapshots([UUID_1])
 
       expect(builder.select).toHaveBeenCalledWith(
-        'id, provider_id, external_id, title, thumb_href, thumb_width, thumb_height',
+        'id, provider_id, external_id, title, image_width, image_height, renditions',
       )
     })
 
@@ -104,10 +106,16 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
             externalId: 'asset-001',
           },
           title: 'A Title',
-          thumbnail: {
-            href: 'https://example.com/thumb.jpg',
+          image: {
             width: 320,
             height: 240,
+            renditions: [
+              {
+                href: 'https://example.com/thumb.jpg',
+                width: 320,
+                height: 240,
+              },
+            ],
           },
         })
       }
@@ -185,8 +193,9 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
     })
 
     it('returns Err when the DB response fails Zod validation', async () => {
-      // thumb_href is not a URL
-      const badRow = makeDbRow({ thumb_href: 'not-a-url' })
+      const badRow = makeDbRow({
+        renditions: [{ href: 'not-a-url', width: 320, height: 240 }],
+      })
       const { client } = makeClientStub({ data: [badRow], error: null })
       const repo = makeAssetPreviewSnapshotsRepo(client as any)
 
@@ -205,8 +214,8 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
       expect(resultIsError(result)).toBe(true)
     })
 
-    it('returns Err when thumb dimensions are not positive integers', async () => {
-      const badRow = makeDbRow({ thumb_width: 0 })
+    it('returns Err when the image dimensions are not positive integers', async () => {
+      const badRow = makeDbRow({ image_width: 0 })
       const { client } = makeClientStub({ data: [badRow], error: null })
       const repo = makeAssetPreviewSnapshotsRepo(client as any)
 

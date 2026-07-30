@@ -1,8 +1,10 @@
 import {
-  NOT_FOUND_IMAGE,
   dropTitleDuplicate,
   htmlToPlainText,
+  isDecodableImageHref,
+  toAssetImage,
 } from '../../provider.utils'
+import type { AssetImage, Rendition } from '@/domain/asset/asset.schema'
 import type { NasaIvlSearchFilters } from '@/domain/search/providers/nasa-ivl-filters'
 import type {
   NasaMediaItem,
@@ -31,44 +33,67 @@ export function buildNasaIvlSearchParams(
   }
 }
 
-function ensureImage(image: unknown) {
-  if (image === null || typeof image !== 'object') {
-    return { ...NOT_FOUND_IMAGE }
+// the original is wider than the largest alternate on nearly every record and
+// runs to tens of megabytes, so it joins the ladder only when it is small
+// enough to hand to a visitor
+const MAX_ORIGINAL_BYTES = 3 * 1024 * 1024
+
+function toRendition(link: NasaMediaLink | undefined): Rendition | undefined {
+  if (
+    !link ||
+    typeof link.width !== 'number' ||
+    typeof link.height !== 'number'
+  ) {
+    return undefined
   }
-  return {
-    href:
-      'href' in image && typeof image.href === 'string'
-        ? image.href
-        : NOT_FOUND_IMAGE.href,
-    width:
-      'width' in image && typeof image.width === 'number'
-        ? image.width
-        : NOT_FOUND_IMAGE.width,
-    height:
-      'height' in image && typeof image.height === 'number'
-        ? image.height
-        : NOT_FOUND_IMAGE.height,
-  }
+  if (link.width <= 0 || link.height <= 0) return undefined
+  if (!isDecodableImageHref(link.href)) return undefined
+  return { href: link.href, width: link.width, height: link.height }
 }
 
-function getThumbnail(links: Array<NasaMediaLink>): NasaMediaLink | undefined {
-  return links.find((link) => link.render === 'image' && link.rel === 'preview')
+// the canonical can be the unrotated camera file while every derivative is
+// stored rotated (three of ~1300 sampled records, all KSC photographs), so
+// its aspect only stands when the always-dimensioned preview agrees. The
+// tolerance passes integer rounding on extreme panoramas.
+function aspectAgrees(
+  a: { width: number; height: number },
+  b: { width: number; height: number },
+) {
+  const ratio = (a.width * b.height) / (a.height * b.width)
+  return ratio > 1 / 1.1 && ratio < 1.1
 }
 
-function getOriginal(links: Array<NasaMediaLink>): NasaMediaLink | undefined {
-  return links.find(
-    (link) => link.render === 'image' && link.rel === 'canonical',
+function getImage(links: Array<NasaMediaLink>): AssetImage | undefined {
+  const imageLinks = links.filter((link) => link.render === 'image')
+  const canonical = imageLinks.find((link) => link.rel === 'canonical')
+  // the preview is the only rendition present on every record, so it is what
+  // keeps the ladder from coming back empty
+  const preview = imageLinks.find((link) => link.rel === 'preview')
+  const previewRendition = toRendition(preview)
+  // a TIFF or oversized original is still the record's true size, and the
+  // aspect ratio is what the grid breaks rows on
+  const master =
+    canonical?.width && canonical.height
+      ? { width: canonical.width, height: canonical.height }
+      : undefined
+  const masterStands =
+    master && (!previewRendition || aspectAgrees(master, previewRendition))
+  // a rotated original is kept out of the ladder too: it would render
+  // sideways inside a box every other rendition fills upright
+  const original =
+    masterStands &&
+    canonical &&
+    (canonical.size ?? Infinity) <= MAX_ORIGINAL_BYTES
+      ? toRendition(canonical)
+      : undefined
+  return toAssetImage(
+    [
+      ...imageLinks.filter((link) => link.rel === 'alternate').map(toRendition),
+      original,
+      previewRendition,
+    ],
+    masterStands ? master : undefined,
   )
-}
-
-function getLargestAltImage(
-  links: Array<NasaMediaLink>,
-): NasaMediaLink | undefined {
-  return [
-    ...links.filter(
-      (link) => link.render === 'image' && link.rel === 'alternate',
-    ),
-  ].sort((a, b) => (b.width || 0) - (a.width || 0))[0]
 }
 
 // the API returns no link to the record's own page, so it is built from the id
@@ -85,9 +110,6 @@ export function mapMediaItem({
 }) {
   // Note data is an array but is always .length === 1
   const { album, title, description, nasa_id } = data[0]
-  const thumbnail = getThumbnail(links)
-  const original = getOriginal(links)
-  const image = getLargestAltImage(links)
   return {
     title,
     description: dropTitleDuplicate(
@@ -107,9 +129,7 @@ export function mapMediaItem({
           }),
         )
       : undefined,
-    thumbnail: ensureImage(thumbnail),
-    image: ensureImage(image),
-    original: ensureImage(original),
+    image: getImage(links),
   }
 }
 

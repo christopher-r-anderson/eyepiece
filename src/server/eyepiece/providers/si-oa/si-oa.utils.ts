@@ -1,19 +1,22 @@
 import {
-  NOT_FOUND_IMAGE,
   dropTitleDuplicate,
+  isDecodableImageHref,
   paginationToRange,
+  toAssetImage,
 } from '../../provider.utils'
 import type {
   SioaAssetItem,
   SioaFreetext,
+  SioaMediaItem,
   SioaResourceItem,
   SioaSearchParams,
 } from '@/integrations/si-oa/types'
-import type { Image } from '@/domain/asset/asset.schema'
+import type { AssetImage } from '@/domain/asset/asset.schema'
 import type { Pagination } from '@/domain/pagination/pagination.schema'
 // import type { SioaProviderSearchQuery } from './si-oa.provider'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import type { SioaSearchFilters } from '@/domain/search/providers/si-oa-filters'
+import { buildIdsRenditionUrl } from '@/integrations/si-oa/client'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
 export function buildSioaSearchParams(
@@ -29,12 +32,12 @@ export function buildSioaSearchParams(
   }
 }
 
-const RESOURCE_LABELS = {
-  orig: 'High-resolution JPEG',
-  standard: 'Screen Image',
-} as const
+// widths worth cutting from the master. The top of the ladder covers a
+// detail image on a 2x display; past that the file costs more than the
+// sharpness is worth, and the masters run to 12000px.
+const RENDITION_WIDTHS = [320, 640, 960, 1280, 1920, 2560]
 
-function usableDimensions(resource: SioaResourceItem | undefined) {
+export function usableDimensions(resource: SioaResourceItem | undefined) {
   if (
     resource &&
     typeof resource.width === 'number' &&
@@ -47,41 +50,48 @@ function usableDimensions(resource: SioaResourceItem | undefined) {
   return undefined
 }
 
-function buildImage(
-  resource: SioaResourceItem | undefined,
-  siblingDimensions: { width: number; height: number } | undefined,
-): Image {
-  if (!resource || typeof resource.url !== 'string') {
-    return { ...NOT_FOUND_IMAGE }
-  }
-  const dimensions = usableDimensions(resource) ?? siblingDimensions
-  return {
-    href: resource.url,
-    width: dimensions?.width ?? NOT_FOUND_IMAGE.width,
-    height: dimensions?.height ?? NOT_FOUND_IMAGE.height,
-  }
+// only the hi-res resources ever declare a size
+export function getDeclaredDimensions(media: SioaMediaItem | undefined) {
+  return (media?.resources ?? []).map(usableDimensions).find(Boolean)
 }
 
-function getImages(resources: Array<SioaResourceItem> = []) {
-  // search responses carry dimensions only on the hi-res resources, but
-  // every rendition in a media item shares the master image, so any
-  // dimensioned sibling supplies the true aspect ratio for the rest
-  // (some report 0x0 and fall through to the 4:3 fallback)
-  const siblingDimensions = resources.map(usableDimensions).find(Boolean)
-  const screen = buildImage(
-    resources.find((resource) => resource.label === RESOURCE_LABELS.standard),
-    siblingDimensions,
-  )
-  return {
-    // the 150px thumb rendition upscales badly at grid row heights; the
-    // screen rendition serves as the preview
-    thumbnail: screen,
-    image: screen,
-    original: buildImage(
-      resources.find((resource) => resource.label === RESOURCE_LABELS.orig),
-      siblingDimensions,
-    ),
+// records carry up to 94 media items; choosing among them is an open question
+// and every consumer reads the first
+export function getPrimaryMedia(assetItem: SioaAssetItem) {
+  return assetItem.content.descriptiveNonRepeating.online_media?.media[0]
+}
+
+function buildImage(
+  media: SioaMediaItem | undefined,
+  master: { width: number; height: number } | undefined,
+): AssetImage | undefined {
+  if (!media?.idsId || !master) {
+    // no master to cut from: the labelled resources are all there is, and
+    // only the ones declaring a size can be laid out
+    return toAssetImage(
+      (media?.resources ?? []).map((resource) => {
+        const dimensions = usableDimensions(resource)
+        return dimensions && isDecodableImageHref(resource.url)
+          ? { href: resource.url, ...dimensions }
+          : undefined
+      }),
+    )
   }
+  const { idsId } = media
+  // never ask for an upscale, and always offer the master itself
+  const cap = Math.min(
+    master.width,
+    RENDITION_WIDTHS[RENDITION_WIDTHS.length - 1],
+  )
+  const widths = [...RENDITION_WIDTHS.filter((width) => width < cap), cap]
+  return toAssetImage(
+    widths.map((width) => ({
+      href: buildIdsRenditionUrl(idsId, width),
+      width,
+      height: Math.max(1, Math.round((master.height * width) / master.width)),
+    })),
+    master,
+  )
 }
 
 const SUMMARY_NOTE_LABEL = 'Summary'
@@ -94,9 +104,13 @@ function getSummary(freetext: SioaFreetext | undefined) {
   return summaries.length > 0 ? summaries.join('\n\n') : undefined
 }
 
-export function mapAssetItem(assetItem: SioaAssetItem) {
+export function mapAssetItem(
+  assetItem: SioaAssetItem,
+  // resolved by the adapter, which is where a delivery-service lookup can happen
+  master?: { width: number; height: number },
+) {
   const { title, content } = assetItem
-  const media = content.descriptiveNonRepeating.online_media?.media[0]
+  const media = getPrimaryMedia(assetItem)
   return {
     title,
     // a record's summary is the curatorial description; the media item's
@@ -114,6 +128,6 @@ export function mapAssetItem(assetItem: SioaAssetItem) {
       externalId: assetItem.id,
       providerId: SI_OA_PROVIDER_ID,
     },
-    ...getImages(media?.resources),
+    image: buildImage(media, master ?? getDeclaredDimensions(media)),
   }
 }

@@ -8,6 +8,7 @@ import type { Result } from '@/lib/result'
 import {
   assetPreviewSnapshotIdSchema,
   externalAssetIdSchema,
+  renditionSchema,
 } from '@/domain/asset/asset.schema'
 import * as result from '@/lib/result'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
@@ -18,9 +19,9 @@ export const dbAssetPreviewSnapshotSchema = z.object({
   provider_id: providerIdSchema,
   external_id: externalAssetIdSchema,
   title: z.string().nullable(),
-  thumb_href: z.url(),
-  thumb_width: z.number().int().positive(),
-  thumb_height: z.number().int().positive(),
+  image_width: z.number().int().positive().nullable(),
+  image_height: z.number().int().positive().nullable(),
+  renditions: z.array(renditionSchema).nonempty().nullable(),
 })
 
 const dbAssetPreviewSnapshotsSchema = z.array(dbAssetPreviewSnapshotSchema)
@@ -32,9 +33,9 @@ export function mapAssetPreviewSnapshot({
   provider_id,
   external_id,
   title,
-  thumb_href,
-  thumb_width,
-  thumb_height,
+  image_width,
+  image_height,
+  renditions,
 }: DbAssetPreviewSnapshot): AssetPreviewSnapshot {
   return {
     id,
@@ -43,11 +44,10 @@ export function mapAssetPreviewSnapshot({
       externalId: external_id,
     },
     title: title ?? 'No Title',
-    thumbnail: {
-      href: thumb_href,
-      width: thumb_width,
-      height: thumb_height,
-    },
+    image:
+      image_width && image_height && renditions
+        ? { width: image_width, height: image_height, renditions }
+        : undefined,
   }
 }
 
@@ -67,7 +67,7 @@ export function makeAssetPreviewSnapshotsRepo(
       const { data, error: pgError } = await publicSupabaseClient
         .from('asset_preview_snapshots')
         .select(
-          'id, provider_id, external_id, title, thumb_href, thumb_width, thumb_height',
+          'id, provider_id, external_id, title, image_width, image_height, renditions',
         )
         .in('id', assetPreviewSnapshotIds)
       if (pgError) {

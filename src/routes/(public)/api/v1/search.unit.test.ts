@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as MiddlewareModule from '@/server/lib/middleware'
+import type { Asset } from '@/domain/asset/asset.schema'
 import { AppException } from '@/lib/result'
 import { operationalErrorObservability } from '@/lib/error-observability'
 import {
@@ -106,25 +107,26 @@ const nasaSearchResults = {
       title: 'Apollo Footprint',
       description:
         'Buzz Aldrin took this iconic image of a bootprint on the Moon.',
-      thumbnail: {
-        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~thumb.jpg',
-        width: 640,
-        height: 626,
-      },
       image: {
-        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~large.jpg',
-        width: 1920,
-        height: 1880,
-      },
-      original: {
-        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~orig.jpg',
         width: 3294,
         height: 3226,
+        renditions: [
+          {
+            href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~large.jpg',
+            width: 1920,
+            height: 1880,
+          },
+          {
+            href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~thumb.jpg',
+            width: 640,
+            height: 626,
+          },
+        ],
       },
       albums: [
         { providerId: NASA_IVL_PROVIDER_ID, externalId: 'Apollo-at-50' },
       ],
-    },
+    } satisfies Asset,
   ],
   pagination: { next: 2, total: 6130 },
 }
@@ -138,22 +140,23 @@ const sioaSearchResults = {
       },
       title: 'Command and Service Modules, Apollo #105, ASTP Mockup',
       description: 'Command and Service Modules, Apollo #105, ASTP Mockup',
-      thumbnail: {
-        href: 'https://ids.si.edu/ids/download?id=NASM-A19740798000-NASM2018-10165_thumb',
-        width: 640,
-        height: 480,
-      },
       image: {
-        href: 'https://ids.si.edu/ids/download?id=NASM-A19740798000-NASM2018-10165_screen',
-        width: 640,
-        height: 480,
-      },
-      original: {
-        href: 'https://ids.si.edu/ids/download?id=NASM-A19740798000-NASM2018-10165.jpg',
         width: 6575,
         height: 5260,
+        renditions: [
+          {
+            href: 'https://ids.si.edu/ids/iiif/NASM-A19740798000-NASM2018-10165/full/2560,/0/default.jpg',
+            width: 2560,
+            height: 2048,
+          },
+          {
+            href: 'https://ids.si.edu/ids/iiif/NASM-A19740798000-NASM2018-10165/full/640,/0/default.jpg',
+            width: 640,
+            height: 512,
+          },
+        ],
       },
-    },
+    } satisfies Asset,
   ],
   pagination: { next: 2, total: 37 },
 }

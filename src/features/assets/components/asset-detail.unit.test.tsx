@@ -5,18 +5,27 @@ import type { Asset } from '@/domain/asset/asset.schema'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 
 const image = {
-  href: 'https://images-assets.nasa.gov/image/PIA14417/PIA14417~large.jpg',
   width: 1280,
   height: 640,
-}
+  renditions: [
+    {
+      href: 'https://images-assets.nasa.gov/image/PIA14417/PIA14417~large.jpg',
+      width: 1280,
+      height: 640,
+    },
+    {
+      href: 'https://images-assets.nasa.gov/image/PIA14417/PIA14417~small.jpg',
+      width: 640,
+      height: 320,
+    },
+  ],
+} satisfies Asset['image']
 
 function asset(overrides: Partial<Asset> = {}): Asset {
   return {
     key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'PIA14417' },
     title: 'Weighing in on the Dumbbell Nebula',
-    thumbnail: image,
     image,
-    original: image,
     ...overrides,
   }
 }

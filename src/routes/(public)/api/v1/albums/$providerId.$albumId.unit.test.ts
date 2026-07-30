@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Asset } from '@/domain/asset/asset.schema'
 import { AppException } from '@/lib/result'
 import {
   NASA_IVL_PROVIDER_ID,
@@ -52,8 +53,14 @@ function makeContext(searchParams: Record<string, unknown> = pagination) {
 const asset = {
   key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'a1' },
   title: 'Apollo 11 Launch',
-  thumbnail: { href: 'https://example.com/t.jpg', width: 200, height: 150 },
-}
+  image: {
+    width: 200,
+    height: 150,
+    renditions: [
+      { href: 'https://example.com/t.jpg', width: 200, height: 150 },
+    ],
+  },
+} satisfies Asset
 const emptyPage = { items: [], pagination: { next: null, total: 0 } }
 const firstPage = {
   items: [asset],

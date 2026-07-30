@@ -24,25 +24,36 @@ export const assetKeySchema = z.object({
 
 export type AssetKey = z.infer<typeof assetKeySchema>
 
-export const imageSchema = z.object({
+export const renditionSchema = z.object({
   href: z.url(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
 })
 
-export type Image = z.infer<typeof imageSchema>
+export type Rendition = z.infer<typeof renditionSchema>
+
+export const assetImageSchema = z.object({
+  // the master's dimensions: every surface lays out on this aspect ratio,
+  // whichever rendition it ends up fetching
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  // widest first, and only files a browser decodes
+  renditions: z.array(renditionSchema).nonempty(),
+})
+
+export type AssetImage = z.infer<typeof assetImageSchema>
 
 const assetCommonSchema = z.object({
   key: assetKeySchema,
   title: z.string(),
-  thumbnail: imageSchema,
+  // absent when the provider supplied no file we can render. Rare, and a
+  // fabricated placeholder would be a dimension the layout then believes.
+  image: assetImageSchema.optional(),
   albums: z.array(albumKeySchema).optional(),
 })
 
 export const assetSchema = assetCommonSchema.extend({
   description: z.string().optional(),
-  image: imageSchema,
-  original: imageSchema,
   // present only when the provider supplied a real text alternative
   alt: z.string().optional(),
   // the record's page at the provider, not the image file

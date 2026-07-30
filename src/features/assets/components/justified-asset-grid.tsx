@@ -5,12 +5,13 @@ import { Item as StatelyItem } from '@react-stately/collections'
 import { css, cx } from 'styled-system/css'
 import { AssetTile } from './asset-tile'
 import { JustifiedKeyboardDelegate } from './justified-keyboard-delegate'
+import { justifiedTileSizes } from './justified-grid.layout'
 import type { TileLinkProps } from './asset-tile'
 import type { Key } from 'react-aria'
 import type { ListState } from '@react-stately/list'
 import type { CSSProperties, ReactNode } from 'react'
 import type { AssetPreview } from '@/domain/asset/asset.schema'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { toAspectRatio, toAssetKeyString } from '@/domain/asset/asset.utils'
 
 // CSS-only justified rows: flex-basis carries each tile's aspect ratio at
 // the target row height and flex-grow shares a row's leftover space in
@@ -21,8 +22,8 @@ export const justifiedGridCss = css.raw({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '3',
-  '--row-h': '225px',
-  mdDown: { gap: '2', '--row-h': '122px' },
+  '--row-h': 'token(sizes.assetGridRow)',
+  mdDown: { gap: '2', '--row-h': 'token(sizes.assetGridRowNarrow)' },
   _after: { content: '""', flex: '10000 1 0' },
 })
 
@@ -164,7 +165,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
       data-key={itemKey}
       style={
         {
-          '--ar': (item.thumbnail.width / item.thumbnail.height).toFixed(4),
+          '--ar': toAspectRatio(item.image).toFixed(4),
         } as CSSProperties
       }
       className={cx(css(justifiedGridItemCss), tileClassName?.(item))}
@@ -172,6 +173,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
       <div {...gridCellProps} className={css(fillCss)}>
         <AssetTile
           assetPreview={item}
+          sizes={justifiedTileSizes(toAspectRatio(item.image))}
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}

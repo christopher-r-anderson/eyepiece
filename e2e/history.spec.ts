@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 import { TINY_PNG } from './support/collections-helpers'
+import { singleRenditionImage } from './support/asset-image'
 import {
   deleteUserFavorite,
   seedUserFavorite,
@@ -17,11 +18,11 @@ const wideSnapshot = snapshots[0]
 // so these journeys serve it themselves; only the deep-link spec needs a
 // fresh document and has to hit the live provider during SSR
 async function stubAssetApi(page: Page) {
-  const image = {
-    href: `https://images-assets.nasa.gov/image/${wideSnapshot.externalId}/${wideSnapshot.externalId}~thumb.jpg`,
-    width: wideSnapshot.width,
-    height: wideSnapshot.height,
-  }
+  const image = singleRenditionImage(
+    `https://images-assets.nasa.gov/image/${wideSnapshot.externalId}/${wideSnapshot.externalId}~thumb.jpg`,
+    wideSnapshot.width,
+    wideSnapshot.height,
+  )
   await page.route(
     `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}/metadata`,
     (route) => route.fulfill({ json: { instrument: 'stub' } }),
@@ -34,9 +35,7 @@ async function stubAssetApi(page: Page) {
           key: { providerId: 'nasa_ivl', externalId: wideSnapshot.externalId },
           title: wideSnapshot.title,
           description: 'Stubbed asset for the history journey',
-          thumbnail: image,
           image,
-          original: image,
         },
       }),
   )

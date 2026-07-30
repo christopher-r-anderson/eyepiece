@@ -109,47 +109,92 @@ FROM auth.users AS u;
 WITH
   new_asset_preview_snapshots AS (
     INSERT INTO public.asset_preview_snapshots
-      (provider_id, external_id, title, thumb_href, thumb_width, thumb_height)
+      (provider_id, external_id, title, image_width, image_height, renditions)
     VALUES
       (
         'nasa_ivl',
         'iss034e010322',
         'Open Food Packet',
-        'https://images-assets.nasa.gov/image/iss034e010322/iss034e010322~thumb.jpg',
         640,
-        425
+        425,
+        jsonb_build_array(
+          jsonb_build_object(
+            'href',
+            'https://images-assets.nasa.gov/image/iss034e010322/iss034e010322~thumb.jpg',
+            'width',
+            640,
+            'height',
+            425
+          )
+        )
       ),
       (
         'nasa_ivl',
         'KSC-06pd1454',
         NULL,
-        'https://images-assets.nasa.gov/image/KSC-06pd1454/KSC-06pd1454~thumb.jpg',
         425,
-        640
+        640,
+        jsonb_build_array(
+          jsonb_build_object(
+            'href',
+            'https://images-assets.nasa.gov/image/KSC-06pd1454/KSC-06pd1454~thumb.jpg',
+            'width',
+            425,
+            'height',
+            640
+          )
+        )
       ),
       (
         'nasa_ivl',
         '7026024',
         'Skylab',
-        'https://images-assets.nasa.gov/image/7026024/7026024~thumb.jpg',
         640,
-        463
+        463,
+        jsonb_build_array(
+          jsonb_build_object(
+            'href',
+            'https://images-assets.nasa.gov/image/7026024/7026024~thumb.jpg',
+            'width',
+            640,
+            'height',
+            463
+          )
+        )
       ),
       (
         'nasa_ivl',
         'iss033e018991',
         'Hair Cut',
-        'https://images-assets.nasa.gov/image/iss033e018991/iss033e018991~thumb.jpg',
         640,
-        425
+        425,
+        jsonb_build_array(
+          jsonb_build_object(
+            'href',
+            'https://images-assets.nasa.gov/image/iss033e018991/iss033e018991~thumb.jpg',
+            'width',
+            640,
+            'height',
+            425
+          )
+        )
       ),
       (
         'nasa_ivl',
         'PIA16416',
         'A Game of Shadows',
-        'https://images-assets.nasa.gov/image/PIA16416/PIA16416~thumb.jpg',
         640,
-        624
+        624,
+        jsonb_build_array(
+          jsonb_build_object(
+            'href',
+            'https://images-assets.nasa.gov/image/PIA16416/PIA16416~thumb.jpg',
+            'width',
+            640,
+            'height',
+            624
+          )
+        )
       )
     RETURNING id
   )

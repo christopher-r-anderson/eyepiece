@@ -4,6 +4,7 @@ import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { wrap } from 'styled-system/patterns'
+import { token } from 'styled-system/tokens'
 import { FavoriteButton } from './favorite-button'
 import { useViewingAssetTileLinkProps } from './asset-viewing-overlay'
 import type { CSSProperties } from 'react'
@@ -16,7 +17,8 @@ import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries
 import { CapturedAlertError } from '@/app/layout/route-error'
 import { Heading } from '@/components/ui/heading'
 import { Link } from '@/components/ui/link'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import { BELOW_MD_QUERY } from '@/lib/breakpoints'
+import { toAspectRatio, toAssetKeyString } from '@/domain/asset/asset.utils'
 
 interface AlbumStripSectionProps {
   albumKey: AlbumKey
@@ -32,8 +34,8 @@ const stripCss = css.raw({
   scrollbarThin: true,
   scrollSnapType: 'x proximity',
   paddingBottom: '2',
-  '--strip-h': '186px',
-  mdDown: { gap: '2', '--strip-h': '138px' },
+  '--strip-h': 'token(sizes.albumStripRow)',
+  mdDown: { gap: '2', '--strip-h': 'token(sizes.albumStripRowNarrow)' },
 })
 
 const stripTileCss = css.raw({
@@ -42,6 +44,15 @@ const stripTileCss = css.raw({
   height: 'var(--strip-h)',
   aspectRatio: 'var(--ar)',
 })
+
+const STRIP_ROW = parseFloat(token('sizes.albumStripRow'))
+const STRIP_ROW_NARROW = parseFloat(token('sizes.albumStripRowNarrow'))
+
+// strip tiles sit at a fixed height and never grow, so a tile renders at
+// exactly its ratio times the row height
+function stripTileSizes(aspectRatio: number) {
+  return `${BELOW_MD_QUERY} ${Math.round(aspectRatio * STRIP_ROW_NARROW)}px, ${Math.round(aspectRatio * STRIP_ROW)}px`
+}
 
 export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
   const headingId = useId()
@@ -119,13 +130,14 @@ function AlbumStripItems({ albumKey }: { albumKey: AlbumKey }) {
           key={toAssetKeyString(item.key)}
           style={
             {
-              '--ar': (item.thumbnail.width / item.thumbnail.height).toFixed(4),
+              '--ar': toAspectRatio(item.image).toFixed(4),
             } as CSSProperties
           }
           className={css(stripTileCss)}
         >
           <AssetTile
             assetPreview={item}
+            sizes={stripTileSizes(toAspectRatio(item.image))}
             actions={<FavoriteButton assetKey={item.key} />}
             linkProps={tileLinkProps(item)}
             className={css({ width: '100%', height: '100%' })}

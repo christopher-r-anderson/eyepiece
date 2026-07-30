@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE, thumbHref } from './support/collections-fixture'
 import { TINY_PNG, stubFixtureImages } from './support/collections-helpers'
+import { singleRenditionImage } from './support/asset-image'
 import type { Page } from '@playwright/test'
 
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
@@ -8,11 +9,11 @@ const wideSnapshot = snapshots[0]
 const wideKey = `nasa_ivl-${wideSnapshot.externalId}`
 
 async function stubAssetApi(page: Page) {
-  const image = {
-    href: thumbHref(wideSnapshot.externalId),
-    width: wideSnapshot.width,
-    height: wideSnapshot.height,
-  }
+  const image = singleRenditionImage(
+    thumbHref(wideSnapshot.externalId),
+    wideSnapshot.width,
+    wideSnapshot.height,
+  )
   await page.route(
     `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}`,
     (route) =>
@@ -21,9 +22,7 @@ async function stubAssetApi(page: Page) {
           key: { providerId: 'nasa_ivl', externalId: wideSnapshot.externalId },
           title: wideSnapshot.title,
           description: 'Stubbed asset for the overlay journeys',
-          thumbnail: image,
           image,
-          original: image,
         },
       }),
   )
@@ -133,19 +132,17 @@ test(
     await page.route('**/api/v1/asset/**', (route) => {
       const segments = new URL(route.request().url()).pathname.split('/')
       const [providerId, externalId] = segments.slice(-2)
-      const image = {
-        href: 'https://example.com/stub.png',
-        width: 400,
-        height: 300,
-      }
+      const image = singleRenditionImage(
+        'https://example.com/stub.png',
+        400,
+        300,
+      )
       return route.fulfill({
         json: {
           key: { providerId, externalId },
           title: 'Stubbed Favorite',
           description: 'Stubbed asset for the overlay journey',
-          thumbnail: image,
           image,
-          original: image,
         },
       })
     })

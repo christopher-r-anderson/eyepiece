@@ -6,6 +6,7 @@ import {
   pagingSnapshot,
   thumbHref,
 } from './support/collections-fixture'
+import { snapshotImageColumns } from './support/asset-image'
 import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
 
 // Seeds the collection detail fixture: showcase provisioning never runs in
@@ -65,9 +66,11 @@ setup('seed collections fixture', async () => {
         provider_id: 'nasa_ivl',
         external_id: snapshot.externalId,
         title: snapshot.title,
-        thumb_href: thumbHref(snapshot.externalId),
-        thumb_width: snapshot.width,
-        thumb_height: snapshot.height,
+        ...snapshotImageColumns(
+          thumbHref(snapshot.externalId),
+          snapshot.width,
+          snapshot.height,
+        ),
       })),
     )
   if (snapshotsError) {
@@ -207,9 +210,11 @@ setup('seed showcase stand-in when needed', async () => {
         provider_id: 'nasa_ivl',
         external_id: `e2e-showcase-stand-in-${index}`,
         title: `Showcase stand-in ${index}`,
-        thumb_href: thumbHref(`e2e-showcase-stand-in-${index}`),
-        thumb_width: 630,
-        thumb_height: 300,
+        ...snapshotImageColumns(
+          thumbHref(`e2e-showcase-stand-in-${index}`),
+          630,
+          300,
+        ),
       })
     if (snapshotError) {
       throw new Error(

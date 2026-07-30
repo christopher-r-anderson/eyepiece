@@ -39,10 +39,10 @@ export type Database = {
           created_at: string
           external_id: string
           id: string
+          image_height: number | null
+          image_width: number | null
           provider_id: Database["public"]["Enums"]["provider_id"]
-          thumb_height: number
-          thumb_href: string
-          thumb_width: number
+          renditions: Json | null
           title: string | null
           updated_at: string
         }
@@ -50,10 +50,10 @@ export type Database = {
           created_at?: string
           external_id: string
           id?: string
+          image_height?: number | null
+          image_width?: number | null
           provider_id: Database["public"]["Enums"]["provider_id"]
-          thumb_height: number
-          thumb_href: string
-          thumb_width: number
+          renditions?: Json | null
           title?: string | null
           updated_at?: string
         }
@@ -61,10 +61,10 @@ export type Database = {
           created_at?: string
           external_id?: string
           id?: string
+          image_height?: number | null
+          image_width?: number | null
           provider_id?: Database["public"]["Enums"]["provider_id"]
-          thumb_height?: number
-          thumb_href?: string
-          thumb_width?: number
+          renditions?: Json | null
           title?: string | null
           updated_at?: string
         }
@@ -192,10 +192,10 @@ export type Database = {
       ensure_asset_preview_snapshot: {
         Args: {
           p_external_id: string
+          p_image_height?: number
+          p_image_width?: number
           p_provider_id: Database["public"]["Enums"]["provider_id"]
-          p_thumb_height: number
-          p_thumb_href: string
-          p_thumb_width: number
+          p_renditions?: Json
           p_title: string
         }
         Returns: string

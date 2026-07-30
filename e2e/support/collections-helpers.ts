@@ -1,4 +1,5 @@
 import { COLLECTIONS_FIXTURE } from './collections-fixture'
+import { singleRenditionImage } from './asset-image'
 import type { Page } from '@playwright/test'
 
 // 1x1 stub bitmap: fixture thumbnails do not exist upstream; layout still
@@ -23,18 +24,12 @@ export async function stubSeededAssetApi(page: Page) {
   await page.route('**/api/v1/asset/**', (route) => {
     const segments = new URL(route.request().url()).pathname.split('/')
     const [providerId, externalId] = segments.slice(-2)
-    const image = {
-      href: 'https://example.com/stub.png',
-      width: 400,
-      height: 300,
-    }
+    const image = singleRenditionImage('https://example.com/stub.png', 400, 300)
     return route.fulfill({
       json: {
         key: { providerId, externalId },
         title: 'Stubbed Asset',
-        thumbnail: image,
         image,
-        original: image,
       },
     })
   })

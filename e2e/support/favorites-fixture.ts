@@ -1,4 +1,5 @@
 import { makeAdminClient, thumbHref } from './collections-fixture'
+import { snapshotImageColumns } from './asset-image'
 
 // the seeded login user (supabase/seeds/users.sql); favorites specs seed
 // their own uniquely-titled rows so parallel workers never share a tile
@@ -19,9 +20,7 @@ export async function seedUserFavorite(fixture: FavoriteFixture) {
       provider_id: 'nasa_ivl',
       external_id: fixture.externalId,
       title: fixture.title,
-      thumb_href: thumbHref(fixture.externalId),
-      thumb_width: 400,
-      thumb_height: 300,
+      ...snapshotImageColumns(thumbHref(fixture.externalId), 400, 300),
     })
   if (snapshotError) {
     throw new Error(
