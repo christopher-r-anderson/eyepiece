@@ -1,26 +1,21 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useCurrentUserQuery } from '../auth.queries'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { updatePasswordFormAction } from '../auth.form-actions'
-import { setPasswordFieldSchema } from './components/set-password-field.schema'
+import { updatePasswordFormSchema } from './update-password-form.schema'
 import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
 import { Form, FormActions, InputGroup } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
-
-const updatePasswordSchema = z.object({
-  password: setPasswordFieldSchema,
-})
 
 export function UpdatePasswordForm({
   headingLevel,
@@ -40,10 +35,11 @@ export function UpdatePasswordForm({
   const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    updatePasswordSchema,
+    updatePasswordFormSchema,
     commands.updatePassword,
+    { initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(updatePasswordFormAction, formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -56,13 +52,9 @@ export function UpdatePasswordForm({
     <Form
       aria-labelledby={id}
       autoComplete="on"
-      action={updatePasswordFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       surface={surface}
       isPending={isPending}
       controls={

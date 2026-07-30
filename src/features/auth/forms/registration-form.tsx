@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { registerFormAction } from '../auth.form-actions'
 import { useAuthCommands } from '../hooks/use-auth-commands'
-import { setPasswordFieldSchema } from './components/set-password-field.schema'
+import { registrationFormSchema } from './registration-form.schema'
 import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
@@ -18,22 +17,12 @@ import {
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
-import {
-  DISPLAY_NAME_MAX_LENGTH,
-  profileSchema,
-} from '@/domain/profile/profile.schema'
+import { DISPLAY_NAME_MAX_LENGTH } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
-
-const registrationSchema = z.object({
-  email: z.email(),
-  displayName: profileSchema.shape.displayName,
-  password: setPasswordFieldSchema,
-  redirectTo: z.url(),
-})
 
 export function RegistrationForm({
   headingLevel,
@@ -53,10 +42,11 @@ export function RegistrationForm({
   const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    registrationSchema,
+    registrationFormSchema,
     commands.register,
+    { initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(registerFormAction, formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -68,13 +58,9 @@ export function RegistrationForm({
   return (
     <Form
       autoComplete="on"
-      action={registerFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       surface={surface}
       aria-labelledby={id}
       isPending={isPending}

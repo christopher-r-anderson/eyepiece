@@ -9,7 +9,7 @@ import { Heading } from '@/components/ui/heading'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import {
@@ -45,9 +45,9 @@ export function UpsertProfileForm({
   const [state, formAction, isPending] = useTypedActionState(
     profileSchema,
     profilesCommands.upsertProfile,
-    initialData,
+    { initialData, initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(upsertProfileFormAction, formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -61,13 +61,9 @@ export function UpsertProfileForm({
   return (
     <Form
       autoComplete="on"
-      action={upsertProfileFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       surface={surface}
       aria-labelledby={headingId}
       isPending={isPending}
