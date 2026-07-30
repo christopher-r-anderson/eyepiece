@@ -55,6 +55,9 @@ export const toggleButtonRecipe = defineRecipe({
           borderColor: 'transparent',
           color: 'var(--toggle-icon-hover-color, token(colors.text))',
         },
+        _pressed: {
+          transform: 'translateY(1px)',
+        },
         _selected: {
           backgroundColor: 'transparent',
           borderColor: 'transparent',

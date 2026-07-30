@@ -19,7 +19,7 @@ export const toastRecipe = defineSlotRecipe({
       display: 'flex',
       alignItems: 'flex-start',
       gap: '2',
-      backgroundColor: 'bg.surface.2',
+      backgroundColor: 'bg.canvas',
       color: 'text',
       // toasts are floating layers: same paper as popover/menu/dialog
       border: 'default',

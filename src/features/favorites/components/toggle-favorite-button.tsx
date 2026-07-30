@@ -77,7 +77,9 @@ export function ToggleFavoriteButton({
   )
   return (
     <ToggleButton
-      aria-label="Star"
+      // the detail voice shows a visible label, so the accessible name must
+      // track it (label-in-name); the icon-only tile keeps the stable name
+      aria-label={variant === 'detail' && isSelected ? 'Starred' : 'Star'}
       css={favoriteToggleCss}
       variant={variant === 'detail' ? 'text' : 'icon'}
       isSelected={isSelected}
