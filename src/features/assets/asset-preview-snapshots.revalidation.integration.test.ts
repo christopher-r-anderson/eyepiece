@@ -251,8 +251,8 @@ describe('revalidateStaleSnapshots', () => {
       spacingMs: 0,
     })
 
-    // the ensure RPC keeps stored fields when the caller omits them; whether
-    // a refresh may ever clear an image is #205's open distinction
+    // the ensure RPC keeps stored fields when the caller omits them; the
+    // trade-off and its revisit trigger are in docs/Providers.md
     await expect(readSnapshot(adminClient, imagelessId)).resolves.toMatchObject(
       {
         title: 'Title only now',
