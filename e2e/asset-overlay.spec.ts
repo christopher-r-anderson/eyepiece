@@ -178,6 +178,10 @@ test(
 // a 404 and hands back the last one, so the router's global not-found can
 // stand in for this route's own body
 test('an asset the provider does not have is not found', async ({ page }) => {
+  // the probing multiplies here: each page-path probe is a full SSR render
+  // whose own /api/v1/asset fetch 404s into the same probing - tens of
+  // seconds warm on a dev machine, minutes on the CI runner
+  test.setTimeout(240_000)
   const response = await page.goto('/assets/nasa_ivl/e2e-no-such-asset')
 
   expect(response?.status()).toBe(404)
