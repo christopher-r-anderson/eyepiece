@@ -54,13 +54,28 @@ test('a no-JS profile update round-trips with a status', async ({ page }) => {
 
 test('a no-JS forgot-password submit lands on the sent panel', async ({
   page,
-}) => {
-  await page.goto('/auth/forgot-password')
-  await page.getByRole('textbox', { name: 'Email' }).fill('user1@example.com')
-  await page.getByRole('button', { name: 'Reset Password' }).click()
+}, testInfo) => {
+  // a per-worker user keeps parallel projects clear of Supabase's
+  // between-reset-emails rate limit (one per address per minute)
+  const email = `e2e-nojs-forgot-${testInfo.workerIndex}@example.com`
+  await deleteUserByEmail(email)
+  const admin = makeAdminClient()
+  const { error } = await admin.auth.admin.createUser({
+    email,
+    password: 'a-long-enough-passphrase',
+    email_confirm: true,
+  })
+  expect(error).toBeNull()
+  try {
+    await page.goto('/auth/forgot-password')
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await page.getByRole('button', { name: 'Reset Password' }).click()
 
-  await page.waitForURL((url) => url.searchParams.get('status') === 'sent')
-  await expect(page.getByText('Password reset sent!')).toBeVisible()
+    await page.waitForURL((url) => url.searchParams.get('status') === 'sent')
+    await expect(page.getByText('Password reset sent!')).toBeVisible()
+  } finally {
+    await deleteUserByEmail(email)
+  }
 })
 
 test('a no-JS registration lands on the sent panel', async ({

@@ -17,6 +17,12 @@ import type {
 } from '@/lib/result'
 import { resultIsError } from '@/lib/result'
 
+type TypedActionOptions = {
+  initialData?: FormDataObject
+  // one-shot: shows until the first dispatch replaces the idle state
+  initialError?: string
+}
+
 export function useTypedActionState<
   TSchema extends FormSchema,
   TResultData,
@@ -24,12 +30,12 @@ export function useTypedActionState<
 >(
   schema: TSchema,
   action: Action<TSchema, TResultData, TErrorCode>,
-  initialData?: FormDataObject,
+  options?: TypedActionOptions,
 ) {
   const [typedFormAction, initialState] = createTypedAction(
     schema,
     action,
-    initialData,
+    options,
   )
   const [actionState, formAction, isPending] = useActionState(
     typedFormAction,
@@ -42,11 +48,14 @@ export function useTypedActionState<
   return [state, formAction, isPending] as const
 }
 
-// pairs with a native action URL (a server fn's .url): pre-hydration the
-// form posts as a document request, hydrated submits divert to the typed
-// client action instead
-export function useHydratedFormSubmit(dispatch: (formData: FormData) => void) {
-  return useCallback(
+// pairs a server fn's document-post endpoint with the typed client action:
+// pre-hydration the form posts natively to the fn's URL, hydrated submits
+// intercept and dispatch the client action instead. Spread onto <Form>.
+export function useNativeFormSubmit(
+  serverFn: { url: string },
+  dispatch: (formData: FormData) => void,
+) {
+  const onSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const formData = new FormData(event.currentTarget)
@@ -54,6 +63,7 @@ export function useHydratedFormSubmit(dispatch: (formData: FormData) => void) {
     },
     [dispatch],
   )
+  return { action: serverFn.url, method: 'post', onSubmit } as const
 }
 
 export function createTypedAction<
@@ -63,7 +73,7 @@ export function createTypedAction<
 >(
   schema: TSchema,
   action: Action<TSchema, TResultData, TErrorCode>,
-  initialData?: FormDataObject,
+  options?: TypedActionOptions,
 ) {
   const formAction = async function formAction(
     _previousState: FormState<TSchema, TErrorCode>,
@@ -93,7 +103,10 @@ export function createTypedAction<
       dropBlobs(Object.fromEntries(formData.entries())),
     )
   }
-  const initialState = createFormState.idle(initialData)
+  const initialState = createFormState.idle(
+    options?.initialData,
+    options?.initialError,
+  )
   return [formAction, initialState] as const
 }
 

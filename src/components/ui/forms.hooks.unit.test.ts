@@ -97,4 +97,26 @@ describe('createTypedAction', () => {
     expect(state.code).toBeUndefined()
     expect(state.fieldErrors).toBeUndefined()
   })
+
+  it('carries the initial error on the idle state only', async () => {
+    const schema = z.object({
+      email: z.email(),
+    })
+    const action = vi.fn().mockResolvedValue(Ok(undefined))
+    const [formAction, initialState] = createTypedAction(schema, action, {
+      initialData: { email: 'user@example.com' },
+      initialError: 'Invalid login credentials',
+    })
+
+    expect(initialState.status).toBe('idle')
+    expect(initialState.error).toBe('Invalid login credentials')
+    expect(initialState.formData).toEqual({ email: 'user@example.com' })
+
+    const formData = new FormData()
+    formData.set('email', 'user@example.com')
+    const state = await formAction(initialState, formData)
+
+    expect(state.status).toBe('success')
+    expect(state.error).toBeUndefined()
+  })
 })

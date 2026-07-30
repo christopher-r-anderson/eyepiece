@@ -1,25 +1,20 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { loginFormAction } from '../auth.form-actions'
+import { loginFormSchema } from './login-form.schema'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
-
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string(),
-})
 
 type LoginProps = {
   headingLevel: HeadingLevel
@@ -41,10 +36,11 @@ export function LoginForm({
   const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    loginSchema,
+    loginFormSchema,
     commands.login,
+    { initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(loginFormAction, formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -56,13 +52,9 @@ export function LoginForm({
   return (
     <Form
       autoComplete="on"
-      action={loginFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       surface={surface}
       aria-labelledby={id}
       isPending={isPending}

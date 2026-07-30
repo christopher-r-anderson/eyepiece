@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { resendConfirmationFormAction } from '../auth.form-actions'
+import { resendConfirmationFormSchema } from './resend-confirmation-form.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import {
   Form,
@@ -15,16 +15,11 @@ import {
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
 import { Heading } from '@/components/ui/heading'
-
-const resendConfirmationSchema = z.object({
-  email: z.email(),
-  redirectTo: z.url(),
-})
 
 export function ResendConfirmationForm({
   headingLevel,
@@ -44,10 +39,14 @@ export function ResendConfirmationForm({
   const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    resendConfirmationSchema,
+    resendConfirmationFormSchema,
     commands.resendRegisterConfirmation,
+    { initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(
+    resendConfirmationFormAction,
+    formAction,
+  )
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -59,13 +58,9 @@ export function ResendConfirmationForm({
   return (
     <Form
       autoComplete="on"
-      action={resendConfirmationFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       aria-labelledby={id}
       isPending={isPending}
       controls={

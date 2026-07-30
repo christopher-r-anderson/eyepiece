@@ -1,12 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 import { makeAuthCommands } from './auth.commands'
-import { setPasswordFieldSchema } from './forms/components/set-password-field.schema'
+import { loginFormSchema } from './forms/login-form.schema'
+import { registrationFormSchema } from './forms/registration-form.schema'
+import { forgotPasswordFormSchema } from './forms/forgot-password-form.schema'
+import { resendConfirmationFormSchema } from './forms/resend-confirmation-form.schema'
+import { updatePasswordFormSchema } from './forms/update-password-form.schema'
+import type { z } from 'zod'
 import { INVALID_INPUT_CODE } from '@/components/form-errors'
 import { nextSchema } from '@/lib/route.schema'
 import { redirectWithParams } from '@/lib/form-action-redirect'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'
-import { profileSchema } from '@/domain/profile/profile.schema'
 import { resultIsError } from '@/lib/result'
 
 // Native (no-JS) form posts land here via each form's action={fn.url}.
@@ -47,7 +50,7 @@ export const loginFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const { data, backHref } = parseOrRedirectBack(
-      z.object({ email: z.email(), password: z.string(), next: nextSchema }),
+      loginFormSchema.extend({ next: nextSchema }),
       formData,
       '/login',
     )
@@ -68,13 +71,7 @@ export const registerFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const { data, backHref } = parseOrRedirectBack(
-      z.object({
-        email: z.email(),
-        displayName: profileSchema.shape.displayName,
-        password: setPasswordFieldSchema,
-        redirectTo: z.url(),
-        next: nextSchema,
-      }),
+      registrationFormSchema.extend({ next: nextSchema }),
       formData,
       '/register',
     )
@@ -97,12 +94,7 @@ export const forgotPasswordFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const { data, backHref } = parseOrRedirectBack(
-      z.object({
-        email: z.email(),
-        redirectTo: z.url(),
-        next: nextSchema,
-        back: nextSchema,
-      }),
+      forgotPasswordFormSchema.extend({ next: nextSchema, back: nextSchema }),
       formData,
       '/auth/forgot-password',
     )
@@ -123,9 +115,7 @@ export const resendConfirmationFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const { data, backHref } = parseOrRedirectBack(
-      z.object({
-        email: z.email(),
-        redirectTo: z.url(),
+      resendConfirmationFormSchema.extend({
         next: nextSchema,
         back: nextSchema,
       }),
@@ -149,7 +139,7 @@ export const updatePasswordFormAction = createServerFn({ method: 'POST' })
   .validator((data: FormData) => data)
   .handler(async ({ data: formData }) => {
     const { data, backHref } = parseOrRedirectBack(
-      z.object({ password: setPasswordFieldSchema, next: nextSchema }),
+      updatePasswordFormSchema.extend({ next: nextSchema }),
       formData,
       '/auth/update-password',
     )

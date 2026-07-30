@@ -14,8 +14,9 @@ export type FormIdleState = {
   status: 'idle'
   hasErrors: false
   formData: FormDataObject
-  // give error props to all types so they can be passed into forms in any state
-  error: undefined
+  // give error props to all types so they can be passed into forms in any
+  // state; idle's error is the one-shot initialError from useTypedActionState
+  error: string | undefined
   code: undefined
   fieldErrors: undefined
 }
@@ -24,7 +25,7 @@ export type FormProcessingState = {
   status: 'processing'
   hasErrors: false
   formData: FormDataObject
-  error: undefined
+  error: string | undefined
   code: undefined
   fieldErrors: undefined
 }
@@ -80,11 +81,11 @@ export type ClientActionResultError<
 }
 
 export const createFormState = {
-  idle: (formData: FormDataObject = {}): FormIdleState => ({
+  idle: (formData: FormDataObject = {}, error?: string): FormIdleState => ({
     status: 'idle',
     hasErrors: false,
     formData,
-    error: undefined,
+    error,
     code: undefined,
     fieldErrors: undefined,
   }),

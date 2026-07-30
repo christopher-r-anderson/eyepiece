@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { forgotPasswordFormAction } from '../auth.form-actions'
+import { forgotPasswordFormSchema } from './forgot-password-form.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
 import { Heading } from '@/components/ui/heading'
@@ -17,15 +17,10 @@ import {
 } from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
-  useHydratedFormSubmit,
+  useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
-
-const forgotPasswordSchema = z.object({
-  email: z.email(),
-  redirectTo: z.url(),
-})
 
 export function ForgotPasswordForm({
   headingLevel,
@@ -47,10 +42,11 @@ export function ForgotPasswordForm({
   const { commands } = useAuthCommands()
 
   const [state, formAction, isPending] = useTypedActionState(
-    forgotPasswordSchema,
+    forgotPasswordFormSchema,
     commands.resetPassword,
+    { initialError: initialFormError },
   )
-  const onHydratedSubmit = useHydratedFormSubmit(formAction)
+  const nativeSubmit = useNativeFormSubmit(forgotPasswordFormAction, formAction)
 
   const onSuccessRef = useEvent(onSuccess)
   useEffect(() => {
@@ -64,13 +60,9 @@ export function ForgotPasswordForm({
       aria-labelledby={id}
       isPending={isPending}
       autoComplete="on"
-      action={forgotPasswordFormAction.url}
-      method="post"
-      onSubmit={onHydratedSubmit}
+      {...nativeSubmit}
       validationErrors={state.fieldErrors}
-      formError={
-        state.error ?? (state.status === 'idle' ? initialFormError : undefined)
-      }
+      formError={state.error}
       surface={surface}
       controls={
         <FormActions>
