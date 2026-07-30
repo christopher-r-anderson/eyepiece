@@ -61,7 +61,7 @@ const fetchAsset: FetchShowcaseAsset = async (assetKey) => {
     assetKey.externalId,
   )
   if (asset === null) return null
-  return { title: asset.title, thumbnail: asset.thumbnail }
+  return { title: asset.title, image: asset.image }
 }
 
 function parsePhase(): ProvisionShowcasePhase {

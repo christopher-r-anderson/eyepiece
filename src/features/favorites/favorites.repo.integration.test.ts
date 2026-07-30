@@ -18,9 +18,15 @@ async function seedAssetPreviewSnapshot(
       provider_id: 'nasa_ivl',
       external_id: externalId,
       title: `Integration test asset ${externalId}`,
-      thumb_href: 'https://images.example.com/thumb.jpg',
-      thumb_width: 200,
-      thumb_height: 150,
+      image_width: 200,
+      image_height: 150,
+      renditions: [
+        {
+          href: 'https://images.example.com/thumb.jpg',
+          width: 200,
+          height: 150,
+        },
+      ],
     })
     .select('id')
     .single()

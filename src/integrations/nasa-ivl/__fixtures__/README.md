@@ -39,3 +39,9 @@
 - Source URL: `https://images-api.nasa.gov/search?nasa_id=S68-27041`
 - Captured: 2026-07-28
 - Purpose: Record whose `description` is identical to its `title`, which is how roughly 14% of NASA image records arrive. Covers dropping a description that only repeats the title.
+
+## `search.nasa-id.PIA01249.json`
+
+- Source URL: `https://images-api.nasa.gov/search?nasa_id=PIA01249`
+- Captured: 2026-07-30
+- Purpose: Record with no `alternate` links, which is how about 8% of NASA image records arrive. Its original is small enough to serve, so it covers the ladder falling through to `canonical` and `preview`.

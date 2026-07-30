@@ -1,9 +1,11 @@
 import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
+import { token } from 'styled-system/tokens'
 import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { Heading } from '@/components/ui/heading'
 import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
+import { toFallbackSrc, toSrcSet } from '@/domain/asset/asset.utils'
 
 // the route measures the height off the viewport; the sheet already bounds it
 export type AssetDetailHeightModel = 'viewport' | 'container'
@@ -40,6 +42,13 @@ const viewerCss = css({
   alignItems: 'center',
   gap: '4',
 })
+
+// contentMax less boxCss's padding, which is as wide as the picture can get.
+// A portrait record is bounded by the height instead and this overstates it,
+// which costs bytes rather than sharpness.
+const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
+const PADDING = 2 * parseFloat(token('spacing.4'))
+const DETAIL_IMAGE_SIZES = `(max-width: ${CONTENT_MAX}rem) calc(100vw - ${PADDING}rem), ${CONTENT_MAX - PADDING}rem`
 
 // bounded by the viewport, not by what the title leaves. The subtraction
 // covers the chrome above and a caption of a line or two.
@@ -99,13 +108,17 @@ export function AssetDetail({
         {chrome}
         <div className={viewerCss}>
           {/* an empty alt would drop the image out of the accessibility tree */}
-          <img
-            className={imageCss}
-            src={asset.image.href}
-            alt={asset.alt ?? asset.title}
-            width={asset.image.width}
-            height={asset.image.height}
-          />
+          {asset.image && (
+            <img
+              className={imageCss}
+              src={toFallbackSrc(asset.image)}
+              srcSet={toSrcSet(asset.image)}
+              sizes={DETAIL_IMAGE_SIZES}
+              alt={asset.alt ?? asset.title}
+              width={asset.image.width}
+              height={asset.image.height}
+            />
+          )}
           <Heading level={titleLevel} className={titleCss}>
             {asset.title}
           </Heading>

@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 import { TINY_PNG, stubSeededAssetApi } from './support/collections-helpers'
+import { singleRenditionImage } from './support/asset-image'
 import type { Page } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
@@ -230,21 +231,7 @@ test('keyboard reaches the tile link and star; Enter opens the tile', async ({
         key: { providerId: 'nasa_ivl', externalId: 'e2e-collections-wide' },
         title: 'E2E Wide',
         description: 'Stubbed asset for the keyboard journey',
-        thumbnail: {
-          href: 'https://example.com/wide.png',
-          width: 200,
-          height: 100,
-        },
-        image: {
-          href: 'https://example.com/wide.png',
-          width: 200,
-          height: 100,
-        },
-        original: {
-          href: 'https://example.com/wide.png',
-          width: 200,
-          height: 100,
-        },
+        image: singleRenditionImage('https://example.com/wide.png', 200, 100),
       },
     }),
   )

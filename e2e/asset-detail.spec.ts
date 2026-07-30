@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE, thumbHref } from './support/collections-fixture'
+import { singleRenditionImage } from './support/asset-image'
 import type { Locator, Page } from '@playwright/test'
 
 const { publicCollection, snapshots } = COLLECTIONS_FIXTURE
@@ -64,11 +65,11 @@ test('the detail page fits the image and its title in the viewport', async ({
 })
 
 test('the overlay sizes the image the same way', async ({ page }) => {
-  const image = {
-    href: thumbHref(wideSnapshot.externalId),
-    width: wideSnapshot.width,
-    height: wideSnapshot.height,
-  }
+  const image = singleRenditionImage(
+    thumbHref(wideSnapshot.externalId),
+    wideSnapshot.width,
+    wideSnapshot.height,
+  )
   await page.route(
     `**/api/v1/asset/nasa_ivl/${wideSnapshot.externalId}`,
     (route) =>
@@ -77,9 +78,7 @@ test('the overlay sizes the image the same way', async ({ page }) => {
           key: { providerId: 'nasa_ivl', externalId: wideSnapshot.externalId },
           title: LONG_TITLE,
           description: 'Stubbed asset for the detail layout journeys',
-          thumbnail: image,
           image,
-          original: image,
         },
       }),
   )

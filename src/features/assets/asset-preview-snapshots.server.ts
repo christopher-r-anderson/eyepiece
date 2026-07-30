@@ -99,9 +99,11 @@ async function _ensureAssetPreviewSnapshotForKey(
         p_provider_id: assetKey.providerId,
         p_external_id: assetKey.externalId,
         p_title: asset.title,
-        p_thumb_href: asset.thumbnail.href,
-        p_thumb_width: asset.thumbnail.width,
-        p_thumb_height: asset.thumbnail.height,
+        ...(asset.image && {
+          p_image_width: asset.image.width,
+          p_image_height: asset.image.height,
+          p_renditions: asset.image.renditions,
+        }),
       })
     if (ensureSnapshotError) {
       const errorResult = {
@@ -147,7 +149,7 @@ async function _ensureAssetPreviewSnapshotForKey(
   return Ok(assetPreviewSnapshotId)
 }
 
-// Resolves an asset key to a snapshot id, refreshing title/thumbnail from the
+// Resolves an asset key to a snapshot id, refreshing title/image from the
 // provider when the stored row is older than the stale window. The shared
 // write path for every snapshot consumer (favorites, collections).
 export const ensureAssetPreviewSnapshot = createServerOnlyFn(

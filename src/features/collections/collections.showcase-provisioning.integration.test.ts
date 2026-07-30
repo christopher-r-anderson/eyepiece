@@ -43,10 +43,16 @@ function makeCuration(): ShowcaseCuration {
 const stubFetchAsset: FetchShowcaseAsset = (assetKey) =>
   Promise.resolve({
     title: `Showcase asset ${assetKey.externalId}`,
-    thumbnail: {
-      href: `https://images.example.com/${assetKey.externalId}.jpg`,
+    image: {
       width: 640,
       height: 480,
+      renditions: [
+        {
+          href: `https://images.example.com/${assetKey.externalId}.jpg`,
+          width: 640,
+          height: 480,
+        },
+      ],
     },
   })
 

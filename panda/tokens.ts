@@ -41,6 +41,13 @@ export const tokens = defineTokens({
     // what the sticky header takes off the viewport, with a little slack
     stickyHeader: { value: '4.5rem' },
     controlHeight: { value: 'clamp(2.25rem, 2.1rem + 0.5vw, 2.75rem)' },
+    // the justified grid's target row height, which is also what a tile
+    // reports as its laid-out width
+    assetGridRow: { value: '225px' },
+    assetGridRowNarrow: { value: '122px' },
+    // the album strip's fixed tile height, shared the same way
+    albumStripRow: { value: '186px' },
+    albumStripRowNarrow: { value: '138px' },
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
   },
   spacing: {

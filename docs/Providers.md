@@ -94,6 +94,8 @@ The main provider-aware API routes are:
 - `src/routes/(public)/api/v1/asset/$providerId.$assetId.metadata.ts`
 - `src/routes/(public)/api/v1/albums/$providerId.$albumId.ts`
 
+These serve the app's own client and nothing else. Their shape tracks the domain schema and is not frozen before 1.0: a deploy that changes it can leave an already-open tab rendering badly until reload, the same accepted window as a single-release schema change. A compatibility stance for the version segment comes with 1.0, or earlier if an external consumer appears.
+
 ## Collection Responses
 
 Collection responses share the same `PaginatedCollection<TItem, TCollection>` contract from `src/domain/pagination/pagination.schema.ts`.
@@ -141,6 +143,17 @@ Two fields look like they belong here and do not. NASA's `description_508` reads
 One caution for a future provider or a wider Smithsonian filter: alt quality is a property of the contributing unit, not of the field. The National Air and Space Museum, which the Smithsonian search is pinned to, writes real visual descriptions. Another unit fills the same field with a machine-generated credit line, which would be worse than the title fallback. A non-empty value is not evidence of a usable one.
 
 The sampling behind these numbers, and the screen reader testing behind the markup decisions, are recorded in #184.
+
+## Asset Images
+
+An asset carries at most one image: the master's width and height plus a rendition ladder, widest first and never empty. Surfaces lay out on the master's aspect ratio and build a `srcset` from the ladder. A record with no browser-decodable file carries no image at all; a placeholder would hand the layout a dimension it then believes.
+
+Where the ladder comes from:
+
+- NASA publishes fixed derivative files per record: the sized alternates, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
+- Smithsonian's delivery service is a IIIF Image API 2.0 server, so the ladder is cut from the master at fixed widths up to 2560, never asking for an upscale. Records that declare no size anywhere (about one in nine) cost one `info.json` request for the master's dimensions.
+
+The byte cap on NASA originals bounds weight only, and NASA offers no cut between the 1920 alternate and the original. On records whose original is under the cap but far wider than any surface renders (about 15% of the originals that make it), a 2x detail view pays the full file for detail it can only partly show. Accepted in favor of sharpness; a width guard would trim those bytes by capping those records at 1920. The sampled numbers are in #194.
 
 ## Source Link
 
@@ -205,6 +218,20 @@ Related code lives in:
 
 - `src/features/assets/asset-preview-snapshots.repo.ts`
 - `supabase/migrations/20260321151530_rename_asset_preview_snapshots.sql`
+
+#### Changing the shape
+
+A snapshot is written only when someone stars an asset or adds it to a collection, and refreshed on that path once it is past the stale window. Nothing refreshes it on a read, and `favorites` and `collection_items` both reference it `ON DELETE RESTRICT`.
+
+The stored image is nullable. A provider record can carry no file we can render, and a placeholder would hand the layout a dimension it then believes; the width, height and ladder are written together or not at all. Surfaces render the tile's own background in that case.
+
+A stored snapshot is therefore the only copy of that preview the site holds. Changing the table's shape requires:
+
+- deriving the new columns from the old ones in the migration, since rows can be neither dropped nor left to repair themselves
+- a backfill that re-ensures every stored key through its provider, for whatever the old columns could not supply
+- expand and contract across two releases once the site takes traffic, so no running code meets a column it does not know
+
+The rendition ladder change (#194) is the worked example, and took the single release deliberately: a handful of rows, and no public site to break.
 
 ### Favorites and Collections
 

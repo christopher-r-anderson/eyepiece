@@ -18,10 +18,12 @@ function makeSnapshot(id: string, externalId: string): AssetPreviewSnapshot {
     id,
     key: { providerId: NASA_IVL_PROVIDER_ID, externalId },
     title: `Snapshot ${externalId}`,
-    thumbnail: {
-      href: 'https://example.com/thumb.jpg',
+    image: {
       width: 200,
       height: 150,
+      renditions: [
+        { href: 'https://example.com/thumb.jpg', width: 200, height: 150 },
+      ],
     },
   }
 }

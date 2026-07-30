@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Asset } from '@/domain/asset/asset.schema'
 import { AppException } from '@/lib/result'
 import { operationalErrorObservability } from '@/lib/error-observability'
 import {
@@ -49,31 +50,42 @@ const mockAsset = {
   key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'AS11-40-5931' },
   title: 'Buzz Aldrin on the Moon',
   description: 'Iconic photograph.',
-  thumbnail: { href: 'https://example.com/t.jpg', width: 200, height: 150 },
-  image: { href: 'https://example.com/i.jpg', width: 1600, height: 1200 },
-  original: { href: 'https://example.com/o.tif', width: 4000, height: 3000 },
-}
+  image: {
+    width: 1600,
+    height: 1200,
+    renditions: [
+      { href: 'https://example.com/i.jpg', width: 1600, height: 1200 },
+      { href: 'https://example.com/t.jpg', width: 200, height: 150 },
+    ],
+  },
+} satisfies Asset
 
 const nasaAsset = {
   key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'PIA24439' },
   title: 'Apollo Footprint',
   description: 'Buzz Aldrin took this iconic image of a bootprint on the Moon.',
-  thumbnail: {
-    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~thumb.jpg',
-    width: 640,
-    height: 626,
-  },
   image: {
-    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~large.jpg',
-    width: 1920,
-    height: 1880,
-  },
-  original: {
-    href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~orig.jpg',
     width: 3294,
     height: 3226,
+    renditions: [
+      {
+        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~orig.jpg',
+        width: 3294,
+        height: 3226,
+      },
+      {
+        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~large.jpg',
+        width: 1920,
+        height: 1880,
+      },
+      {
+        href: 'https://images-assets.nasa.gov/image/PIA24439/PIA24439~thumb.jpg',
+        width: 640,
+        height: 626,
+      },
+    ],
   },
-}
+} satisfies Asset
 
 const sioaAsset = {
   key: {
@@ -82,22 +94,23 @@ const sioaAsset = {
   },
   title: 'Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine',
   description: 'Rocket Engine, Liquid Fuel, Apollo Lunar Module Ascent Engine',
-  thumbnail: {
-    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_thumb',
-    width: 640,
-    height: 480,
-  },
   image: {
-    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153_screen',
-    width: 640,
-    height: 480,
-  },
-  original: {
-    href: 'https://ids.si.edu/ids/download?id=NASM-A19721168000-NASM2018-10153.jpg',
     width: 5760,
     height: 3840,
+    renditions: [
+      {
+        href: 'https://ids.si.edu/ids/iiif/NASM-A19721168000-NASM2018-10153/full/2560,/0/default.jpg',
+        width: 2560,
+        height: 1707,
+      },
+      {
+        href: 'https://ids.si.edu/ids/iiif/NASM-A19721168000-NASM2018-10153/full/640,/0/default.jpg',
+        width: 640,
+        height: 427,
+      },
+    ],
   },
-}
+} satisfies Asset
 
 const mockMetadata = { photographer: 'Neil Armstrong', date: '1969-07-20' }
 
@@ -225,6 +238,20 @@ describe('GET /api/v1/asset/:providerId/:assetId handler', () => {
       externalId: 'ld1-1643400021979-1643400026497-0',
     })
     expect(body).toEqual(sioaAsset)
+  })
+
+  it('passes an asset with no image through unchanged', async () => {
+    const imageless = {
+      key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'no-image' },
+      title: 'Nothing renderable',
+    } satisfies Asset
+    mockService.getAsset.mockResolvedValue(imageless)
+
+    const response = await assetHandler({
+      params: { providerId: NASA_IVL_PROVIDER_ID, assetId: 'no-image' },
+    })
+
+    await expect(response.json()).resolves.toEqual(imageless)
   })
 
   it('returns a 404 JSON response when the asset does not exist', async () => {

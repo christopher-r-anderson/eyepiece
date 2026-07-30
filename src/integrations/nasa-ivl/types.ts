@@ -36,6 +36,9 @@ export const nasaMediaLinkSchema = z.object({
   render: z.string().optional(),
   width: z.number().optional(),
   height: z.number().optional(),
+  // bytes, and the only signal that separates a servable original from a
+  // hundred-megabyte one
+  size: z.number().optional(),
 })
 
 export type NasaMediaLink = z.infer<typeof nasaMediaLinkSchema>

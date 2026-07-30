@@ -1,11 +1,17 @@
 import { calculateNextPage } from '../../provider.utils'
-import { buildSioaSearchParams, mapAssetItem } from './si-oa.utils'
+import {
+  buildSioaSearchParams,
+  getDeclaredDimensions,
+  getPrimaryMedia,
+  mapAssetItem,
+} from './si-oa.utils'
 import type { SioaSearchFilters } from '@/domain/search/providers/si-oa-filters'
 import type {
   PaginatedCollection,
   Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
+import type { SioaAssetItem } from '@/integrations/si-oa/types'
 import type { BaseProvider } from '../../provider'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import {
@@ -15,6 +21,7 @@ import {
 import { sioaSearchFiltersSchema } from '@/domain/search/providers/si-oa-filters'
 import {
   getContent as sioaGetContent,
+  getImageInfo as sioaGetImageInfo,
   search as sioaSearch,
 } from '@/integrations/si-oa/client'
 import { getProviderFixtureMode } from '@/integrations/provider-fixtures'
@@ -35,6 +42,26 @@ export function getApiKey() {
   return apiKey
 }
 
+// About one record in nine declares no size on any resource, and the aspect
+// ratio drives row breaking in the grid, so the delivery service is asked
+// directly. A record that already declares one costs nothing.
+async function resolveMaster(assetItem: SioaAssetItem) {
+  const media = getPrimaryMedia(assetItem)
+  const declared = getDeclaredDimensions(media)
+  if (declared || !media?.idsId) return declared
+  try {
+    return await sioaGetImageInfo(media.idsId)
+  } catch {
+    // one unreachable master must not fail a page of results; the mapper
+    // falls back to whatever the labelled resources can support
+    return undefined
+  }
+}
+
+async function mapWithMaster(assetItem: SioaAssetItem) {
+  return mapAssetItem(assetItem, await resolveMaster(assetItem))
+}
+
 export function makeSiOaAdapter(
   apiKey: string,
 ): BaseProvider<typeof SI_OA_PROVIDER_ID, typeof sioaSearchFiltersSchema> {
@@ -44,7 +71,7 @@ export function makeSiOaAdapter(
     getSearchFiltersSchema: () => sioaSearchFiltersSchema,
     getAsset: async function (id: string) {
       const sioaResponse = await sioaGetContent(id, apiKey)
-      const response: Asset = mapAssetItem(sioaResponse.response)
+      const response: Asset = await mapWithMaster(sioaResponse.response)
       return response
     },
 
@@ -55,7 +82,9 @@ export function makeSiOaAdapter(
     ) {
       const sioaSearchParams = buildSioaSearchParams(query, filters, pagination)
       const sioaResponse = await sioaSearch(sioaSearchParams, apiKey)
-      const assets = sioaResponse.response.rows.map(mapAssetItem)
+      const assets = await Promise.all(
+        sioaResponse.response.rows.map(mapWithMaster),
+      )
       const total = sioaResponse.response.rowCount
       const next = calculateNextPage(pagination, assets.length, total)
       const response: PaginatedCollection<Asset> = {

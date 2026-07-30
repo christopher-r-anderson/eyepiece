@@ -1,19 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getApiKey, makeSiOaAdapter } from './si-oa.provider'
+import type * as sioaClient from '@/integrations/si-oa/client'
 import type { SioaAssetItem } from '@/integrations/si-oa/types'
 import { SI_OA_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import contentFixture from '@/integrations/si-oa/__fixtures__/content.ld1-1643400021979-1643400026497-0.json'
 import searchFixture from '@/integrations/si-oa/__fixtures__/search.q.apollo.json'
 
-const { mockGetContent, mockSearch } = vi.hoisted(() => {
+const { mockGetContent, mockGetImageInfo, mockSearch } = vi.hoisted(() => {
   return {
     mockGetContent: vi.fn(),
+    mockGetImageInfo: vi.fn(),
     mockSearch: vi.fn(),
   }
 })
 
-vi.mock('@/integrations/si-oa/client', () => ({
+vi.mock('@/integrations/si-oa/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof sioaClient>()),
   getContent: mockGetContent,
+  getImageInfo: mockGetImageInfo,
   search: mockSearch,
 }))
 
@@ -135,15 +139,12 @@ describe('makeSiOaAdapter', () => {
       )
       expect(result?.key.externalId).toBe(contentFixture.response.id)
       expect(result?.key.providerId).toBe(SI_OA_PROVIDER_ID)
-      expect(result?.original.href).toContain(
-        'NASM-A19721168000-NASM2018-10153.jpg',
-      )
-      expect(result?.image.href).toContain(
-        'NASM-A19721168000-NASM2018-10153_screen',
-      )
-      expect(result?.thumbnail.href).toContain(
-        'NASM-A19721168000-NASM2018-10153_screen',
-      )
+      expect(result?.image).toMatchObject({ width: 5792, height: 8688 })
+      expect(result?.image?.renditions[0]).toEqual({
+        href: 'https://ids.si.edu/ids/iiif/NASM-A19721168000-NASM2018-10153/full/2560,/0/default.jpg',
+        width: 2560,
+        height: 3840,
+      })
     })
 
     it('fetches asset by ID and maps response', async () => {
@@ -194,14 +195,12 @@ describe('makeSiOaAdapter', () => {
       expect(result.items[0]?.key.externalId).toBe(
         searchFixture.response.rows[0]?.id,
       )
-      expect(result.items[0]?.original.href).toContain(
-        'NASM-A19740798000-NASM2018-10165.jpg',
-      )
-      expect(result.items[0]?.image.href).toContain(
-        'NASM-A19740798000-NASM2018-10165_screen',
-      )
-      expect(result.items[0]?.thumbnail.href).toContain(
-        'NASM-A19740798000-NASM2018-10165_screen',
+      expect(result.items[0]?.image).toMatchObject({
+        width: 6575,
+        height: 5260,
+      })
+      expect(result.items[0]?.image?.renditions[0]?.href).toContain(
+        '/iiif/NASM-A19740798000-NASM2018-10165/full/2560,/',
       )
       expect(result.pagination.total).toBe(searchFixture.response.rowCount)
       expect(result.pagination.next).toBe(2)
@@ -242,6 +241,92 @@ describe('makeSiOaAdapter', () => {
       expect(result.items).toHaveLength(2)
       expect(result.items[0]).toHaveProperty('title', 'First')
       expect(result.items[1]).toHaveProperty('title', 'Second')
+    })
+
+    // the one-in-nine record whose resources never declare a size
+    function createDimensionlessAssetItem(id: string): SioaAssetItem {
+      return createMockAssetItem({
+        id,
+        content: {
+          descriptiveNonRepeating: {
+            guid: 'guid-123',
+            title: { label: 'Title', content: 'Space Object' },
+            record_ID: 'rec-123',
+            unit_code: 'NASM',
+            data_source: 'National Air and Space Museum',
+            online_media: {
+              media: [
+                {
+                  idsId: 'NASM-undeclared',
+                  resources: [
+                    {
+                      url: 'https://example.com/standard.jpg' as never,
+                      label: 'Screen Image',
+                    },
+                  ],
+                },
+              ],
+              mediaCount: 1,
+            },
+            metadata_usage: { access: 'CC0' },
+          },
+        },
+      })
+    }
+
+    it('asks the delivery service for a master no resource declares', async () => {
+      mockSearch.mockResolvedValue({
+        status: 200,
+        responseCode: 200,
+        response: {
+          rowCount: 1,
+          rows: [createDimensionlessAssetItem('asset-undeclared')],
+          facets: {},
+          message: 'ok',
+        },
+      })
+      mockGetImageInfo.mockResolvedValue({ width: 4000, height: 5000 })
+
+      const adapter = makeSiOaAdapter('test-key')
+      const result = await adapter.searchAssets(
+        'apollo',
+        {},
+        { page: 1, pageSize: 24 },
+      )
+
+      expect(mockGetImageInfo).toHaveBeenCalledWith('NASM-undeclared')
+      expect(result.items[0]?.image).toMatchObject({
+        width: 4000,
+        height: 5000,
+      })
+      expect(result.items[0]?.image?.renditions[0]?.href).toContain(
+        '/iiif/NASM-undeclared/',
+      )
+    })
+
+    it('tolerates a failed master lookup without failing the page', async () => {
+      mockSearch.mockResolvedValue({
+        status: 200,
+        responseCode: 200,
+        response: {
+          rowCount: 1,
+          rows: [createDimensionlessAssetItem('asset-undeclared')],
+          facets: {},
+          message: 'ok',
+        },
+      })
+      mockGetImageInfo.mockRejectedValue(new Error('stalled'))
+
+      const adapter = makeSiOaAdapter('test-key')
+      const result = await adapter.searchAssets(
+        'apollo',
+        {},
+        { page: 1, pageSize: 24 },
+      )
+
+      expect(result.items).toHaveLength(1)
+      // nothing declares a size, so there is nothing to lay out on
+      expect(result.items[0]?.image).toBeUndefined()
     })
 
     it('calculates next page from total and current items', async () => {

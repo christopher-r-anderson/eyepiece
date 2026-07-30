@@ -11,7 +11,13 @@ const SNAPSHOT_ID = '550e8400-e29b-41d4-a716-446655440001'
 const ASSET_KEY: AssetKey = { providerId: 'nasa_ivl', externalId: 'PIA24439' }
 const ASSET = {
   title: 'Apollo Footprint',
-  thumbnail: { href: 'https://example.com/thumb.jpg', width: 640, height: 480 },
+  image: {
+    width: 640,
+    height: 480,
+    renditions: [
+      { href: 'https://example.com/thumb.jpg', width: 640, height: 480 },
+    ],
+  },
 }
 
 function makeServiceClient({
@@ -119,9 +125,9 @@ describe('ensureAssetPreviewSnapshotForKey', () => {
         p_provider_id: ASSET_KEY.providerId,
         p_external_id: ASSET_KEY.externalId,
         p_title: ASSET.title,
-        p_thumb_href: ASSET.thumbnail.href,
-        p_thumb_width: ASSET.thumbnail.width,
-        p_thumb_height: ASSET.thumbnail.height,
+        p_image_width: ASSET.image.width,
+        p_image_height: ASSET.image.height,
+        p_renditions: ASSET.image.renditions,
       },
     )
   })

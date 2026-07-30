@@ -55,7 +55,7 @@ describe('makeNasaIvlAdapter', () => {
     )
     expect(footprint?.key.providerId).toBe(NASA_IVL_PROVIDER_ID)
     expect(footprint?.title).toBe('Apollo Footprint')
-    expect(footprint?.image.href).toContain('/image/PIA24439/')
+    expect(footprint?.image?.renditions[0].href).toContain('/image/PIA24439/')
     expect(albumLogo?.albums).toEqual([
       {
         externalId: 'Apollo-at-50',

@@ -26,10 +26,20 @@ export const sioaResourceItemSchema = z.object({
 
 export type SioaResourceItem = z.infer<typeof sioaResourceItemSchema>
 
+// IIIF Image API 2.0 information request; only the master's size is used
+export const sioaImageInfoSchema = z.object({
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+})
+
+export type SioaImageInfo = z.infer<typeof sioaImageInfoSchema>
+
 // the accessibility fields are undocumented and the published EDAN schema
 // forbids them, so nothing here can be trusted to arrive
 export const sioaMediaItemSchema = z.object({
   resources: z.array(sioaResourceItemSchema),
+  // addresses the master on the delivery service, which renditions are cut from
+  idsId: z.string().optional(),
   altTextAccessibility: z.string().optional(),
   extDescrAccessibility: z.string().optional(),
 })

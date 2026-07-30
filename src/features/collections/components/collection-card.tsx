@@ -1,6 +1,19 @@
 import { css } from 'styled-system/css'
+import { token } from 'styled-system/tokens'
 import type { CollectionCard as CollectionCardData } from '../collections.schema'
+import { BELOW_MD_QUERY } from '@/lib/breakpoints'
 import { Link } from '@/components/ui/link'
+import { toFallbackSrc, toSrcSet } from '@/domain/asset/asset.utils'
+
+// mirrors the column count and gap in collection-card-grid's cardGridCss;
+// the page stops growing at contentMax, so past it a card's width is fixed
+const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
+const CARD_MAX =
+  (CONTENT_MAX -
+    2 * parseFloat(token('spacing.4')) -
+    2 * parseFloat(token('spacing.5'))) /
+  3
+const COVER_SIZES = `${BELOW_MD_QUERY} 100vw, (max-width: ${CONTENT_MAX}rem) 33vw, ${CARD_MAX.toFixed(2)}rem`
 
 interface CollectionCardProps {
   card: CollectionCardData
@@ -25,13 +38,15 @@ export function CollectionCard({
   const TitleTag = `h${titleLevel}` as const
   const content = (
     <>
-      {cover ? (
+      {cover?.image ? (
         <img
-          src={cover.thumbnail.href}
+          src={toFallbackSrc(cover.image)}
+          srcSet={toSrcSet(cover.image)}
+          sizes={COVER_SIZES}
           alt=""
           loading="lazy"
-          width={cover.thumbnail.width}
-          height={cover.thumbnail.height}
+          width={cover.image.width}
+          height={cover.image.height}
           className={css({
             width: '100%',
             aspectRatio: 2.1,

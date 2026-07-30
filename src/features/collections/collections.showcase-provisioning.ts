@@ -4,7 +4,7 @@ import type {
   ShowcaseCollection,
   ShowcaseCuration,
 } from './collections.showcase'
-import type { AssetKey } from '@/domain/asset/asset.schema'
+import type { AssetImage, AssetKey } from '@/domain/asset/asset.schema'
 import type { SupabaseClient } from '@/integrations/supabase/types'
 import { assetKeySchema } from '@/domain/asset/asset.schema'
 import { profileSchema } from '@/domain/profile/profile.schema'
@@ -17,11 +17,7 @@ import { ASSET_PREVIEW_SNAPSHOT_STALE_TIME } from '@/features/assets/asset-previ
 
 export interface ShowcaseAssetPreview {
   title: string
-  thumbnail: {
-    href: string
-    width: number
-    height: number
-  }
+  image?: AssetImage
 }
 
 export type FetchShowcaseAsset = (
@@ -202,9 +198,11 @@ async function ensureSnapshots(
         p_provider_id: assetKey.providerId,
         p_external_id: assetKey.externalId,
         p_title: asset.title,
-        p_thumb_href: asset.thumbnail.href,
-        p_thumb_width: asset.thumbnail.width,
-        p_thumb_height: asset.thumbnail.height,
+        ...(asset.image && {
+          p_image_width: asset.image.width,
+          p_image_height: asset.image.height,
+          p_renditions: asset.image.renditions,
+        }),
       },
     )
     if (ensureError) {

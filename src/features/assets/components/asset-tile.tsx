@@ -8,7 +8,11 @@ import type {
 } from 'react'
 import type { AssetPreview } from '@/domain/asset/asset.schema'
 import { Link } from '@/components/ui/link'
-import { toAssetKeyString } from '@/domain/asset/asset.utils'
+import {
+  toAssetKeyString,
+  toFallbackSrc,
+  toSrcSet,
+} from '@/domain/asset/asset.utils'
 
 // navigation overrides for the primary link (target, state, mask);
 // presentation props stay owned by the tile
@@ -22,6 +26,9 @@ interface AssetTileProps extends Omit<
   'children'
 > {
   assetPreview: AssetPreview
+  // how wide this tile renders is the surface's layout to know, and a srcset
+  // without it falls back to assuming the full viewport
+  sizes: string
   relatedLinks?: ReactNode
   actions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
@@ -31,10 +38,12 @@ interface AssetTileProps extends Omit<
 
 const Thumbnail = ({
   assetPreview,
+  sizes,
   isLinkDisabled,
   linkProps,
 }: {
   assetPreview: AssetPreview
+  sizes: string
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
 }) => {
@@ -77,17 +86,23 @@ const Thumbnail = ({
         },
       })}
     >
-      <img
-        className={css({
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        })}
-        src={assetPreview.thumbnail.href}
-        alt=""
-        width={assetPreview.thumbnail.width}
-        height={assetPreview.thumbnail.height}
-      />
+      {/* no renderable file leaves the tile's own background showing, the
+          same as a skeleton */}
+      {assetPreview.image && (
+        <img
+          className={css({
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          })}
+          src={toFallbackSrc(assetPreview.image)}
+          srcSet={toSrcSet(assetPreview.image)}
+          sizes={sizes}
+          alt=""
+          width={assetPreview.image.width}
+          height={assetPreview.image.height}
+        />
+      )}
     </Link>
   )
 }
@@ -127,6 +142,7 @@ const containerCss = css.raw({
 
 export function AssetTile({
   assetPreview,
+  sizes,
   relatedLinks,
   actions,
   className,
@@ -138,6 +154,7 @@ export function AssetTile({
     <div className={cx(css(containerCss), className)} {...props}>
       <Thumbnail
         assetPreview={assetPreview}
+        sizes={sizes}
         isLinkDisabled={isLinkDisabled}
         linkProps={linkProps}
       />

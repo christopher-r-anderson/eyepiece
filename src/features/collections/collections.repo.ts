@@ -155,7 +155,7 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     let query = client
       .from('collections')
       .select(
-        `${COLLECTION_COLUMNS}, item_count:collection_items(count), cover_items:collection_items(asset_preview_snapshots(id, provider_id, external_id, title, thumb_href, thumb_width, thumb_height))`,
+        `${COLLECTION_COLUMNS}, item_count:collection_items(count), cover_items:collection_items(asset_preview_snapshots(id, provider_id, external_id, title, image_width, image_height, renditions))`,
       )
       .eq('owner_id', ownerId)
     if (visibility) {
