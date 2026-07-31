@@ -4,7 +4,6 @@ import {
   decodeFavoritesEdgesCursor,
   encodeFavoritesEdgesCursor,
 } from './favorites.cursor'
-import type { FavoritesEdgesCursor } from './favorites.cursor'
 import type { FavoriteEdge } from './favorites.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
@@ -80,52 +79,52 @@ export type UserFavoritesRepo = {
 }
 
 export function makeUserFavoritesRepo(client: SupabaseClient) {
-  // Keyset pagination on (created_at DESC, asset_preview_snapshot_id DESC):
-  // a page is the rows strictly after the cursor in that order, so rows
-  // removed or restored before the cursor cannot shift it (#209).
   async function getUserFavoritesEdges({
     cursor,
     pageSize,
   }: FavoritesEdgesPageRequest) {
-    let after: FavoritesEdgesCursor | null = null
-    if (cursor !== null) {
-      const decoded = decodeFavoritesEdgesCursor(cursor)
-      if (resultIsError(decoded)) {
-        return decoded
-      }
-      after = decoded.data
+    const decoded = cursor === null ? null : decodeFavoritesEdgesCursor(cursor)
+    if (decoded && resultIsError(decoded)) {
+      return decoded
     }
-    let pageQuery = client
+    const after = decoded?.data
+    const probeLimit = pageSize + 1
+    // the first page's count rides the page request so rows and total come
+    // from one snapshot; a cursor page's filtered count cannot express the
+    // total, and its total is never surfaced, so a head count suffices
+    const pageQuery = client
       .from('favorites')
       .select(
         'created_at, asset_preview_snapshots (id, provider_id, external_id)',
+        { count: after ? undefined : 'exact' },
       )
       .order('created_at', { ascending: false })
       .order('asset_preview_snapshot_id', { ascending: false })
-      // one row past the page proves a next page without trusting counts
-      .limit(pageSize + 1)
-    if (after) {
-      pageQuery = pageQuery.or(
-        `created_at.lt."${after.createdAt}",and(created_at.eq."${after.createdAt}",asset_preview_snapshot_id.lt.${after.snapshotId})`,
-      )
-    }
-    const [{ data, error: pgError }, { count, error: countError }] =
-      await Promise.all([
-        pageQuery,
-        client.from('favorites').select('*', { count: 'exact', head: true }),
-      ])
+      .limit(probeLimit)
+    const [pageResult, countResult] = await Promise.all([
+      after
+        ? pageQuery.or(
+            `created_at.lt."${after.createdAt}",and(created_at.eq."${after.createdAt}",asset_preview_snapshot_id.lt.${after.snapshotId})`,
+          )
+        : pageQuery,
+      after
+        ? client.from('favorites').select('*', { count: 'exact', head: true })
+        : null,
+    ])
+    const { data, error: pgError } = pageResult
     if (pgError) {
       return Err({
         message: pgError.message,
         cause: pgError,
       })
     }
-    if (countError) {
+    if (countResult?.error) {
       return Err({
-        message: countError.message,
-        cause: countError,
+        message: countResult.error.message,
+        cause: countResult.error,
       })
     }
+    const count = after ? countResult?.count : pageResult.count
     const { data: userFavoritesEdges, error: parseError } =
       dbUserFavoritesEdgesSchema.safeParse(data)
     if (parseError) {
@@ -134,10 +133,10 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
         cause: parseError,
       })
     }
-    const hasMore = userFavoritesEdges.length > pageSize
-    const items = (
-      hasMore ? userFavoritesEdges.slice(0, pageSize) : userFavoritesEdges
-    ).map(mapUserFavoritesEdges)
+    const hasMore = userFavoritesEdges.length === probeLimit
+    const items = userFavoritesEdges
+      .slice(0, pageSize)
+      .map(mapUserFavoritesEdges)
     return Ok({
       items,
       pagination: {

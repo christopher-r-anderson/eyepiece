@@ -230,8 +230,6 @@ describe('getUserFavoritesEdges', () => {
     expect(page1.pagination.total).toBe(3)
   })
 
-  // the scenario that motivated keyset pagination (#209): removing an
-  // already-served row must not shift what the next page returns
   it('a favorite removed mid-walk does not skip or duplicate later rows', async ({
     client,
     user,
@@ -260,7 +258,6 @@ describe('getUserFavoritesEdges', () => {
       ids[2],
     ])
 
-    // the viewer unfavorites the first row they saw
     const { error } = await adminClient
       .from('favorites')
       .delete()
