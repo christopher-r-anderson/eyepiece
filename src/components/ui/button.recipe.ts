@@ -76,6 +76,7 @@ export const buttonRecipe = defineRecipe({
       icon: {
         width: 'controlHeightSm',
         height: 'controlHeightSm',
+        flexShrink: 0,
         minHeight: 'auto',
         padding: 0,
         backgroundColor: 'transparent',

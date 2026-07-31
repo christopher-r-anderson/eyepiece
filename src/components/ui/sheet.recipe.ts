@@ -15,10 +15,12 @@ export const sheetRecipe = defineSlotRecipe({
       zIndex: 'overlay',
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
       // gaps live on the overlay so clicks in them count as outside the
-      // modal and dismiss it
-      paddingTop: '6',
+      // modal and dismiss it; the close slot positions itself off the same
+      // variable, so the gap has one home
+      '--sheet-gap': 'token(spacing.6)',
+      paddingTop: 'var(--sheet-gap)',
       md: {
-        paddingTop: '7',
+        '--sheet-gap': 'token(spacing.7)',
         paddingInline: '8',
       },
     },
@@ -44,20 +46,21 @@ export const sheetRecipe = defineSlotRecipe({
       },
     },
     close: {
-      // sits in the overlay's top gap, centered on it; stays inside the
+      // sits in the overlay's top gap (--sheet-gap); stays inside the
       // dialog subtree so the modal focus trap can reach it
       position: 'absolute',
-      // the mobile gap is smaller than the button, so it anchors below the
-      // viewport top by the hit-area overhang: the extended target starts
-      // at y=0 instead of being clipped above it
-      top: 'calc((token(sizes.touchTargetMin) - token(sizes.controlHeightSm)) / 2 - token(spacing.6))',
+      // the mobile gap is smaller than the button, so instead of centering
+      // it anchors below the viewport top by the hit-area overhang: the
+      // extended target starts at y=0 instead of being clipped above it
+      top: 'calc((token(sizes.touchTargetMin) - token(sizes.controlHeightSm)) / 2 - var(--sheet-gap))',
       right: '3',
       // over the dimmed backdrop the glyph stays light and hover speaks
       // through color alone
       color: 'rgba(255, 255, 255, 0.8)',
       _hovered: { color: 'white', backgroundColor: 'transparent' },
       md: {
-        top: 'calc((token(spacing.7) + token(sizes.controlHeightSm)) / -2)',
+        // the desktop gap fits the button, so it centers
+        top: 'calc((var(--sheet-gap) + token(sizes.controlHeightSm)) / -2)',
         right: '0',
       },
     },

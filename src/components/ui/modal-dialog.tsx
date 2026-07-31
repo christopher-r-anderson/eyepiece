@@ -59,7 +59,6 @@ export function ModalDialog({
               aria-label={`Close ${title} dialog`}
               onPress={() => onOpenChange(false)}
               variant="icon"
-              css={css.raw({ flexShrink: 0 })}
             >
               <XIcon aria-hidden="true" size={18} weight="bold" />
             </Button>

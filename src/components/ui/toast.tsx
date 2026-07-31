@@ -34,7 +34,7 @@ export function ToastRegion() {
             slot="close"
             aria-label="Close"
             variant="icon"
-            css={css.raw({ marginInlineStart: 'auto', flexShrink: 0 })}
+            css={css.raw({ marginInlineStart: 'auto' })}
           >
             <XIcon aria-hidden="true" size={16} />
           </Button>
