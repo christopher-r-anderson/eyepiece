@@ -47,9 +47,10 @@ export const sheetRecipe = defineSlotRecipe({
       // sits in the overlay's top gap, centered on it; stays inside the
       // dialog subtree so the modal focus trap can reach it
       position: 'absolute',
-      // the mobile gap is smaller than the button, so it anchors to the
-      // viewport top instead of centering
-      top: 'calc(token(spacing.6) * -1)',
+      // the mobile gap is smaller than the button, so it anchors below the
+      // viewport top by the hit-area overhang: the extended target starts
+      // at y=0 instead of being clipped above it
+      top: 'calc((token(sizes.touchTargetMin) - token(sizes.controlHeightSm)) / 2 - token(spacing.6))',
       right: '3',
       // over the dimmed backdrop the glyph stays light and hover speaks
       // through color alone
