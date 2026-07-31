@@ -35,7 +35,7 @@ function RegisterPage() {
         />
         <AuthAltAction>
           Already have an account?{' '}
-          <Link to="/login" underline>
+          <Link to="/login" variant="underline">
             Log in
           </Link>
         </AuthAltAction>

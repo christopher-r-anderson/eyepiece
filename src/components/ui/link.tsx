@@ -13,13 +13,12 @@ function AppLink({
   css: cssProp,
   className,
   variant,
-  underline,
   ...props
 }: UiProps<LinkProps> & LinkVariantProps) {
   return (
     <ReactAriaLink
       {...props}
-      className={cx(link({ variant, underline }), css(cssProp), className)}
+      className={cx(link({ variant }), css(cssProp), className)}
     />
   )
 }

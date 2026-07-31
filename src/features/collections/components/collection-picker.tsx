@@ -26,7 +26,7 @@ const checkboxCss = css({
   paddingInline: '2',
   cursor: 'pointer',
   borderRadius: 'sm',
-  _hovered: { backgroundColor: 'bg.surface.2' },
+  _hovered: { backgroundColor: 'bg.surface.3' },
   '&[data-focus-visible]': {
     outline: 'focusRing',
     outlineOffset: '-2px',

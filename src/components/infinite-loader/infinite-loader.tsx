@@ -4,7 +4,6 @@ import { VisuallyHidden } from 'styled-system/jsx'
 import { useInfiniteStatus } from './use-infinite-status'
 import { useLoadMoreController } from './use-load-more-controller'
 import type { ComponentPropsWithoutRef } from 'react'
-import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 
 export function InfiniteLoader({
@@ -14,7 +13,6 @@ export function InfiniteLoader({
   hasNextPage,
   loadedCount = 0,
   total,
-  loadMoreVariant,
   uiResetKey,
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
@@ -24,7 +22,6 @@ export function InfiniteLoader({
   loadedCount?: number
   // renders a visible "showing n of total" line when provided
   total?: number
-  loadMoreVariant?: ButtonProps['variant']
   uiResetKey: string
 }) {
   const status = useInfiniteStatus({
@@ -78,7 +75,7 @@ export function InfiniteLoader({
           )}
           {showLoadMore && (
             <Button
-              variant={loadMoreVariant}
+              variant="text"
               isDisabled={isFetchingNextPage}
               onPress={async () => {
                 await fetchNextPage()

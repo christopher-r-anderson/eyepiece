@@ -137,7 +137,7 @@ function LoginSection({
         }
       />
       <p>
-        <Link to="/login" search={{ next }} underline>
+        <Link to="/login" search={{ next }} variant="underline">
           Visit the full log in page
         </Link>
       </p>
@@ -159,7 +159,7 @@ function ForgotPasswordSection({ next }: { next: string }) {
         next={next}
       />
       <p>
-        <Link to="/auth/forgot-password" search={{ next }} underline>
+        <Link to="/auth/forgot-password" search={{ next }} variant="underline">
           Visit the full forgot password page
         </Link>
       </p>
@@ -180,7 +180,7 @@ function RegistrationSection({ next }: { next: string }) {
         next={next}
       />
       <p>
-        <Link to="/register" search={{ next }} underline>
+        <Link to="/register" search={{ next }} variant="underline">
           Visit the full register page
         </Link>
       </p>

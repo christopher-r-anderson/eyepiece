@@ -36,7 +36,7 @@ export function EmptyResultsNotice({
           <Link
             to="/search"
             search={toProviderSearchParams(query, other)}
-            underline
+            variant="underline"
           >
             see the {otherLead} from {PROVIDER_DISPLAY[other].shortLabel}
           </Link>

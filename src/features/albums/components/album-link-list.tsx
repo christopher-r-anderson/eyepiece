@@ -16,7 +16,7 @@ export function AlbumLinkList({ albums }: { albums: Array<AlbumKey> }) {
           <Link
             to="/albums/$providerId/$albumId"
             params={{ providerId: album.providerId, albumId: album.externalId }}
-            underline
+            variant="underline"
             css={{ color: 'text.muted' }}
           >
             {album.externalId}
