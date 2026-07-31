@@ -20,6 +20,7 @@ import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
+import { calculateNextPage } from '@/domain/pagination/pagination.utils'
 import {
   dbAssetPreviewSnapshotSchema,
   mapAssetPreviewSnapshot,
@@ -272,10 +273,13 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     if (parseError) {
       return Err({ message: parseError.message, cause: parseError })
     }
-    const hasNext = count != null && page * pageSize < count
     return Ok({
       items: rows.map(mapCollectionItemEdge),
-      pagination: { next: hasNext ? page + 1 : null, total: count ?? 0 },
+      pagination: {
+        next:
+          count == null ? null : calculateNextPage({ page, pageSize }, count),
+        total: count ?? 0,
+      },
     })
   }
 

@@ -17,6 +17,19 @@ import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { NASA_ALBUM_PAGE_SIZE } from '@/integrations/nasa-ivl/client'
 
+// /search 400s any request whose window extends past its first 10,000
+// results - including one that merely straddles the cap - while still
+// reporting the full total_hits, so the walk has to stop early.
+export const NASA_IVL_SEARCH_MAX_RESULTS = 10_000
+
+export function clampNextPageToSearchDepthCap(
+  next: number | null,
+  pageSize: number,
+): number | null {
+  if (next === null) return null
+  return next * pageSize <= NASA_IVL_SEARCH_MAX_RESULTS ? next : null
+}
+
 export function buildNasaIvlSearchParams(
   query: SearchQuery,
   filters: NasaIvlSearchFilters,

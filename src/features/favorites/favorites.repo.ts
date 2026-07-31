@@ -11,6 +11,7 @@ import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
+import { calculateNextPage } from '@/domain/pagination/pagination.utils'
 
 const dbUserFavoriteIndexSchema = z.object({
   asset_preview_snapshots: z.object({
@@ -87,6 +88,9 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
         },
       )
       .order('created_at', { ascending: false })
+      // asset_preview_snapshot_id is unique per user (PK), so it is the
+      // stable final key that keeps offset pages from drifting
+      .order('asset_preview_snapshot_id', { ascending: false })
       .range((page - 1) * pageSize, page * pageSize - 1)
     if (pgError) {
       return Err({
@@ -102,10 +106,13 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
         cause: parseError,
       })
     }
-    const hasNext = count != null && page * pageSize < count
     return Ok({
       items: userFavoritesEdges.map(mapUserFavoritesEdges),
-      pagination: { next: hasNext ? page + 1 : null, total: count ?? 0 },
+      pagination: {
+        next:
+          count == null ? null : calculateNextPage({ page, pageSize }, count),
+        total: count ?? 0,
+      },
     })
   }
 

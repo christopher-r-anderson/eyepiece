@@ -108,12 +108,17 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
       )
     })
 
-    it('orders by created_at descending', async () => {
+    it('orders by created_at descending with the snapshot id tiebreaker', async () => {
       const repo = setup({ data: [], error: null, count: 0 })
       await repo.getUserFavoritesEdges(makePagination())
-      expect(builder.order).toHaveBeenCalledWith('created_at', {
+      expect(builder.order).toHaveBeenNthCalledWith(1, 'created_at', {
         ascending: false,
       })
+      expect(builder.order).toHaveBeenNthCalledWith(
+        2,
+        'asset_preview_snapshot_id',
+        { ascending: false },
+      )
     })
 
     it('uses .range() with correct offsets for a custom page and pageSize', async () => {

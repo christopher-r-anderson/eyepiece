@@ -1,36 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  calculateNextPage,
-  htmlToPlainText,
-  paginationToRange,
-} from './provider.utils'
+import { htmlToPlainText, paginationToRange } from './provider.utils'
 import { paginationSchema } from '@/domain/pagination/pagination.schema'
-
-describe('calculateNextPage', () => {
-  it('returns the next page when more items exist beyond the current coverage', () => {
-    const pagination = paginationSchema.parse({})
-
-    const nextPage = calculateNextPage(pagination, 24, 30)
-
-    expect(nextPage).toEqual(2)
-  })
-
-  it('returns null when the current coverage meets the total item count', () => {
-    const pagination = paginationSchema.parse({ page: 2, pageSize: 24 })
-
-    const nextPage = calculateNextPage(pagination, 24, 48)
-
-    expect(nextPage).toBeNull()
-  })
-
-  it('handles partially filled pages when additional items remain', () => {
-    const pagination = paginationSchema.parse({ page: 3, pageSize: 10 })
-
-    const nextPage = calculateNextPage(pagination, 5, 35)
-
-    expect(nextPage).toEqual(4)
-  })
-})
 
 describe('paginationToRange', () => {
   it('returns the default range for the first page', () => {

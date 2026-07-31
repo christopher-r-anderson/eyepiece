@@ -48,17 +48,6 @@ export function toAssetImage(
   }
 }
 
-export function calculateNextPage(
-  pagination: Pagination,
-  currentPageItemCount: number,
-  totalItemCount: number,
-): number | null {
-  return totalItemCount >
-    (pagination.page - 1) * pagination.pageSize + currentPageItemCount
-    ? pagination.page + 1
-    : null
-}
-
 export function paginationToRange(pagination: Pagination) {
   const start = (pagination.page - 1) * pagination.pageSize
   const end = start + pagination.pageSize - 1
