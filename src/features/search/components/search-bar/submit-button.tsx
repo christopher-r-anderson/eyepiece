@@ -11,18 +11,12 @@ export function SubmitButton({ css: styles, ...props }: ButtonProps) {
       // this into a second clear button
       slot={null}
       aria-label="Search"
-      variant="bare"
+      variant="icon"
       css={css.raw(
         {
-          display: 'grid',
-          placeItems: 'center',
-          padding: '1',
           color: 'accent.emphasis',
           _hovered: {
             color: 'text',
-          },
-          _disabled: {
-            color: 'text.muted',
           },
         },
         styles,

@@ -57,8 +57,14 @@ export function GhostRemovedActions({ onUndo }: { onUndo: () => void }) {
     >
       Removed
       <Button
-        variant="bare"
-        className={css({ textDecoration: 'underline' })}
+        variant="text"
+        // the veil scrim owns its color pairs, so the prose voice keeps the
+        // surrounding color instead of the text token
+        css={css.raw({
+          fontSize: '1em',
+          color: 'inherit',
+          _hovered: { color: 'inherit' },
+        })}
         onPress={onUndo}
       >
         Undo

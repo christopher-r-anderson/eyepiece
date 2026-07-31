@@ -31,7 +31,7 @@ export function Sheet({
           <Button
             aria-label={`Close ${ariaLabel}`}
             onPress={() => onOpenChange(false)}
-            variant="bare"
+            variant="icon"
             className={slots.close}
           >
             <XIcon aria-hidden="true" size={22} weight="bold" />

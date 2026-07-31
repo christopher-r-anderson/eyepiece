@@ -58,25 +58,7 @@ export function ModalDialog({
             <Button
               aria-label={`Close ${title} dialog`}
               onPress={() => onOpenChange(false)}
-              variant="bare"
-              css={css.raw({
-                width: 'touchTargetMin',
-                height: 'touchTargetMin',
-                color: 'text',
-                opacity: 0.8,
-                flexShrink: 0,
-                transitionFast: 'background-color, color, opacity',
-                _hovered: {
-                  backgroundColor: 'bg.surface.3',
-                  opacity: 1,
-                },
-                '&[data-focus-visible], &[data-pressed]': {
-                  opacity: 1,
-                },
-                _focusVisible: {
-                  outlineOffset: '2px',
-                },
-              })}
+              variant="icon"
             >
               <XIcon aria-hidden="true" size={18} weight="bold" />
             </Button>

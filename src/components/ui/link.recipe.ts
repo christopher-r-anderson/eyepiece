@@ -1,5 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
-import { ghostVisualStyles } from './button.styles'
+import { ghostCompactGeometry, ghostVisualStyles } from './button.styles'
 
 export const linkRecipe = defineRecipe({
   className: 'link',
@@ -18,12 +18,10 @@ export const linkRecipe = defineRecipe({
       // a link dressed as a compact ghost button
       ghost: {
         ...ghostVisualStyles,
+        ...ghostCompactGeometry,
         display: 'inline-flex',
         alignItems: 'center',
         gap: '2',
-        minHeight: 'controlHeightSm',
-        paddingBlock: '2',
-        paddingInline: '3',
         borderRadius: 'sm',
         fontWeight: 600,
         lineHeight: 'tight',

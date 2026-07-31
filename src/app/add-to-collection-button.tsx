@@ -44,7 +44,7 @@ function TriggerButton({
   }
   if (variant === 'tile') {
     return (
-      <Button {...shared} variant="bare" css={tileTriggerCss}>
+      <Button {...shared} variant="icon" css={tileTriggerCss}>
         <PlusIcon size={20} />
       </Button>
     )

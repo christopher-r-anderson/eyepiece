@@ -233,6 +233,9 @@ export function AssetTile({
               pointerEvents: 'none',
               flexShrink: 0,
               alignItems: 'center',
+              // keeps adjacent controls' extended hit areas out of each
+              // other's visible squares
+              gap: '2',
             })}
           >
             {actions}
