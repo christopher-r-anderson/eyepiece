@@ -304,19 +304,20 @@ describe('clampNextPageToSearchDepthCap', () => {
     expect(clampNextPageToSearchDepthCap(null, 24)).toBeNull()
   })
 
-  it('keeps a next page whose window starts inside the cap', () => {
-    // page 417 of 24 starts at offset 9984
-    expect(clampNextPageToSearchDepthCap(417, 24)).toBe(417)
+  it('keeps a next page whose window ends inside the cap', () => {
+    // page 416 of 24 ends at result 9,984
+    expect(clampNextPageToSearchDepthCap(416, 24)).toBe(416)
   })
 
-  it('drops a next page whose window starts past the cap', () => {
-    // page 418 of 24 starts at offset 10008
-    expect(clampNextPageToSearchDepthCap(418, 24)).toBeNull()
+  it('drops a next page whose window straddles the cap', () => {
+    // the live API rejects page 417 of 24 (offsets 9984-10007) even though
+    // its window starts below the cap
+    expect(clampNextPageToSearchDepthCap(417, 24)).toBeNull()
   })
 
-  it('drops the page that starts exactly at the cap', () => {
+  it('keeps the page that ends exactly at the cap', () => {
     // the live API serves offsets 9900-9999 (page 100 of 100) and rejects
-    // page 101, whose window starts at offset 10000
+    // page 101
     expect(clampNextPageToSearchDepthCap(100, 100)).toBe(100)
     expect(clampNextPageToSearchDepthCap(101, 100)).toBeNull()
   })

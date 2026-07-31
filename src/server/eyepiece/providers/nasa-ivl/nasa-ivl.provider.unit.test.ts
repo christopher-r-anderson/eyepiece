@@ -82,15 +82,15 @@ describe('makeNasaIvlAdapter', () => {
     const reachable = await adapter.searchAssets(
       'moon',
       {},
-      { page: 416, pageSize: 24 },
+      { page: 415, pageSize: 24 },
     )
     const atCap = await adapter.searchAssets(
       'moon',
       {},
-      { page: 417, pageSize: 24 },
+      { page: 416, pageSize: 24 },
     )
 
-    expect(reachable.pagination.next).toBe(417)
+    expect(reachable.pagination.next).toBe(416)
     expect(atCap.pagination.next).toBeNull()
     expect(atCap.pagination.total).toBe(22155)
   })
