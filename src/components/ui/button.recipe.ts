@@ -1,5 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
-import { ghostVisualStyles } from './button.styles'
+import { ghostCompactGeometry, ghostVisualStyles } from './button.styles'
 
 export const buttonRecipe = defineRecipe({
   className: 'button',
@@ -53,7 +53,7 @@ export const buttonRecipe = defineRecipe({
         },
         _disabled: { color: 'text.muted' },
       },
-      ghost: ghostVisualStyles,
+      ghost: { ...ghostVisualStyles, ...ghostCompactGeometry },
       // an inline action set as prose with a hanging rule (the mockups'
       // text-btn voice)
       text: {
@@ -68,6 +68,28 @@ export const buttonRecipe = defineRecipe({
         transitionFast: 'border-color, color',
         _hovered: {
           borderBottomColor: 'text',
+        },
+        _disabled: { color: 'text.muted' },
+      },
+      // an icon-only glyph in the compact control square; the hit area
+      // extends to touchTargetMin without growing the visible square
+      icon: {
+        width: 'controlHeightSm',
+        height: 'controlHeightSm',
+        minHeight: 'auto',
+        padding: 0,
+        backgroundColor: 'transparent',
+        color: 'text.muted',
+        position: 'relative',
+        _before: {
+          content: '""',
+          position: 'absolute',
+          inset:
+            'calc((token(sizes.controlHeightSm) - token(sizes.touchTargetMin)) / 2)',
+        },
+        _hovered: {
+          color: 'text',
+          backgroundColor: 'bg.surface.3',
         },
         _disabled: { color: 'text.muted' },
       },

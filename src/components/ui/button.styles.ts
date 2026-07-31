@@ -15,3 +15,9 @@ export const ghostVisualStyles = defineStyles({
     backgroundColor: 'bg.surface.2',
   },
 })
+
+export const ghostCompactGeometry = defineStyles({
+  minHeight: 'controlHeightSm',
+  paddingBlock: '2',
+  paddingInline: '3',
+})

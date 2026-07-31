@@ -39,11 +39,7 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
           },
         })}
       />
-      <Button
-        variant="bare"
-        data-clear-button
-        css={css.raw({ color: 'text.muted', _hovered: { color: 'text' } })}
-      >
+      <Button variant="icon" data-clear-button>
         <XIcon aria-hidden="true" />
       </Button>
       <SubmitButton />

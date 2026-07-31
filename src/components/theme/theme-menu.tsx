@@ -22,21 +22,7 @@ export function ThemeMenu() {
   const { mode, setMode } = useTheme()
   return (
     <MenuTrigger>
-      <Button
-        aria-label="Theme"
-        variant="bare"
-        css={{
-          // the nav chips share the compact control square
-          width: 'controlHeightSm',
-          height: 'controlHeightSm',
-          display: 'inline-grid',
-          placeItems: 'center',
-          borderRadius: 'full',
-          color: 'text.muted',
-          transitionFast: 'color, background-color',
-          _hovered: { color: 'text', backgroundColor: 'bg.surface.2' },
-        }}
-      >
+      <Button aria-label="Theme" variant="icon" css={{ borderRadius: 'full' }}>
         {/* the icon follows the html data-theme attribute in CSS, so the
             server markup never depends on client-only theme state */}
         <SunIcon

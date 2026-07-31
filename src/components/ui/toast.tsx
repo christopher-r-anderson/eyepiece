@@ -33,26 +33,8 @@ export function ToastRegion() {
           <Button
             slot="close"
             aria-label="Close"
-            variant="bare"
-            css={css.raw({
-              marginInlineStart: 'auto',
-              width: 'touchTargetMin',
-              height: 'touchTargetMin',
-              flexShrink: 0,
-              color: 'text',
-              opacity: 0.8,
-              transitionFast: 'background-color, color, opacity',
-              _hovered: {
-                backgroundColor: 'bg.surface.3',
-                opacity: 1,
-              },
-              '&[data-focus-visible], &[data-pressed]': {
-                opacity: 1,
-              },
-              _focusVisible: {
-                outlineOffset: '2px',
-              },
-            })}
+            variant="icon"
+            css={css.raw({ marginInlineStart: 'auto', flexShrink: 0 })}
           >
             <XIcon aria-hidden="true" size={16} />
           </Button>

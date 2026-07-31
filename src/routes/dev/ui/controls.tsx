@@ -40,6 +40,9 @@ function DevUiControlsPage() {
               <Button>Secondary</Button>
               <Button variant="primary">Primary</Button>
               <Button variant="ghost">Ghost</Button>
+              <Button variant="icon" aria-label="Search example">
+                <MagnifyingGlassIcon aria-hidden="true" size={20} />
+              </Button>
               <Button variant="bare" icon={MagnifyingGlassIcon}>
                 Bare
               </Button>

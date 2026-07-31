@@ -292,7 +292,8 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       }
       return (
         <Button
-          variant="bare"
+          variant="icon"
+          css={css.raw({ color: 'inherit', _hovered: { color: 'inherit' } })}
           aria-label={`Remove ${item.title}`}
           onPress={() => {
             refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))

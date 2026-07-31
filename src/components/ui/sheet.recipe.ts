@@ -47,23 +47,16 @@ export const sheetRecipe = defineSlotRecipe({
       // sits in the overlay's top gap, centered on it; stays inside the
       // dialog subtree so the modal focus trap can reach it
       position: 'absolute',
-      // the mobile gap is smaller than the touch target, so the button
-      // anchors to the viewport top instead of centering
+      // the mobile gap is smaller than the button, so it anchors to the
+      // viewport top instead of centering
       top: 'calc(token(spacing.6) * -1)',
       right: '3',
-      minWidth: 'touchTargetMin',
-      minHeight: 'touchTargetMin',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      // over the dimmed backdrop the glyph stays light and hover speaks
+      // through color alone
       color: 'rgba(255, 255, 255, 0.8)',
-      _hovered: { color: 'white' },
-      _focusVisible: {
-        outline: 'focusRing',
-        outlineOffset: '2px',
-      },
+      _hovered: { color: 'white', backgroundColor: 'transparent' },
       md: {
-        top: 'calc((token(spacing.7) + token(sizes.touchTargetMin)) / -2)',
+        top: 'calc((token(spacing.7) + token(sizes.controlHeightSm)) / -2)',
         right: '0',
       },
     },
