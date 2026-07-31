@@ -11,6 +11,7 @@ import { Err, Ok } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
+import { calculateNextPage } from '@/domain/pagination/pagination.utils'
 
 const dbUserFavoriteIndexSchema = z.object({
   asset_preview_snapshots: z.object({
@@ -102,10 +103,13 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
         cause: parseError,
       })
     }
-    const hasNext = count != null && page * pageSize < count
     return Ok({
       items: userFavoritesEdges.map(mapUserFavoritesEdges),
-      pagination: { next: hasNext ? page + 1 : null, total: count ?? 0 },
+      pagination: {
+        next:
+          count == null ? null : calculateNextPage({ page, pageSize }, count),
+        total: count ?? 0,
+      },
     })
   }
 
