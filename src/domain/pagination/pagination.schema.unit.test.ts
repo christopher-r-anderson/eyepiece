@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   DEFAULT_PAGE_SIZE,
   createPaginatedCollectionSchema,
+  cursorPaginationRequestSchema,
   paginateSchema,
   paginationSchema,
 } from './pagination.schema'
@@ -81,5 +82,38 @@ describe('createPaginatedCollectionSchema', () => {
     })
 
     expect(withoutCollection.collection).toBeUndefined()
+  })
+})
+
+describe('cursorPaginationRequestSchema', () => {
+  it('defaults to the first page and default page size', () => {
+    expect(cursorPaginationRequestSchema.parse({})).toEqual({
+      cursor: 1,
+      pageSize: 24,
+    })
+  })
+
+  it('parses the cursor back into a page number', () => {
+    expect(
+      cursorPaginationRequestSchema.parse({ cursor: '3', pageSize: '12' }),
+    ).toEqual({ cursor: 3, pageSize: 12 })
+  })
+
+  it.each([
+    ['zero', '0'],
+    ['negative', '-1'],
+    ['non-numeric', 'abc'],
+    ['exponent', '1e2'],
+    ['empty', ''],
+  ])('rejects a %s cursor', (_label, cursor) => {
+    expect(cursorPaginationRequestSchema.safeParse({ cursor }).success).toBe(
+      false,
+    )
+  })
+
+  it('caps pageSize at 100', () => {
+    expect(
+      cursorPaginationRequestSchema.safeParse({ pageSize: '101' }).success,
+    ).toBe(false)
   })
 })

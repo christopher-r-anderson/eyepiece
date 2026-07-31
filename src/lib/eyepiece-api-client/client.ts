@@ -5,11 +5,11 @@ import type {
 } from '@/domain/album/album.schema'
 import type { Asset, AssetKey, Metadata } from '@/domain/asset/asset.schema'
 import type {
+  CursorPageRequest,
   PaginatedCollection,
-  Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
-import { stringifySearchParams } from '@/lib/search-params'
+import { stringifyApiSearchParams } from '@/lib/search-params'
 import {
   SEARCH_URL,
   buildAlbumUrl,
@@ -95,13 +95,13 @@ export type EyepieceClient = {
   getAsset: (key: AssetKey) => Promise<Asset>
   getAlbum: (
     albumKey: AlbumKey,
-    pagination: Pagination,
+    page: CursorPageRequest,
   ) => Promise<PaginatedCollection<Asset, AlbumCollectionMetadata>>
   getMetadata: (key: AssetKey) => Promise<Metadata>
   searchAssets: (
     query: SearchQuery,
     filters: SearchFilters,
-    pagination: Pagination,
+    page: CursorPageRequest,
   ) => Promise<PaginatedCollection<Asset>>
 }
 
@@ -117,10 +117,10 @@ export function createEyepieceClient({
   }
 
   return {
-    getAlbum: async function getAlbum(key: AlbumKey, pagination: Pagination) {
+    getAlbum: async function getAlbum(key: AlbumKey, page: CursorPageRequest) {
       const res = await fetch(
         withOrigin(
-          `${buildAlbumUrl(key.providerId, key.externalId)}${stringifySearchParams(pagination)}`,
+          `${buildAlbumUrl(key.providerId, key.externalId)}${stringifyApiSearchParams(page)}`,
         ),
       )
       if (!res.ok) {
@@ -155,11 +155,11 @@ export function createEyepieceClient({
     searchAssets: async function searchAssets(
       query: SearchQuery,
       filters: SearchFilters,
-      pagination: Pagination,
+      page: CursorPageRequest,
     ) {
       const res = await fetch(
         withOrigin(
-          `${SEARCH_URL}${stringifySearchParams({ providerId: filters.providerId, q: query, ...filters.filters, ...pagination })}`,
+          `${SEARCH_URL}${stringifyApiSearchParams({ providerId: filters.providerId, q: query, ...filters.filters, ...page })}`,
         ),
       )
       if (!res.ok) {

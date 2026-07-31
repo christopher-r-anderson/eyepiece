@@ -23,16 +23,8 @@ export const Route = createFileRoute('/(public)/api/v1/search')({
     handlers: {
       GET: async ({ context: { searchParams } }) => {
         const eyepiece = makeEyepieceProviderService()
-        const parsedSearchParams = parseOrThrowBadRequest(
-          searchRequestSchema,
-          searchParams,
-          INVALID_SEARCH_PARAMS_MESSAGE,
-          {
-            code: 'INVALID_QUERY_PARAMS',
-          },
-        )
-        const { q, page, pageSize, providerId, ...providerFilters } =
-          parsedSearchParams
+        const { q, cursor, pageSize, providerId, ...providerFilters } =
+          searchParams
         const filters = parseOrThrowBadRequest(
           searchFiltersSchema,
           {
@@ -48,7 +40,10 @@ export const Route = createFileRoute('/(public)/api/v1/search')({
         let results
 
         try {
-          results = await eyepiece.searchAssets(q, filters, { page, pageSize })
+          results = await eyepiece.searchAssets(q, filters, {
+            page: cursor,
+            pageSize,
+          })
         } catch (error) {
           rethrowHandledErrorWithContext(error, {
             tags: {

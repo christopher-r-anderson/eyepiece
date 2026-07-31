@@ -20,7 +20,7 @@ describe('getInfiniteAlbumOptions', () => {
     await (options.queryFn as any)({})
 
     expect(getAlbum).toHaveBeenCalledWith(albumKey, {
-      page: 1,
+      cursor: '1',
       pageSize: DEFAULT_PAGE_SIZE,
     })
   })
@@ -30,10 +30,10 @@ describe('getInfiniteAlbumOptions', () => {
     const repo: Pick<AlbumsRepo, 'getAlbum'> = { getAlbum }
 
     const options = getInfiniteAlbumOptions({ repo, albumKey })
-    await (options.queryFn as any)({ pageParam: 4 })
+    await (options.queryFn as any)({ pageParam: '4' })
 
     expect(getAlbum).toHaveBeenCalledWith(albumKey, {
-      page: 4,
+      cursor: '4',
       pageSize: DEFAULT_PAGE_SIZE,
     })
   })
@@ -116,7 +116,7 @@ describe('flattenAlbumSelector', () => {
           collection: { title: 'Should not replace first page title' },
         },
       ],
-      pageParams: [1, 2],
+      pageParams: ['1', '2'],
     } as any)
 
     expect(selected.items).toHaveLength(2)

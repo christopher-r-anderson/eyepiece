@@ -44,7 +44,7 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
     queryKey: albumKeys.album(albumKey),
     queryFn: ({ pageParam = '1' }) => {
       return repo.getAlbum(albumKey, {
-        page: Number(pageParam),
+        cursor: pageParam,
         pageSize: DEFAULT_PAGE_SIZE,
       })
     },

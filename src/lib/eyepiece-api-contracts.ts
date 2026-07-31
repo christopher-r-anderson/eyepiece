@@ -3,7 +3,7 @@ import { albumCollectionMetadataSchema } from '@/domain/album/album.schema'
 import { assetSchema, metadataSchema } from '@/domain/asset/asset.schema'
 import {
   createPaginatedCollectionSchema,
-  paginationSchema,
+  cursorPaginationRequestSchema,
 } from '@/domain/pagination/pagination.schema'
 import {
   NASA_IVL_PROVIDER_ID,
@@ -26,7 +26,7 @@ export const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
 ])
 
 export const searchRequestSchema = searchQueryParamSchema
-  .and(paginationSchema)
+  .and(cursorPaginationRequestSchema)
   .and(searchFiltersParamsSchema)
 
 export const searchResponseSchema = createPaginatedCollectionSchema(assetSchema)
@@ -35,7 +35,7 @@ export const assetResponseSchema = assetSchema
 
 export const assetMetadataResponseSchema = metadataSchema
 
-export const albumRequestSchema = paginationSchema
+export const albumRequestSchema = cursorPaginationRequestSchema
 
 export const albumResponseSchema = createPaginatedCollectionSchema(
   assetSchema,

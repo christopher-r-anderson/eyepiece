@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type {
+  CursorPageRequest,
   PaginatedCollection,
-  Pagination,
 } from '@/domain/pagination/pagination.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
@@ -12,7 +12,7 @@ export interface SearchRepo {
   searchImages: (
     query: SearchQuery,
     filters: SearchFilters,
-    pagination: Pagination,
+    page: CursorPageRequest,
   ) => Promise<PaginatedCollection<Asset>>
 }
 
@@ -21,9 +21,9 @@ export function makeSearchRepo(client: EyepieceClient) {
     searchImages: async (
       query: SearchQuery,
       filters: SearchFilters,
-      pagination: Pagination,
+      page: CursorPageRequest,
     ) => {
-      return await client.searchAssets(query, filters, pagination)
+      return await client.searchAssets(query, filters, page)
     },
   }
 }

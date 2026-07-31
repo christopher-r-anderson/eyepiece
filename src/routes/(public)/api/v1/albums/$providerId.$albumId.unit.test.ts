@@ -44,9 +44,9 @@ const handler = (Route as any).server.handlers.GET
 // Helpers
 // ---------------------------------------------------------------------------
 
-const pagination = { page: 1, pageSize: 24 }
+const requestPage = { cursor: 1, pageSize: 24 }
 
-function makeContext(searchParams: Record<string, unknown> = pagination) {
+function makeContext(searchParams: Record<string, unknown> = requestPage) {
   return { searchParams }
 }
 
@@ -137,7 +137,7 @@ describe('GET /api/v1/albums/:providerId/:albumId handler', () => {
         providerId: NASA_IVL_PROVIDER_ID,
         externalId: 'GSFC_MASTERFILE_STS-107',
       },
-      pagination,
+      { page: 1, pageSize: 24 },
     )
   })
 
@@ -219,7 +219,7 @@ describe('GET /api/v1/albums/:providerId/:albumId handler', () => {
 
     await handler({
       params: { providerId: NASA_IVL_PROVIDER_ID, albumId: 'some-album' },
-      context: makeContext({ page: 3, pageSize: 12 }),
+      context: makeContext({ cursor: 3, pageSize: 12 }),
     })
 
     expect(mockService.getAlbum).toHaveBeenCalledWith(expect.anything(), {
