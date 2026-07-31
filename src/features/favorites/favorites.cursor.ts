@@ -3,9 +3,7 @@ import type { FavoriteEdge } from './favorites.schema'
 import type { Result } from '@/lib/result'
 import { Err, Ok } from '@/lib/result'
 
-// The keyset cursor for the favorites edges walk: the ordering keys of the
-// last row served, readable on purpose (see #209). created_at is ISO 8601
-// and contains no '/', so the first one is the delimiter.
+// created_at is ISO 8601 and contains no '/', so the first one delimits
 const favoritesEdgesCursorSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),
   snapshotId: z.uuid(),

@@ -19,7 +19,7 @@ export function paginateSchema<T extends z.ZodRawShape>(
 }
 
 // next is an opaque cursor: consumers echo it back verbatim and never
-// construct or do arithmetic on one (see #209)
+// construct or do arithmetic on one
 export function createPaginatedCollectionSchema<TItem>(
   itemSchema: z.ZodType<TItem>,
 ): z.ZodObject<{
