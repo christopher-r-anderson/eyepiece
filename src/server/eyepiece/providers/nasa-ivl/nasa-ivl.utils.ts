@@ -17,6 +17,21 @@ import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { NASA_ALBUM_PAGE_SIZE } from '@/integrations/nasa-ivl/client'
 
+// Verified against the live API (2026-07-30): /search rejects requests past
+// the first 10,000 results with a 400 ("Maximum number of search results
+// have been displayed. Please refine your search.") while still reporting
+// the full total_hits and linking a next page. Never offer a page whose
+// window starts past the cap.
+export const NASA_IVL_SEARCH_MAX_RESULTS = 10_000
+
+export function clampNextPageToSearchDepthCap(
+  next: number | null,
+  pageSize: number,
+): number | null {
+  if (next === null) return null
+  return (next - 1) * pageSize < NASA_IVL_SEARCH_MAX_RESULTS ? next : null
+}
+
 export function buildNasaIvlSearchParams(
   query: SearchQuery,
   filters: NasaIvlSearchFilters,

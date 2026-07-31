@@ -1,6 +1,7 @@
 import {
   buildNasaIvlSearchParams,
   calculateNasaAlbumRequests,
+  clampNextPageToSearchDepthCap,
   mapMediaItem,
 } from './nasa-ivl.utils'
 import type {
@@ -113,7 +114,10 @@ async function searchAssets(
   const nasaResponse = await nasaIvlSearch(nasaSearchParams)
   const assets = nasaResponse.collection.items.map(mapMediaItem)
   const total = nasaResponse.collection.metadata.total_hits
-  const next = calculateNextPage(pagination, total)
+  const next = clampNextPageToSearchDepthCap(
+    calculateNextPage(pagination, total),
+    pagination.pageSize,
+  )
   const response: PaginatedCollection<Asset> = {
     items: assets,
     pagination: { next, total },

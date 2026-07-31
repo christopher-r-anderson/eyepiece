@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { calculateNasaAlbumRequests, mapMediaItem } from './nasa-ivl.utils'
+import {
+  calculateNasaAlbumRequests,
+  clampNextPageToSearchDepthCap,
+  mapMediaItem,
+} from './nasa-ivl.utils'
 import type {
   NasaMediaItem,
   NasaMediaLink,
@@ -292,5 +296,28 @@ describe('calculateNasaAlbumRequests', () => {
     // Eyepiece page 6, size 20.
     const result = calculateNasaAlbumRequests(6, 20)
     expect(result).toEqual([{ page: 2, sliceStart: 0, sliceEnd: 20 }])
+  })
+})
+
+describe('clampNextPageToSearchDepthCap', () => {
+  it('passes null through', () => {
+    expect(clampNextPageToSearchDepthCap(null, 24)).toBeNull()
+  })
+
+  it('keeps a next page whose window starts inside the cap', () => {
+    // page 417 of 24 starts at offset 9984
+    expect(clampNextPageToSearchDepthCap(417, 24)).toBe(417)
+  })
+
+  it('drops a next page whose window starts past the cap', () => {
+    // page 418 of 24 starts at offset 10008
+    expect(clampNextPageToSearchDepthCap(418, 24)).toBeNull()
+  })
+
+  it('drops the page that starts exactly at the cap', () => {
+    // the live API serves offsets 9900-9999 (page 100 of 100) and rejects
+    // page 101, whose window starts at offset 10000
+    expect(clampNextPageToSearchDepthCap(100, 100)).toBe(100)
+    expect(clampNextPageToSearchDepthCap(101, 100)).toBeNull()
   })
 })

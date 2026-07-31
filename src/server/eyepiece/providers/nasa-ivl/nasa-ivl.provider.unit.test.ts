@@ -67,6 +67,34 @@ describe('makeNasaIvlAdapter', () => {
     )
   })
 
+  it('stops offering search pages past the upstream depth cap', async () => {
+    // the API rejects requests past its first 10,000 results even when
+    // total_hits runs far beyond them
+    mockSearch.mockResolvedValue({
+      ...querySearchFixture,
+      collection: {
+        ...querySearchFixture.collection,
+        metadata: { total_hits: 22155 },
+      },
+    })
+
+    const adapter = makeNasaIvlAdapter()
+    const reachable = await adapter.searchAssets(
+      'moon',
+      {},
+      { page: 416, pageSize: 24 },
+    )
+    const atCap = await adapter.searchAssets(
+      'moon',
+      {},
+      { page: 417, pageSize: 24 },
+    )
+
+    expect(reachable.pagination.next).toBe(417)
+    expect(atCap.pagination.next).toBeNull()
+    expect(atCap.pagination.total).toBe(22155)
+  })
+
   it('maps nasa_id fixture responses into a single asset', async () => {
     mockSearch.mockResolvedValue(assetSearchFixture)
 
