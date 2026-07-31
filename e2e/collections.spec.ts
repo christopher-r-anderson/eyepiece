@@ -118,7 +118,12 @@ test('later pages wait for prior thumbnails to settle', async ({ page }) => {
   })
   const events: Array<string> = []
   page.on('request', (request) => {
-    if (request.url().includes('/rest/v1/collection_items')) {
+    // the parallel total probe is a HEAD to the same table; only GETs are
+    // edge-page fetches
+    if (
+      request.url().includes('/rest/v1/collection_items') &&
+      request.method() === 'GET'
+    ) {
       events.push('edges-request')
     }
   })

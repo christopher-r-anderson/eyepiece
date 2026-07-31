@@ -142,7 +142,10 @@ export function useSuspenseCollection(collectionId: CollectionId) {
 }
 
 type CollectionItemEdgesPage = PaginatedCollection<CollectionItemEdge>
-type CollectionItemEdgesInfinite = InfiniteData<CollectionItemEdgesPage, string>
+type CollectionItemEdgesInfinite = InfiniteData<
+  CollectionItemEdgesPage,
+  string | null
+>
 
 export function getInfiniteCollectionItemEdgesOptions<
   TSelectData = CollectionItemEdgesInfinite,
@@ -157,15 +160,15 @@ export function getInfiniteCollectionItemEdgesOptions<
 }) {
   return infiniteQueryOptions({
     queryKey: collectionsKeys.itemEdges(collectionId),
-    queryFn: async ({ pageParam = '1' }) => {
+    queryFn: async ({ pageParam = null }) => {
       const result = await repo.getCollectionItemEdges(collectionId, {
-        page: Number(pageParam),
+        cursor: pageParam,
         pageSize: DEFAULT_PAGE_SIZE,
       })
       return unwrapOrThrow(result)
     },
     placeholderData: keepPreviousData,
-    initialPageParam: '1',
+    initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
     ...mountOnlyListFreshness,
@@ -309,15 +312,15 @@ export function getInfiniteUserCollectionItemEdgesOptions<
 }) {
   return infiniteQueryOptions({
     queryKey: userCollectionsKeys.itemEdges(collectionId),
-    queryFn: async ({ pageParam = '1' }) => {
+    queryFn: async ({ pageParam = null }) => {
       const result = await repo.getCollectionItemEdges(collectionId, {
-        page: Number(pageParam),
+        cursor: pageParam,
         pageSize: DEFAULT_PAGE_SIZE,
       })
       return unwrapOrThrow(result)
     },
     placeholderData: keepPreviousData,
-    initialPageParam: '1',
+    initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
     // mount-only freshness: any mid-visit background refetch (focus,
