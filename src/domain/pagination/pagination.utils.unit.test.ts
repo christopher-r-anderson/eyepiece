@@ -16,8 +16,6 @@ describe('calculateNextPage', () => {
   })
 
   it('returns null when the total ends inside this window', () => {
-    // the case where counting delivered items goes wrong: a short upstream
-    // page (say 4 of 24) still leaves nothing beyond this window
     const pagination = paginationSchema.parse({ page: 5, pageSize: 24 })
 
     expect(calculateNextPage(pagination, 100)).toBeNull()

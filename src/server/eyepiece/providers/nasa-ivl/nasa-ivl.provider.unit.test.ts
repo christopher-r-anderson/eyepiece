@@ -68,8 +68,6 @@ describe('makeNasaIvlAdapter', () => {
   })
 
   it('stops offering search pages past the upstream depth cap', async () => {
-    // the API rejects requests past its first 10,000 results even when
-    // total_hits runs far beyond them
     mockSearch.mockResolvedValue({
       ...querySearchFixture,
       collection: {

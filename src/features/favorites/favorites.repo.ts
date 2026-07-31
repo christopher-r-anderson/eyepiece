@@ -89,8 +89,7 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
       )
       .order('created_at', { ascending: false })
       // asset_preview_snapshot_id is unique per user (PK), so it is the
-      // stable final key that keeps offset pages from drifting; ties are
-      // plausible because re-favoriting restores the original created_at
+      // stable final key that keeps offset pages from drifting
       .order('asset_preview_snapshot_id', { ascending: false })
       .range((page - 1) * pageSize, page * pageSize - 1)
     if (pgError) {
