@@ -2,7 +2,7 @@ import { afterEach, describe, expect } from 'vitest'
 import { makeUserFavoritesRepo } from './favorites.repo'
 import type { AssetPreviewSnapshotId } from '@/domain/asset/asset.schema'
 import { createAdminClient, it } from '@/test/integration-fixtures'
-import { resultIsSuccess } from '@/lib/result'
+import { resultIsSuccess, unwrapOrThrow } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
 // Seed helpers
@@ -38,10 +38,12 @@ async function seedFavorite(
   admin: ReturnType<typeof createAdminClient>,
   ownerId: string,
   assetPreviewSnapshotId: AssetPreviewSnapshotId,
+  createdAt?: string,
 ): Promise<void> {
   const { error } = await admin.from('favorites').insert({
     owner_id: ownerId,
     asset_preview_snapshot_id: assetPreviewSnapshotId,
+    ...(createdAt ? { created_at: createdAt } : {}),
   })
   if (error) throw new Error(`seedFavorite: ${error.message}`)
 }
@@ -174,6 +176,42 @@ describe('getUserFavoritesEdges', () => {
       expect(page2.data.items).toHaveLength(1)
       expect(page2.data.pagination.next).toBeNull()
     }
+  })
+
+  // tie every favorite on created_at so only the snapshot-id key orders
+  // them; paging in twos must yield each favorite once, in id order, with
+  // no drift (a dropped tiebreaker would duplicate or skip across pages)
+  it('breaks created_at ties by snapshot id so pages do not drift', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const stamp = `${Date.now()}`
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (let i = 0; i < 3; i++) {
+      ids.push(
+        await seedAssetPreviewSnapshot(adminClient, `INTEG-TIE-${stamp}-${i}`),
+      )
+    }
+    snapshotIds.push(...ids)
+    const created = new Date(Date.now() - 86_400_000).toISOString()
+    for (const id of ids) {
+      await seedFavorite(adminClient, user.id, id, created)
+    }
+
+    const repo = makeUserFavoritesRepo(client)
+    const page1 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({ page: 1, pageSize: 2 }),
+    )
+    const page2 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({ page: 2, pageSize: 2 }),
+    )
+    const seen = [...page1.items, ...page2.items].map(
+      (edge) => edge.assetPreviewSnapshotId,
+    )
+    expect(seen).toEqual([...ids].sort().reverse())
+    expect(new Set(seen).size).toBe(3)
+    expect(page1.pagination.total).toBe(3)
   })
 
   it("only returns the authenticated user's own favorites (RLS)", async ({
