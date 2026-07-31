@@ -21,7 +21,10 @@ import {
   NASA_IVL_PROVIDER_ID,
   PROVIDER_CAPABILITIES,
 } from '@/domain/provider/provider.schema'
-import { calculateNextPage } from '@/domain/pagination/pagination.utils'
+import {
+  calculateNextPage,
+  pageNumberCursor,
+} from '@/domain/pagination/pagination.utils'
 import {
   getAlbum as nasaIvlGetAlbum,
   getMetadata as nasaIvlGetMetadata,
@@ -73,7 +76,7 @@ async function getAlbum(id: string, pagination: Pagination) {
         .map(mapMediaItem),
     )
   }
-  const next = calculateNextPage(pagination, total)
+  const next = pageNumberCursor(calculateNextPage(pagination, total))
   const response: PaginatedCollection<Asset, AlbumCollectionMetadata> = {
     items: assets,
     pagination: { next, total },
@@ -114,9 +117,11 @@ async function searchAssets(
   const nasaResponse = await nasaIvlSearch(nasaSearchParams)
   const assets = nasaResponse.collection.items.map(mapMediaItem)
   const total = nasaResponse.collection.metadata.total_hits
-  const next = clampNextPageToSearchDepthCap(
-    calculateNextPage(pagination, total),
-    pagination.pageSize,
+  const next = pageNumberCursor(
+    clampNextPageToSearchDepthCap(
+      calculateNextPage(pagination, total),
+      pagination.pageSize,
+    ),
   )
   const response: PaginatedCollection<Asset> = {
     items: assets,

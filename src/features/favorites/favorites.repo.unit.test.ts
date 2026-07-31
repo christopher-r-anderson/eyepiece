@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 import { makeUserFavoritesRepo } from './favorites.repo'
+import { encodeFavoritesEdgesCursor } from './favorites.cursor'
 import { resultIsError, resultIsSuccess } from '@/lib/result'
 
 // ---------------------------------------------------------------------------
 // Supabase query builder mock
 //
-// Supabase queries are fluent: .from().select().order().range()
+// Supabase queries are fluent: .from().select().order().limit().or()
 // The builder needs to be:
 //   - chainable (each method returns `this`) so intermediate calls work
-//   - thenable so `await builder` resolves for queries that end at .order()
-//   - .range() returns its own resolved promise for queries that go further
+//   - thenable so `await builder` resolves wherever the chain ends
 // ---------------------------------------------------------------------------
 
 type DbResponse = { data: unknown; error: unknown; count?: number | null }
@@ -19,8 +19,10 @@ function makeQueryBuilder(response: DbResponse) {
   const builder = {
     select: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    or: vi.fn().mockReturnThis(),
     range: vi.fn().mockReturnValue(resolved),
-    // thenable: lets `await builder` resolve without calling .range()
+    // thenable: lets `await builder` resolve at any chain end
     then: resolved.then.bind(resolved),
     catch: resolved.catch.bind(resolved),
     finally: resolved.finally.bind(resolved),
@@ -36,12 +38,33 @@ function makeClientStub(response: DbResponse) {
   return { client, builder }
 }
 
+// getUserFavoritesEdges runs a page query and a count query; from() serves
+// the page builder first, then the count builder
+function makeEdgesClientStub(
+  pageResponse: { data: unknown; error: unknown },
+  countResponse: { count: number | null; error: unknown } = {
+    count: 0,
+    error: null,
+  },
+) {
+  const pageBuilder = makeQueryBuilder({ ...pageResponse })
+  const countBuilder = makeQueryBuilder({ data: null, ...countResponse })
+  const client = {
+    from: vi
+      .fn()
+      .mockReturnValueOnce(pageBuilder)
+      .mockReturnValueOnce(countBuilder),
+  }
+  return { client, pageBuilder, countBuilder }
+}
+
 // ---------------------------------------------------------------------------
 // Test data helpers
 // ---------------------------------------------------------------------------
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440001'
 const ANOTHER_UUID = '550e8400-e29b-41d4-a716-446655440002'
+const THIRD_UUID = '550e8400-e29b-41d4-a716-446655440003'
 
 function makeDbEdgeRow(overrides?: {
   created_at?: string
@@ -71,9 +94,7 @@ function makeDbIndexRow(overrides?: {
   }
 }
 
-function makePagination({ page = 1, pageSize = 10 } = {}) {
-  return { page, pageSize }
-}
+const firstPage = { cursor: null, pageSize: 10 }
 
 const pgError = { message: 'connection refused', code: 'PGRST000' }
 
@@ -82,58 +103,103 @@ const pgError = { message: 'connection refused', code: 'PGRST000' }
 // ---------------------------------------------------------------------------
 
 describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
-  let client: ReturnType<typeof makeClientStub>['client']
-  let builder: QueryBuilder
+  let client: ReturnType<typeof makeEdgesClientStub>['client']
+  let pageBuilder: QueryBuilder
+  let countBuilder: QueryBuilder
 
-  function setup(response: DbResponse) {
-    const stub = makeClientStub(response)
+  function setup(
+    pageResponse: { data: unknown; error: unknown },
+    countResponse?: { count: number | null; error: unknown },
+  ) {
+    const stub = makeEdgesClientStub(pageResponse, countResponse)
     client = stub.client
-    builder = stub.builder
+    pageBuilder = stub.pageBuilder
+    countBuilder = stub.countBuilder
     return makeUserFavoritesRepo(client as any)
   }
 
   describe('querying', () => {
-    it('queries the favorites table', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges(makePagination())
+    it('queries the favorites table for the page and the count', async () => {
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges(firstPage)
+      expect(client.from).toHaveBeenCalledTimes(2)
       expect(client.from).toHaveBeenCalledWith('favorites')
     })
 
     it('selects created_at and the asset_preview_snapshots join fields', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges(makePagination())
-      expect(builder.select).toHaveBeenCalledWith(
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges(firstPage)
+      expect(pageBuilder.select).toHaveBeenCalledWith(
         'created_at, asset_preview_snapshots (id, provider_id, external_id)',
-        { count: 'exact' },
       )
     })
 
+    it('counts on a separate head query', async () => {
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges(firstPage)
+      expect(countBuilder.select).toHaveBeenCalledWith('*', {
+        count: 'exact',
+        head: true,
+      })
+    })
+
     it('orders by created_at descending with the snapshot id tiebreaker', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges(makePagination())
-      expect(builder.order).toHaveBeenNthCalledWith(1, 'created_at', {
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges(firstPage)
+      expect(pageBuilder.order).toHaveBeenNthCalledWith(1, 'created_at', {
         ascending: false,
       })
-      expect(builder.order).toHaveBeenNthCalledWith(
+      expect(pageBuilder.order).toHaveBeenNthCalledWith(
         2,
         'asset_preview_snapshot_id',
         { ascending: false },
       )
     })
 
-    it('uses .range() with correct offsets for a custom page and pageSize', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
-      await repo.getUserFavoritesEdges({ page: 3, pageSize: 10 })
-      expect(builder.range).toHaveBeenCalledWith(20, 29)
+    it('fetches one row past the page size', async () => {
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges({ cursor: null, pageSize: 24 })
+      expect(pageBuilder.limit).toHaveBeenCalledWith(25)
+    })
+
+    it('applies no keyset filter on the first page', async () => {
+      const repo = setup({ data: [], error: null })
+      await repo.getUserFavoritesEdges(firstPage)
+      expect(pageBuilder.or).not.toHaveBeenCalled()
+    })
+
+    it('applies the composite keyset filter for a cursor', async () => {
+      const repo = setup({ data: [], error: null })
+      const cursor = encodeFavoritesEdgesCursor({
+        createdAt: '2024-01-15T10:00:00+00:00',
+        assetPreviewSnapshotId: VALID_UUID,
+      })
+      await repo.getUserFavoritesEdges({ cursor, pageSize: 10 })
+      expect(pageBuilder.or).toHaveBeenCalledWith(
+        `created_at.lt."2024-01-15T10:00:00+00:00",and(created_at.eq."2024-01-15T10:00:00+00:00",asset_preview_snapshot_id.lt.${VALID_UUID})`,
+      )
+    })
+
+    it('rejects an invalid cursor without querying', async () => {
+      const repo = setup({ data: [], error: null })
+      const result = await repo.getUserFavoritesEdges({
+        cursor: 'not-a-cursor',
+        pageSize: 10,
+      })
+      expect(resultIsError(result)).toBe(true)
+      expect(client.from).not.toHaveBeenCalled()
     })
   })
 
   describe('success mapping', () => {
     it('returns Ok with a correctly mapped FavoriteEdge', async () => {
       const row = makeDbEdgeRow()
-      const repo = setup({ data: [row], error: null, count: 1 })
+      const repo = setup(
+        { data: [row], error: null },
+        { count: 1, error: null },
+      )
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
         expect(result.data.items).toHaveLength(1)
@@ -153,9 +219,9 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
         makeDbEdgeRow({ id: VALID_UUID, external_id: 'asset-001' }),
         makeDbEdgeRow({ id: ANOTHER_UUID, external_id: 'asset-002' }),
       ]
-      const repo = setup({ data: rows, error: null, count: 2 })
+      const repo = setup({ data: rows, error: null }, { count: 2, error: null })
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
@@ -166,9 +232,9 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
     })
 
     it('returns Ok with an empty edges array when there are no results', async () => {
-      const repo = setup({ data: [], error: null, count: 0 })
+      const repo = setup({ data: [], error: null })
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
@@ -178,31 +244,48 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
   })
 
   describe('success pagination', () => {
-    it('sets next to the next page number when more results exist', async () => {
-      // 3 total, page 1 of size 2 → next = 2
-      const repo = setup({
-        data: [makeDbEdgeRow(), makeDbEdgeRow({ id: ANOTHER_UUID })],
-        error: null,
-        count: 3,
-      })
+    it('sets next to the last served row cursor when an extra row comes back', async () => {
+      // pageSize 2 fetches 3; the third row proves a next page and is dropped
+      const repo = setup(
+        {
+          data: [
+            makeDbEdgeRow(),
+            makeDbEdgeRow({ id: ANOTHER_UUID }),
+            makeDbEdgeRow({ id: THIRD_UUID }),
+          ],
+          error: null,
+        },
+        { count: 3, error: null },
+      )
 
-      const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 2 })
+      const result = await repo.getUserFavoritesEdges({
+        cursor: null,
+        pageSize: 2,
+      })
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data.pagination.next).toBe(2)
+        expect(result.data.items).toHaveLength(2)
+        expect(result.data.pagination.next).toBe(
+          `2024-01-15T10:00:00+00:00/${ANOTHER_UUID}`,
+        )
+        expect(result.data.pagination.total).toBe(3)
       }
     })
 
-    it('sets next to null when on the last page (count equals page * pageSize)', async () => {
-      // 2 total, page 1 of size 2 → no next
-      const repo = setup({
-        data: [makeDbEdgeRow(), makeDbEdgeRow({ id: ANOTHER_UUID })],
-        error: null,
-        count: 2,
-      })
+    it('sets next to null when no extra row comes back', async () => {
+      const repo = setup(
+        {
+          data: [makeDbEdgeRow(), makeDbEdgeRow({ id: ANOTHER_UUID })],
+          error: null,
+        },
+        { count: 2, error: null },
+      )
 
-      const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 2 })
+      const result = await repo.getUserFavoritesEdges({
+        cursor: null,
+        pageSize: 2,
+      })
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
@@ -210,45 +293,43 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
       }
     })
 
-    it('sets next to null when on the last page (count less than page * pageSize)', async () => {
-      // 1 item left on page 2 of size 2
-      const repo = setup({
-        data: [makeDbEdgeRow()],
-        error: null,
-        count: 3,
-      })
+    it('reports total 0 when count is null', async () => {
+      const repo = setup(
+        { data: [], error: null },
+        { count: null, error: null },
+      )
 
-      const result = await repo.getUserFavoritesEdges({ page: 2, pageSize: 2 })
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data.pagination.next).toBeNull()
-      }
-    })
-
-    it('sets next to null when count is null', async () => {
-      const repo = setup({ data: [], error: null, count: null })
-
-      const result = await repo.getUserFavoritesEdges(makePagination())
-
-      expect(resultIsSuccess(result)).toBe(true)
-      if (resultIsSuccess(result)) {
-        expect(result.data.pagination.next).toBeNull()
+        expect(result.data.pagination.total).toBe(0)
       }
     })
   })
 
   describe('errors', () => {
-    it('returns Err when Postgres returns an error', async () => {
-      const repo = setup({ data: null, error: pgError, count: null })
+    it('returns Err when the page query returns an error', async () => {
+      const repo = setup({ data: null, error: pgError })
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsError(result)).toBe(true)
       if (resultIsError(result)) {
         expect(result.error.message).toBe(pgError.message)
         expect(result.error.cause).toBe(pgError)
       }
+    })
+
+    it('returns Err when the count query returns an error', async () => {
+      const repo = setup(
+        { data: [], error: null },
+        { count: null, error: pgError },
+      )
+
+      const result = await repo.getUserFavoritesEdges(firstPage)
+
+      expect(resultIsError(result)).toBe(true)
     })
 
     it('returns Err when the DB response fails Zod validation', async () => {
@@ -259,18 +340,18 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
           asset_preview_snapshots: { provider_id: 'nasa_ivl' },
         },
       ]
-      const repo = setup({ data: badData, error: null, count: 1 })
+      const repo = setup({ data: badData, error: null })
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsError(result)).toBe(true)
     })
 
     it('returns Err when asset_preview_snapshots has an unrecognized provider_id', async () => {
       const badData = [makeDbEdgeRow({ provider_id: 'unknown_provider' })]
-      const repo = setup({ data: badData, error: null, count: 1 })
+      const repo = setup({ data: badData, error: null })
 
-      const result = await repo.getUserFavoritesEdges(makePagination())
+      const result = await repo.getUserFavoritesEdges(firstPage)
 
       expect(resultIsError(result)).toBe(true)
     })

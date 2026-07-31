@@ -18,12 +18,14 @@ export function paginateSchema<T extends z.ZodRawShape>(
   })
 }
 
+// next is an opaque cursor: consumers echo it back verbatim and never
+// construct or do arithmetic on one (see #209)
 export function createPaginatedCollectionSchema<TItem>(
   itemSchema: z.ZodType<TItem>,
 ): z.ZodObject<{
   items: z.ZodArray<z.ZodType<TItem>>
   pagination: z.ZodObject<{
-    next: z.ZodNullable<z.ZodNumber>
+    next: z.ZodNullable<z.ZodString>
     total: z.ZodNumber
   }>
 }>
@@ -33,7 +35,7 @@ export function createPaginatedCollectionSchema<TItem, TCollection>(
 ): z.ZodObject<{
   items: z.ZodArray<z.ZodType<TItem>>
   pagination: z.ZodObject<{
-    next: z.ZodNullable<z.ZodNumber>
+    next: z.ZodNullable<z.ZodString>
     total: z.ZodNumber
   }>
   collection: z.ZodOptional<z.ZodType<TCollection>>
@@ -45,7 +47,7 @@ export function createPaginatedCollectionSchema<TItem, TCollection>(
   const base = z.object({
     items: z.array(itemSchema),
     pagination: z.object({
-      next: z.number().nullable(),
+      next: z.string().nullable(),
       total: z.number(),
     }),
   })
@@ -57,5 +59,5 @@ export function createPaginatedCollectionSchema<TItem, TCollection>(
 
 export type PaginatedCollection<TItem, TCollection = never> = {
   items: Array<TItem>
-  pagination: { next: number | null; total: number }
+  pagination: { next: string | null; total: number }
 } & ([TCollection] extends [never] ? object : { collection?: TCollection })

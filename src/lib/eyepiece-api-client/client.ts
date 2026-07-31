@@ -33,7 +33,7 @@ type ApiErrorBody = {
 export function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
   pages,
   ...rest
-}: InfiniteData<TData, number>) {
+}: InfiniteData<TData, string>) {
   return {
     items: pages.flatMap((page) => page.items),
     ...rest,

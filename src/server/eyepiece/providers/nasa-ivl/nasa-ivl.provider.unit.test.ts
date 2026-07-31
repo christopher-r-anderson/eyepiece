@@ -88,7 +88,7 @@ describe('makeNasaIvlAdapter', () => {
       { page: 416, pageSize: 24 },
     )
 
-    expect(reachable.pagination.next).toBe(416)
+    expect(reachable.pagination.next).toBe('416')
     expect(atCap.pagination.next).toBeNull()
     expect(atCap.pagination.total).toBe(22155)
   })

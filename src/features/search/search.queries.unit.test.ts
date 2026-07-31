@@ -110,14 +110,14 @@ describe('makeTopNSearchSelector', () => {
         pages: [
           {
             items: [asset('a'), asset('b')],
-            pagination: { next: 2, total: 40 },
+            pagination: { next: '2', total: 40 },
           },
           {
             items: [asset('c')],
             pagination: { next: null, total: 40 },
           },
         ],
-        pageParams: [1, 2],
+        pageParams: ['1', '2'],
       }),
     ).toEqual({ items: [asset('a'), asset('b')], total: 40 })
   })
@@ -128,7 +128,7 @@ describe('makeTopNSearchSelector', () => {
     expect(
       select({
         pages: [{ items: [asset('a')], pagination: { next: null, total: 1 } }],
-        pageParams: [1],
+        pageParams: ['1'],
       }),
     ).toEqual({ items: [asset('a')], total: 1 })
   })

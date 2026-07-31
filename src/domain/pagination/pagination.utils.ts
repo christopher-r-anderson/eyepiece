@@ -9,3 +9,8 @@ export function calculateNextPage(
 ): number | null {
   return page * pageSize < totalItemCount ? page + 1 : null
 }
+
+// an offset walk's cursor is its page number in string form
+export function pageNumberCursor(page: number | null): string | null {
+  return page === null ? null : String(page)
+}

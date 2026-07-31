@@ -78,7 +78,10 @@ describe('getUserFavoritesEdges', () => {
   }) => {
     const repo = makeUserFavoritesRepo(client)
 
-    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
+    const result = await repo.getUserFavoritesEdges({
+      cursor: null,
+      pageSize: 10,
+    })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
@@ -98,7 +101,10 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, user.id, snapshotId)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
+    const result = await repo.getUserFavoritesEdges({
+      cursor: null,
+      pageSize: 10,
+    })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
@@ -131,7 +137,10 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, user.id, id2)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
+    const result = await repo.getUserFavoritesEdges({
+      cursor: null,
+      pageSize: 10,
+    })
 
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
@@ -163,19 +172,23 @@ describe('getUserFavoritesEdges', () => {
 
     const repo = makeUserFavoritesRepo(client)
 
-    const page1 = await repo.getUserFavoritesEdges({ page: 1, pageSize: 1 })
-    expect(resultIsSuccess(page1)).toBe(true)
-    if (resultIsSuccess(page1)) {
-      expect(page1.data.items).toHaveLength(1)
-      expect(page1.data.pagination.next).toBe(2)
-    }
+    const page1 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({ cursor: null, pageSize: 1 }),
+    )
+    expect(page1.items).toHaveLength(1)
+    expect(page1.pagination.next).toEqual(expect.any(String))
 
-    const page2 = await repo.getUserFavoritesEdges({ page: 2, pageSize: 1 })
-    expect(resultIsSuccess(page2)).toBe(true)
-    if (resultIsSuccess(page2)) {
-      expect(page2.data.items).toHaveLength(1)
-      expect(page2.data.pagination.next).toBeNull()
-    }
+    const page2 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({
+        cursor: page1.pagination.next,
+        pageSize: 1,
+      }),
+    )
+    expect(page2.items).toHaveLength(1)
+    expect(page2.pagination.next).toBeNull()
+    expect(page2.items[0].assetPreviewSnapshotId).not.toBe(
+      page1.items[0].assetPreviewSnapshotId,
+    )
   })
 
   // tie every favorite on created_at so only the snapshot-id key orders
@@ -201,10 +214,13 @@ describe('getUserFavoritesEdges', () => {
 
     const repo = makeUserFavoritesRepo(client)
     const page1 = unwrapOrThrow(
-      await repo.getUserFavoritesEdges({ page: 1, pageSize: 2 }),
+      await repo.getUserFavoritesEdges({ cursor: null, pageSize: 2 }),
     )
     const page2 = unwrapOrThrow(
-      await repo.getUserFavoritesEdges({ page: 2, pageSize: 2 }),
+      await repo.getUserFavoritesEdges({
+        cursor: page1.pagination.next,
+        pageSize: 2,
+      }),
     )
     const seen = [...page1.items, ...page2.items].map(
       (edge) => edge.assetPreviewSnapshotId,
@@ -212,6 +228,58 @@ describe('getUserFavoritesEdges', () => {
     expect(seen).toEqual([...ids].sort().reverse())
     expect(new Set(seen).size).toBe(3)
     expect(page1.pagination.total).toBe(3)
+  })
+
+  // the scenario that motivated keyset pagination (#209): removing an
+  // already-served row must not shift what the next page returns
+  it('a favorite removed mid-walk does not skip or duplicate later rows', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const stamp = `${Date.now()}`
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (let i = 0; i < 4; i++) {
+      ids.push(
+        await seedAssetPreviewSnapshot(adminClient, `INTEG-MID-${stamp}-${i}`),
+      )
+      await new Promise((r) => setTimeout(r, 10))
+    }
+    snapshotIds.push(...ids)
+    for (const id of ids) {
+      await seedFavorite(adminClient, user.id, id)
+    }
+
+    const repo = makeUserFavoritesRepo(client)
+    const page1 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({ cursor: null, pageSize: 2 }),
+    )
+    // newest first: page 1 serves ids[3], ids[2]
+    expect(page1.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual([
+      ids[3],
+      ids[2],
+    ])
+
+    // the viewer unfavorites the first row they saw
+    const { error } = await adminClient
+      .from('favorites')
+      .delete()
+      .eq('owner_id', user.id)
+      .eq('asset_preview_snapshot_id', ids[3])
+    expect(error).toBeNull()
+
+    const page2 = unwrapOrThrow(
+      await repo.getUserFavoritesEdges({
+        cursor: page1.pagination.next,
+        pageSize: 2,
+      }),
+    )
+    // offset paging would have skipped ids[1] here
+    expect(page2.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual([
+      ids[1],
+      ids[0],
+    ])
+    expect(page2.pagination.next).toBeNull()
   })
 
   it("only returns the authenticated user's own favorites (RLS)", async ({
@@ -243,7 +311,10 @@ describe('getUserFavoritesEdges', () => {
     await seedFavorite(adminClient, otherId, othId)
 
     const repo = makeUserFavoritesRepo(client)
-    const result = await repo.getUserFavoritesEdges({ page: 1, pageSize: 10 })
+    const result = await repo.getUserFavoritesEdges({
+      cursor: null,
+      pageSize: 10,
+    })
 
     // Clean up the extra user regardless of test outcome
     await adminClient.auth.admin.deleteUser(otherId)

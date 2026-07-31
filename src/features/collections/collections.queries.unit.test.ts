@@ -21,16 +21,16 @@ function edge(assetPreviewSnapshotId: string): CollectionItemEdge {
 
 function pages(
   ...pageItems: Array<{ items: Array<CollectionItemEdge>; total: number }>
-): InfiniteData<PaginatedCollection<CollectionItemEdge>, number> {
+): InfiniteData<PaginatedCollection<CollectionItemEdge>, string> {
   return {
     pages: pageItems.map(({ items, total }, index) => ({
       items,
       pagination: {
-        next: index < pageItems.length - 1 ? index + 2 : null,
+        next: index < pageItems.length - 1 ? String(index + 2) : null,
         total,
       },
     })),
-    pageParams: pageItems.map((_, index) => index + 1),
+    pageParams: pageItems.map((_, index) => String(index + 1)),
   }
 }
 
