@@ -6,7 +6,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
-import { useEffect } from 'react'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import pandaCss from '../panda.css?url'
@@ -17,7 +16,6 @@ import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { App } from '@/app/shell'
 import { RouteErrorBoundary } from '@/app/layout/error'
 import { getTitleText } from '@/lib/utils'
-import { installStartViewTransitionDelayFix } from '@/lib/view-transition-pop-fix'
 
 // The user-scoped Supabase client is deliberately absent: it is accessed via
 // the isomorphic createUserSupabaseClient() factory, never router context, so
@@ -55,9 +53,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootComponent() {
-  useEffect(() => {
-    installStartViewTransitionDelayFix()
-  }, [])
   return (
     <RootDocument>
       <App />

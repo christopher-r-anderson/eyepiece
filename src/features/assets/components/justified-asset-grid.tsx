@@ -83,7 +83,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
       keyboardDelegate,
       keyboardNavigationBehavior: 'tab',
       // Enter opens the focused tile through its own link so every
-      // navigation shares one path (state, view transition)
+      // navigation shares one path (state, mask)
       onAction: (key: Key) => {
         const item = state.collection.getItem(key)?.value
         if (item && tileLinkDisabled?.(item)) {

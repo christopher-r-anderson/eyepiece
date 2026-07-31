@@ -9,7 +9,6 @@ import { css } from 'styled-system/css'
 import { toast as toastRecipe } from 'styled-system/recipes'
 import { Button } from './button'
 import { toastQueue } from './toast.hooks'
-import type { ToastProps } from 'react-aria-components'
 
 const slots = toastRecipe()
 
@@ -22,11 +21,7 @@ export function ToastRegion() {
   return (
     <RacToastRegion queue={toastQueue} className={slots.region}>
       {({ toast }) => (
-        <Toast
-          toast={toast}
-          style={{ viewTransitionName: toast.key }}
-          className={slots.root}
-        >
+        <RacToast toast={toast} className={slots.root}>
           <RacToastContent className={slots.content}>
             <Text slot="title" className={slots.title}>
               {toast.content.title}
@@ -42,12 +37,8 @@ export function ToastRegion() {
           >
             <XIcon size={16} />
           </Button>
-        </Toast>
+        </RacToast>
       )}
     </RacToastRegion>
   )
-}
-
-function Toast(props: ToastProps<ToastContent>) {
-  return <RacToast {...props} />
 }
