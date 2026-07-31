@@ -23,8 +23,6 @@ export const toastRecipe = defineSlotRecipe({
       animationDuration: 'orchestrated',
       animationTimingFunction: 'settle',
       _motionReduce: { animation: 'none' },
-      // the topmost floating layer takes the lightest paper: canvas would
-      // blend into the page it floats over
       backgroundColor: 'bg.surface.2',
       color: 'text',
       border: 'default',
