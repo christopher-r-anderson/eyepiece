@@ -486,13 +486,13 @@ describe('collection items', () => {
     const repo = makeCollectionsRepo(client)
     const page1 = unwrapOrThrow(
       await repo.getCollectionItemEdges(collection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 2,
       }),
     )
     const page2 = unwrapOrThrow(
       await repo.getCollectionItemEdges(collection.id, {
-        page: 2,
+        cursor: page1.pagination.next,
         pageSize: 2,
       }),
     )
@@ -502,6 +502,67 @@ describe('collection items', () => {
     expect(seen).toEqual([...ids].sort())
     expect(new Set(seen).size).toBe(3)
     expect(page1.pagination.total).toBe(3)
+  })
+
+  it('an item removed mid-walk does not skip or duplicate later rows', async ({
+    client,
+    user,
+    adminClient,
+  }) => {
+    const collection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'Mid-walk removal',
+        visibility: 'private',
+      }),
+    )
+    const stamp = `${Date.now()}`
+    const ids: Array<AssetPreviewSnapshotId> = []
+    for (let i = 0; i < 4; i++) {
+      ids.push(
+        await seedAssetPreviewSnapshot(adminClient, `INTEG-MID-${stamp}-${i}`),
+      )
+    }
+    snapshotIds.push(...ids)
+    const { error } = await adminClient.from('collection_items').insert(
+      ids.map((sid, index) => ({
+        collection_id: collection.id,
+        asset_preview_snapshot_id: sid,
+        position: index + 1,
+      })),
+    )
+    expect(error).toBeNull()
+
+    const repo = makeCollectionsRepo(client)
+    const page1 = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        cursor: null,
+        pageSize: 2,
+      }),
+    )
+    expect(page1.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual([
+      ids[0],
+      ids[1],
+    ])
+
+    const { error: deleteError } = await adminClient
+      .from('collection_items')
+      .delete()
+      .eq('collection_id', collection.id)
+      .eq('asset_preview_snapshot_id', ids[0])
+    expect(deleteError).toBeNull()
+
+    const page2 = unwrapOrThrow(
+      await repo.getCollectionItemEdges(collection.id, {
+        cursor: page1.pagination.next,
+        pageSize: 2,
+      }),
+    )
+    // offset paging would have skipped ids[2] here
+    expect(page2.items.map((edge) => edge.assetPreviewSnapshotId)).toEqual([
+      ids[2],
+      ids[3],
+    ])
+    expect(page2.pagination.next).toBeNull()
   })
 
   it('re-adding at an explicit position restores the original order', async ({
@@ -539,7 +600,7 @@ describe('collection items', () => {
     const repo = makeCollectionsRepo(client)
     const before = unwrapOrThrow(
       await repo.getCollectionItemEdges(collection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )
@@ -567,7 +628,7 @@ describe('collection items', () => {
 
     const after = unwrapOrThrow(
       await repo.getCollectionItemEdges(collection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )
@@ -648,7 +709,7 @@ describe('collection items', () => {
     const repo = makeCollectionsRepo(client)
     const edges = unwrapOrThrow(
       await repo.getCollectionItemEdges(collection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )
@@ -807,7 +868,7 @@ describe('collection items', () => {
 
     const ownerEdges = unwrapOrThrow(
       await makeCollectionsRepo(client).getCollectionItemEdges(collection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )
@@ -842,7 +903,7 @@ describe('collection items', () => {
     const anonRepo = makeCollectionsRepo(createAnonClient())
     const publicEdges = unwrapOrThrow(
       await anonRepo.getCollectionItemEdges(publicCollection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )
@@ -856,7 +917,7 @@ describe('collection items', () => {
     )
     const privateEdges = unwrapOrThrow(
       await anonRepo.getCollectionItemEdges(publicCollection.id, {
-        page: 1,
+        cursor: null,
         pageSize: 10,
       }),
     )

@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { useMemo } from 'react'
 import { collectionVisibilitySchema } from './collections.schema'
+import {
+  decodeCollectionItemEdgesCursor,
+  encodeCollectionItemEdgesCursor,
+} from './collections.cursor'
 import type {
   Collection,
   CollectionCard,
@@ -10,20 +14,13 @@ import type {
 } from './collections.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
-import type {
-  PaginatedCollection,
-  Pagination,
-} from '@/domain/pagination/pagination.schema'
+import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { AssetKey } from '@/domain/asset/asset.schema'
-import { Err, Ok } from '@/lib/result'
+import { Err, Ok, resultIsError } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
-import {
-  calculateNextPage,
-  pageNumberCursor,
-} from '@/domain/pagination/pagination.utils'
 import {
   dbAssetPreviewSnapshotSchema,
   mapAssetPreviewSnapshot,
@@ -100,6 +97,11 @@ function mapCollectionItemEdge(row: DbCollectionItemEdge): CollectionItemEdge {
     },
     position: row.position,
   }
+}
+
+export type CollectionItemEdgesPageRequest = {
+  cursor: string | null
+  pageSize: number
 }
 
 export type CollectionsRepo = ReturnType<typeof makeCollectionsRepo>
@@ -249,40 +251,66 @@ export function makeCollectionsRepo(client: SupabaseClient) {
 
   async function getCollectionItemEdges(
     collectionId: CollectionId,
-    { page, pageSize }: Pagination,
+    { cursor, pageSize }: CollectionItemEdgesPageRequest,
   ): Promise<Result<PaginatedCollection<CollectionItemEdge>>> {
-    const {
-      data,
-      error: pgError,
-      count,
-    } = await client
+    const decoded =
+      cursor === null ? null : decodeCollectionItemEdgesCursor(cursor)
+    if (decoded && resultIsError(decoded)) {
+      return decoded
+    }
+    const after = decoded?.data
+    const probeLimit = pageSize + 1
+    // the first page's count rides the page request so rows and total come
+    // from one snapshot; a cursor page's filtered count cannot express the
+    // total, and its total is never surfaced, so a head count suffices
+    const pageQuery = client
       .from('collection_items')
       .select(
         'created_at, position, asset_preview_snapshots (id, provider_id, external_id)',
-        { count: 'exact' },
+        { count: after ? undefined : 'exact' },
       )
       .eq('collection_id', collectionId)
       .order('position', { ascending: true })
       .order('created_at', { ascending: true })
-      // asset_preview_snapshot_id is unique within a collection (PK), so it
-      // is the stable final key that keeps offset pages from drifting
       .order('asset_preview_snapshot_id', { ascending: true })
-      .range((page - 1) * pageSize, page * pageSize - 1)
+      .limit(probeLimit)
+    const [pageResult, countResult] = await Promise.all([
+      after
+        ? pageQuery.or(
+            `position.gt.${after.position},and(position.eq.${after.position},created_at.gt."${after.createdAt}"),and(position.eq.${after.position},created_at.eq."${after.createdAt}",asset_preview_snapshot_id.gt.${after.snapshotId})`,
+          )
+        : pageQuery,
+      after
+        ? client
+            .from('collection_items')
+            .select('*', { count: 'exact', head: true })
+            .eq('collection_id', collectionId)
+        : null,
+    ])
+    const { data, error: pgError } = pageResult
     if (pgError) {
       return Err({ message: pgError.message, cause: pgError })
     }
+    if (countResult?.error) {
+      return Err({
+        message: countResult.error.message,
+        cause: countResult.error,
+      })
+    }
+    const count = after ? countResult?.count : pageResult.count
     const { data: rows, error: parseError } =
       dbCollectionItemEdgesSchema.safeParse(data)
     if (parseError) {
       return Err({ message: parseError.message, cause: parseError })
     }
+    const hasMore = rows.length === probeLimit
+    const items = rows.slice(0, pageSize).map(mapCollectionItemEdge)
     return Ok({
-      items: rows.map(mapCollectionItemEdge),
+      items,
       pagination: {
-        next:
-          count == null
-            ? null
-            : pageNumberCursor(calculateNextPage({ page, pageSize }, count)),
+        next: hasMore
+          ? encodeCollectionItemEdgesCursor(items[items.length - 1])
+          : null,
         total: count ?? 0,
       },
     })
