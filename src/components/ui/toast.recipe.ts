@@ -17,15 +17,16 @@ export const toastRecipe = defineSlotRecipe({
     },
     root: {
       display: 'flex',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       gap: '2',
       animationName: 'settle',
-      animationDuration: 'standard',
+      animationDuration: 'orchestrated',
       animationTimingFunction: 'settle',
       _motionReduce: { animation: 'none' },
-      backgroundColor: 'bg.canvas',
+      // the topmost floating layer takes the lightest paper: canvas would
+      // blend into the page it floats over
+      backgroundColor: 'bg.surface.2',
       color: 'text',
-      // toasts are floating layers: same paper as popover/menu/dialog
       border: 'default',
       borderRadius: 'overlay',
       boxShadow: 'overlay',
