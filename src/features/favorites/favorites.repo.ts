@@ -1,17 +1,18 @@
 import { z } from 'zod'
 import { useMemo } from 'react'
+import {
+  decodeFavoritesEdgesCursor,
+  encodeFavoritesEdgesCursor,
+} from './favorites.cursor'
+import type { FavoritesEdgesCursor } from './favorites.cursor'
 import type { FavoriteEdge } from './favorites.schema'
 import type { Result } from '@/lib/result'
 import type { SupabaseClient } from '@/integrations/supabase/types'
-import type {
-  PaginatedCollection,
-  Pagination,
-} from '@/domain/pagination/pagination.schema'
-import { Err, Ok } from '@/lib/result'
+import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
+import { Err, Ok, resultIsError } from '@/lib/result'
 import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
-import { calculateNextPage } from '@/domain/pagination/pagination.utils'
 
 const dbUserFavoriteIndexSchema = z.object({
   asset_preview_snapshots: z.object({
@@ -66,36 +67,63 @@ function mapUserFavoritesEdges(
   }
 }
 
+export type FavoritesEdgesPageRequest = {
+  cursor: string | null
+  pageSize: number
+}
+
 export type UserFavoritesRepo = {
   getUserFavoritesEdges: (
-    pagination: Pagination,
+    request: FavoritesEdgesPageRequest,
   ) => Promise<Result<PaginatedCollection<FavoriteEdge>>>
   getUserFavoritesIndex: () => Promise<Result<Array<UserFavoriteIndex>>>
 }
 
 export function makeUserFavoritesRepo(client: SupabaseClient) {
-  async function getUserFavoritesEdges({ page, pageSize }: Pagination) {
-    const {
-      data,
-      error: pgError,
-      count,
-    } = await client
+  // Keyset pagination on (created_at DESC, asset_preview_snapshot_id DESC):
+  // a page is the rows strictly after the cursor in that order, so rows
+  // removed or restored before the cursor cannot shift it (#209).
+  async function getUserFavoritesEdges({
+    cursor,
+    pageSize,
+  }: FavoritesEdgesPageRequest) {
+    let after: FavoritesEdgesCursor | null = null
+    if (cursor !== null) {
+      const decoded = decodeFavoritesEdgesCursor(cursor)
+      if (resultIsError(decoded)) {
+        return decoded
+      }
+      after = decoded.data
+    }
+    let pageQuery = client
       .from('favorites')
       .select(
         'created_at, asset_preview_snapshots (id, provider_id, external_id)',
-        {
-          count: 'exact',
-        },
       )
       .order('created_at', { ascending: false })
-      // asset_preview_snapshot_id is unique per user (PK), so it is the
-      // stable final key that keeps offset pages from drifting
       .order('asset_preview_snapshot_id', { ascending: false })
-      .range((page - 1) * pageSize, page * pageSize - 1)
+      // one row past the page proves a next page without trusting counts
+      .limit(pageSize + 1)
+    if (after) {
+      pageQuery = pageQuery.or(
+        `created_at.lt."${after.createdAt}",and(created_at.eq."${after.createdAt}",asset_preview_snapshot_id.lt.${after.snapshotId})`,
+      )
+    }
+    const [{ data, error: pgError }, { count, error: countError }] =
+      await Promise.all([
+        pageQuery,
+        client.from('favorites').select('*', { count: 'exact', head: true }),
+      ])
     if (pgError) {
       return Err({
         message: pgError.message,
         cause: pgError,
+      })
+    }
+    if (countError) {
+      return Err({
+        message: countError.message,
+        cause: countError,
       })
     }
     const { data: userFavoritesEdges, error: parseError } =
@@ -106,11 +134,16 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
         cause: parseError,
       })
     }
+    const hasMore = userFavoritesEdges.length > pageSize
+    const items = (
+      hasMore ? userFavoritesEdges.slice(0, pageSize) : userFavoritesEdges
+    ).map(mapUserFavoritesEdges)
     return Ok({
-      items: userFavoritesEdges.map(mapUserFavoritesEdges),
+      items,
       pagination: {
-        next:
-          count == null ? null : calculateNextPage({ page, pageSize }, count),
+        next: hasMore
+          ? encodeFavoritesEdgesCursor(items[items.length - 1])
+          : null,
         total: count ?? 0,
       },
     })

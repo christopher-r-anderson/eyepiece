@@ -20,7 +20,10 @@ import { externalAssetIdSchema } from '@/domain/asset/asset.schema'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
 import { usePublicSupabaseClient } from '@/integrations/supabase/providers/public-provider'
 import { useUserSupabaseClient } from '@/integrations/supabase/user.hooks'
-import { calculateNextPage } from '@/domain/pagination/pagination.utils'
+import {
+  calculateNextPage,
+  pageNumberCursor,
+} from '@/domain/pagination/pagination.utils'
 import {
   dbAssetPreviewSnapshotSchema,
   mapAssetPreviewSnapshot,
@@ -277,7 +280,9 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       items: rows.map(mapCollectionItemEdge),
       pagination: {
         next:
-          count == null ? null : calculateNextPage({ page, pageSize }, count),
+          count == null
+            ? null
+            : pageNumberCursor(calculateNextPage({ page, pageSize }, count)),
         total: count ?? 0,
       },
     })

@@ -21,7 +21,7 @@ const albumKeys = {
 }
 
 type AlbumPage = PaginatedCollection<Asset, AlbumCollectionMetadata>
-type AlbumInfinite = InfiniteData<AlbumPage, number>
+type AlbumInfinite = InfiniteData<AlbumPage, string>
 
 export function flattenAlbumSelector({ pages, ...rest }: AlbumInfinite) {
   return {
@@ -42,13 +42,13 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
 }) {
   return infiniteQueryOptions({
     queryKey: albumKeys.album(albumKey),
-    queryFn: ({ pageParam = 1 }) => {
+    queryFn: ({ pageParam = '1' }) => {
       return repo.getAlbum(albumKey, {
-        page: pageParam,
+        page: Number(pageParam),
         pageSize: DEFAULT_PAGE_SIZE,
       })
     },
-    initialPageParam: 1,
+    initialPageParam: '1',
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 1000 * 60 * 5,
     select,

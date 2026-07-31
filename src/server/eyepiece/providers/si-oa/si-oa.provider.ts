@@ -18,7 +18,10 @@ import {
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
 import { sioaSearchFiltersSchema } from '@/domain/search/providers/si-oa-filters'
-import { calculateNextPage } from '@/domain/pagination/pagination.utils'
+import {
+  calculateNextPage,
+  pageNumberCursor,
+} from '@/domain/pagination/pagination.utils'
 import {
   getContent as sioaGetContent,
   getImageInfo as sioaGetImageInfo,
@@ -86,7 +89,7 @@ export function makeSiOaAdapter(
         sioaResponse.response.rows.map(mapWithMaster),
       )
       const total = sioaResponse.response.rowCount
-      const next = calculateNextPage(pagination, total)
+      const next = pageNumberCursor(calculateNextPage(pagination, total))
       const response: PaginatedCollection<Asset> = {
         items: assets,
         pagination: { next, total },

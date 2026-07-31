@@ -22,7 +22,7 @@ const searchKeys = {
 }
 
 type SearchImagesPage = Promise<PaginatedCollection<Asset>>
-type SearchImagesInfinite = InfiniteData<Awaited<SearchImagesPage>, number>
+type SearchImagesInfinite = InfiniteData<Awaited<SearchImagesPage>, string>
 
 export function getInfiniteSearchImagesOptions<
   TSelectData = SearchImagesInfinite,
@@ -39,13 +39,13 @@ export function getInfiniteSearchImagesOptions<
 }) {
   return infiniteQueryOptions({
     queryKey: searchKeys.query(query, filters),
-    queryFn: ({ pageParam = 1 }) => {
+    queryFn: ({ pageParam = '1' }) => {
       return repo.searchImages(query, filters, {
-        page: pageParam,
+        page: Number(pageParam),
         pageSize: DEFAULT_PAGE_SIZE,
       })
     },
-    initialPageParam: 1,
+    initialPageParam: '1',
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 1000 * 60 * 5,
     select,

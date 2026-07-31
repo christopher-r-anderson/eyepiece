@@ -203,7 +203,7 @@ describe('makeSiOaAdapter', () => {
         '/iiif/NASM-A19740798000-NASM2018-10165/full/2560,/',
       )
       expect(result.pagination.total).toBe(searchFixture.response.rowCount)
-      expect(result.pagination.next).toBe(2)
+      expect(result.pagination.next).toBe('2')
     })
 
     it('searches assets and maps paginated response', async () => {
@@ -353,7 +353,7 @@ describe('makeSiOaAdapter', () => {
         { page: 1, pageSize: 20 },
       )
 
-      expect(result.pagination.next).toBe(2)
+      expect(result.pagination.next).toBe('2')
       expect(result.pagination.total).toBe(100)
     })
 

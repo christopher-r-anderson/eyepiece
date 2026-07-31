@@ -117,7 +117,7 @@ export function useRefavoriteAt() {
 type UserFavoritesEdgesPage = PaginatedCollection<FavoriteEdge>
 type UserFavoritesEdgesInfinite = InfiniteData<
   Awaited<UserFavoritesEdgesPage>,
-  number
+  string | null
 >
 
 export function getInfiniteUserFavoritesEdgesOptions<
@@ -131,15 +131,15 @@ export function getInfiniteUserFavoritesEdgesOptions<
 }) {
   return infiniteQueryOptions({
     queryKey: favoritesKeys.edges(),
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam = null }) => {
       const result = await repo.getUserFavoritesEdges({
-        page: pageParam,
+        cursor: pageParam,
         pageSize: DEFAULT_PAGE_SIZE,
       })
       return unwrapOrThrow(result)
     },
     placeholderData: keepPreviousData,
-    initialPageParam: 1,
+    initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.pagination.next,
     staleTime: 5 * 60 * 1000,
     ...mountOnlyListFreshness,
