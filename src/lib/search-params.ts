@@ -24,6 +24,26 @@ export function stringifySearchParams(search: Record<string, unknown>) {
   )
 }
 
+// Internal API request params: plain URLSearchParams encoding, symmetric
+// with the server middleware's URLSearchParams read. The router serializer
+// JSON-quotes type-ambiguous strings (a numeric cursor becomes `"1"`),
+// which the API would reject. Keys sorted for stable CDN cache keys;
+// undefined dropped; empty strings kept (`q=` must survive).
+export function stringifyApiSearchParams(
+  search: Record<string, string | number | undefined>,
+) {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(search).sort(([a], [b]) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  )) {
+    if (value !== undefined) {
+      params.set(key, String(value))
+    }
+  }
+  const searchStr = params.toString()
+  return searchStr ? `?${searchStr}` : ''
+}
+
 // The router's stringifySearch: additionally serializes empty-string values
 // as absent. An empty param carries no value at the app's URL boundary, and
 // native GET submits serialize every named field, including untouched ones.

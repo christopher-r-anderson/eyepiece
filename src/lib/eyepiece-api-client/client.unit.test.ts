@@ -81,7 +81,7 @@ describe('createEyepieceClient', () => {
     await expect(
       client.getAlbum(
         { providerId: NASA_IVL_PROVIDER_ID, externalId: 'missing' },
-        { page: 1, pageSize: 24 },
+        { cursor: '1', pageSize: 24 },
       ),
     ).rejects.toThrow('Error fetching album: Album does not exist')
   })
@@ -126,7 +126,7 @@ describe('createEyepieceClient', () => {
           providerId: NASA_IVL_PROVIDER_ID,
           filters: {},
         },
-        { page: 1, pageSize: 24 },
+        { cursor: '1', pageSize: 24 },
       ),
     ).rejects.toThrow('Error searching assets: Search provider does not exist')
   })

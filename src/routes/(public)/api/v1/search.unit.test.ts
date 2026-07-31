@@ -68,7 +68,7 @@ function makeContext(searchParams: Record<string, unknown>) {
 
 const validNasaParams = {
   q: 'apollo',
-  page: 1,
+  cursor: 1,
   pageSize: 24,
   providerId: NASA_IVL_PROVIDER_ID,
   yearStart: 2000,
@@ -76,7 +76,7 @@ const validNasaParams = {
 
 const validSioaParams = {
   q: 'moon landing',
-  page: 1,
+  cursor: 1,
   pageSize: 24,
   providerId: SI_OA_PROVIDER_ID,
 }
@@ -243,7 +243,7 @@ describe('GET /api/v1/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/v1/search?providerId=nasa_ivl&page=1&pageSize=24&yearStart=2000',
+          'https://example.com/api/v1/search?providerId=nasa_ivl&cursor=1&pageSize=24&yearStart=2000',
         ),
         next: vi.fn(),
       }),
@@ -269,7 +269,7 @@ describe('GET /api/v1/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/v1/search?q=apollo&providerId=not_a_provider&page=1&pageSize=24&yearStart=2000',
+          'https://example.com/api/v1/search?q=apollo&providerId=not_a_provider&cursor=1&pageSize=24&yearStart=2000',
         ),
         next,
       }),
@@ -297,7 +297,7 @@ describe('GET /api/v1/search handler', () => {
     await expectBadRequest(
       searchParamsMiddleware({
         request: new Request(
-          'https://example.com/api/v1/search?q=apollo&providerId=nasa_ivl&page=1&pageSize=24&yearStart=2001&yearEnd=2000',
+          'https://example.com/api/v1/search?q=apollo&providerId=nasa_ivl&cursor=1&pageSize=24&yearStart=2001&yearEnd=2000',
         ),
         next,
       }),

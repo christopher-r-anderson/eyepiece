@@ -32,7 +32,7 @@ describe('getInfiniteSearchImagesOptions', () => {
     await (options.queryFn as any)({})
 
     expect(searchImages).toHaveBeenCalledWith(query, filters, {
-      page: 1,
+      cursor: '1',
       pageSize: DEFAULT_PAGE_SIZE,
     })
   })
@@ -45,10 +45,10 @@ describe('getInfiniteSearchImagesOptions', () => {
     const repo: SearchRepo = { searchImages }
 
     const options = getInfiniteSearchImagesOptions({ repo, query, filters })
-    await (options.queryFn as any)({ pageParam: 3 })
+    await (options.queryFn as any)({ pageParam: '3' })
 
     expect(searchImages).toHaveBeenCalledWith(query, filters, {
-      page: 3,
+      cursor: '3',
       pageSize: DEFAULT_PAGE_SIZE,
     })
   })
@@ -83,7 +83,7 @@ describe('prefetchInfiniteSearch', () => {
     })
 
     expect(searchAssets).toHaveBeenCalledWith(query, filters, {
-      page: 1,
+      cursor: '1',
       pageSize: DEFAULT_PAGE_SIZE,
     })
 

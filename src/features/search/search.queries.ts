@@ -41,7 +41,7 @@ export function getInfiniteSearchImagesOptions<
     queryKey: searchKeys.query(query, filters),
     queryFn: ({ pageParam = '1' }) => {
       return repo.searchImages(query, filters, {
-        page: Number(pageParam),
+        cursor: pageParam,
         pageSize: DEFAULT_PAGE_SIZE,
       })
     },
@@ -55,7 +55,7 @@ export function getInfiniteSearchImagesOptions<
 function flattenSearchSelector(data: SearchImagesInfinite) {
   return {
     ...flattenAssetsSelector(data),
-    total: data.pages[0].pagination.total,
+    total: data.pages[0]?.pagination.total ?? 0,
   }
 }
 
@@ -117,10 +117,10 @@ export const ALL_SCOPE_SECTION_SIZE = 6
 // Reads the first page only, so n must stay <= DEFAULT_PAGE_SIZE.
 export function makeTopNSearchSelector(n: number) {
   return (data: SearchImagesInfinite) => {
-    const firstPage = data.pages[0]
+    const firstPage = data.pages.at(0)
     return {
-      items: firstPage.items.slice(0, n),
-      total: firstPage.pagination.total,
+      items: firstPage?.items.slice(0, n) ?? [],
+      total: firstPage?.pagination.total ?? 0,
     }
   }
 }

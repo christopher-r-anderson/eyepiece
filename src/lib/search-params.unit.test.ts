@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   parseSearchParams,
+  stringifyApiSearchParams,
   stringifyCanonicalSearchParams,
   stringifySearchParams,
 } from './search-params'
@@ -58,5 +59,33 @@ describe('stringifyCanonicalSearchParams', () => {
     expect(stringifyCanonicalSearchParams({ q: 'moon', auth: 'login' })).toBe(
       '?auth=login&q=moon',
     )
+  })
+})
+
+describe('stringifyApiSearchParams', () => {
+  it('serializes numeric-looking strings without JSON quoting', () => {
+    expect(stringifyApiSearchParams({ cursor: '2', pageSize: 24 })).toBe(
+      '?cursor=2&pageSize=24',
+    )
+  })
+
+  it('sorts keys, drops undefined, keeps empty strings', () => {
+    expect(
+      stringifyApiSearchParams({
+        q: '',
+        providerId: 'nasa_ivl',
+        yearStart: undefined,
+      }),
+    ).toBe('?providerId=nasa_ivl&q=')
+  })
+
+  it('form-encodes spaces the way URLSearchParams reads them back', () => {
+    expect(stringifyApiSearchParams({ q: 'crab nebula' })).toBe(
+      '?q=crab+nebula',
+    )
+  })
+
+  it('returns an empty string for no params', () => {
+    expect(stringifyApiSearchParams({})).toBe('')
   })
 })

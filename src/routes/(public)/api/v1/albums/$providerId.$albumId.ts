@@ -32,7 +32,9 @@ export const Route = createFileRoute(
     handlers: {
       GET: async ({
         params: { providerId: providerIdString, albumId: albumIdString },
-        context: { searchParams: pagination },
+        context: {
+          searchParams: { cursor, pageSize },
+        },
       }) => {
         const providerId = parseOrThrowProviderId(providerIdString)
         const albumId = parseOrThrowBadRequest(
@@ -50,7 +52,7 @@ export const Route = createFileRoute(
         try {
           album = await service.getAlbum(
             { providerId, externalId: albumId },
-            pagination,
+            { page: cursor, pageSize },
           )
         } catch (error) {
           if (

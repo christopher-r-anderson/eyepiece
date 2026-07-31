@@ -10,6 +10,23 @@ export const paginationSchema = z.object({
 
 export type Pagination = z.infer<typeof paginationSchema>
 
+// request-side pagination for the offset-backed API endpoints: the cursor
+// value is the page number, parsed back into the internal Pagination shape
+export const cursorPaginationRequestSchema = z.object({
+  cursor: z
+    .string()
+    .regex(/^[1-9]\d*$/)
+    .transform(Number)
+    .pipe(z.int())
+    .default(DEFAULT_PAGE),
+  pageSize: z.coerce.number().min(1).max(100).default(DEFAULT_PAGE_SIZE),
+})
+
+export type CursorPageRequest = {
+  cursor: string
+  pageSize: number
+}
+
 export function paginateSchema<T extends z.ZodRawShape>(
   paramsSchema: z.ZodObject<T>,
 ) {
