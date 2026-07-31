@@ -32,7 +32,7 @@ function LoginPage() {
       />
       <AuthAltAction>
         Don't have an account yet?{' '}
-        <Link to="/register" underline>
+        <Link to="/register" variant="underline">
           Register
         </Link>
       </AuthAltAction>

@@ -30,11 +30,9 @@ export const linkRecipe = defineRecipe({
           textDecoration: 'none',
         },
       },
-    },
-    // explicit underline for links that sit in running text, where the
-    // hover-only affordance isn't enough
-    underline: {
-      true: { textDecoration: 'underline' },
+      // explicit underline for links that sit in running text, where the
+      // hover-only affordance isn't enough
+      underline: { textDecoration: 'underline' },
     },
   },
 })

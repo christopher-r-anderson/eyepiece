@@ -32,7 +32,6 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
       hasNextPage={hasNextPage}
       loadedCount={data.items.length}
       total={data.total}
-      loadMoreVariant="text"
       uiResetKey={uiResetKey}
       className={css({ width: '100%' })}
     >
