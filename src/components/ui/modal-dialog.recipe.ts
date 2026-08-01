@@ -13,6 +13,9 @@ export const modalDialogRecipe = defineSlotRecipe({
       zIndex: 'overlay',
       // one backdrop strength across modal surfaces (the sheet set it)
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      animationName: 'fade',
+      animationDuration: 'standard',
+      _motionReduce: { animation: 'none' },
     },
     modal: {
       maxHeight: '100vh',
@@ -22,6 +25,10 @@ export const modalDialogRecipe = defineSlotRecipe({
       backgroundColor: 'bg.canvas',
       display: 'flex',
       flexDirection: 'column',
+      animationName: 'settle',
+      animationDuration: 'standard',
+      animationTimingFunction: 'settle',
+      _motionReduce: { animation: 'none' },
       maxHeight: '90vh',
       maxWidth: '90vw',
       border: 'default',

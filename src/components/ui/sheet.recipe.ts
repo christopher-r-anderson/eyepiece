@@ -14,6 +14,9 @@ export const sheetRecipe = defineSlotRecipe({
       inset: 0,
       zIndex: 'overlay',
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      animationName: 'fade',
+      animationDuration: 'standard',
+      _motionReduce: { animation: 'none' },
       // gaps live on the overlay so clicks in them count as outside the
       // modal and dismiss it; the close slot positions itself off the same
       // variable, so the gap has one home
@@ -34,6 +37,10 @@ export const sheetRecipe = defineSlotRecipe({
       backgroundColor: 'bg.canvas',
       display: 'flex',
       flexDirection: 'column',
+      animationName: 'settle',
+      animationDuration: 'orchestrated',
+      animationTimingFunction: 'settle',
+      _motionReduce: { animation: 'none' },
       width: '100%',
       height: '100%',
       outline: 'none',

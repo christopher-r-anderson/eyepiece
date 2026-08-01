@@ -112,6 +112,9 @@ export default defineConfig({
       settle: {
         from: { opacity: 0, transform: 'translateY(12px)' },
       },
+      fade: {
+        from: { opacity: 0 },
+      },
     },
     recipes: {
       button: buttonRecipe,

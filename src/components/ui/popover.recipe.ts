@@ -8,5 +8,9 @@ export const popoverRecipe = defineRecipe({
     backgroundColor: 'bg.canvas',
     boxShadow: 'overlay',
     overflow: 'hidden',
+    animationName: 'fade',
+    animationDuration: 'micro',
+    animationTimingFunction: 'out',
+    _motionReduce: { animation: 'none' },
   },
 })
