@@ -52,6 +52,10 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultStructuralSharing: true,
     defaultNotFoundComponent: NotFoundPage,
+    // every undeclared URL miss renders the site-level 404 at the root;
+    // routes that want an in-context body declare their own
+    // notFoundComponent
+    notFoundMode: 'root',
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
