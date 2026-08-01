@@ -34,3 +34,4 @@ deno.lock
 
 # Provider sampling output (scripts/sample-provider-text.ts), regenerated on demand
 /provider-samples/
+.claude/settings.local.json
