@@ -76,7 +76,9 @@ CDN keys).
 `useCanonicalSearchReplace` is the client tier for non-canonical
 spellings reached without a document load, replacing the address bar via
 `history.replace`. It stands down while an asset overlay masks the URL.
-Auth-modal params (`auth`, `next`, `fp`) survive both tiers.
+Auth-modal state travels in history state, not search params; legacy auth
+params (`auth`, `fp`) and one-shot form params (`next`, `formError`,
+`status`) are dropped as junk.
 
 | Spelling                            | Fixed by                  | CDN                   |
 | ----------------------------------- | ------------------------- | --------------------- |
@@ -99,13 +101,16 @@ Constraints the client tier depends on:
 - compares raw URL strings, not parsed objects: variants that parse equal
   are still distinct cache keys, and the router drops order-only object
   replaces via structural sharing (hence the history-level replace)
-- the raw side comes from the real document url (`getRawSearch`); the
-  router's `location.searchStr` is the re-serialized parse result and
-  always reads as already canonical
+- the raw side is never the router's `location.searchStr` (a re-serialized
+  parse result, it always reads as already canonical): the server tier
+  reads the request URL (`getRawSearch`), the client tier reads
+  `router.history.location.href` - `window.location` lags the history's
+  microtask-deferred DOM writes and once replace-looped a navigation
 - the target derives from one `state.location` snapshot; mixing in
   `Route.useSearch()` tears during navigation transitions and cancels
   in-flight navigations
-- the parse is idempotent (unit-tested), so the canonical string is a fixed
+- the parse is idempotent (unit-tested) and a client replace reaches
+  `history.location` synchronously, so the canonical string is a fixed
   point and neither tier can loop
 
 ## The All View

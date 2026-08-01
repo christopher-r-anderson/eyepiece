@@ -1,4 +1,4 @@
-import { createIsomorphicFn } from '@tanstack/react-start'
+import { createIsomorphicFn, createServerOnlyFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 
 const PARSE_BASE = 'http://parse.local'
@@ -31,11 +31,13 @@ export function rawSearchOfHref(href: string) {
   return queryStart === -1 ? '' : beforeHash.slice(queryStart)
 }
 
-// the request URL's verbatim query string; the router's location.searchStr
-// is the re-serialized parse result and cannot stand in for it
-export const getRawSearch = createIsomorphicFn()
-  .server(() => rawSearchOfHref(getRequest().url))
-  .client(() => rawSearchOfHref(window.location.href))
+// the request URL's verbatim query string; location.searchStr is the
+// re-serialized parse result and cannot stand in for it. Server-only: a
+// client raw read must come from router.history.location, never the
+// lagging window.location
+export const getRawSearch = createServerOnlyFn(() =>
+  rawSearchOfHref(getRequest().url),
+)
 
 // undo restores a row's original timestamp for ordering; never a
 // client-chosen point in the future
