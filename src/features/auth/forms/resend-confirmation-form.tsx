@@ -6,10 +6,10 @@ import { useAuthCommands } from '../hooks/use-auth-commands'
 import { resendConfirmationFormAction } from '../auth.form-actions'
 import { resendConfirmationFormSchema } from './resend-confirmation-form.schema'
 import type { HeadingLevel } from '@/components/ui/heading'
-import { formHeadingCss } from '@/components/form-heading.styles'
 import {
   Form,
   FormActions,
+  FormHeading,
   InputGroup,
   TextField,
   formStatusPanelCss,
@@ -20,7 +20,6 @@ import {
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
-import { Heading } from '@/components/ui/heading'
 
 export function ResendConfirmationForm({
   headingLevel,
@@ -72,9 +71,9 @@ export function ResendConfirmationForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
+      <FormHeading id={id} level={headingLevel}>
         Resend Confirmation Email
-      </Heading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         {next && <input type="hidden" name="next" defaultValue={next} />}
@@ -102,9 +101,7 @@ export function ResendConfirmationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading level={headingLevel} css={formHeadingCss(headingLevel)}>
-        Confirmation Email Sent!
-      </Heading>
+      <FormHeading level={headingLevel}>Confirmation Email Sent!</FormHeading>
       <p>Please check your email to confirm your account.</p>
     </div>
   )

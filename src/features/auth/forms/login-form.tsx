@@ -7,15 +7,19 @@ import { loginFormSchema } from './login-form.schema'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
-import { formHeadingCss } from '@/components/form-heading.styles'
-import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  FormActions,
+  FormHeading,
+  InputGroup,
+  TextField,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
   useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
-import { Heading } from '@/components/ui/heading'
 
 type LoginProps = {
   headingLevel: HeadingLevel
@@ -68,9 +72,9 @@ export function LoginForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
+      <FormHeading id={id} level={headingLevel}>
         Log In
-      </Heading>
+      </FormHeading>
       <InputGroup>
         {next && <input type="hidden" name="next" defaultValue={next} />}
         <TextField

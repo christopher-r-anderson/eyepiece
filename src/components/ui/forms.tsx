@@ -18,6 +18,8 @@ import {
   StableVisibilityStackItem,
 } from './stable-visibility-stack'
 import { ToggleButton } from './toggle-button'
+import { Heading } from './heading'
+import type { HeadingProps } from './heading'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import type { FormVariantProps } from 'styled-system/recipes'
 import type { UiProps } from './style-contract'
@@ -50,6 +52,23 @@ export const formStatusPanelCss = css.raw({
   display: 'grid',
   gap: '3',
 })
+
+export function FormHeading({ level, css: cssProp, ...props }: HeadingProps) {
+  return (
+    <Heading
+      {...props}
+      level={level}
+      css={css.raw(
+        level === 1
+          ? { textStyle: 'title.lg' }
+          : level === 2
+            ? { textStyle: 'title.md' }
+            : {},
+        cssProp,
+      )}
+    />
+  )
+}
 
 export function Form({
   children,

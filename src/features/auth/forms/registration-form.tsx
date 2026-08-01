@@ -8,10 +8,10 @@ import { registrationFormSchema } from './registration-form.schema'
 import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
-import { formHeadingCss } from '@/components/form-heading.styles'
 import {
   Form,
   FormActions,
+  FormHeading,
   InputGroup,
   TextField,
   formStatusPanelCss,
@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/forms.hooks'
 import { DISPLAY_NAME_MAX_LENGTH } from '@/domain/profile/profile.schema'
 import { useEvent } from '@/lib/hooks/use-event'
-import { Heading } from '@/components/ui/heading'
 
 export function RegistrationForm({
   headingLevel,
@@ -73,9 +72,9 @@ export function RegistrationForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
+      <FormHeading id={id} level={headingLevel}>
         Register
-      </Heading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="redirectTo" defaultValue={redirectTo} />
         {next && <input type="hidden" name="next" defaultValue={next} />}
@@ -111,9 +110,7 @@ export function RegistrationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading level={headingLevel} css={formHeadingCss(headingLevel)}>
-        Registration successful!
-      </Heading>
+      <FormHeading level={headingLevel}>Registration successful!</FormHeading>
       <p>Please check your email to verify your account.</p>
     </div>
   )
