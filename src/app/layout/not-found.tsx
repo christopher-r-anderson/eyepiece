@@ -4,8 +4,6 @@ import { NotFound } from '@/components/errors/not-found'
 import { pageMainCss } from '@/components/page-main'
 import { toSearchPageParams } from '@/features/search/search-page-params'
 
-// the root-mode 404 renders outside every route group, so this wrapper
-// owns the page <main>; the content lives in components/errors
 export function NotFoundPage() {
   return (
     <main className={css(pageMainCss)}>

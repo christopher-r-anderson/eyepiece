@@ -5,8 +5,7 @@ import { useCaptureRouteError } from './error-capture'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/ui/heading'
 
-// sticks to presentational ui components - nothing that depends on app
-// providers, which could rethrow inside a broken tree
+// used in error path; use presentational components only
 export function ErrorFallback({
   error,
   reset,
