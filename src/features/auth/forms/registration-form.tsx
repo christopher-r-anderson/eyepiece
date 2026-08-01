@@ -6,9 +6,9 @@ import { registerFormAction } from '../auth.form-actions'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { registrationFormSchema } from './registration-form.schema'
 import { SetPasswordField } from './components/set-password-field'
-import { authFormHeadingCss } from './form-heading.styles'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
+import { formHeadingCss } from '@/components/form-heading.styles'
 import {
   Form,
   FormActions,
@@ -73,11 +73,7 @@ export function RegistrationForm({
         </FormActions>
       }
     >
-      <Heading
-        id={id}
-        level={headingLevel}
-        css={authFormHeadingCss(headingLevel)}
-      >
+      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
         Register
       </Heading>
       <InputGroup>
@@ -115,7 +111,7 @@ export function RegistrationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading level={headingLevel} css={authFormHeadingCss(headingLevel)}>
+      <Heading level={headingLevel} css={formHeadingCss(headingLevel)}>
         Registration successful!
       </Heading>
       <p>Please check your email to verify your account.</p>

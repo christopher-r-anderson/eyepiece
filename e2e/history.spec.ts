@@ -1,5 +1,9 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
+import {
+  createPasswordProbeUser,
+  deleteUserByEmail,
+} from './support/admin-users'
 import { TINY_PNG } from './support/collections-helpers'
 import { singleRenditionImage } from './support/asset-image'
 import {
@@ -215,3 +219,41 @@ test(
     }
   },
 )
+
+test('a password update with a destination replaces the spent form in history', async ({
+  page,
+}, testInfo) => {
+  test.slow()
+  const email = `e2e-history-password-${testInfo.workerIndex}@example.com`
+  const password = 'the-original-passphrase'
+  await deleteUserByEmail(email)
+  await createPasswordProbeUser(email, password, 'History Password Probe')
+  try {
+    await page.goto(
+      '/login?next=%2Fauth%2Fupdate-password%3Fnext%3D%252Ffavorites',
+    )
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await page.getByRole('textbox', { name: 'Password' }).fill(password)
+    await Promise.all([
+      page.waitForURL((url) => url.pathname === '/auth/update-password'),
+      page.getByRole('button', { name: 'Log In' }).click(),
+    ])
+    // the user menu renders only after hydration resolves the session, so
+    // it gates the fill past RAC's value-wiping first commit
+    await expect(page.getByRole('button', { name: 'User Menu' })).toBeVisible()
+    await page
+      .getByRole('textbox', { name: 'Password' })
+      .fill('the-replacement-passphrase')
+    await page.getByRole('button', { name: 'Update' }).click()
+
+    await page.waitForURL((url) => url.pathname === '/favorites')
+    await expect(
+      page.getByRole('alertdialog', { name: 'Password updated' }),
+    ).toBeVisible()
+
+    await page.goBack()
+    await expect(page).not.toHaveURL(/update-password/)
+  } finally {
+    await deleteUserByEmail(email)
+  }
+})

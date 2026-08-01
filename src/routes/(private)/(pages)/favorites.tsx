@@ -31,7 +31,7 @@ import {
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/empty-state'
 import { Link } from '@/components/ui/link'
 import { toSearchPageParams } from '@/features/search/search-page-params'
@@ -41,7 +41,7 @@ import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 
-const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
+const FavoritesHeading = () => <PageHeader title="Favorites" />
 
 export const Route = createFileRoute('/(private)/(pages)/favorites')({
   component: FavoritesPage,
@@ -187,10 +187,18 @@ function FavoritesPage() {
     ],
   )
 
-  if (favoritesResult.data.total === 0) {
+  const { total } = favoritesResult.data
+  const shownTotal = total - removedIds.size
+  const countedHeader = (
+    <PageHeader
+      title="Favorites"
+      meta={`${shownTotal} ${shownTotal === 1 ? 'star' : 'stars'}`}
+    />
+  )
+  if (total === 0) {
     return (
       <>
-        <FavoritesHeading />
+        {countedHeader}
         <EmptyState>
           No favorites yet. Star any image to keep it here -{' '}
           <Link
@@ -207,7 +215,7 @@ function FavoritesPage() {
   }
   return (
     <>
-      <FavoritesHeading />
+      {countedHeader}
       <InfiniteLoader
         // isFetching, not isLoading: after an edge page lands the batch
         // query switches keys and keepPreviousData reports isLoading
@@ -222,7 +230,10 @@ function FavoritesPage() {
           })
         }}
         hasNextPage={favoritesResult.hasNextPage}
-        loadedCount={assetPreviewSnapshotsResult.data?.length ?? 0}
+        total={shownTotal}
+        loadedCount={
+          (assetPreviewSnapshotsResult.data?.length ?? 0) - removedIds.size
+        }
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >

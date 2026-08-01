@@ -13,7 +13,7 @@ test('profile lists the public collections and hides private ones', async ({
   await page.goto(`/profile/${user.id}`)
 
   await expect(
-    page.getByRole('heading', { level: 2, name: user.displayName }),
+    page.getByRole('heading', { level: 1, name: user.displayName }),
   ).toBeVisible()
   await expect(
     page.getByRole('heading', { level: 2, name: 'Public collections' }),
@@ -35,7 +35,7 @@ test('profile with only a private collection shows the empty state', async ({
   await page.goto(`/profile/${privateOnlyUser.id}`)
 
   await expect(
-    page.getByRole('heading', { level: 2, name: privateOnlyUser.displayName }),
+    page.getByRole('heading', { level: 1, name: privateOnlyUser.displayName }),
   ).toBeVisible()
   await expect(page.getByText('No public collections yet.')).toBeVisible()
   await expect(page.getByText(privateOnlyUser.collection.name)).toHaveCount(0)

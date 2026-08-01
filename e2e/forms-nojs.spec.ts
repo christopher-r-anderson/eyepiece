@@ -1,5 +1,9 @@
 import { expect, test } from './fixtures'
 import { makeAdminClient } from './support/collections-fixture'
+import {
+  createPasswordProbeUser,
+  deleteUserByEmail,
+} from './support/admin-users'
 import type { Page } from '@playwright/test'
 
 // The mutation forms post natively to their server-fn action URLs before
@@ -49,7 +53,7 @@ test('a no-JS profile update round-trips with a status', async ({ page }) => {
   await page.getByRole('button', { name: 'Update' }).click()
 
   await page.waitForURL((url) => url.searchParams.get('status') === 'updated')
-  await expect(page.getByText('Profile Updated.')).toBeVisible()
+  await expect(page.getByText('Profile updated.')).toBeVisible()
 })
 
 test('a no-JS forgot-password submit lands on the sent panel', async ({
@@ -130,15 +134,6 @@ test('a no-JS resend failure returns to the confirm-error spelling', async ({
   ).toBeVisible()
 })
 
-async function deleteUserByEmail(email: string) {
-  const admin = makeAdminClient()
-  const { data } = await admin.auth.admin.listUsers({ perPage: 1000 })
-  const user = data.users.find((candidate) => candidate.email === email)
-  if (user) {
-    await admin.auth.admin.deleteUser(user.id)
-  }
-}
-
 test('a no-JS first login completes the profile and lands on next', async ({
   page,
 }, testInfo) => {
@@ -201,20 +196,6 @@ test('a no-JS resend for an unconfirmed account lands on the sent panel', async 
   }
 })
 
-async function createPasswordProbeUser(email: string, password: string) {
-  const admin = makeAdminClient()
-  const { data: created, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-  })
-  expect(error).toBeNull()
-  const { error: profileError } = await admin
-    .from('profiles')
-    .upsert({ id: created.user!.id, display_name: 'No-JS Password Probe' })
-  expect(profileError).toBeNull()
-}
-
 async function logInNoJs(page: Page, email: string, password: string) {
   await page.goto('/login')
   await page.getByRole('textbox', { name: 'Email' }).fill(email)
@@ -229,7 +210,11 @@ test('a no-JS password update with a destination completes server-side', async (
   test.slow()
   const email = `e2e-nojs-password-next-${testInfo.workerIndex}@example.com`
   await deleteUserByEmail(email)
-  await createPasswordProbeUser(email, 'the-original-passphrase')
+  await createPasswordProbeUser(
+    email,
+    'the-original-passphrase',
+    'No-JS Password Probe',
+  )
   try {
     await logInNoJs(page, email, 'the-original-passphrase')
     await page.goto('/auth/update-password?next=%2Fsettings%2Fprofile')
@@ -251,7 +236,11 @@ test('a no-JS password update without a destination really changes it', async ({
   const email = `e2e-nojs-password-${testInfo.workerIndex}@example.com`
   const newPassword = 'the-replacement-passphrase'
   await deleteUserByEmail(email)
-  await createPasswordProbeUser(email, 'the-original-passphrase')
+  await createPasswordProbeUser(
+    email,
+    'the-original-passphrase',
+    'No-JS Password Probe',
+  )
   try {
     await logInNoJs(page, email, 'the-original-passphrase')
     await page.goto('/auth/update-password')

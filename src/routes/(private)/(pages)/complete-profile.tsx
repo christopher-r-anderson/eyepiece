@@ -8,8 +8,8 @@ import {
   formResultSearchParamsSchema,
   redirectSearchParamsSchema,
 } from '@/lib/route.schema'
-import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher, formStatusPanelCss } from '@/components/ui/forms'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { Link } from '@/components/ui/link'
 
@@ -25,33 +25,21 @@ function CompleteProfilePage() {
   const { next: nextParam, formError } = Route.useSearch()
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
+  const queueToastMessage = useQueueToastMessage()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const [seconds, { start }] = useCountdown(3, {
-    autoStart: false,
-    onComplete: () => {
-      // this should be redundant since we don't count down unless next is defined
-      if (next) {
-        navigate({ to: next })
-      }
-    },
-  })
   const onUpdateSuccess = useCallback(() => {
-    setShowSuccessMessage(true)
     if (next) {
-      start()
+      queueToastMessage({ title: 'Profile created' })
+      void navigate({ to: next, replace: true })
+      return
     }
-  }, [next, start])
+    setShowSuccessMessage(true)
+  }, [next, navigate, queueToastMessage])
 
   return (
     <FormStatusSwitcher
       showStatus={showSuccessMessage}
-      status={
-        next ? (
-          <SuccessRedirectMessage next={next} seconds={seconds} />
-        ) : (
-          <SuccessStandardMessage />
-        )
-      }
+      status={<SuccessStandardMessage />}
     >
       <UpsertProfileForm
         actionType="create"
@@ -63,26 +51,6 @@ function CompleteProfilePage() {
         initialData={{ id: user.id }}
       />
     </FormStatusSwitcher>
-  )
-}
-
-function SuccessRedirectMessage({
-  next,
-  seconds,
-}: {
-  next: string
-  seconds: number
-}) {
-  const isHome = next === '/'
-  return (
-    <section className={css(formStatusPanelCss)}>
-      <Heading level={1}>Profile created!</Heading>
-      <p>
-        Redirecting <Link to={next}>{isHome ? 'home' : 'back'}</Link> in{' '}
-        {seconds}
-        &hellip;
-      </p>
-    </section>
   )
 }
 

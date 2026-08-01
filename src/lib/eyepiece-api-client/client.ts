@@ -40,6 +40,15 @@ export function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
   }
 }
 
+export function flattenAssetsWithTotalSelector<
+  TData extends { items: Array<Asset>; pagination: { total: number } },
+>(data: InfiniteData<TData, string>) {
+  return {
+    ...flattenAssetsSelector(data),
+    total: data.pages[0]?.pagination.total ?? 0,
+  }
+}
+
 function assertSsrHasOrigin(origin: string, path: string) {
   if (import.meta.env.SSR && !origin) {
     throw new Error(

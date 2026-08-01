@@ -2,9 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { formErrorCopy } from '@/components/form-errors'
 import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
-import { useCountdown } from '@/lib/hooks/use-countdown'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { Link } from '@/components/ui/link'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { urlToNextParam } from '@/lib/utils'
 
 export const Route = createFileRoute('/(private)/(auth)/auth/update-password')({
@@ -15,41 +15,32 @@ function UpdatePasswordPage() {
   const { next: nextParam, formError, status } = Route.useSearch()
   const next = nextParam ? urlToNextParam(nextParam) : undefined
   const navigate = Route.useNavigate()
+  const queueToastMessage = useQueueToastMessage()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const [seconds, { start }] = useCountdown(3, {
-    autoStart: false,
-    onComplete: () => {
-      // this should be redundant since we don't count down unless next is defined
-      if (next) {
-        navigate({ to: next })
-      }
-    },
-  })
   const onUpdateSuccess = useCallback(() => {
-    setShowSuccessMessage(true)
     if (next) {
-      start()
+      queueToastMessage({ title: 'Password updated' })
+      void navigate({ to: next, replace: true })
+      return
     }
-  }, [next, start])
+    setShowSuccessMessage(true)
+  }, [next, navigate, queueToastMessage])
   // a native (no-JS) update without a destination redirects back with the
-  // status param; seed the same success state (with next, the action
-  // redirects straight there instead)
+  // status param; seed the same success state and strip the one-shot param
+  // (with next, the action redirects straight there instead)
   useEffect(() => {
-    if (status === 'updated') {
-      onUpdateSuccess()
-    }
-  }, [status, onUpdateSuccess])
+    if (status !== 'updated') return
+    setShowSuccessMessage(true)
+    void navigate({
+      search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
+      replace: true,
+    })
+  }, [status, navigate])
   return (
     <>
       <FormStatusSwitcher
         showStatus={showSuccessMessage || status === 'updated'}
-        status={
-          next ? (
-            <StatusMessage next={next} seconds={seconds} />
-          ) : (
-            <SuccessMessage />
-          )
-        }
+        status={<SuccessMessage />}
       >
         <UpdatePasswordForm
           headingLevel={1}
@@ -59,17 +50,6 @@ function UpdatePasswordPage() {
         />
       </FormStatusSwitcher>
     </>
-  )
-}
-
-function StatusMessage({ next, seconds }: { next: string; seconds: number }) {
-  const isHome = next === '/'
-  return (
-    <p>
-      Password updated successfully. Redirecting{' '}
-      <Link to={next}>{isHome ? 'home' : 'back'}</Link> in {seconds}
-      &hellip;
-    </p>
   )
 }
 

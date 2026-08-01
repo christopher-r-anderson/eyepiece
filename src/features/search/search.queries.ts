@@ -12,7 +12,7 @@ import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { SearchFilters, SearchQuery } from '@/domain/search/search.schema'
-import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
+import { flattenAssetsWithTotalSelector } from '@/lib/eyepiece-api-client/client'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const searchKeys = {
@@ -52,13 +52,6 @@ export function getInfiniteSearchImagesOptions<
   })
 }
 
-function flattenSearchSelector(data: SearchImagesInfinite) {
-  return {
-    ...flattenAssetsSelector(data),
-    total: data.pages[0]?.pagination.total ?? 0,
-  }
-}
-
 export function useSuspenseInfiniteSearch(
   query: SearchQuery,
   filters: SearchFilters,
@@ -69,7 +62,7 @@ export function useSuspenseInfiniteSearch(
       repo,
       query,
       filters,
-      select: flattenSearchSelector,
+      select: flattenAssetsWithTotalSelector,
     }),
   )
 }
@@ -86,7 +79,7 @@ export function useSuspenseSearchTotal(
       repo,
       query,
       filters,
-      select: flattenSearchSelector,
+      select: flattenAssetsWithTotalSelector,
     }),
   )
   return data.total
@@ -104,7 +97,7 @@ export function useSearchTotal(query: SearchQuery, filters: SearchFilters) {
       repo,
       query,
       filters,
-      select: flattenSearchSelector,
+      select: flattenAssetsWithTotalSelector,
     }),
   })
   return isHydrated ? data?.total : undefined

@@ -3,10 +3,9 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { NotFound } from '@/components/errors/not-found'
 import { Heading } from '@/components/ui/heading'
-import { Profile } from '@/features/profiles/components/profile'
 import {
   ensureProfile,
   useSuspenseProfile,
@@ -65,8 +64,7 @@ function ProfilePage() {
   }
   return (
     <>
-      <PageHeading>Profile</PageHeading>
-      <Profile profile={profile} />
+      <PageHeader title={profile.displayName} meta="milky way" />
       <div className={css({ marginTop: 'sectionGap' })}>
         <PublicCollectionsSection profileId={profileId} />
       </div>

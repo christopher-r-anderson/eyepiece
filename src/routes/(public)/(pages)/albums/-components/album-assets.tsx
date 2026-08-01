@@ -43,6 +43,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
       fetchNextPage={fetchNextPage}
       hasNextPage={hasNextPage}
       loadedCount={data.items.length}
+      total={data.total}
       uiResetKey={uiResetKey}
       className={css({ width: '100%' })}
     >

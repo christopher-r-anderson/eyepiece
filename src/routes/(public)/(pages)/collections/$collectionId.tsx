@@ -26,7 +26,7 @@ import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { ManageCollectionLink } from '@/features/collections/components/manage-collection-link'
 import { RouteError } from '@/app/layout/route-error'
 import { NotFound } from '@/components/errors/not-found'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/empty-state'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
@@ -94,7 +94,7 @@ export const Route = createFileRoute(
   errorComponent: ({ error }) => (
     <RouteError
       error={error}
-      heading={<PageHeading>Collection</PageHeading>}
+      heading={<PageHeader title="Collection" />}
       message="Error loading collection."
       captureContext={{
         boundaryKind: 'route',
@@ -105,7 +105,7 @@ export const Route = createFileRoute(
   ),
   pendingComponent: () => (
     <>
-      <PageHeading>Collection</PageHeading>
+      <PageHeader title="Collection" />
       <AssetGridSkeleton />
     </>
   ),
@@ -138,26 +138,16 @@ function CollectionPage() {
 
   return (
     <div className={css({ width: '100%' })}>
-      <h1
-        className={css({
-          textStyle: 'display.md',
-          overflowWrap: 'anywhere',
-        })}
-      >
-        {collection.name}
-      </h1>
-      <p
-        className={css({
-          marginTop: '2',
-          textStyle: 'meta',
-          textTransform: 'lowercase',
-          color: 'text.muted',
-        })}
-      >
-        {total} {total === 1 ? 'item' : 'items'}
-        {owner ? ` · curated by ${owner.displayName}` : ''}{' '}
-        <ManageCollectionLink collection={collection} />
-      </p>
+      <PageHeader
+        title={collection.name}
+        meta={
+          <>
+            {total} {total === 1 ? 'item' : 'items'}
+            {owner ? ` · curated by ${owner.displayName}` : ''}{' '}
+            <ManageCollectionLink collection={collection} />
+          </>
+        }
+      />
       <div className={css({ marginTop: '5' })}>
         {total === 0 ? (
           <EmptyState>This collection is empty.</EmptyState>
