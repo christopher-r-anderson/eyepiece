@@ -12,7 +12,7 @@ import type {
 import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { PaginatedCollection } from '@/domain/pagination/pagination.schema'
-import { flattenAssetsSelector } from '@/lib/eyepiece-api-client/client'
+import { flattenAssetsWithTotalSelector } from '@/lib/eyepiece-api-client/client'
 import { DEFAULT_PAGE_SIZE } from '@/domain/pagination/pagination.schema'
 
 const albumKeys = {
@@ -55,20 +55,13 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
   })
 }
 
-function flattenAlbumAssetsSelector(data: AlbumInfinite) {
-  return {
-    ...flattenAssetsSelector(data),
-    total: data.pages[0]?.pagination.total ?? 0,
-  }
-}
-
 export function useSuspenseInfiniteAlbumAssets(albumKey: AlbumKey) {
   const repo = useAlbumsRepo()
   return useSuspenseInfiniteQuery(
     getInfiniteAlbumOptions({
       repo,
       albumKey,
-      select: flattenAlbumAssetsSelector,
+      select: flattenAssetsWithTotalSelector,
     }),
   )
 }

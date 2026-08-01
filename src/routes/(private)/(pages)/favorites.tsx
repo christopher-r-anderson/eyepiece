@@ -188,8 +188,6 @@ function FavoritesPage() {
   )
 
   const { total } = favoritesResult.data
-  // ghosted removals stay on screen, but the count tracks the committed
-  // state so an unstar (and its undo) moves the number
   const shownTotal = total - removedIds.size
   const countedHeader = (
     <PageHeader

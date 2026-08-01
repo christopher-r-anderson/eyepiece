@@ -7,7 +7,7 @@ import type { HeadingLevel } from '@/components/ui/heading'
 import { panelSurfaceStyles } from '@/components/ui/surface.styles'
 import { Link } from '@/components/ui/link'
 import { Heading } from '@/components/ui/heading'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 
 export const devPageSectionCss = css.raw({
   display: 'grid',
@@ -77,7 +77,7 @@ export function DevPageIntro({
       </div>
 
       <div className={css(devTextStackCss)}>
-        <PageHeading>{title}</PageHeading>
+        <PageHeader title={title} />
         <p
           className={css(
             { maxWidth: 'readingMax' },

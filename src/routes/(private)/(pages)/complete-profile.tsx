@@ -27,7 +27,6 @@ function CompleteProfilePage() {
   const navigate = Route.useNavigate()
   const queueToastMessage = useQueueToastMessage()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  // replace, not push: the spent form must not stay reachable through Back
   const onUpdateSuccess = useCallback(() => {
     if (next) {
       queueToastMessage({ title: 'Profile created' })

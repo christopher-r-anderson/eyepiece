@@ -1,8 +1,9 @@
 import { expect, test } from './fixtures'
+import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 import {
-  COLLECTIONS_FIXTURE,
-  makeAdminClient,
-} from './support/collections-fixture'
+  createPasswordProbeUser,
+  deleteUserByEmail,
+} from './support/admin-users'
 import { TINY_PNG } from './support/collections-helpers'
 import { singleRenditionImage } from './support/asset-image'
 import {
@@ -225,24 +226,8 @@ test('a password update with a destination replaces the spent form in history', 
   test.slow()
   const email = `e2e-history-password-${testInfo.workerIndex}@example.com`
   const password = 'the-original-passphrase'
-  const admin = makeAdminClient()
-  const { data: existing } = await admin.auth.admin.listUsers({
-    perPage: 1000,
-  })
-  const stale = existing.users.find((candidate) => candidate.email === email)
-  if (stale) {
-    await admin.auth.admin.deleteUser(stale.id)
-  }
-  const { data: created, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-  })
-  expect(error).toBeNull()
-  const { error: profileError } = await admin
-    .from('profiles')
-    .upsert({ id: created.user!.id, display_name: 'History Password Probe' })
-  expect(profileError).toBeNull()
+  await deleteUserByEmail(email)
+  await createPasswordProbeUser(email, password, 'History Password Probe')
   try {
     await page.goto(
       '/login?next=%2Fauth%2Fupdate-password%3Fnext%3D%252Ffavorites',
@@ -267,9 +252,8 @@ test('a password update with a destination replaces the spent form in history', 
     ).toBeVisible()
 
     await page.goBack()
-    // replace semantics: Back skips the spent form entirely
     await expect(page).not.toHaveURL(/update-password/)
   } finally {
-    await admin.auth.admin.deleteUser(created.user!.id)
+    await deleteUserByEmail(email)
   }
 })
