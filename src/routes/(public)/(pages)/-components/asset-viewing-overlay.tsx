@@ -9,6 +9,7 @@ import type { TileLinkProps } from '@/features/assets/components/asset-tile'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
+import { LoadingNotice } from '@/components/loading-notice'
 import { Sheet } from '@/components/ui/sheet'
 import { useSuspenseAsset } from '@/features/assets/assets.queries'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
@@ -152,9 +153,9 @@ export function AssetViewingOverlay() {
         >
           <Suspense
             fallback={
-              <p role="status" className={css({ marginTop: '8' })}>
-                Loading asset...
-              </p>
+              <LoadingNotice className={css({ marginTop: '8' })}>
+                Loading asset…
+              </LoadingNotice>
             }
           >
             <OverlayAssetContent assetKey={viewingAsset} />

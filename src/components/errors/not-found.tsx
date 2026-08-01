@@ -1,4 +1,4 @@
-import { PageHeading } from '@/components/page-heading'
+import { css } from 'styled-system/css'
 
 export function NotFound({
   title,
@@ -8,9 +8,17 @@ export function NotFound({
   message: string
 }) {
   return (
-    <>
-      <PageHeading>{title}</PageHeading>
-      <p>{message}</p>
-    </>
+    <div>
+      <h1 className={css({ textStyle: 'display.md' })}>{title}</h1>
+      <p
+        className={css({
+          marginTop: '2',
+          color: 'text.muted',
+          maxWidth: 'readingMax',
+        })}
+      >
+        {message}
+      </p>
+    </div>
   )
 }

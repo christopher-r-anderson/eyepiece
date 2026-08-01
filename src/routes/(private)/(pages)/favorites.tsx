@@ -32,6 +32,8 @@ import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { PageHeading } from '@/components/page-heading'
+import { EmptyState } from '@/components/empty-state'
+import { Link } from '@/components/ui/link'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { ToggleButton } from '@/components/ui/toggle-button'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
@@ -188,9 +190,13 @@ function FavoritesPage() {
     return (
       <>
         <FavoritesHeading />
-        <p>
-          No favorites yet. <StarIcon aria-label="star" /> some pics!
-        </p>
+        <EmptyState>
+          No favorites yet. Star any image to keep it here -{' '}
+          <Link to="/search" search={{ q: '' }} variant="underline">
+            start searching
+          </Link>
+          .
+        </EmptyState>
       </>
     )
   }

@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { TextField } from '@/components/ui/forms'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
+import { LoadingNotice } from '@/components/loading-notice'
 import { isAuthRequiredError } from '@/lib/result'
 
 const checkboxCss = css({
@@ -109,9 +110,9 @@ export function CollectionPicker({
       })}
     >
       {collections.isPending || membership.isPending ? (
-        <p role="status" className={css({ padding: '2' })}>
+        <LoadingNotice className={css({ padding: '2' })}>
           Loading collections…
-        </p>
+        </LoadingNotice>
       ) : collections.isError || membership.isError ? (
         <p role="alert" className={css({ padding: '2' })}>
           Couldn&apos;t load your collections.

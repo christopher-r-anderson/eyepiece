@@ -7,6 +7,7 @@ import type { AlbumKey } from '@/domain/album/album.schema'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
+import { EmptyState } from '@/components/empty-state'
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries'
 
@@ -33,7 +34,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
   )
 
   if (data.items.length === 0) {
-    return <p>Album is empty.</p>
+    return <EmptyState>This album is empty.</EmptyState>
   }
 
   return (
