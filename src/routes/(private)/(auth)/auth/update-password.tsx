@@ -40,7 +40,7 @@ function UpdatePasswordPage() {
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage}
+        showStatus={showSuccessMessage || status === 'updated'}
         status={<SuccessMessage />}
       >
         <UpdatePasswordForm

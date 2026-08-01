@@ -239,9 +239,10 @@ test('a password update with a destination replaces the spent form in history', 
     email_confirm: true,
   })
   expect(error).toBeNull()
-  await admin
+  const { error: profileError } = await admin
     .from('profiles')
     .upsert({ id: created.user!.id, display_name: 'History Password Probe' })
+  expect(profileError).toBeNull()
   try {
     await page.goto(
       '/login?next=%2Fauth%2Fupdate-password%3Fnext%3D%252Ffavorites',
@@ -252,6 +253,9 @@ test('a password update with a destination replaces the spent form in history', 
       page.waitForURL((url) => url.pathname === '/auth/update-password'),
       page.getByRole('button', { name: 'Log In' }).click(),
     ])
+    // the user menu renders only after hydration resolves the session, so
+    // it gates the fill past RAC's value-wiping first commit
+    await expect(page.getByRole('button', { name: 'User Menu' })).toBeVisible()
     await page
       .getByRole('textbox', { name: 'Password' })
       .fill('the-replacement-passphrase')
