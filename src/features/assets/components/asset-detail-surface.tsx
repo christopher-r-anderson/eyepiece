@@ -1,11 +1,10 @@
-import { CatchBoundary } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
+import { AssetDetail } from './asset-detail'
+import { MetadataDisclosure } from './metadata-disclosure'
 import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
-import type { AssetDetailHeightModel } from '@/features/assets/components/asset-detail'
-import { AssetDetail } from '@/features/assets/components/asset-detail'
-import { MetadataDisclosure } from '@/features/assets/components/metadata-disclosure'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import type { AssetDetailHeightModel } from './asset-detail'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
@@ -59,23 +58,18 @@ export function AssetDetailSurface({
           assetKey={asset.key}
           headingLevel={titleLevel === 1 ? 2 : 3}
           errorBoundary={(children) => (
-            <CatchBoundary
-              getResetKey={() => toAssetKeyString(asset.key)}
-              errorComponent={({ error }) => (
-                <CapturedAlertError
-                  error={error}
-                  message="Couldn't load metadata."
-                  captureContext={{
-                    boundaryKind: 'catch',
-                    feature: 'assets',
-                    providerId: asset.key.providerId,
-                    operation: 'load_metadata',
-                  }}
-                />
-              )}
+            <CapturedCatchBoundary
+              resetKey={toAssetKeyString(asset.key)}
+              message="Couldn't load metadata."
+              captureContext={{
+                boundaryKind: 'catch',
+                feature: 'assets',
+                providerId: asset.key.providerId,
+                operation: 'load_metadata',
+              }}
             >
               {children}
-            </CatchBoundary>
+            </CapturedCatchBoundary>
           )}
         />
       )}

@@ -1,13 +1,10 @@
 import { Suspense } from 'react'
-import {
-  CatchBoundary,
-  createFileRoute,
-  notFound,
-} from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
 import { PageHeading } from '@/components/page-heading'
+import { NotFound } from '@/components/errors/not-found'
 import { Heading } from '@/components/ui/heading'
 import { Profile } from '@/features/profiles/components/profile'
 import {
@@ -22,7 +19,7 @@ import {
   CollectionCardGrid,
   CollectionCardGridSkeleton,
 } from '@/features/collections/components/collection-card-grid'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { profileSchema } from '@/domain/profile/profile.schema'
 
 export const Route = createFileRoute('/(public)/(pages)/profile/$profileId')({
@@ -53,10 +50,10 @@ export const Route = createFileRoute('/(public)/(pages)/profile/$profileId')({
     }
   },
   notFoundComponent: () => (
-    <>
-      <PageHeading>Profile Not Found</PageHeading>
-      <p>We couldn't find a user with that ID.</p>
-    </>
+    <NotFound
+      title="Profile Not Found"
+      message="We couldn't find a user with that ID."
+    />
   ),
 })
 
@@ -88,24 +85,19 @@ function PublicCollectionsSection({ profileId }: { profileId: string }) {
       >
         Public collections
       </Heading>
-      <CatchBoundary
-        getResetKey={() => hashKey(['profile-collections', profileId])}
-        errorComponent={({ error }) => (
-          <CapturedAlertError
-            error={error}
-            message="Couldn't load collections right now."
-            captureContext={{
-              boundaryKind: 'catch',
-              feature: 'profiles',
-              operation: 'load_collection_cards',
-            }}
-          />
-        )}
+      <CapturedCatchBoundary
+        resetKey={hashKey(['profile-collections', profileId])}
+        message="Couldn't load collections right now."
+        captureContext={{
+          boundaryKind: 'catch',
+          feature: 'profiles',
+          operation: 'load_collection_cards',
+        }}
       >
         <Suspense fallback={<CollectionCardGridSkeleton />}>
           <ProfileCollectionCards profileId={profileId} />
         </Suspense>
-      </CatchBoundary>
+      </CapturedCatchBoundary>
     </section>
   )
 }

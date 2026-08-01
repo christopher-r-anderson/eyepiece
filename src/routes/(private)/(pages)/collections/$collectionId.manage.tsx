@@ -33,6 +33,7 @@ import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { PageHeading } from '@/components/page-heading'
+import { NotFound } from '@/components/errors/not-found'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { Switch } from '@/components/ui/switch'
@@ -92,16 +93,21 @@ export const Route = createFileRoute(
     meta: [{ title: getTitleText(loaderData?.collectionName) }],
   }),
   notFoundComponent: () => (
-    <>
-      <PageHeading>Collection Not Found</PageHeading>
-      <p>This collection doesn&apos;t exist, or you don&apos;t manage it.</p>
-    </>
+    <NotFound
+      title="Collection Not Found"
+      message="This collection doesn't exist, or you don't manage it."
+    />
   ),
   errorComponent: ({ error }) => (
     <RouteError
       error={error}
       heading={<ManageHeading />}
       message="Error loading the collection."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'collections',
+        operation: 'load_collection_manage',
+      }}
     />
   ),
   pendingComponent: () => (

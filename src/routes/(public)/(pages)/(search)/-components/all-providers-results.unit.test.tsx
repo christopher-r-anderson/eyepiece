@@ -27,18 +27,30 @@ vi.mock('@/components/ui/link', () => ({
 }))
 
 const capturedAlertContexts: Array<unknown> = []
-vi.mock('@/app/layout/route-error', () => ({
-  CapturedAlertError: ({
-    message,
-    captureContext,
-  }: {
-    message: React.ReactNode
-    captureContext?: unknown
-  }) => {
-    capturedAlertContexts.push(captureContext)
-    return createElement('p', { role: 'alert' }, message)
-  },
-}))
+vi.mock('@/components/errors/captured-errors', async () => {
+  const { CatchBoundary } = await import('@tanstack/react-router')
+  return {
+    CapturedCatchBoundary: ({
+      resetKey,
+      message,
+      captureContext,
+      children,
+    }: {
+      resetKey: string
+      message: React.ReactNode
+      captureContext?: unknown
+      children: React.ReactNode
+    }) =>
+      createElement(CatchBoundary, {
+        getResetKey: () => resetKey,
+        errorComponent: () => {
+          capturedAlertContexts.push(captureContext)
+          return createElement('p', { role: 'alert' }, message)
+        },
+        children,
+      }),
+  }
+})
 
 vi.mock('./asset-results-grid', () => ({
   AssetResultsGrid: ({ items }: { items: Array<unknown> }) =>

@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import { CatchBoundary } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
@@ -14,7 +13,7 @@ import {
   AssetTileSkeleton,
 } from '@/features/assets/components/asset-tile'
 import { useSuspenseInfiniteAlbumAssets } from '@/features/albums/albums.queries'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { Heading } from '@/components/ui/heading'
 import { Link } from '@/components/ui/link'
 import { BELOW_MD_QUERY } from '@/lib/breakpoints'
@@ -94,24 +93,19 @@ export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
           See the album
         </Link>
       </div>
-      <CatchBoundary
-        getResetKey={() => hashKey(['album-strip', albumKey])}
-        errorComponent={({ error }) => (
-          <CapturedAlertError
-            error={error}
-            message={`Couldn't load “${title}” right now.`}
-            captureContext={{
-              boundaryKind: 'catch',
-              feature: 'home',
-              operation: 'load_album_strip',
-            }}
-          />
-        )}
+      <CapturedCatchBoundary
+        resetKey={hashKey(['album-strip', albumKey])}
+        message={`Couldn't load “${title}” right now.`}
+        captureContext={{
+          boundaryKind: 'catch',
+          feature: 'home',
+          operation: 'load_album_strip',
+        }}
       >
         <Suspense fallback={<AlbumStripSkeleton />}>
           <AlbumStripItems albumKey={albumKey} />
         </Suspense>
-      </CatchBoundary>
+      </CapturedCatchBoundary>
     </section>
   )
 }

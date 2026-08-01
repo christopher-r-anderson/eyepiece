@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
 import { useTypedActionState } from '@/components/ui/forms.hooks'
-import { CapturedPrettyError } from '@/app/layout/route-error'
+import { CapturedPrettyError } from '@/components/errors/captured-errors'
 import { Link } from '@/components/ui/link'
 import { Err, Ok } from '@/lib/result'
 

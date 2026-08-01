@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { hashKey } from '@tanstack/react-query'
 import { useId } from 'react-aria'
 import { css } from 'styled-system/css'
@@ -27,7 +27,7 @@ import {
   useSuspenseProfile,
 } from '@/features/profiles/profiles.queries'
 import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { toSearchPageParams } from '@/features/search/search-page-params'
 
 export const Route = createFileRoute('/(public)/(pages)/')({
@@ -157,24 +157,19 @@ function PublicCollectionsSection() {
         </span>
         Public collections
       </Heading>
-      <CatchBoundary
-        getResetKey={() => hashKey(['home-collections'])}
-        errorComponent={({ error }) => (
-          <CapturedAlertError
-            error={error}
-            message="Couldn't load collections right now."
-            captureContext={{
-              boundaryKind: 'catch',
-              feature: 'home',
-              operation: 'load_collection_cards',
-            }}
-          />
-        )}
+      <CapturedCatchBoundary
+        resetKey={hashKey(['home-collections'])}
+        message="Couldn't load collections right now."
+        captureContext={{
+          boundaryKind: 'catch',
+          feature: 'home',
+          operation: 'load_collection_cards',
+        }}
       >
         <Suspense fallback={<CollectionCardGridSkeleton />}>
           <CollectionCards />
         </Suspense>
-      </CatchBoundary>
+      </CapturedCatchBoundary>
     </section>
   )
 }

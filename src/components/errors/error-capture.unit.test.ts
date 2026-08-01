@@ -3,7 +3,7 @@ import { notFound, redirect } from '@tanstack/react-router'
 import {
   getRouteErrorSentryMetadata,
   shouldCaptureRouteError,
-} from './route-error'
+} from './error-capture'
 
 describe('shouldCaptureRouteError', () => {
   it('does not capture TanStack redirect control flow', () => {

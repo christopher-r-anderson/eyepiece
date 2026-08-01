@@ -38,6 +38,11 @@ export const Route = createFileRoute(
       error={error}
       heading={<PageHeading>Album</PageHeading>}
       message="Error loading album."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'albums',
+        operation: 'load_album',
+      }}
     />
   ),
   pendingComponent: () => (
