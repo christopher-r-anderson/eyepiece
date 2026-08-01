@@ -4,36 +4,6 @@ import {
   redirectSearchParamsSchema,
 } from '@/lib/route.schema'
 
-// applied to `(pages)` route group which does not contain auth so all non auth pages can open the modal
-export const authModalSearchParamsSchema = z.discriminatedUnion('auth', [
-  z.object({
-    auth: z.literal('login'),
-    fp: z.literal(1).optional(),
-  }),
-  z.object({
-    auth: z.literal('register'),
-    fp: z.undefined().optional(),
-  }),
-  z.object({
-    auth: z.undefined().optional(),
-    fp: z.undefined().optional(),
-  }),
-])
-
-export const authModalStateSchema = authModalSearchParamsSchema.transform(
-  (data) => {
-    if (data.auth === 'login') {
-      return { authMode: 'login', showForgotPassword: data.fp === 1 }
-    } else if (data.auth === 'register') {
-      return { authMode: 'register' }
-    } else {
-      return { authMode: undefined }
-    }
-  },
-)
-export type AuthModalSearchParams = z.infer<typeof authModalSearchParamsSchema>
-export type AuthModalState = z.infer<typeof authModalStateSchema>
-
 // applied to all auth pages via the `(auth)` route group
 export const authPageSearchParamsSchema = redirectSearchParamsSchema.extend(
   formResultSearchParamsSchema.shape,

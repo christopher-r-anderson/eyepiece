@@ -4,7 +4,6 @@ import {
   searchPageParamsSchema,
   toCanonicalUrlParams,
 } from '../search-page-params'
-import { pickAuthSearchParams } from '@/features/auth/auth.utils'
 import { stringifyCanonicalSearchParams } from '@/lib/search-params'
 import { rawSearchOfHref } from '@/lib/utils'
 
@@ -14,10 +13,9 @@ import { rawSearchOfHref } from '@/lib/utils'
 // re-serializes location.searchStr eagerly, so the raw spelling only
 // exists on window.location / the server request url.
 export function canonicalSearchStr(search: Record<string, unknown>): string {
-  return stringifyCanonicalSearchParams({
-    ...toCanonicalUrlParams(searchPageParamsSchema.parse(search)),
-    ...pickAuthSearchParams(search),
-  })
+  return stringifyCanonicalSearchParams(
+    toCanonicalUrlParams(searchPageParamsSchema.parse(search)),
+  )
 }
 
 // The client tier of search canonicalization: replace-navigates

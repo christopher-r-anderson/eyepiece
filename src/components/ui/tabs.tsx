@@ -6,12 +6,7 @@ import {
   Tabs as RacTabs,
 } from 'react-aria-components'
 import { css, cx } from 'styled-system/css'
-import {
-  tabListStyles,
-  tabPanelStyles,
-  tabSelectedStyles,
-  tabVisualStyles,
-} from './tab.styles'
+import { tabs } from 'styled-system/recipes'
 import type {
   TabListProps as RacTabListProps,
   TabPanelProps as RacTabPanelProps,
@@ -21,13 +16,7 @@ import type {
 } from 'react-aria-components'
 import type { UiProps } from './style-contract'
 
-const tabStyles = css.raw({
-  ...tabVisualStyles,
-  _selected: tabSelectedStyles,
-  _focusVisible: {
-    outline: 'focusRing',
-  },
-})
+const slots = tabs()
 
 export type TabsProps = UiProps<RacTabsProps>
 
@@ -41,20 +30,7 @@ export type TabPanelProps = UiProps<RacTabPanelProps>
 
 export function Tabs({ css: cssProp, className, ...props }: TabsProps) {
   return (
-    <RacTabs
-      className={cx(
-        css(
-          {
-            display: 'grid',
-            gap: 0,
-            width: '100%',
-          },
-          cssProp,
-        ),
-        className,
-      )}
-      {...props}
-    />
+    <RacTabs {...props} className={cx(slots.root, css(cssProp), className)} />
   )
 }
 
@@ -66,14 +42,14 @@ export function TabList<T extends object>({
   return (
     <RacTabList
       {...props}
-      className={cx(css(tabListStyles, cssProp), className)}
+      className={cx(slots.list, css(cssProp), className)}
     />
   )
 }
 
 export function Tab({ css: cssProp, className, ...props }: TabProps) {
   return (
-    <RacTab {...props} className={cx(css(tabStyles, cssProp), className)} />
+    <RacTab {...props} className={cx(slots.tab, css(cssProp), className)} />
   )
 }
 
@@ -85,7 +61,7 @@ export function TabPanels<T extends object>({
   return (
     <RacTabPanels
       {...props}
-      className={cx(css({ display: 'grid' }, cssProp), className)}
+      className={cx(slots.panels, css(cssProp), className)}
     />
   )
 }
@@ -94,7 +70,7 @@ export function TabPanel({ css: cssProp, className, ...props }: TabPanelProps) {
   return (
     <RacTabPanel
       {...props}
-      className={cx(css(tabPanelStyles, cssProp), className)}
+      className={cx(slots.panel, css(cssProp), className)}
     />
   )
 }

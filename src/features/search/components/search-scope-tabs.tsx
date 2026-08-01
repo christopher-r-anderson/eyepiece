@@ -12,6 +12,7 @@ interface SearchScopeTabsProps {
   scope: SearchScope
 }
 
+// matches the tabs recipe's underline look without sharing its styles
 const scopeTabCss = css.raw({
   fontSize: 'control',
   textTransform: 'lowercase',

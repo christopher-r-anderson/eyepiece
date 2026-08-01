@@ -57,11 +57,11 @@ describe('useRedirectAuthenticatedUser', () => {
       isFetching: false,
     } as any)
 
-    renderHook(() => useRedirectAuthenticatedUser('/favorites?auth=login'))
+    renderHook(() => useRedirectAuthenticatedUser('/favorites?filter=stars'))
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: '/clean/favorites?auth=login',
+        to: '/clean/favorites?filter=stars',
         replace: true,
       })
     })

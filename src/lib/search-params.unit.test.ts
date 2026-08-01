@@ -56,8 +56,8 @@ describe('stringifyCanonicalSearchParams', () => {
   })
 
   it('sorts keys like the base serializer', () => {
-    expect(stringifyCanonicalSearchParams({ q: 'moon', auth: 'login' })).toBe(
-      '?auth=login&q=moon',
+    expect(stringifyCanonicalSearchParams({ q: 'moon', filter: 'stars' })).toBe(
+      '?filter=stars&q=moon',
     )
   })
 })

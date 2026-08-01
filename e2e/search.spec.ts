@@ -131,13 +131,12 @@ test('junk search params canonicalize away by replacement', async ({
   expect(consoleErrors).toEqual([])
 })
 
-test('param-order variants canonicalize to one sorted spelling', async ({
-  page,
-}) => {
-  // no q, so nothing is prefetched during SSR and no provider requests fire
+test('legacy auth-modal params drop as junk', async ({ page }) => {
+  // the modal's state left the URL (#218); no q, so nothing is prefetched
+  // during SSR and no provider requests fire
   await page.goto('/search?fp=1&auth=login')
 
-  await page.waitForURL((url) => url.search === '?auth=login&fp=1')
+  await page.waitForURL((url) => url.search === '')
 })
 
 test('home submits to the all scope with the query preserved', async ({

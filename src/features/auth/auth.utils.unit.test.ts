@@ -1,44 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  isPlainLeftClick,
-  mapSupabaseAuthError,
-  stripAuthSearchParams,
-} from './auth.utils'
-
-describe('stripAuthSearchParams', () => {
-  it('removes auth related params', () => {
-    const params = {
-      auth: 'some-token',
-      next: '/dashboard',
-      fp: '1',
-      other: 'keep-this',
-      page: 1,
-    }
-    const result = stripAuthSearchParams(params)
-    expect(result).toEqual({
-      other: 'keep-this',
-      page: 1,
-    })
-    expect(result).not.toHaveProperty('auth')
-    expect(result).not.toHaveProperty('next')
-    expect(result).not.toHaveProperty('fp')
-  })
-
-  it('keeps other params untouched', () => {
-    const params = {
-      search: 'query',
-      sort: 'desc',
-    }
-    const result = stripAuthSearchParams(params)
-    expect(result).toEqual(params)
-  })
-
-  it('does not mutate the original params object', () => {
-    const params = { auth: 'token', next: '/dashboard', other: 'keep' }
-    stripAuthSearchParams(params)
-    expect(params).toEqual({ auth: 'token', next: '/dashboard', other: 'keep' })
-  })
-})
+import { isPlainLeftClick, mapSupabaseAuthError } from './auth.utils'
 
 describe('mapSupabaseAuthError', () => {
   it('extracts the message from a Supabase-shaped error object', () => {

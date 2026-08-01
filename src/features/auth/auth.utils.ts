@@ -1,31 +1,6 @@
 import type { ResultError } from '@/lib/result'
 import { FORM_ERROR_COPY } from '@/components/form-errors'
-import { STRIP_PARAMS } from '@/lib/utils'
 
-export function stripAuthSearchParams<T extends Record<string, unknown>>(
-  params: T,
-) {
-  const newParams = { ...params }
-  for (const key of STRIP_PARAMS) {
-    delete newParams[key]
-  }
-  return newParams as Omit<T, (typeof STRIP_PARAMS)[number]>
-}
-
-// the params search canonicalization PRESERVES - deliberately narrower
-// than STRIP_PARAMS, which also strips one-shot form-result params that
-// canonicalization should drop as junk
-const AUTH_PRESERVED_PARAMS = ['auth', 'next', 'fp'] as const
-
-export function pickAuthSearchParams(params: Record<string, unknown>) {
-  const picked: Record<string, unknown> = {}
-  for (const key of AUTH_PRESERVED_PARAMS) {
-    if (params[key] !== undefined) {
-      picked[key] = params[key]
-    }
-  }
-  return picked
-}
 export function isPlainLeftClick({
   button,
   metaKey,
