@@ -27,6 +27,7 @@ import { ManageCollectionLink } from '@/features/collections/components/manage-c
 import { RouteError } from '@/app/layout/route-error'
 import { NotFound } from '@/components/errors/not-found'
 import { PageHeading } from '@/components/page-heading'
+import { EmptyState } from '@/components/empty-state'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
 
@@ -86,7 +87,7 @@ export const Route = createFileRoute(
   }),
   notFoundComponent: () => (
     <NotFound
-      title="Collection Not Found"
+      title="Collection not found"
       message="This collection doesn't exist, or it may be private."
     />
   ),
@@ -159,7 +160,7 @@ function CollectionPage() {
       </p>
       <div className={css({ marginTop: '5' })}>
         {total === 0 ? (
-          <p>This collection is empty.</p>
+          <EmptyState>This collection is empty.</EmptyState>
         ) : (
           <InfiniteLoader
             // isFetching, not isLoading: after an edge page lands the batch

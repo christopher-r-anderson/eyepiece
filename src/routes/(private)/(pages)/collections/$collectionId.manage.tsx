@@ -94,7 +94,7 @@ export const Route = createFileRoute(
   }),
   notFoundComponent: () => (
     <NotFound
-      title="Collection Not Found"
+      title="Collection not found"
       message="This collection doesn't exist, or you don't manage it."
     />
   ),

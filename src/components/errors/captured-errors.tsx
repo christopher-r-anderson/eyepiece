@@ -1,4 +1,5 @@
 import { CatchBoundary } from '@tanstack/react-router'
+import { css } from 'styled-system/css'
 import { useCaptureRouteError } from './error-capture'
 import { PrettyException } from './pretty-exception'
 import type { ReactNode } from 'react'
@@ -30,7 +31,14 @@ export function CapturedAlertError({
 }) {
   useCaptureRouteError(error, captureContext)
 
-  return <p role="alert">{message}</p>
+  return (
+    <p
+      role="alert"
+      className={css({ color: 'text.muted', maxWidth: 'readingMax' })}
+    >
+      {message}
+    </p>
+  )
 }
 
 export function CapturedCatchBoundary({

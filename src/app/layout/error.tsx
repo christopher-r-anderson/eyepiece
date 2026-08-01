@@ -1,40 +1,12 @@
 import { css } from 'styled-system/css'
-import { grid } from 'styled-system/patterns'
 import type { ErrorComponentProps } from '@tanstack/react-router'
-import { PrettyException } from '@/components/errors/pretty-exception'
-import { Button } from '@/components/ui/button'
-import { Heading } from '@/components/ui/heading'
-import { useCaptureRouteError } from '@/components/errors/error-capture'
+import { ErrorFallback } from '@/components/errors/error-fallback'
+import { pageMainCss } from '@/components/page-main'
 
-// the root boundary sticks to presentational ui components - nothing that
-// depends on app providers, which could rethrow inside a broken tree
-export function RouteErrorBoundary({
-  error,
-  reset,
-  headingLevel = 1,
-}: ErrorComponentProps & { headingLevel?: 1 | 2 }) {
-  useCaptureRouteError(error, {
-    boundaryKind: 'root-route',
-    feature: 'app',
-    operation: 'render_root_route',
-  })
-
+export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
   return (
-    <div className={grid({ gap: '4' })}>
-      <Heading level={headingLevel}>Something went wrong</Heading>
-
-      <PrettyException
-        error={error}
-        headingLevel={headingLevel === 1 ? 2 : 3}
-      />
-
-      <Button
-        variant="secondary"
-        onPress={reset}
-        css={css.raw({ justifySelf: 'start' })}
-      >
-        Try again
-      </Button>
-    </div>
+    <main className={css(pageMainCss)}>
+      <ErrorFallback error={error} reset={reset} headingLevel={1} />
+    </main>
   )
 }

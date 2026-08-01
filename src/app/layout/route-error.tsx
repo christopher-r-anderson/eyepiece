@@ -1,3 +1,4 @@
+import { css } from 'styled-system/css'
 import type { RouteErrorCaptureContext } from '@/components/errors/error-capture'
 import { useCaptureRouteError } from '@/components/errors/error-capture'
 import { PrettyException } from '@/components/errors/pretty-exception'
@@ -18,7 +19,9 @@ export function RouteError({
   return (
     <>
       {heading}
-      <p>{message}</p>
+      <p className={css({ color: 'text.muted', maxWidth: 'readingMax' })}>
+        {message}
+      </p>
       <PrettyException error={error} headingLevel={2} />
     </>
   )

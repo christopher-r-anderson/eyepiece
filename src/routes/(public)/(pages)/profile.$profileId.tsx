@@ -51,7 +51,7 @@ export const Route = createFileRoute('/(public)/(pages)/profile/$profileId')({
   },
   notFoundComponent: () => (
     <NotFound
-      title="Profile Not Found"
+      title="Profile not found"
       message="We couldn't find a user with that ID."
     />
   ),

@@ -17,6 +17,7 @@ import {
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
 import { NotFound } from '@/components/errors/not-found'
+import { LoadingNotice } from '@/components/loading-notice'
 import { RouteError } from '@/app/layout/route-error'
 import { isNotFoundApiError } from '@/lib/eyepiece-api-client/client'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
@@ -78,12 +79,12 @@ export const Route = createFileRoute(
   }),
   errorComponent: AssetRouteError,
   notFoundComponent: () => (
-    <NotFound title="Asset Not Found" message="We couldn't find that asset." />
+    <NotFound title="Asset not found" message="We couldn't find that asset." />
   ),
   pendingComponent: () => (
     <>
       <AssetHeading />
-      <p>Loading asset...</p>
+      <LoadingNotice>Loading asset…</LoadingNotice>
     </>
   ),
 })

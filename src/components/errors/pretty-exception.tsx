@@ -1,11 +1,25 @@
+import { css, cx } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import type { HeadingLevel } from '@/components/ui/heading'
 import { Heading } from '@/components/ui/heading'
+import { panelSurfaceStyles } from '@/components/ui/surface.styles'
 
 const exceptionStackCss = grid({
-  gap: '2',
-  '& dd': { paddingInlineStart: '3' },
+  gap: '3',
+  justifyItems: 'start',
 })
+
+const detailsPanelCss = cx(
+  css(panelSurfaceStyles),
+  css({
+    justifySelf: 'stretch',
+    textStyle: 'meta',
+    '& dt': { textTransform: 'lowercase', color: 'text.muted' },
+    '& dd': { paddingInlineStart: '3' },
+    '& dd + dt': { marginTop: '2' },
+    '& pre': { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+  }),
+)
 
 const SHOW_EXCEPTION_DETAILS = import.meta.env.DEV
 
@@ -107,11 +121,17 @@ export function PrettyException({
 
   return (
     <div className={exceptionStackCss}>
-      <Heading level={headingLevel}>{display.title}</Heading>
-      {error instanceof Error ? (
-        <PrettyErrorDetails error={error} />
+      <Heading level={headingLevel} css={css.raw({ textStyle: 'title.md' })}>
+        {display.title}
+      </Heading>
+      {display.showDetails ? (
+        <div className={detailsPanelCss}>
+          <PrettyErrorDetails error={error} />
+        </div>
       ) : (
-        <p>{display.message}</p>
+        <p className={css({ color: 'text.muted', maxWidth: 'readingMax' })}>
+          {display.message}
+        </p>
       )}
     </div>
   )

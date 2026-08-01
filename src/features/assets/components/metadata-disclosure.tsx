@@ -9,6 +9,7 @@ import type { HeadingLevel } from '@/components/ui/heading'
 import { Disclosure, DisclosurePanel } from '@/components/ui/disclosure'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/ui/heading'
+import { LoadingNotice } from '@/components/loading-notice'
 
 export function MetadataDisclosure({
   assetKey,
@@ -60,7 +61,9 @@ export function MetadataDisclosure({
           <DisclosurePanel>
             {isExpanded &&
               errorBoundary(
-                <Suspense fallback={<p role="status">Loading metadata…</p>}>
+                <Suspense
+                  fallback={<LoadingNotice>Loading metadata…</LoadingNotice>}
+                >
                   <MetadataContent assetKey={assetKey} />
                 </Suspense>,
               )}
