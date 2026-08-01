@@ -1,5 +1,6 @@
 import { css } from 'styled-system/css'
 import type { ReactNode } from 'react'
+import { PageHeader } from '@/components/page-header'
 
 export function NotFound({
   title,
@@ -12,19 +13,7 @@ export function NotFound({
 }) {
   return (
     <div>
-      <h1 className={css({ textStyle: 'display.md' })}>{title}</h1>
-      {meta != null && (
-        <p
-          className={css({
-            marginTop: '2',
-            textStyle: 'meta',
-            textTransform: 'lowercase',
-            color: 'text.muted',
-          })}
-        >
-          {meta}
-        </p>
-      )}
+      <PageHeader title={title} meta={meta} />
       <p
         className={css({
           marginTop: meta != null ? '5' : '2',

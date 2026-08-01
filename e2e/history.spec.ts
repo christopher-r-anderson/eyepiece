@@ -1,5 +1,8 @@
 import { expect, test } from './fixtures'
-import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
+import {
+  COLLECTIONS_FIXTURE,
+  makeAdminClient,
+} from './support/collections-fixture'
 import { TINY_PNG } from './support/collections-helpers'
 import { singleRenditionImage } from './support/asset-image'
 import {
@@ -215,3 +218,54 @@ test(
     }
   },
 )
+
+test('a password update with a destination replaces the spent form in history', async ({
+  page,
+}, testInfo) => {
+  test.slow()
+  const email = `e2e-history-password-${testInfo.workerIndex}@example.com`
+  const password = 'the-original-passphrase'
+  const admin = makeAdminClient()
+  const { data: existing } = await admin.auth.admin.listUsers({
+    perPage: 1000,
+  })
+  const stale = existing.users.find((candidate) => candidate.email === email)
+  if (stale) {
+    await admin.auth.admin.deleteUser(stale.id)
+  }
+  const { data: created, error } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  })
+  expect(error).toBeNull()
+  await admin
+    .from('profiles')
+    .upsert({ id: created.user!.id, display_name: 'History Password Probe' })
+  try {
+    await page.goto(
+      '/login?next=%2Fauth%2Fupdate-password%3Fnext%3D%252Ffavorites',
+    )
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await page.getByRole('textbox', { name: 'Password' }).fill(password)
+    await Promise.all([
+      page.waitForURL((url) => url.pathname === '/auth/update-password'),
+      page.getByRole('button', { name: 'Log In' }).click(),
+    ])
+    await page
+      .getByRole('textbox', { name: 'Password' })
+      .fill('the-replacement-passphrase')
+    await page.getByRole('button', { name: 'Update' }).click()
+
+    await page.waitForURL((url) => url.pathname === '/favorites')
+    await expect(
+      page.getByRole('alertdialog', { name: 'Password updated' }),
+    ).toBeVisible()
+
+    await page.goBack()
+    // replace semantics: Back skips the spent form entirely
+    await expect(page).not.toHaveURL(/update-password/)
+  } finally {
+    await admin.auth.admin.deleteUser(created.user!.id)
+  }
+})

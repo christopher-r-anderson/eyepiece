@@ -232,8 +232,10 @@ function FavoritesPage() {
           })
         }}
         hasNextPage={favoritesResult.hasNextPage}
-        total={total}
-        loadedCount={assetPreviewSnapshotsResult.data?.length ?? 0}
+        total={shownTotal}
+        loadedCount={
+          (assetPreviewSnapshotsResult.data?.length ?? 0) - removedIds.size
+        }
         uiResetKey="favorites"
         className={css({ width: '100%' })}
       >
