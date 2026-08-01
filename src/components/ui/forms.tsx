@@ -53,9 +53,6 @@ export const formStatusPanelCss = css.raw({
   gap: '3',
 })
 
-// owns the form title ladder so a heading can't drift from its text style:
-// levels 1-2 take the page title sizes, level 3 (modal forms) keeps the
-// heading recipe's own size
 export function FormHeading({ level, css: cssProp, ...props }: HeadingProps) {
   return (
     <Heading
