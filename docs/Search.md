@@ -76,7 +76,9 @@ CDN keys).
 `useCanonicalSearchReplace` is the client tier for non-canonical
 spellings reached without a document load, replacing the address bar via
 `history.replace`. It stands down while an asset overlay masks the URL.
-Auth-modal params (`auth`, `next`, `fp`) survive both tiers.
+Auth-modal state travels in history state, not search params; legacy auth
+params (`auth`, `fp`) and one-shot form params (`next`, `formError`,
+`status`) are dropped as junk.
 
 | Spelling                            | Fixed by                  | CDN                   |
 | ----------------------------------- | ------------------------- | --------------------- |
@@ -99,14 +101,19 @@ Constraints the client tier depends on:
 - compares raw URL strings, not parsed objects: variants that parse equal
   are still distinct cache keys, and the router drops order-only object
   replaces via structural sharing (hence the history-level replace)
-- the raw side comes from the real document url (`getRawSearch`); the
-  router's `location.searchStr` is the re-serialized parse result and
-  always reads as already canonical
+- the raw side is never the router's `location.searchStr` (a re-serialized
+  parse result, it always reads as already canonical). The server tier
+  reads the request URL (`getRawSearch`, server-only); the client tier
+  reads `router.history.location.href`, which updates synchronously with
+  pending writes included - `window.location` lags the browser history's
+  deferred (microtask) DOM writes, and a navigation commit inside that
+  window once replace-looped to React's update-depth limit
 - the target derives from one `state.location` snapshot; mixing in
   `Route.useSearch()` tears during navigation transitions and cancels
   in-flight navigations
-- the parse is idempotent (unit-tested), so the canonical string is a fixed
-  point and neither tier can loop
+- the parse is idempotent (unit-tested), so the canonical string is a
+  fixed point, and a client replace lands in `history.location`
+  synchronously, so the next check early-returns - neither tier can loop
 
 ## The All View
 
