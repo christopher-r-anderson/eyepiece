@@ -21,8 +21,8 @@ function makeLocation(
   state: typeof mockState
   maskedLocation?: { href: string }
 } {
-  // the hook compares against the history's own href (synchronous,
-  // pending writes included), never window.location or the router state
+  // the hook compares against the history's own href, never
+  // window.location or the router state
   mockHistoryHref = `/search${searchStr}${hash ? `#${hash}` : ''}`
   return {
     pathname: '/search',
@@ -145,9 +145,8 @@ describe('useCanonicalSearchReplace', () => {
   })
 
   it('ignores a lagging window.location', () => {
-    // the browser history defers DOM writes by a microtask, so during a
-    // warm-cache navigation commit window.location still shows the
-    // previous entry; reading it fired a replace loop (max update depth)
+    // during a navigation commit window.location can still show the
+    // previous entry; reading it fired a replace loop
     mockLocation = makeLocation(stringifySearchParams({ q: 'moon' }))
     window.history.replaceState(null, '', '/search?q=previous')
 

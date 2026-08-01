@@ -31,11 +31,10 @@ export function rawSearchOfHref(href: string) {
   return queryStart === -1 ? '' : beforeHash.slice(queryStart)
 }
 
-// the request URL's verbatim query string; the router's location.searchStr
-// is the re-serialized parse result and cannot stand in for it. Server-only
-// on purpose: on the client the browser history defers DOM writes by a
-// microtask, so window.location can lag a committed navigation - read
-// router.history.location there instead
+// the request URL's verbatim query string; location.searchStr is the
+// re-serialized parse result and cannot stand in for it. Server-only: a
+// client raw read must come from router.history.location, never the
+// lagging window.location
 export const getRawSearch = createServerOnlyFn(() =>
   rawSearchOfHref(getRequest().url),
 )

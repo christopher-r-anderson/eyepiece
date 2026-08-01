@@ -102,18 +102,16 @@ Constraints the client tier depends on:
   are still distinct cache keys, and the router drops order-only object
   replaces via structural sharing (hence the history-level replace)
 - the raw side is never the router's `location.searchStr` (a re-serialized
-  parse result, it always reads as already canonical). The server tier
-  reads the request URL (`getRawSearch`, server-only); the client tier
-  reads `router.history.location.href`, which updates synchronously with
-  pending writes included - `window.location` lags the browser history's
-  deferred (microtask) DOM writes, and a navigation commit inside that
-  window once replace-looped to React's update-depth limit
+  parse result, it always reads as already canonical): the server tier
+  reads the request URL (`getRawSearch`), the client tier reads
+  `router.history.location.href` - `window.location` lags the history's
+  microtask-deferred DOM writes and once replace-looped a navigation
 - the target derives from one `state.location` snapshot; mixing in
   `Route.useSearch()` tears during navigation transitions and cancels
   in-flight navigations
-- the parse is idempotent (unit-tested), so the canonical string is a
-  fixed point, and a client replace lands in `history.location`
-  synchronously, so the next check early-returns - neither tier can loop
+- the parse is idempotent (unit-tested) and a client replace reaches
+  `history.location` synchronously, so the canonical string is a fixed
+  point and neither tier can loop
 
 ## The All View
 
