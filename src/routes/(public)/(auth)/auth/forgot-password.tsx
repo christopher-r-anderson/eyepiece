@@ -27,7 +27,6 @@ function ForgotPasswordPage() {
           headingLevel={1}
           next={next}
           initialFormError={formErrorCopy(formError)}
-          surface="panel"
           onSuccess={() => setShowSuccessMessage(true)}
         />
       </FormStatusSwitcher>
