@@ -8,6 +8,7 @@ import { stringifySearchParams } from '@/lib/search-params'
 const mockReplace = vi.fn()
 // a replace must carry the entry's state (dialogPushed etc.), not rebuild it
 const mockState = { key: 'k1', dialogPushed: true }
+let mockHistoryHref = '/search'
 let mockLocation = makeLocation('')
 
 function makeLocation(
@@ -20,8 +21,9 @@ function makeLocation(
   state: typeof mockState
   maskedLocation?: { href: string }
 } {
-  // the hook compares against the real document url, not the router state
-  window.history.replaceState(null, '', `/search${searchStr}`)
+  // the hook compares against the history's own href (synchronous,
+  // pending writes included), never window.location or the router state
+  mockHistoryHref = `/search${searchStr}${hash ? `#${hash}` : ''}`
   return {
     pathname: '/search',
     search: defaultParseSearch(searchStr),
@@ -33,7 +35,14 @@ function makeLocation(
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal()
   return Object.assign({}, actual as object, {
-    useRouter: () => ({ history: { replace: mockReplace } }),
+    useRouter: () => ({
+      history: {
+        replace: mockReplace,
+        get location() {
+          return { href: mockHistoryHref }
+        },
+      },
+    }),
     useRouterState: ({
       select,
     }: {
@@ -133,6 +142,18 @@ describe('useCanonicalSearchReplace', () => {
       canonicalHref({ q: 'moon' }, '#results'),
       mockState,
     )
+  })
+
+  it('ignores a lagging window.location', () => {
+    // the browser history defers DOM writes by a microtask, so during a
+    // warm-cache navigation commit window.location still shows the
+    // previous entry; reading it fired a replace loop (max update depth)
+    mockLocation = makeLocation(stringifySearchParams({ q: 'moon' }))
+    window.history.replaceState(null, '', '/search?q=previous')
+
+    render(createElement(Harness))
+
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 
   it('stands down while a masked location is displayed', () => {

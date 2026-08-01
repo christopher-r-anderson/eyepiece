@@ -11,7 +11,7 @@ import { rawSearchOfHref } from '@/lib/utils'
 // canonicalization tiers (the SSR redirect in the search route and the
 // client replace below) compare the RAW url against this. Router 1.170
 // re-serializes location.searchStr eagerly, so the raw spelling only
-// exists on window.location / the server request url.
+// exists on the history's own location / the server request url.
 export function canonicalSearchStr(search: Record<string, unknown>): string {
   return stringifyCanonicalSearchParams(
     toCanonicalUrlParams(searchPageParamsSchema.parse(search)),
@@ -28,14 +28,20 @@ export function canonicalSearchStr(search: Record<string, unknown>): string {
 // - compare raw strings, not parsed objects: variants that parse equal are
 //   still distinct cache keys, and the router drops order-only object
 //   replaces via structural sharing (hence history.replace)
-// - the raw side must come from the real document url:
-//   location.searchStr is the re-serialized parse result and always reads
-//   as already canonical
+// - the raw side is router.history.location.href, the verbatim href
+//   updated synchronously with pending writes included. location.searchStr
+//   is the re-serialized parse result and always reads as already
+//   canonical. window.location LAGS: the browser history defers DOM
+//   writes by a microtask, and a navigation whose load resolves from
+//   cache commits before that flush - reading window.location there saw
+//   the previous URL and replace-looped to React's update-depth limit
 // - derive the target from the one location snapshot; mixing in
 //   Route.useSearch() tears during transitions and cancels in-flight
 //   navigations
 // - loop-free because the canonical string is a fixed point of
-//   parse -> serialize (schema idempotence is unit-tested)
+//   parse -> serialize (schema idempotence is unit-tested) and a replace
+//   becomes history.location.href synchronously, so the next run
+//   early-returns even in a fully synchronous update chain
 export function useCanonicalSearchReplace() {
   const location = useRouterState({ select: (state) => state.location })
   const router = useRouter()
@@ -47,7 +53,7 @@ export function useCanonicalSearchReplace() {
       return
     }
     const targetSearchStr = canonicalSearchStr(location.search)
-    if (rawSearchOfHref(window.location.href) === targetSearchStr) {
+    if (rawSearchOfHref(router.history.location.href) === targetSearchStr) {
       return
     }
     const hashStr = location.hash ? `#${location.hash}` : ''
