@@ -7,7 +7,7 @@ import {
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
-import { preservedMaskOptions, stripAuthSearchParams } from '../auth.utils'
+import { isPlainLeftClick, preservedMaskOptions } from '../auth.utils'
 import { LoginForm } from '../forms/login-form'
 import {
   RegistrationForm,
@@ -17,8 +17,10 @@ import {
   ForgotPasswordForm,
   ForgotPasswordSuccessMessage,
 } from '../forms/forgot-password-form'
-import { useShowAuthModal } from '../hooks/use-show-auth-modal'
-import type { AuthModalState } from '../auth.schema'
+import {
+  useSetAuthForgotPassword,
+  useShowAuthModal,
+} from '../hooks/use-show-auth-modal'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/ui/tabs'
 import { ModalDialog } from '@/components/ui/modal-dialog'
 import { Link } from '@/components/ui/link'
@@ -29,19 +31,13 @@ import {
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
 
-function showForgotPasswordSearch<T extends Record<string, unknown>>(prev: T) {
-  return {
-    ...stripAuthSearchParams(prev),
-    auth: 'login' as const,
-    fp: 1 as const,
-  }
-}
-
-export function AuthModalController({
-  modal: { authMode, showForgotPassword },
-}: {
-  modal: AuthModalState
-}) {
+export function AuthModalController() {
+  const authMode = useRouterState({
+    select: (s) => s.location.state.authModal,
+  })
+  const showForgotPassword = useRouterState({
+    select: (s) => !!s.location.state.authForgotPassword,
+  })
   // full-page auth flows continue to the displayed URL, which under an
   // asset overlay is the masked detail route
   const href = useLocation({
@@ -61,8 +57,15 @@ export function AuthModalController({
     }
     navigate({
       to: '.',
-      search: stripAuthSearchParams,
+      search: (prev: unknown) => prev as never,
       replace: true,
+      resetScroll: false,
+      state: (prev) => ({
+        ...prev,
+        authModal: undefined,
+        authForgotPassword: undefined,
+        dialogPushed: undefined,
+      }),
       ...preservedMaskOptions(router.state.location),
     })
   }, [openedByPush, router, navigate])
@@ -75,16 +78,17 @@ export function AuthModalController({
     >
       <Tabs
         selectedKey={authMode ?? 'login'}
+        onSelectionChange={(key) => {
+          if (key === 'login' || key === 'register') {
+            showAuthModal(key)
+          }
+        }}
         aria-label="Authentication options"
         css={css.raw({ maxWidth: 'formMax' })}
       >
         <TabList>
-          <Tab id="login" onClick={() => showAuthModal('login')}>
-            Log In
-          </Tab>
-          <Tab id="register" onClick={() => showAuthModal('register')}>
-            Register
-          </Tab>
+          <Tab id="login">Log In</Tab>
+          <Tab id="register">Register</Tab>
         </TabList>
         <TabPanels>
           <TabPanel id="login">
@@ -115,9 +119,7 @@ function LoginSection({
   next: string
   onSuccess: () => void
 }) {
-  const maskedLocation = useRouterState({
-    select: (s) => s.location.maskedLocation,
-  })
+  const setForgotPassword = useSetAuthForgotPassword()
   return (
     <div className={grid({ gap: '4' })}>
       <LoginForm
@@ -126,11 +128,14 @@ function LoginSection({
         onSuccess={onSuccess}
         forgotPasswordLink={
           <Link
-            to="."
-            search={showForgotPasswordSearch}
-            replace
-            state={(prev) => prev}
-            {...preservedMaskOptions({ maskedLocation })}
+            to="/auth/forgot-password"
+            search={{ next }}
+            onClick={(event) => {
+              if (isPlainLeftClick(event)) {
+                event.preventDefault()
+                setForgotPassword(true)
+              }
+            }}
           >
             Forgot Password?
           </Link>
@@ -146,6 +151,7 @@ function LoginSection({
 }
 
 function ForgotPasswordSection({ next }: { next: string }) {
+  const setForgotPassword = useSetAuthForgotPassword()
   const [showPasswordResetSuccess, setShowPasswordResetSuccess] =
     useState(false)
   return (
@@ -158,6 +164,20 @@ function ForgotPasswordSection({ next }: { next: string }) {
         onSuccess={() => setShowPasswordResetSuccess(true)}
         next={next}
       />
+      <p>
+        <Link
+          to="/login"
+          search={{ next }}
+          onClick={(event) => {
+            if (isPlainLeftClick(event)) {
+              event.preventDefault()
+              setForgotPassword(false)
+            }
+          }}
+        >
+          Back to log in
+        </Link>
+      </p>
       <p>
         <Link to="/auth/forgot-password" search={{ next }} variant="underline">
           Visit the full forgot password page

@@ -8,7 +8,8 @@ test.describe('Pending auth forms', () => {
     // the login must never resolve: a completed login closes the modal on
     // its own, which would mask a dead Escape
     await page.route('**/auth/v1/token*', () => new Promise(() => {}))
-    await page.goto('/?auth=login')
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Log In' }).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible()
     // the hidden forgot-password panel keeps its fields in the DOM, so
@@ -39,8 +40,10 @@ test.describe('Pending auth forms', () => {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       await route.fulfill({ json: {} })
     })
-    await page.goto('/?auth=login&fp=1')
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Log In' }).click()
     const dialog = page.getByRole('dialog')
+    await dialog.getByRole('link', { name: 'Forgot Password?' }).click()
     const form = dialog.getByRole('form', { name: 'Reset Password' })
     const email = form.getByRole('textbox', { name: 'Email' })
     await email.fill('user1@example.com')

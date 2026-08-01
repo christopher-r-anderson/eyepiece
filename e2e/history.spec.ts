@@ -90,20 +90,12 @@ test('a legacy #metadata deep link renders the page without a dialog', async ({
   )
 })
 
-test('a deep-linked auth dialog closes in place', async ({ page }) => {
+test('a legacy auth param does not open the dialog', async ({ page }) => {
+  // the modal's state left the URL (#218); an inbound ?auth is a stranger
+  // param and the full /login page is the addressable spelling
   await page.goto(`/collections/${publicCollection.id}?auth=login`)
-  await expect(page.getByRole('dialog')).toBeVisible()
-
-  const lengthBefore = await page.evaluate(() => history.length)
-  await page
-    .getByRole('button', { name: 'Close Log In or Register dialog' })
-    .click()
-  await page.waitForFunction(() => !location.search.includes('auth'))
+  await expect(page.getByRole('grid')).toBeVisible()
   await expect(page.getByRole('dialog')).toBeHidden()
-  expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
-  expect(await page.evaluate(() => location.pathname)).toBe(
-    `/collections/${publicCollection.id}`,
-  )
 })
 
 test('the auth dialog occupies one history entry from open to close', async ({
@@ -121,21 +113,28 @@ test('the auth dialog occupies one history entry from open to close', async ({
   const lengthBefore = await page.evaluate(() => history.length)
   await tile.getByRole('button', { name: 'Star' }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
-  await page.waitForFunction(() => location.search.includes('auth=login'))
+  // the modal lives in history state, never the URL
+  expect(await page.evaluate(() => location.search)).toBe('')
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
 
   await page.getByRole('link', { name: 'Forgot Password?' }).click()
-  await page.waitForFunction(() => location.search.includes('fp=1'))
+  await expect(page.getByRole('form', { name: 'Reset Password' })).toBeVisible()
+  expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
+
+  await page.getByRole('link', { name: 'Back to log in' }).click()
+  await expect(page.getByRole('form', { name: 'Log In' })).toBeVisible()
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
 
   await page.getByRole('tab', { name: 'Register' }).click()
-  await page.waitForFunction(() => location.search.includes('auth=register'))
+  await expect(page.getByRole('tab', { name: 'Register' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
 
   await page
     .getByRole('button', { name: 'Close Log In or Register dialog' })
     .click()
-  await page.waitForFunction(() => !location.search.includes('auth'))
   await expect(page.getByRole('dialog')).toBeHidden()
   expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
   expect(await page.evaluate(() => location.pathname)).toBe(
@@ -146,24 +145,6 @@ test('the auth dialog occupies one history entry from open to close', async ({
   await page.waitForURL('/')
   await expect(page.getByRole('dialog')).toBeHidden()
 })
-
-test(
-  'a deep-linked auth dialog on a private page renders and closes in place',
-  { tag: '@user' },
-  async ({ page }) => {
-    await page.goto('/favorites?auth=login')
-    await expect(page.getByRole('dialog')).toBeVisible()
-
-    const lengthBefore = await page.evaluate(() => history.length)
-    await page
-      .getByRole('button', { name: 'Close Log In or Register dialog' })
-      .click()
-    await page.waitForFunction(() => !location.search.includes('auth'))
-    await expect(page.getByRole('dialog')).toBeHidden()
-    expect(await page.evaluate(() => history.length)).toBe(lengthBefore)
-    expect(await page.evaluate(() => location.pathname)).toBe('/favorites')
-  },
-)
 
 test(
   'an auth-required action on a private page opens the modal as one entry',
@@ -219,13 +200,13 @@ test(
       await row.getByRole('button', { name: 'Star' }).click()
 
       await expect(page.getByRole('dialog')).toBeVisible()
-      await page.waitForFunction(() => location.search.includes('auth=login'))
+      // the modal lives in history state, never the URL
+      expect(await page.evaluate(() => location.search)).toBe('')
       expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
 
       await page
         .getByRole('button', { name: 'Close Log In or Register dialog' })
         .click()
-      await page.waitForFunction(() => !location.search.includes('auth'))
       await expect(page.getByRole('dialog')).toBeHidden()
       expect(await page.evaluate(() => history.length)).toBe(lengthBefore + 1)
       expect(await page.evaluate(() => location.pathname)).toBe('/favorites')

@@ -1,16 +1,6 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { preservedMaskOptions, stripAuthSearchParams } from '../auth.utils'
-
-function createAuthModalSearch<T extends Record<string, unknown>>(
-  prev: T,
-  auth: 'login' | 'register',
-) {
-  return {
-    ...stripAuthSearchParams(prev),
-    auth,
-  }
-}
+import { preservedMaskOptions } from '../auth.utils'
 
 export function useShowAuthModal() {
   const navigate = useNavigate()
@@ -18,13 +8,39 @@ export function useShowAuthModal() {
   return useCallback(
     (auth: 'login' | 'register') => {
       // tab switches while open replace, so a dialog visit stays one entry
-      const alreadyOpen =
-        (router.state.location.search as { auth?: unknown }).auth != null
+      const alreadyOpen = router.state.location.state.authModal != null
       navigate({
         to: '.',
-        search: (prev) => createAuthModalSearch(prev, auth),
+        search: (prev: unknown) => prev as never,
         replace: alreadyOpen,
-        state: (prev) => (alreadyOpen ? prev : { ...prev, dialogPushed: true }),
+        resetScroll: false,
+        state: (prev) => ({
+          ...prev,
+          authModal: auth,
+          authForgotPassword: undefined,
+          dialogPushed: alreadyOpen ? prev.dialogPushed : true,
+        }),
+        ...preservedMaskOptions(router.state.location),
+      })
+    },
+    [navigate, router],
+  )
+}
+
+export function useSetAuthForgotPassword() {
+  const navigate = useNavigate()
+  const router = useRouter()
+  return useCallback(
+    (showForgotPassword: boolean) => {
+      navigate({
+        to: '.',
+        search: (prev: unknown) => prev as never,
+        replace: true,
+        resetScroll: false,
+        state: (prev) => ({
+          ...prev,
+          authForgotPassword: showForgotPassword ? true : undefined,
+        }),
         ...preservedMaskOptions(router.state.location),
       })
     },

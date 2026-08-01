@@ -77,12 +77,12 @@ describe('requireAuthenticated', () => {
     ).rejects.toMatchObject({ options: { search: { next: '/settings' } } })
   })
 
-  it('strips auth-related params from the next param', async () => {
+  it('strips one-shot form params from the next param', async () => {
     mockGetUser.mockResolvedValue(null)
 
     await expect(
       requireAuthenticated({
-        location: makeLocation('/settings?auth=abc&query=foo'),
+        location: makeLocation('/settings?formError=code&query=foo'),
       }),
     ).rejects.toMatchObject({
       options: { search: { next: '/settings?query=foo' } },

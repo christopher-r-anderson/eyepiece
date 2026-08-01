@@ -113,25 +113,15 @@ describe('useCanonicalSearchReplace', () => {
     },
   )
 
-  it('preserves auth-modal params after the page params', () => {
+  it('drops legacy auth-modal params as junk', () => {
     mockLocation = makeLocation('?auth=login&fp=1&q=moon&providerId=bogus')
 
     render(createElement(Harness))
 
     expect(mockReplace).toHaveBeenCalledWith(
-      canonicalHref({ q: 'moon', auth: 'login', fp: 1 }),
+      canonicalHref({ q: 'moon' }),
       mockState,
     )
-  })
-
-  it('does not replace a canonical URL with auth params', () => {
-    mockLocation = makeLocation(
-      stringifySearchParams({ q: 'moon', auth: 'login' }),
-    )
-
-    render(createElement(Harness))
-
-    expect(mockReplace).not.toHaveBeenCalled()
   })
 
   it('preserves the hash through a replace', () => {

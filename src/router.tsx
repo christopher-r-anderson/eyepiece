@@ -23,6 +23,10 @@ declare module '@tanstack/react-router' {
     // the asset shown as an overlay above the list the entry belongs to;
     // the entry's displayed URL is masked to the asset detail route
     viewingAsset?: AssetKey
+    // the auth dialog above the entry's page; forgot-password is a login
+    // sub-state
+    authModal?: 'login' | 'register'
+    authForgotPassword?: boolean
   }
   interface StaticDataRouteOption {
     authInteractionStrategy?: AuthInteractionStrategy

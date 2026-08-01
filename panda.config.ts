@@ -15,6 +15,7 @@ import { popoverRecipe } from '@/components/ui/popover.recipe'
 import { searchFieldRecipe } from '@/components/ui/search-field.recipe'
 import { separatorRecipe } from '@/components/ui/separator.recipe'
 import { switchRecipe } from '@/components/ui/switch.recipe'
+import { tabsRecipe } from '@/components/ui/tabs.recipe'
 import { textFieldRecipe } from '@/components/ui/text-field.recipe'
 import { toastRecipe } from '@/components/ui/toast.recipe'
 import { toggleButtonRecipe } from '@/components/ui/toggle-button.recipe'
@@ -129,6 +130,7 @@ export default defineConfig({
     slotRecipes: {
       modalDialog: modalDialogRecipe,
       sheet: sheetRecipe,
+      tabs: tabsRecipe,
       textField: textFieldRecipe,
       toast: toastRecipe,
     },
