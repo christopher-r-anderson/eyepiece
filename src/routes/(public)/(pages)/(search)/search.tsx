@@ -21,7 +21,7 @@ import { getRawSearch, getTitleText } from '@/lib/utils'
 import { CapturedPrettyError } from '@/components/errors/captured-errors'
 import { RouteError } from '@/app/layout/route-error'
 import { prefetchInfiniteSearch } from '@/features/search/search.queries'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { SEARCH_FORM_ID } from '@/features/search/components/search-bar'
 import { SearchConditions } from '@/features/search/components/search-conditions'
@@ -128,7 +128,7 @@ function SearchRouteError({ error }: { error: unknown }) {
   return (
     <RouteError
       error={error}
-      heading={<PageHeading>Search Error</PageHeading>}
+      heading={<PageHeader title="Search error" />}
       message="Error loading search."
       captureContext={{
         boundaryKind: 'route',

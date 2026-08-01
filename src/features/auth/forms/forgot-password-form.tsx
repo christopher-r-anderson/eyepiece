@@ -5,9 +5,9 @@ import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { forgotPasswordFormAction } from '../auth.form-actions'
 import { forgotPasswordFormSchema } from './forgot-password-form.schema'
-import { authFormHeadingCss } from './form-heading.styles'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
+import { formHeadingCss } from '@/components/form-heading.styles'
 import { Heading } from '@/components/ui/heading'
 import {
   Form,
@@ -73,11 +73,7 @@ export function ForgotPasswordForm({
         </FormActions>
       }
     >
-      <Heading
-        id={id}
-        level={headingLevel}
-        css={authFormHeadingCss(headingLevel)}
-      >
+      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
         Reset Password
       </Heading>
       <InputGroup>
@@ -107,7 +103,7 @@ export function ForgotPasswordSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading level={headingLevel} css={authFormHeadingCss(headingLevel)}>
+      <Heading level={headingLevel} css={formHeadingCss(headingLevel)}>
         Password reset sent!
       </Heading>
       <p>Please check your email to reset your password.</p>

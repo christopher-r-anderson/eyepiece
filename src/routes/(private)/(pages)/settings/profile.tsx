@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { Profile } from '@/domain/profile/profile.schema'
 import { formErrorCopy } from '@/components/form-errors'
+import { PageHeader } from '@/components/page-header'
+import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
 import { formResultSearchParamsSchema } from '@/lib/route.schema'
@@ -32,32 +34,29 @@ function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
   const { formError, status } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  // the native (no-JS) redirect's status is one-shot: seed the same local
-  // message and strip the param so it expires like the hydrated one
+  const queueToastMessage = useQueueToastMessage()
+  // the native (no-JS) redirect's status is one-shot: the SSR'd notice
+  // below is the no-JS feedback; once hydrated, hand it to a toast and
+  // strip the param
   useEffect(() => {
     if (status !== 'updated') return
-    setShowSuccessMessage(true)
+    queueToastMessage({ title: 'Profile updated' })
     void navigate({
       search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
       replace: true,
     })
-  }, [status, navigate])
-  useEffect(() => {
-    if (!showSuccessMessage) return
-    const timer = setTimeout(() => setShowSuccessMessage(false), 5000)
-    return () => clearTimeout(timer)
-  }, [showSuccessMessage])
+  }, [status, navigate, queueToastMessage])
   return (
     <>
+      <PageHeader title="Settings" />
       <UpsertProfileForm
         actionType="update"
         initialData={maybeProfile}
         initialFormError={formErrorCopy(formError)}
-        onSuccess={() => setShowSuccessMessage(true)}
-        headingLevel={1}
+        onSuccess={() => queueToastMessage({ title: 'Profile updated' })}
+        headingLevel={2}
       />
-      {(showSuccessMessage || status === 'updated') && <p>Profile Updated.</p>}
+      {status === 'updated' && <p role="status">Profile updated.</p>}
     </>
   )
 }

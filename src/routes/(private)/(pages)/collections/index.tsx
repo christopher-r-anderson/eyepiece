@@ -13,11 +13,11 @@ import { CollectionCard } from '@/features/collections/components/collection-car
 import { CreateCollectionForm } from '@/features/collections/forms/create-collection-form'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/ui/modal-dialog'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { RouteError } from '@/app/layout/route-error'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 
-const CollectionsHeading = () => <PageHeading>Your collections</PageHeading>
+const CollectionsHeading = () => <PageHeader title="Your collections" />
 
 export const Route = createFileRoute('/(private)/(pages)/collections/')({
   component: CollectionsPage,

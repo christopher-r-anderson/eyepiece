@@ -31,7 +31,7 @@ import {
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { RouteError } from '@/app/layout/route-error'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/empty-state'
 import { Link } from '@/components/ui/link'
 import { toSearchPageParams } from '@/features/search/search-page-params'
@@ -41,7 +41,7 @@ import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { createUserSupabaseClient } from '@/integrations/supabase/user'
 import { useShowLoginModal } from '@/features/auth/hooks/use-show-auth-modal'
 
-const FavoritesHeading = () => <PageHeading>Favorites</PageHeading>
+const FavoritesHeading = () => <PageHeader title="Favorites" />
 
 export const Route = createFileRoute('/(private)/(pages)/favorites')({
   component: FavoritesPage,
@@ -205,9 +205,13 @@ function FavoritesPage() {
       </>
     )
   }
+  const { total } = favoritesResult.data
   return (
     <>
-      <FavoritesHeading />
+      <PageHeader
+        title="Favorites"
+        meta={`${total} ${total === 1 ? 'star' : 'stars'}`}
+      />
       <InfiniteLoader
         // isFetching, not isLoading: after an edge page lands the batch
         // query switches keys and keepPreviousData reports isLoading
@@ -222,6 +226,7 @@ function FavoritesPage() {
           })
         }}
         hasNextPage={favoritesResult.hasNextPage}
+        total={total}
         loadedCount={assetPreviewSnapshotsResult.data?.length ?? 0}
         uiResetKey="favorites"
         className={css({ width: '100%' })}

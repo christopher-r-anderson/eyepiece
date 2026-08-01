@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlbumAssets } from './-components/album-assets'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { RouteError } from '@/app/layout/route-error'
 import { albumKeySchema } from '@/domain/album/album.schema'
+import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
@@ -36,7 +37,7 @@ export const Route = createFileRoute(
   errorComponent: ({ error }) => (
     <RouteError
       error={error}
-      heading={<PageHeading>Album</PageHeading>}
+      heading={<PageHeader title="Album" />}
       message="Error loading album."
       captureContext={{
         boundaryKind: 'route',
@@ -47,7 +48,7 @@ export const Route = createFileRoute(
   ),
   pendingComponent: () => (
     <>
-      <PageHeading>Album</PageHeading>
+      <PageHeader title="Album" />
       <AssetGridSkeleton />
     </>
   ),
@@ -58,7 +59,10 @@ function AlbumPage() {
   const { title } = Route.useLoaderData()
   return (
     <>
-      <PageHeading>{title}</PageHeading>
+      <PageHeader
+        title={title}
+        meta={`an album from ${PROVIDER_DISPLAY[albumKey.providerId].displayName}`}
+      />
       <AlbumAssets albumKey={albumKey} />
     </>
   )

@@ -49,7 +49,7 @@ test('a no-JS profile update round-trips with a status', async ({ page }) => {
   await page.getByRole('button', { name: 'Update' }).click()
 
   await page.waitForURL((url) => url.searchParams.get('status') === 'updated')
-  await expect(page.getByText('Profile Updated.')).toBeVisible()
+  await expect(page.getByText('Profile updated.')).toBeVisible()
 })
 
 test('a no-JS forgot-password submit lands on the sent panel', async ({

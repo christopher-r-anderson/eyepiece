@@ -58,7 +58,14 @@ export function getInfiniteAlbumOptions<TSelectData = AlbumInfinite>({
 export function useSuspenseInfiniteAlbumAssets(albumKey: AlbumKey) {
   const repo = useAlbumsRepo()
   return useSuspenseInfiniteQuery(
-    getInfiniteAlbumOptions({ repo, albumKey, select: flattenAssetsSelector }),
+    getInfiniteAlbumOptions({
+      repo,
+      albumKey,
+      select: (data) => ({
+        ...flattenAssetsSelector(data),
+        total: data.pages[0]?.pagination.total ?? 0,
+      }),
+    }),
   )
 }
 

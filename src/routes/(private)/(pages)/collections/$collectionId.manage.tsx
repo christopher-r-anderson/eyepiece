@@ -32,7 +32,7 @@ import {
 import { JustifiedAssetGrid } from '@/features/assets/components/justified-asset-grid'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
-import { PageHeading } from '@/components/page-heading'
+import { PageHeader } from '@/components/page-header'
 import { NotFound } from '@/components/errors/not-found'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/ui/modal-dialog'
@@ -50,7 +50,7 @@ import {
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 import { getTitleText } from '@/lib/utils'
 
-const ManageHeading = () => <PageHeading>Manage collection</PageHeading>
+const ManageHeading = () => <PageHeader title="Manage collection" />
 
 export const Route = createFileRoute(
   '/(private)/(pages)/collections/$collectionId/manage',
@@ -137,7 +137,7 @@ function ManageCollectionPage() {
 
   return (
     <>
-      <PageHeading>{collection.name}</PageHeading>
+      <PageHeader title={collection.name} />
       <section aria-label="Collection settings" className={sectionCss}>
         <RenameCollectionForm
           collection={collection}
