@@ -187,10 +187,20 @@ function FavoritesPage() {
     ],
   )
 
-  if (favoritesResult.data.total === 0) {
+  const { total } = favoritesResult.data
+  // ghosted removals stay on screen, but the count tracks the committed
+  // state so an unstar (and its undo) moves the number
+  const shownTotal = total - removedIds.size
+  const countedHeader = (
+    <PageHeader
+      title="Favorites"
+      meta={`${shownTotal} ${shownTotal === 1 ? 'star' : 'stars'}`}
+    />
+  )
+  if (total === 0) {
     return (
       <>
-        <FavoritesHeading />
+        {countedHeader}
         <EmptyState>
           No favorites yet. Star any image to keep it here -{' '}
           <Link
@@ -205,13 +215,9 @@ function FavoritesPage() {
       </>
     )
   }
-  const { total } = favoritesResult.data
   return (
     <>
-      <PageHeader
-        title="Favorites"
-        meta={`${total} ${total === 1 ? 'star' : 'stars'}`}
-      />
+      {countedHeader}
       <InfiniteLoader
         // isFetching, not isLoading: after an edge page lands the batch
         // query switches keys and keepPreviousData reports isLoading
