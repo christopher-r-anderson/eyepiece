@@ -8,15 +8,18 @@ import { updatePasswordFormSchema } from './update-password-form.schema'
 import { SetPasswordField } from './components/set-password-field'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
-import { formHeadingCss } from '@/components/form-heading.styles'
-import { Form, FormActions, InputGroup } from '@/components/ui/forms'
+import {
+  Form,
+  FormActions,
+  FormHeading,
+  InputGroup,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
   useNativeFormSubmit,
   useTypedActionState,
 } from '@/components/ui/forms.hooks'
 import { useEvent } from '@/lib/hooks/use-event'
-import { Heading } from '@/components/ui/heading'
 
 export function UpdatePasswordForm({
   headingLevel,
@@ -66,9 +69,9 @@ export function UpdatePasswordForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel} css={formHeadingCss(headingLevel)}>
+      <FormHeading id={id} level={headingLevel}>
         Update Password
-      </Heading>
+      </FormHeading>
       <InputGroup>
         {next && <input type="hidden" name="next" defaultValue={next} />}
         {/* for the browser save password prompt */}

@@ -5,9 +5,13 @@ import { upsertProfileFormAction } from '../profiles.form-actions'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormDataObject } from '@/components/ui/forms.types'
 import type { FormProps } from '@/components/ui/forms'
-import { Heading } from '@/components/ui/heading'
-import { formHeadingCss } from '@/components/form-heading.styles'
-import { Form, FormActions, InputGroup, TextField } from '@/components/ui/forms'
+import {
+  Form,
+  FormActions,
+  FormHeading,
+  InputGroup,
+  TextField,
+} from '@/components/ui/forms'
 import { Button } from '@/components/ui/button'
 import {
   useNativeFormSubmit,
@@ -81,13 +85,9 @@ export function UpsertProfileForm({
         </FormActions>
       }
     >
-      <Heading
-        id={headingId}
-        level={headingLevel}
-        css={formHeadingCss(headingLevel)}
-      >
+      <FormHeading id={headingId} level={headingLevel}>
         {isUpdating ? 'Update profile' : 'Create profile'}
-      </Heading>
+      </FormHeading>
       <InputGroup>
         <input type="hidden" name="id" defaultValue={state.formData?.id} />
         <input
