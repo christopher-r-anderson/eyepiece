@@ -1,5 +1,6 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
+import { css } from 'styled-system/css'
 import { sheet } from 'styled-system/recipes'
 import { Button } from './button'
 import { useModalOpenAttribute } from './modal-open-attribute'
@@ -33,6 +34,10 @@ export function Sheet({
             onPress={() => onOpenChange(false)}
             variant="icon"
             className={slots.close}
+            // the close slot's absolute placement loses to the icon
+            // variant's positioning context by layer order (recipes beats
+            // recipes.slots); the utilities layer beats both
+            css={css.raw({ position: 'absolute' })}
           >
             <XIcon aria-hidden="true" size={22} weight="bold" />
           </Button>
