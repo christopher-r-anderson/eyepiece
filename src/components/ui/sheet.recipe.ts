@@ -14,9 +14,13 @@ export const sheetRecipe = defineSlotRecipe({
       inset: 0,
       zIndex: 'overlay',
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      animationName: 'fade',
-      animationDuration: 'standard',
-      _motionReduce: { animation: 'none' },
+      // scoped to entering: react aria reads a non-none animation on close
+      // as an exit animation and waits for it
+      '&[data-entering]': {
+        animationName: 'fade',
+        animationDuration: 'standard',
+        _motionReduce: { animation: 'none' },
+      },
       // gaps live on the overlay so clicks in them count as outside the
       // modal and dismiss it; the close slot positions itself off the same
       // variable, so the gap has one home
@@ -31,16 +35,20 @@ export const sheetRecipe = defineSlotRecipe({
       width: '100%',
       height: '100%',
       minHeight: 0,
+      // the rise lives here, not on the dialog: only the overlay and modal
+      // elements carry react aria's entering state
+      '&[data-entering]': {
+        animationName: 'settle',
+        animationDuration: 'orchestrated',
+        animationTimingFunction: 'settle',
+        _motionReduce: { animation: 'none' },
+      },
     },
     dialog: {
       position: 'relative',
       backgroundColor: 'bg.canvas',
       display: 'flex',
       flexDirection: 'column',
-      animationName: 'settle',
-      animationDuration: 'orchestrated',
-      animationTimingFunction: 'settle',
-      _motionReduce: { animation: 'none' },
       width: '100%',
       height: '100%',
       outline: 'none',
