@@ -114,6 +114,11 @@ function buildSourceUrl(nasaId: string) {
   return `https://images.nasa.gov/details/${encodeURIComponent(nasaId)}`
 }
 
+// upstream album names that read as junk on tiles: "Test" is a grab-bag of
+// thousands of unrelated records, "HST" holds only videos. Hidden from asset
+// album lists; the album pages themselves stay reachable by URL.
+const HIDDEN_ALBUM_IDS = new Set(['Test', 'HST'])
+
 export function mapMediaItem({
   data,
   links,
@@ -123,6 +128,14 @@ export function mapMediaItem({
 }) {
   // Note data is an array but is always .length === 1
   const { album, title, description, nasa_id } = data[0]
+  const albums = album
+    ?.filter((albumId) => !HIDDEN_ALBUM_IDS.has(albumId))
+    .map((albumId) =>
+      albumKeySchema.parse({
+        providerId: NASA_IVL_PROVIDER_ID,
+        externalId: albumId,
+      }),
+    )
   return {
     title,
     description: dropTitleDuplicate(
@@ -134,14 +147,7 @@ export function mapMediaItem({
       externalId: nasa_id,
       providerId: NASA_IVL_PROVIDER_ID,
     },
-    albums: album
-      ? album.map((albumId) =>
-          albumKeySchema.parse({
-            providerId: NASA_IVL_PROVIDER_ID,
-            externalId: albumId,
-          }),
-        )
-      : undefined,
+    albums: albums?.length ? albums : undefined,
     image: getImage(links),
   }
 }

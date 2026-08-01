@@ -70,6 +70,22 @@ describe('mapMediaItem text', () => {
       'https://images.nasa.gov/details/APOLLO%2050th_FULL%20COLOR_300DPI',
     )
   })
+
+  it('drops hidden upstream album names and keeps the rest', () => {
+    const result = mapMediaItem(
+      createItem({ album: ['Test', 'Apollo-at-50', 'HST'] }),
+    )
+
+    expect(result.albums).toEqual([
+      { providerId: 'nasa_ivl', externalId: 'Apollo-at-50' },
+    ])
+  })
+
+  it('leaves albums unset when only hidden names remain', () => {
+    const result = mapMediaItem(createItem({ album: ['Test'] }))
+
+    expect(result.albums).toBeUndefined()
+  })
 })
 
 describe('mapMediaItem renditions', () => {
