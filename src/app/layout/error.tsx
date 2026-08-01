@@ -1,10 +1,10 @@
 import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import type { ErrorComponentProps } from '@tanstack/react-router'
-import { PrettyException } from '@/components/ui/error'
+import { PrettyException } from '@/components/errors/pretty-exception'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/ui/heading'
-import { useCaptureRouteError } from '@/app/layout/route-error'
+import { useCaptureRouteError } from '@/components/errors/error-capture'
 
 // the root boundary sticks to presentational ui components - nothing that
 // depends on app providers, which could rethrow inside a broken tree

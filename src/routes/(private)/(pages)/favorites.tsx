@@ -61,6 +61,11 @@ export const Route = createFileRoute('/(private)/(pages)/favorites')({
       error={error}
       heading={<FavoritesHeading />}
       message="Error loading favorites."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'favorites',
+        operation: 'load_favorites',
+      }}
     />
   ),
   pendingComponent: () => (

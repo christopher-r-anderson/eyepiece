@@ -35,6 +35,11 @@ export const Route = createFileRoute('/(private)/(pages)/collections/')({
       error={error}
       heading={<CollectionsHeading />}
       message="Error loading collections."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'collections',
+        operation: 'load_collections_list',
+      }}
     />
   ),
   pendingComponent: () => <CollectionsHeading />,

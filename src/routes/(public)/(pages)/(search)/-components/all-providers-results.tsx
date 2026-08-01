@@ -10,7 +10,7 @@ import { EmptyResultsNotice } from './empty-results-notice'
 import type { ProviderId } from '@/domain/provider/provider.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import { Heading } from '@/components/ui/heading'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { Link } from '@/components/ui/link'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { PROVIDERS, PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
@@ -82,27 +82,22 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
           </Suspense>
         </CatchBoundary>
       </div>
-      <CatchBoundary
-        getResetKey={() => hashKey(['search-section', providerId, query])}
-        errorComponent={({ error }) => (
-          <CapturedAlertError
-            error={error}
-            message={`Couldn't load results from ${display.displayName}.`}
-            captureContext={{
-              boundaryKind: 'catch',
-              feature: 'search',
-              providerId,
-              operation: 'load_search_section',
-            }}
-          />
-        )}
+      <CapturedCatchBoundary
+        resetKey={hashKey(['search-section', providerId, query])}
+        message={`Couldn't load results from ${display.displayName}.`}
+        captureContext={{
+          boundaryKind: 'catch',
+          feature: 'search',
+          providerId,
+          operation: 'load_search_section',
+        }}
       >
         <Suspense
           fallback={<AssetGridSkeleton count={ALL_SCOPE_SECTION_SIZE} />}
         >
           <ProviderSectionResults query={query} providerId={providerId} />
         </Suspense>
-      </CatchBoundary>
+      </CapturedCatchBoundary>
     </section>
   )
 }

@@ -1,10 +1,5 @@
 import { Suspense, useCallback, useEffect, useRef } from 'react'
-import {
-  CatchBoundary,
-  useNavigate,
-  useRouter,
-  useRouterState,
-} from '@tanstack/react-router'
+import { useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from './favorite-button'
 import type { MouseEvent } from 'react'
@@ -12,8 +7,8 @@ import type { HistoryState } from '@tanstack/react-router'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { TileLinkProps } from '@/features/assets/components/asset-tile'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
-import { AssetDetailSurface } from '@/app/asset-detail-surface'
-import { CapturedAlertError } from '@/app/layout/route-error'
+import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
+import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { Sheet } from '@/components/ui/sheet'
 import { useSuspenseAsset } from '@/features/assets/assets.queries'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
@@ -145,20 +140,15 @@ export function AssetViewingOverlay() {
       aria-label="Asset detail"
     >
       {viewingAsset && (
-        <CatchBoundary
-          getResetKey={() => toAssetKeyString(viewingAsset)}
-          errorComponent={({ error }) => (
-            <CapturedAlertError
-              error={error}
-              message="Couldn't load this asset."
-              captureContext={{
-                boundaryKind: 'catch',
-                feature: 'assets',
-                providerId: viewingAsset.providerId,
-                operation: 'load_asset_overlay',
-              }}
-            />
-          )}
+        <CapturedCatchBoundary
+          resetKey={toAssetKeyString(viewingAsset)}
+          message="Couldn't load this asset."
+          captureContext={{
+            boundaryKind: 'catch',
+            feature: 'assets',
+            providerId: viewingAsset.providerId,
+            operation: 'load_asset_overlay',
+          }}
         >
           <Suspense
             fallback={
@@ -169,7 +159,7 @@ export function AssetViewingOverlay() {
           >
             <OverlayAssetContent assetKey={viewingAsset} />
           </Suspense>
-        </CatchBoundary>
+        </CapturedCatchBoundary>
       )}
     </Sheet>
   )

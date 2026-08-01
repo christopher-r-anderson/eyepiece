@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { PrettyException, getPrettyExceptionDisplay } from './error'
+import { PrettyException, getPrettyExceptionDisplay } from './pretty-exception'
 
 describe('getPrettyExceptionDisplay', () => {
   it('keeps dev details but never exposes stack text in the view model', () => {

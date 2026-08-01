@@ -7,7 +7,7 @@ import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
-import { AssetDetailSurface } from '@/app/asset-detail-surface'
+import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
@@ -16,6 +16,7 @@ import {
   assetKeySchema,
   externalAssetIdSchema,
 } from '@/domain/asset/asset.schema'
+import { NotFound } from '@/components/errors/not-found'
 import { RouteError } from '@/app/layout/route-error'
 import { isNotFoundApiError } from '@/lib/eyepiece-api-client/client'
 import { providerIdSchema } from '@/domain/provider/provider.schema'
@@ -77,10 +78,7 @@ export const Route = createFileRoute(
   }),
   errorComponent: AssetRouteError,
   notFoundComponent: () => (
-    <>
-      <AssetHeading name="Asset Not Found" />
-      <p>We couldn't find that asset.</p>
-    </>
+    <NotFound title="Asset Not Found" message="We couldn't find that asset." />
   ),
   pendingComponent: () => (
     <>

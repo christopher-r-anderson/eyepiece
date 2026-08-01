@@ -25,6 +25,7 @@ import {
 import { InfiniteLoader } from '@/components/infinite-loader/infinite-loader'
 import { ManageCollectionLink } from '@/features/collections/components/manage-collection-link'
 import { RouteError } from '@/app/layout/route-error'
+import { NotFound } from '@/components/errors/not-found'
 import { PageHeading } from '@/components/page-heading'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
@@ -84,16 +85,21 @@ export const Route = createFileRoute(
     meta: [{ title: getTitleText(loaderData?.title ?? 'Collection') }],
   }),
   notFoundComponent: () => (
-    <>
-      <PageHeading>Collection Not Found</PageHeading>
-      <p>This collection doesn't exist, or it may be private.</p>
-    </>
+    <NotFound
+      title="Collection Not Found"
+      message="This collection doesn't exist, or it may be private."
+    />
   ),
   errorComponent: ({ error }) => (
     <RouteError
       error={error}
       heading={<PageHeading>Collection</PageHeading>}
       message="Error loading collection."
+      captureContext={{
+        boundaryKind: 'route',
+        feature: 'collections',
+        operation: 'load_collection',
+      }}
     />
   ),
   pendingComponent: () => (

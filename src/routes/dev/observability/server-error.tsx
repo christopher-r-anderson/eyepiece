@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { grid } from 'styled-system/patterns'
 import { DevBackLink } from '../-components'
 import { throwDevObservabilityServerError } from './-helpers'
-import { PrettyException } from '@/components/ui/error'
+import { PrettyException } from '@/components/errors/pretty-exception'
 import { Heading } from '@/components/ui/heading'
 
 export const Route = createFileRoute('/dev/observability/server-error')({
