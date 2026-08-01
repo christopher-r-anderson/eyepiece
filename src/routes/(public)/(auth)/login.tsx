@@ -18,7 +18,6 @@ function LoginPage() {
     <>
       <LoginForm
         headingLevel={1}
-        surface="panel"
         next={next}
         initialFormError={formErrorCopy(formError)}
         onSuccess={() => {

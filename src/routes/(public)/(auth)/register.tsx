@@ -28,7 +28,6 @@ function RegisterPage() {
       >
         <RegistrationForm
           headingLevel={1}
-          surface="panel"
           initialFormError={formErrorCopy(formError)}
           onSuccess={() => setShowSuccessMessage(true)}
           next={next ? urlToNextParam(next) : undefined}

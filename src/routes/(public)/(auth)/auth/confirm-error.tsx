@@ -1,8 +1,9 @@
 import { createFileRoute, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import { css } from 'styled-system/css'
 import { formErrorCopy } from '@/components/form-errors'
-import { PageHeading } from '@/components/page-heading'
+import { Heading } from '@/components/ui/heading'
 import {
   ResendConfirmationForm,
   ResendConfirmationSuccessMessage,
@@ -17,6 +18,9 @@ import {
 import { FormStatusSwitcher } from '@/components/ui/forms'
 
 const ERR_CODE_OTP_EXPIRED = 'otp_expired'
+
+const pageTitleCss = css.raw({ textStyle: 'title.lg' })
+const introCss = css({ color: 'text.muted' })
 
 export const Route = createFileRoute('/(public)/(auth)/auth/confirm-error')({
   component: ConfirmationErrorPage,
@@ -48,8 +52,10 @@ function RecoveryOtpError() {
   const [successfulResend, setSuccessfulResend] = useState(false)
   return (
     <>
-      <PageHeading>Password Reset Link Expired</PageHeading>
-      <p>
+      <Heading level={1} css={pageTitleCss}>
+        Password reset link expired
+      </Heading>
+      <p className={introCss}>
         The reset password link has expired. Please submit this form to request
         a new reset password email.
       </p>
@@ -75,8 +81,10 @@ function EmailOtpError() {
   const [successfulResend, setSuccessfulResend] = useState(false)
   return (
     <>
-      <PageHeading>Confirmation Link Expired</PageHeading>
-      <p>
+      <Heading level={1} css={pageTitleCss}>
+        Confirmation link expired
+      </Heading>
+      <p className={introCss}>
         The confirmation link has expired. Please submit this form to request a
         new confirmation email.
       </p>
@@ -99,10 +107,12 @@ function EmailOtpError() {
 function UnknownError() {
   return (
     <>
-      <PageHeading>Oops &hellip;</PageHeading>
-      <p>
-        Sorry, something went wrong. If you were trying to register or reset
-        your password, these links can help:
+      <Heading level={1} css={pageTitleCss}>
+        Something went wrong
+      </Heading>
+      <p className={introCss}>
+        If you were trying to register or reset your password, these links can
+        help:
       </p>
       <ul>
         <li>

@@ -6,6 +6,7 @@ import { useAuthCommands } from '../hooks/use-auth-commands'
 import { updatePasswordFormAction } from '../auth.form-actions'
 import { updatePasswordFormSchema } from './update-password-form.schema'
 import { SetPasswordField } from './components/set-password-field'
+import { authFormHeadingCss } from './form-heading.styles'
 import type { HeadingLevel } from '@/components/ui/heading'
 import type { FormProps } from '@/components/ui/forms'
 import { Form, FormActions, InputGroup } from '@/components/ui/forms'
@@ -65,7 +66,11 @@ export function UpdatePasswordForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel}>
+      <Heading
+        id={id}
+        level={headingLevel}
+        css={authFormHeadingCss(headingLevel)}
+      >
         Update Password
       </Heading>
       <InputGroup>

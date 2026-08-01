@@ -53,7 +53,6 @@ function UpdatePasswordPage() {
       >
         <UpdatePasswordForm
           headingLevel={1}
-          surface="panel"
           next={nextParam}
           initialFormError={formErrorCopy(formError)}
           onSuccess={onUpdateSuccess}

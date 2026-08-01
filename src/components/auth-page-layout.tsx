@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
+import { panelSurfaceStyles } from '@/components/ui/surface.styles'
 
 export function AuthPageLayout() {
   return (
@@ -16,16 +17,15 @@ export function AuthPageLayout() {
       })}
     >
       <div
-        className={grid({
-          gap: '4',
-          width: '100%',
-          maxWidth: 'formMax',
-          margin: '0 auto',
-          backgroundColor: 'bg.surface.3',
-          border: 'default',
-          borderRadius: 'sm',
-          padding: '4',
-        })}
+        className={cx(
+          grid({
+            gap: '4',
+            width: '100%',
+            maxWidth: 'formMax',
+            margin: '0 auto',
+          }),
+          css(panelSurfaceStyles),
+        )}
       >
         <Outlet />
       </div>

@@ -4,6 +4,7 @@ import { css } from 'styled-system/css'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { loginFormAction } from '../auth.form-actions'
 import { loginFormSchema } from './login-form.schema'
+import { authFormHeadingCss } from './form-heading.styles'
 import type { ReactNode } from 'react'
 import type { FormProps } from '@/components/ui/forms'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -67,7 +68,11 @@ export function LoginForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel}>
+      <Heading
+        id={id}
+        level={headingLevel}
+        css={authFormHeadingCss(headingLevel)}
+      >
         Log In
       </Heading>
       <InputGroup>

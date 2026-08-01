@@ -5,6 +5,7 @@ import { useEmailRedirectTo } from '../hooks/use-email-redirect-to'
 import { useAuthCommands } from '../hooks/use-auth-commands'
 import { resendConfirmationFormAction } from '../auth.form-actions'
 import { resendConfirmationFormSchema } from './resend-confirmation-form.schema'
+import { authFormHeadingCss } from './form-heading.styles'
 import type { HeadingLevel } from '@/components/ui/heading'
 import {
   Form,
@@ -71,7 +72,11 @@ export function ResendConfirmationForm({
         </FormActions>
       }
     >
-      <Heading id={id} level={headingLevel}>
+      <Heading
+        id={id}
+        level={headingLevel}
+        css={authFormHeadingCss(headingLevel)}
+      >
         Resend Confirmation Email
       </Heading>
       <InputGroup>
@@ -101,7 +106,9 @@ export function ResendConfirmationSuccessMessage({
 }) {
   return (
     <div className={css(formStatusPanelCss)}>
-      <Heading level={headingLevel}>Confirmation Email Sent!</Heading>
+      <Heading level={headingLevel} css={authFormHeadingCss(headingLevel)}>
+        Confirmation Email Sent!
+      </Heading>
       <p>Please check your email to confirm your account.</p>
     </div>
   )
