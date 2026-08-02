@@ -42,10 +42,15 @@ const config = defineConfig(({ mode }) => {
               // the prerenderer writes a redirect's target html under the
               // source path (the login page saved as /favorites)
               autoStaticPathsDiscovery: false,
+              // lowercase-only: Netlify 301s static html urls to lowercase,
+              // so a prerendered mixed-case path (nasa album ids) hydrates
+              // with a lowercased param and refetches as not-found; those
+              // pages stay SSR, which receives the original casing
               filter: (page) =>
-                page.path === '/' ||
-                page.path.startsWith('/albums/') ||
-                page.path.startsWith('/collections/'),
+                page.path === page.path.toLowerCase() &&
+                (page.path === '/' ||
+                  page.path.startsWith('/albums/') ||
+                  page.path.startsWith('/collections/')),
               retryCount: 2,
             },
           }),
