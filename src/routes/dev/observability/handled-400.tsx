@@ -22,9 +22,7 @@ export const Route = createFileRoute('/dev/observability/handled-400')({
           operation: 'dev_handled_400',
         }}
       />
-      <DevBackLink to="/dev/observability">
-        Back to observability workbench
-      </DevBackLink>
+      <DevBackLink to="/dev/observability">Back to observability</DevBackLink>
     </div>
   ),
 })

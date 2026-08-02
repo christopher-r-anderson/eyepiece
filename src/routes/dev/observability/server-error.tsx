@@ -20,9 +20,7 @@ export const Route = createFileRoute('/dev/observability/server-error')({
         verify route-boundary tags.
       </p>
       <PrettyException error={error} headingLevel={2} />
-      <DevBackLink to="/dev/observability">
-        Back to observability workbench
-      </DevBackLink>
+      <DevBackLink to="/dev/observability">Back to observability</DevBackLink>
     </div>
   ),
 })

@@ -10,9 +10,9 @@ function DevObservabilityLayout() {
   return (
     <section className={css(devPageSectionCss)}>
       <DevPageIntro
-        title="Observability Workbench"
+        title="Observability"
         description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."
-        backLink={<DevBackLink to="/dev">Back to dev landing</DevBackLink>}
+        backLink={<DevBackLink to="/dev">Back to dev</DevBackLink>}
       />
 
       <Outlet />

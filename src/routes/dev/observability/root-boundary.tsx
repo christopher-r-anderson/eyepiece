@@ -13,13 +13,11 @@ export const Route = createFileRoute('/dev/observability/root-boundary')({
   component: () => (
     <div className={grid({ gap: '4' })}>
       <DevTitleBlock
-        title="Root Boundary Scenario"
+        title="Root boundary scenario"
         description="Renders the root route error boundary directly with a synthetic error. Try again is a no-op here."
       />
       <ErrorFallback error={scenarioError} reset={() => {}} headingLevel={2} />
-      <DevBackLink to="/dev/observability">
-        Back to observability workbench
-      </DevBackLink>
+      <DevBackLink to="/dev/observability">Back to observability</DevBackLink>
     </div>
   ),
 })

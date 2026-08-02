@@ -14,15 +14,17 @@ export const Route = createFileRoute('/dev/')({
 
 const sections = [
   {
-    title: 'UI Workbench',
-    description: 'Preview shared components, controls, and feedback patterns.',
+    title: 'UI gallery',
+    description: 'Shared components and their variants.',
     to: '/dev/ui',
+    label: 'Open the gallery',
   },
   {
-    title: 'Observability Workbench',
+    title: 'Observability',
     description:
-      'Run deterministic client and server error verification scenarios.',
+      'Repeatable error scenarios for checking Sentry and boundary behavior.',
     to: '/dev/observability',
+    label: 'Open observability',
   },
 ] as const
 
@@ -30,8 +32,8 @@ function DevOverviewPage() {
   return (
     <section className={css(devPageSectionCss)}>
       <DevPageIntro
-        title="Dev Workbenches"
-        description="Development mode only manual preview and test areas."
+        title="Dev pages"
+        description="Manual preview and verification areas. These routes 404 outside development."
       />
 
       <div className={css(devCardGridCss)}>
@@ -40,7 +42,7 @@ function DevOverviewPage() {
             key={section.to}
             title={section.title}
             description={section.description}
-            action={<Link to={section.to}>Open {section.title}</Link>}
+            action={<Link to={section.to}>{section.label}</Link>}
           />
         ))}
       </div>
