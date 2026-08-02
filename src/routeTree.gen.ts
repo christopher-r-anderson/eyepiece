@@ -16,6 +16,7 @@ import { Route as privateauthRouteRouteImport } from './routes/(private)/(auth)/
 import { Route as privatepagesRouteRouteImport } from './routes/(private)/(pages)/route'
 import { Route as publicauthRouteRouteImport } from './routes/(public)/(auth)/route'
 import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/route'
+import { Route as publicSitemapDotxmlRouteImport } from './routes/(public)/sitemap[.]xml'
 import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
 import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
@@ -74,6 +75,11 @@ const publicauthRouteRoute = publicauthRouteRouteImport.update({
 } as any)
 const publicpagesRouteRoute = publicpagesRouteRouteImport.update({
   id: '/(pages)',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicSitemapDotxmlRoute = publicSitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => publicRouteRoute,
 } as any)
 const tokenCallbacksAuthRouteRoute = tokenCallbacksAuthRouteRouteImport.update({
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/dev': typeof DevRouteRouteWithChildren
   '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
+  '/sitemap.xml': typeof publicSitemapDotxmlRoute
   '/dev/': typeof DevIndexRoute
   '/complete-profile': typeof privatepagesCompleteProfileRoute
   '/favorites': typeof privatepagesFavoritesRoute
@@ -281,6 +288,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
+  '/sitemap.xml': typeof publicSitemapDotxmlRoute
   '/dev': typeof DevIndexRoute
   '/complete-profile': typeof privatepagesCompleteProfileRoute
   '/favorites': typeof privatepagesFavoritesRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/(public)/(pages)': typeof publicpagesRouteRouteWithChildren
   '/(token-callbacks)/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
+  '/(public)/sitemap.xml': typeof publicSitemapDotxmlRoute
   '/dev/': typeof DevIndexRoute
   '/(private)/(pages)/complete-profile': typeof privatepagesCompleteProfileRoute
   '/(private)/(pages)/favorites': typeof privatepagesFavoritesRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/auth'
     | '/dev/observability'
+    | '/sitemap.xml'
     | '/dev/'
     | '/complete-profile'
     | '/favorites'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/sitemap.xml'
     | '/dev'
     | '/complete-profile'
     | '/favorites'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/(public)/(pages)'
     | '/(token-callbacks)/auth'
     | '/dev/observability'
+    | '/(public)/sitemap.xml'
     | '/dev/'
     | '/(private)/(pages)/complete-profile'
     | '/(private)/(pages)/favorites'
@@ -512,6 +524,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof publicpagesRouteRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/sitemap.xml': {
+      id: '/(public)/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof publicSitemapDotxmlRouteImport
       parentRoute: typeof publicRouteRoute
     }
     '/(token-callbacks)/auth': {
@@ -834,6 +853,7 @@ const publicApiV1AssetProviderIdAssetIdRouteWithChildren =
 interface publicRouteRouteChildren {
   publicauthRouteRoute: typeof publicauthRouteRouteWithChildren
   publicpagesRouteRoute: typeof publicpagesRouteRouteWithChildren
+  publicSitemapDotxmlRoute: typeof publicSitemapDotxmlRoute
   publicApiV1SearchRoute: typeof publicApiV1SearchRoute
   publicApiV1AlbumsProviderIdAlbumIdRoute: typeof publicApiV1AlbumsProviderIdAlbumIdRoute
   publicApiV1AssetProviderIdAssetIdRoute: typeof publicApiV1AssetProviderIdAssetIdRouteWithChildren
@@ -842,6 +862,7 @@ interface publicRouteRouteChildren {
 const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicauthRouteRoute: publicauthRouteRouteWithChildren,
   publicpagesRouteRoute: publicpagesRouteRouteWithChildren,
+  publicSitemapDotxmlRoute: publicSitemapDotxmlRoute,
   publicApiV1SearchRoute: publicApiV1SearchRoute,
   publicApiV1AlbumsProviderIdAlbumIdRoute:
     publicApiV1AlbumsProviderIdAlbumIdRoute,

@@ -316,12 +316,52 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     })
   }
 
+  // PostgREST silently caps every response at max_rows, so one select cannot
+  // promise completeness; keyset pages are walked until one comes back empty
+  async function listPublicCollectionIds(): Promise<
+    Result<Array<CollectionId>>
+  > {
+    const rowsSchema = z.array(
+      z.object({ id: z.uuid(), created_at: z.string() }),
+    )
+    const ids: Array<CollectionId> = []
+    let after: { createdAt: string; id: string } | null = null
+    for (;;) {
+      const pageQuery = client
+        .from('collections')
+        .select('id, created_at')
+        .eq('visibility', 'public')
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true })
+      const { data, error: pgError } = await (after
+        ? pageQuery.or(
+            `created_at.gt."${after.createdAt}",and(created_at.eq."${after.createdAt}",id.gt.${after.id})`,
+          )
+        : pageQuery)
+      if (pgError) {
+        return Err({ message: pgError.message, cause: pgError })
+      }
+      const { data: rows, error: parseError } = rowsSchema.safeParse(data)
+      if (parseError) {
+        return Err({ message: parseError.message, cause: parseError })
+      }
+      if (rows.length === 0) {
+        break
+      }
+      ids.push(...rows.map((row) => row.id))
+      const last = rows[rows.length - 1]
+      after = { createdAt: last.created_at, id: last.id }
+    }
+    return Ok(ids)
+  }
+
   return {
     getUserCollections,
     getPublicCollectionsForOwner,
     getPublicCollectionCardsForOwner,
     getCollectionCardsForOwner,
     getCollectionIdsForAsset,
+    listPublicCollectionIds,
     getCollection,
     getCollectionItemEdges,
   }
