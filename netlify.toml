@@ -2,6 +2,10 @@
 [build]
   command = "pnpm build"
   publish = "dist/client"
+  # exit 0 skips the build: CI builds the production deploy and uploads it
+  # with netlify deploy after showcase provisioning; previews and branch
+  # deploys keep building at push
+  ignore = "test \"$CONTEXT\" = \"production\""
 [build.environment]
   NODE_VERSION = "24"
 
