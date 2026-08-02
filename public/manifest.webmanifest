@@ -3,6 +3,7 @@
   "short_name": "eyepiece",
   "description": "A personal view of public space photography",
   "start_url": "/",
+  "display": "browser",
   "theme_color": "#14121C",
   "background_color": "#14121C",
   "icons": [
