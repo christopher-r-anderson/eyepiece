@@ -247,7 +247,14 @@ jobs:
           SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm provision-showcase --phase=apply
 
-      - name: Trigger Netlify publish hook
+      # production push builds are skipped (netlify.toml ignore); the deploy
+      # is built here, after provisioning
+      - name: Trigger Netlify production build
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+        run: curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL" >/dev/null
+
+      - name: Publish Netlify production deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
@@ -263,8 +270,10 @@ jobs:
             exit 1
           fi
 
-          # Poll until Netlify has a READY production deploy for this exact commit on main
-          for i in {1..60}; do
+          # Poll until Netlify has a READY production deploy for this exact
+          # commit on main. The build starts at the trigger above, so the
+          # window covers a full build.
+          for i in {1..120}; do
             echo "Looking for Netlify production deploy for commit ${GITHUB_SHA} (attempt $i)..."
 
             deploy_id="$(
