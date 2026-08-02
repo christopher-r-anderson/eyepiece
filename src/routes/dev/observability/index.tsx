@@ -49,7 +49,7 @@ function DevObservabilityPage() {
     <div className={grid({ gap: 'sectionGap' })}>
       <DevPanel css={css.raw({ maxWidth: 'readingMax' })}>
         <DevTitleBlock
-          title="Verification Checklist"
+          title="Verification checklist"
           description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."
         />
         <ol>
@@ -70,7 +70,7 @@ function DevObservabilityPage() {
       <div className={css(devCardGridCss)}>
         <DevPanel as="article">
           <DevTitleBlock
-            title="Client Render Error"
+            title="Client render error"
             description="Throws during render inside a local catch boundary."
             headingLevel={3}
           />
@@ -111,7 +111,7 @@ function DevObservabilityPage() {
 
         <DevPanel as="article">
           <DevTitleBlock
-            title="Handled UI Boundary Error"
+            title="Handled UI boundary error"
             description="Exercises the shared form boundary with structured handled field errors."
             headingLevel={3}
           />
@@ -119,7 +119,7 @@ function DevObservabilityPage() {
         </DevPanel>
 
         <DevLinkCard
-          title="Server Thrown Error"
+          title="Server thrown error"
           description="Performs a full document navigation into a throwing route so the request passes through the existing server middleware."
           action={
             <Button
@@ -133,7 +133,7 @@ function DevObservabilityPage() {
         />
 
         <DevLinkCard
-          title="Handled 400 Validation Error"
+          title="Handled 400 validation error"
           description="Triggers a handled 400 route response that should stay low-noise."
           action={
             <Link to="/dev/observability/handled-400">
@@ -143,7 +143,7 @@ function DevObservabilityPage() {
         />
 
         <DevLinkCard
-          title="Root Boundary Render"
+          title="Root boundary render"
           description="Renders the root route error boundary directly, including a nested cause chain."
           action={
             <Link to="/dev/observability/root-boundary">

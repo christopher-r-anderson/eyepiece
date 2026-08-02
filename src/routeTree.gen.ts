@@ -19,7 +19,6 @@ import { Route as publicpagesRouteRouteImport } from './routes/(public)/(pages)/
 import { Route as tokenCallbacksAuthRouteRouteImport } from './routes/(token-callbacks)/auth/route'
 import { Route as DevIndexRouteImport } from './routes/dev/index'
 import { Route as DevObservabilityRouteRouteImport } from './routes/dev/observability/route'
-import { Route as DevUiRouteRouteImport } from './routes/dev/ui/route'
 import { Route as privatepagesCompleteProfileRouteImport } from './routes/(private)/(pages)/complete-profile'
 import { Route as privatepagesFavoritesRouteImport } from './routes/(private)/(pages)/favorites'
 import { Route as publicauthLoginRouteImport } from './routes/(public)/(auth)/login'
@@ -31,8 +30,6 @@ import { Route as DevObservabilityHandled400RouteImport } from './routes/dev/obs
 import { Route as DevObservabilityRootBoundaryRouteImport } from './routes/dev/observability/root-boundary'
 import { Route as DevObservabilityServerErrorRouteImport } from './routes/dev/observability/server-error'
 import { Route as DevUiIndexRouteImport } from './routes/dev/ui/index'
-import { Route as DevUiControlsRouteImport } from './routes/dev/ui/controls'
-import { Route as DevUiFeedbackRouteImport } from './routes/dev/ui/feedback'
 import { Route as privateauthAuthUpdatePasswordRouteImport } from './routes/(private)/(auth)/auth/update-password'
 import { Route as privatepagesCollectionsIndexRouteImport } from './routes/(private)/(pages)/collections/index'
 import { Route as privatepagesSettingsIndexRouteImport } from './routes/(private)/(pages)/settings/index'
@@ -94,11 +91,6 @@ const DevObservabilityRouteRoute = DevObservabilityRouteRouteImport.update({
   path: '/observability',
   getParentRoute: () => DevRouteRoute,
 } as any)
-const DevUiRouteRoute = DevUiRouteRouteImport.update({
-  id: '/ui',
-  path: '/ui',
-  getParentRoute: () => DevRouteRoute,
-} as any)
 const privatepagesCompleteProfileRoute =
   privatepagesCompleteProfileRouteImport.update({
     id: '/complete-profile',
@@ -155,19 +147,9 @@ const DevObservabilityServerErrorRoute =
     getParentRoute: () => DevObservabilityRouteRoute,
   } as any)
 const DevUiIndexRoute = DevUiIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DevUiRouteRoute,
-} as any)
-const DevUiControlsRoute = DevUiControlsRouteImport.update({
-  id: '/controls',
-  path: '/controls',
-  getParentRoute: () => DevUiRouteRoute,
-} as any)
-const DevUiFeedbackRoute = DevUiFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => DevUiRouteRoute,
+  id: '/ui/',
+  path: '/ui/',
+  getParentRoute: () => DevRouteRoute,
 } as any)
 const privateauthAuthUpdatePasswordRoute =
   privateauthAuthUpdatePasswordRouteImport.update({
@@ -268,7 +250,6 @@ export interface FileRoutesByFullPath {
   '/dev': typeof DevRouteRouteWithChildren
   '/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
-  '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/dev/': typeof DevIndexRoute
   '/complete-profile': typeof privatepagesCompleteProfileRoute
   '/favorites': typeof privatepagesFavoritesRoute
@@ -278,8 +259,6 @@ export interface FileRoutesByFullPath {
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
-  '/dev/ui/controls': typeof DevUiControlsRoute
-  '/dev/ui/feedback': typeof DevUiFeedbackRoute
   '/': typeof publicpagesIndexRoute
   '/dev/observability/': typeof DevObservabilityIndexRoute
   '/dev/ui/': typeof DevUiIndexRoute
@@ -311,8 +290,6 @@ export interface FileRoutesByTo {
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
-  '/dev/ui/controls': typeof DevUiControlsRoute
-  '/dev/ui/feedback': typeof DevUiFeedbackRoute
   '/': typeof publicpagesIndexRoute
   '/dev/observability': typeof DevObservabilityIndexRoute
   '/dev/ui': typeof DevUiIndexRoute
@@ -344,7 +321,6 @@ export interface FileRoutesById {
   '/(public)/(pages)': typeof publicpagesRouteRouteWithChildren
   '/(token-callbacks)/auth': typeof tokenCallbacksAuthRouteRouteWithChildren
   '/dev/observability': typeof DevObservabilityRouteRouteWithChildren
-  '/dev/ui': typeof DevUiRouteRouteWithChildren
   '/dev/': typeof DevIndexRoute
   '/(private)/(pages)/complete-profile': typeof privatepagesCompleteProfileRoute
   '/(private)/(pages)/favorites': typeof privatepagesFavoritesRoute
@@ -354,8 +330,6 @@ export interface FileRoutesById {
   '/dev/observability/handled-400': typeof DevObservabilityHandled400Route
   '/dev/observability/root-boundary': typeof DevObservabilityRootBoundaryRoute
   '/dev/observability/server-error': typeof DevObservabilityServerErrorRoute
-  '/dev/ui/controls': typeof DevUiControlsRoute
-  '/dev/ui/feedback': typeof DevUiFeedbackRoute
   '/(public)/(pages)/': typeof publicpagesIndexRoute
   '/dev/observability/': typeof DevObservabilityIndexRoute
   '/dev/ui/': typeof DevUiIndexRoute
@@ -382,7 +356,6 @@ export interface FileRouteTypes {
     | '/dev'
     | '/auth'
     | '/dev/observability'
-    | '/dev/ui'
     | '/dev/'
     | '/complete-profile'
     | '/favorites'
@@ -392,8 +365,6 @@ export interface FileRouteTypes {
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
-    | '/dev/ui/controls'
-    | '/dev/ui/feedback'
     | '/'
     | '/dev/observability/'
     | '/dev/ui/'
@@ -425,8 +396,6 @@ export interface FileRouteTypes {
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
-    | '/dev/ui/controls'
-    | '/dev/ui/feedback'
     | '/'
     | '/dev/observability'
     | '/dev/ui'
@@ -457,7 +426,6 @@ export interface FileRouteTypes {
     | '/(public)/(pages)'
     | '/(token-callbacks)/auth'
     | '/dev/observability'
-    | '/dev/ui'
     | '/dev/'
     | '/(private)/(pages)/complete-profile'
     | '/(private)/(pages)/favorites'
@@ -467,8 +435,6 @@ export interface FileRouteTypes {
     | '/dev/observability/handled-400'
     | '/dev/observability/root-boundary'
     | '/dev/observability/server-error'
-    | '/dev/ui/controls'
-    | '/dev/ui/feedback'
     | '/(public)/(pages)/'
     | '/dev/observability/'
     | '/dev/ui/'
@@ -569,13 +535,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevObservabilityRouteRouteImport
       parentRoute: typeof DevRouteRoute
     }
-    '/dev/ui': {
-      id: '/dev/ui'
-      path: '/ui'
-      fullPath: '/dev/ui'
-      preLoaderRoute: typeof DevUiRouteRouteImport
-      parentRoute: typeof DevRouteRoute
-    }
     '/(private)/(pages)/complete-profile': {
       id: '/(private)/(pages)/complete-profile'
       path: '/complete-profile'
@@ -648,24 +607,10 @@ declare module '@tanstack/react-router' {
     }
     '/dev/ui/': {
       id: '/dev/ui/'
-      path: '/'
+      path: '/ui'
       fullPath: '/dev/ui/'
       preLoaderRoute: typeof DevUiIndexRouteImport
-      parentRoute: typeof DevUiRouteRoute
-    }
-    '/dev/ui/controls': {
-      id: '/dev/ui/controls'
-      path: '/controls'
-      fullPath: '/dev/ui/controls'
-      preLoaderRoute: typeof DevUiControlsRouteImport
-      parentRoute: typeof DevUiRouteRoute
-    }
-    '/dev/ui/feedback': {
-      id: '/dev/ui/feedback'
-      path: '/feedback'
-      fullPath: '/dev/ui/feedback'
-      preLoaderRoute: typeof DevUiFeedbackRouteImport
-      parentRoute: typeof DevUiRouteRoute
+      parentRoute: typeof DevRouteRoute
     }
     '/(private)/(auth)/auth/update-password': {
       id: '/(private)/(auth)/auth/update-password'
@@ -927,32 +872,16 @@ const DevObservabilityRouteRouteWithChildren =
     DevObservabilityRouteRouteChildren,
   )
 
-interface DevUiRouteRouteChildren {
-  DevUiControlsRoute: typeof DevUiControlsRoute
-  DevUiFeedbackRoute: typeof DevUiFeedbackRoute
-  DevUiIndexRoute: typeof DevUiIndexRoute
-}
-
-const DevUiRouteRouteChildren: DevUiRouteRouteChildren = {
-  DevUiControlsRoute: DevUiControlsRoute,
-  DevUiFeedbackRoute: DevUiFeedbackRoute,
-  DevUiIndexRoute: DevUiIndexRoute,
-}
-
-const DevUiRouteRouteWithChildren = DevUiRouteRoute._addFileChildren(
-  DevUiRouteRouteChildren,
-)
-
 interface DevRouteRouteChildren {
   DevObservabilityRouteRoute: typeof DevObservabilityRouteRouteWithChildren
-  DevUiRouteRoute: typeof DevUiRouteRouteWithChildren
   DevIndexRoute: typeof DevIndexRoute
+  DevUiIndexRoute: typeof DevUiIndexRoute
 }
 
 const DevRouteRouteChildren: DevRouteRouteChildren = {
   DevObservabilityRouteRoute: DevObservabilityRouteRouteWithChildren,
-  DevUiRouteRoute: DevUiRouteRouteWithChildren,
   DevIndexRoute: DevIndexRoute,
+  DevUiIndexRoute: DevUiIndexRoute,
 }
 
 const DevRouteRouteWithChildren = DevRouteRoute._addFileChildren(

@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
-import { grid, wrap } from 'styled-system/patterns'
+import { grid } from 'styled-system/patterns'
 import type { ReactNode } from 'react'
 import type { SystemStyleObject } from 'styled-system/types'
 import type { HeadingLevel } from '@/components/ui/heading'
@@ -36,54 +36,19 @@ type DevPageIntroProps = {
   title: string
   description: ReactNode
   backLink?: ReactNode
-  descriptionTone?: 'default' | 'muted'
 }
 
 export function DevPageIntro({
   title,
   description,
   backLink,
-  descriptionTone = 'default',
 }: DevPageIntroProps) {
   return (
     <header className={grid({ gap: '4' })}>
-      <div
-        className={wrap({
-          align: 'center',
-          justify: backLink ? 'space-between' : 'flex-end',
-          rowGap: '2',
-          columnGap: '4',
-        })}
-      >
-        {backLink ? (
-          <div className={css({ minWidth: 0 })}>{backLink}</div>
-        ) : null}
-        <p
-          className={css({
-            color: 'text.muted',
-            fontSize: 'xs',
-            fontWeight: 600,
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            padding: '0.35rem 0.65rem',
-            border: 'default',
-            borderRadius: 'full',
-            backgroundColor: 'bg.surface.2',
-            textAlign: 'right',
-          })}
-        >
-          Development Only
-        </p>
-      </div>
-
+      {backLink ? <div className={css({ minWidth: 0 })}>{backLink}</div> : null}
       <div className={css(devTextStackCss)}>
-        <PageHeader title={title} />
-        <p
-          className={css(
-            { maxWidth: 'readingMax' },
-            descriptionTone === 'muted' && { color: 'text.muted' },
-          )}
-        >
+        <PageHeader title={title} meta="development only" />
+        <p className={css({ maxWidth: 'readingMax', color: 'text.muted' })}>
           {description}
         </p>
       </div>
