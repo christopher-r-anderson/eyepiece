@@ -107,7 +107,7 @@ function DevUiGalleryPage() {
             </FormActions>
           }
         >
-          <FormHeading level={2}>Example form</FormHeading>
+          <FormHeading level={3}>Example form</FormHeading>
           <InputGroup>
             <TextField
               label="Email"
