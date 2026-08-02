@@ -6,7 +6,19 @@ If you are developing for `eyepiece.net`, this is already set up.
 
 GitHub repo hosting and Netlify web hosting are assumed throughout. If you use other platforms, you will need to adapt the CI/CD and deployment steps.
 
-For the current Sentry environment variable reference, see [EnvironmentVariables.md](EnvironmentVariables.md).
+## Overview
+
+The setup alternates between services because each one needs values produced by another. In order:
+
+1. Provider keys: get the Smithsonian API key.
+2. GitHub part one: clone the repository.
+3. Sentry (optional): create the project and collect its values.
+4. Netlify part one: create the project, lock publishing, pin the runtime, pick a domain.
+5. Supabase: create the project, configure auth, push the schema and config.
+6. GitHub part two: add the secrets and variables the workflows need.
+7. Netlify part two: add the environment variables the site needs.
+
+The deployment model behind the configuration: CI builds and publishes production after database migrations and showcase provisioning; Netlify builds deploy previews and branch deploys and runs the server function for every deploy. [EnvironmentVariables.md](EnvironmentVariables.md) has the what-goes-where table and the per-variable reference; this guide covers where each value comes from.
 
 ## Asset Provider API Keys
 
@@ -26,29 +38,14 @@ Once you have the key, add it to your local env files as part of local setup. Yo
 
 ## Sentry
 
-Sentry is optional but recommended for production deployments.
-
-The publish workflow builds the production site in GitHub Actions; Netlify builds deploy previews and branch deploys and runs the deployed server function. Because of that:
-
-- the build-time client Sentry variables belong in Netlify and in GitHub,
-- the server runtime Sentry variables belong in Netlify only, and
-- `SENTRY_AUTH_TOKEN` belongs in Netlify and in GitHub so both builders can upload source maps.
-
-This project uses two Sentry variable prefixes:
-
-- `VITE_SENTRY_*` for client build configuration,
-- `SENTRY_*` for server runtime configuration.
-
-Using both in Netlify is recommended for production. The values often match, but they apply to different parts of the application.
-
-The DSN is not a secret. The auth token is a secret.
+Sentry is optional but recommended for production deployments. Variable semantics and placement live in [EnvironmentVariables.md](EnvironmentVariables.md); this section covers getting the values.
 
 ### Where To Get Sentry Values
 
 Create or select the Sentry organization and project you want this site to report to before filling in the Netlify variables below.
 
 - DSN: in Sentry, go to `Project Settings -> Client Keys (DSN)` and copy the DSN for the project. Use the same DSN value for `VITE_SENTRY_DSN` and `SENTRY_DSN` unless you have a specific reason not to.
-- Auth token: in Sentry, create an organization token under `Settings -> Developer Settings -> Organization Tokens`, or a personal token under `User Settings-> Developer Settings -> Personal Tokens`. For source map uploads, the token needs `Project: Read & Write` and `Release: Admin` permissions. Store this in Netlify and in GitHub as `SENTRY_AUTH_TOKEN`.
+- Auth token: in Sentry, create an organization token under `Settings -> Developer Settings -> Organization Tokens`, or a personal token under `User Settings-> Developer Settings -> Personal Tokens`. For source map uploads, the token needs `Project: Read & Write` and `Release: Admin` permissions. Store this in Netlify and in GitHub as `SENTRY_AUTH_TOKEN`, and keep your own copy: Sentry shows the token only at creation, and neither Sentry nor Netlify will display it again later.
 - Organization slug and project slug: the Sentry build plugin needs these too, but in this repo they are currently configured in code rather than environment variables. You can find both in the Sentry project URL after opening the project, and they should match the `org` and `project` values in `vite.config.ts`.
 - Environment names: values like `production`, `preview`, and `local` are chosen by you to match your deployment model. They are not assigned by Sentry.
 - Release values: `VITE_SENTRY_RELEASE` and `SENTRY_RELEASE` are optional explicit release identifiers that you choose. If you leave them blank, the Sentry build plugin will normally auto-detect a release during production builds from CI commit metadata or the current git SHA.
@@ -123,10 +120,11 @@ Add the following repository variables under `Variables -> Repository variables 
 - `VITE_SENTRY_DSN`: only if you use Sentry. The public Sentry DSN, the same value used in Netlify.
 - `VITE_SENTRY_ENVIRONMENT`: only if you use Sentry. Typically `production`, the same value used in Netlify.
 - `VITE_SENTRY_TRACES_SAMPLE_RATE`, `VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE`, `VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE`: only if you use non-default sample rates. The publish workflow passes them through when set; unset falls back to the code defaults.
+- `VITE_SENTRY_RELEASE`: only if you set an explicit release. Passed through when set; unset lets the build plugin auto-detect a release.
 
 You may choose to store these as secrets instead, but if you do, you must also update `.github/workflows/ci.yml` so those values are read from `secrets` instead of `vars`.
 
-The publish workflow builds the production site, so the browser build values live in GitHub as well as Netlify. Netlify keeps its copies for deploy previews and branch deploys.
+The publish workflow builds the production site, so the browser build values live in GitHub as well as Netlify.
 
 ## Netlify - Part Two
 
@@ -158,11 +156,7 @@ Under `Project Configuration -> Environment variables`, add these variables:
 - `SENTRY_TRACES_SAMPLE_RATE`: server trace sample rate.
 - `SENTRY_AUTH_TOKEN`: used by the Netlify build to upload source maps to Sentry. Keep this as a secret.
 
-Netlify builds deploy previews and branch deploys and runs the deployed server function. The production site itself is built in CI, so any client build value you set in Netlify beyond the code defaults needs its GitHub counterpart set to the same value. The release variables are the exception: leave them unset everywhere and the build plugin auto-detects a release.
-
-The `VITE_SENTRY_*` variables configure the client bundle at build time. The `SENTRY_*` variables configure the Netlify server function at runtime. The replay-related variables are client-only and do not need `SENTRY_*` equivalents.
-
-For source map uploads and default runtime release injection during production builds, the Sentry build plugin can auto-detect a release from `SENTRY_RELEASE`, CI commit variables, or the current git SHA. In practice, leaving both `SENTRY_RELEASE` and `VITE_SENTRY_RELEASE` blank will usually still produce a release value in Sentry for production builds.
+Any client build value set here beyond the code defaults needs its GitHub counterpart set to the same value; the deployment model notes in [EnvironmentVariables.md](EnvironmentVariables.md) explain why.
 
 The current setup uses the same values across environments unless you decide otherwise. If you later introduce more sophisticated environment separation, you can adjust that in Netlify.
 

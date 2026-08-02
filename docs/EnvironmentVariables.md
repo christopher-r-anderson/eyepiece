@@ -1,6 +1,44 @@
 # Environment Variables
 
-This document currently covers the environment variable setup, broken down by topic / service.
+Reference for every environment variable the project uses: the table shows where each value lives, and the sections after it explain the ones with real semantics. [NewProductionSite.md](NewProductionSite.md) walks through obtaining the values in setup order.
+
+## What Goes Where
+
+| Variable                                   | GitHub Actions | Netlify  | `.env.local` |
+| ------------------------------------------ | -------------- | -------- | ------------ |
+| `SI_OA_API_KEY`                            | secret         | secret   | yes          |
+| `NETLIFY_AUTH_TOKEN`                       | secret         |          |              |
+| `NETLIFY_SITE_ID`                          | variable       |          |              |
+| `SUPABASE_ACCESS_TOKEN`                    | secret         |          |              |
+| `SUPABASE_DB_PASSWORD`                     | secret         |          |              |
+| `SUPABASE_PROJECT_REF`                     | variable       |          |              |
+| `SUPABASE_SECRET_KEY`                      | secret         | secret   | yes          |
+| `SHOWCASE_USER_EMAIL`                      | secret         |          | yes          |
+| `VITE_SUPABASE_URL`                        | derived        | yes      | yes          |
+| `VITE_SUPABASE_PUBLISHABLE_KEY`            | variable       | yes      | yes          |
+| `VITE_SENTRY_ENABLED`                      | variable       | yes      | yes          |
+| `VITE_SENTRY_DSN`                          | variable       | yes      | optional     |
+| `VITE_SENTRY_ENVIRONMENT`                  | variable       | yes      | optional     |
+| `VITE_SENTRY_RELEASE`                      | optional       | optional |              |
+| `VITE_SENTRY_TRACES_SAMPLE_RATE`           | optional       | optional | optional     |
+| `VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE`  | optional       | optional | optional     |
+| `VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE` | optional       | optional | optional     |
+| `SENTRY_ENABLED`                           |                | yes      |              |
+| `SENTRY_DSN`                               |                | yes      |              |
+| `SENTRY_ENVIRONMENT`                       |                | yes      |              |
+| `SENTRY_RELEASE`                           |                | optional |              |
+| `SENTRY_TRACES_SAMPLE_RATE`                |                | optional |              |
+| `SENTRY_AUTH_TOKEN`                        | secret         | secret   | optional     |
+| `AWS_LAMBDA_JS_RUNTIME`                    |                | yes      |              |
+| `NODE_VERSION`                             |                | toml     |              |
+
+Reading the table:
+
+- GitHub Actions cells say whether the value is a repository secret or a repository variable. Every Sentry row applies only if you use Sentry.
+- `VITE_SUPABASE_URL` is derived in GitHub: the publish workflow builds it from `SUPABASE_PROJECT_REF`.
+- `.env.test` is generated (`pnpm -s print-supabase-env > .env.test`) and keeps `VITE_SENTRY_ENABLED=false`; nothing in it is provisioned by hand.
+- `NODE_VERSION` lives in `netlify.toml`; the Netlify UI Node version setting is kept matching it.
+- `PRERENDER` and `PROVIDER_FIXTURE_MODE` are workflow and script flags, set where they are used and never provisioned.
 
 ## Sentry
 
@@ -18,25 +56,25 @@ On the server, this project prefers the `SENTRY_*` runtime variables and falls b
 
 #### Build Secret for Source Map Upload
 
-- `SENTRY_AUTH_TOKEN`: used for build-time source map upload; set in GitHub Actions, Netlify build env, and optionally local `.env.local`. Required wherever `pnpm build` should upload source maps to Sentry. Not needed for tests or runtime.
+- `SENTRY_AUTH_TOKEN`: uploads source maps during `pnpm build`. Not needed for tests or runtime.
 
 #### Client Build
 
-- `VITE_SENTRY_ENABLED`: used by the client build and as a server fallback; set in `.env.local`, `.env.test`, and Netlify. Enables client-side Sentry. Use `false` locally and in tests unless intentionally verifying Sentry.
-- `VITE_SENTRY_DSN`: used by the client build and as a server fallback; set in `.env.local`, `.env.test`, and Netlify. Public DSN used by the browser bundle.
-- `VITE_SENTRY_ENVIRONMENT`: used by the client build and as a server fallback; set in `.env.local`, `.env.test`, and Netlify. Typical values are `local`, `test`, `preview`, or `production`.
-- `VITE_SENTRY_RELEASE`: used by the client build and as a server fallback; optional. Optional explicit release identifier for the browser SDK. If this is unset, the Sentry build plugin will normally inject an auto-detected release during production builds, typically from CI commit metadata or the current git SHA.
-- `VITE_SENTRY_TRACES_SAMPLE_RATE`: used by the client build and as a server fallback; optional. Transaction sampling rate for the browser SDK.
-- `VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE`: used by the client build; optional. Browser Replay session sample rate. Not used by the server.
-- `VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE`: used by the client build; optional. Browser Replay on-error sample rate. Not used by the server.
+- `VITE_SENTRY_ENABLED`: enables client-side Sentry. Keep it `false` locally and in tests unless intentionally verifying Sentry.
+- `VITE_SENTRY_DSN`: public DSN used by the browser bundle.
+- `VITE_SENTRY_ENVIRONMENT`: typical values are `local`, `test`, `preview`, or `production`.
+- `VITE_SENTRY_RELEASE`: optional explicit release identifier for the browser SDK. Unset lets the Sentry build plugin auto-detect a release during production builds, typically from CI commit metadata or the current git SHA.
+- `VITE_SENTRY_TRACES_SAMPLE_RATE`: transaction sampling rate for the browser SDK.
+- `VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE`: browser Replay session sample rate. Not used by the server.
+- `VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE`: browser Replay on-error sample rate. Not used by the server.
 
 #### Server Runtime
 
-- `SENTRY_ENABLED`: used by server runtime; set in Netlify. Recommended for production even when `VITE_SENTRY_ENABLED` is also set. Keeps server runtime config explicit.
-- `SENTRY_DSN`: used by server runtime; set in Netlify. Recommended runtime DSN for the Netlify server function. Usually the same value as `VITE_SENTRY_DSN`.
-- `SENTRY_ENVIRONMENT`: used by server runtime; set in Netlify. Recommended runtime environment for server events. Usually the same value as `VITE_SENTRY_ENVIRONMENT`.
-- `SENTRY_RELEASE`: used by server runtime; optional. Optional explicit server release identifier. If this is unset, the server falls back to `VITE_SENTRY_RELEASE`; if both are unset, the Sentry build plugin will normally inject an auto-detected release during production builds, typically from CI commit metadata or the current git SHA.
-- `SENTRY_TRACES_SAMPLE_RATE`: used by server runtime; optional. Recommended if you want the server trace sample rate to be explicit instead of relying on the `VITE_` fallback.
+- `SENTRY_ENABLED`: recommended for production even when `VITE_SENTRY_ENABLED` is also set. Keeps server runtime config explicit.
+- `SENTRY_DSN`: runtime DSN for the Netlify server function. Usually the same value as `VITE_SENTRY_DSN`.
+- `SENTRY_ENVIRONMENT`: runtime environment for server events. Usually the same value as `VITE_SENTRY_ENVIRONMENT`.
+- `SENTRY_RELEASE`: optional explicit server release identifier. Unset falls back to `VITE_SENTRY_RELEASE`; with both unset, the Sentry build plugin auto-detects a release during production builds.
+- `SENTRY_TRACES_SAMPLE_RATE`: recommended if you want the server trace sample rate to be explicit instead of relying on the `VITE_` fallback.
 
 ### Local Development
 
@@ -70,51 +108,15 @@ Tests should leave Sentry disabled.
 - `SENTRY_AUTH_TOKEN` is not needed for tests.
 - The current Vitest setup skips the Sentry Vite plugin, so test runs do not require build-time Sentry credentials.
 
-### GitHub Actions
+### Deployment Model
 
-The publish job builds the production site and uploads it with `netlify deploy`.
+The publish workflow builds the production site in CI and uploads it with `netlify deploy`; Netlify builds deploy previews and branch deploys and runs the deployed server function for all of them.
 
-- Lint, typecheck, unit tests, integration tests, and e2e do not need Sentry variables.
-- The publish job needs `SENTRY_AUTH_TOKEN` as a secret and `VITE_SENTRY_ENABLED`, `VITE_SENTRY_DSN`, and `VITE_SENTRY_ENVIRONMENT` as variables, matching the Netlify values.
-- The client sample-rate variables pass through as optional repository variables; unset falls back to the code defaults, which match the configured Netlify values.
-- The release variables are left unset in GitHub: releases are auto-detected from CI commit metadata.
-
-### Netlify
-
-Netlify builds deploy previews and branch deploys and runs the deployed server function. The production site is built in CI.
-
-The client build variables below stay in Netlify for preview and branch builds; the production build reads its copies from GitHub.
-
-#### Recommended Client Build Variables
-
-- `VITE_SENTRY_ENABLED=true`
-- `VITE_SENTRY_DSN=...`
-- `VITE_SENTRY_ENVIRONMENT=production`
-- `VITE_SENTRY_RELEASE=...` optional. In production builds, leaving this unset normally lets the Sentry build plugin inject an auto-detected release from CI commit metadata or the current git SHA.
-- `VITE_SENTRY_TRACES_SAMPLE_RATE=...`
-- `VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE=...`
-- `VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE=...`
-
-#### Recommended Server Runtime Variables
-
-- `SENTRY_ENABLED=true`
-- `SENTRY_DSN=...`
-- `SENTRY_ENVIRONMENT=production`
-- `SENTRY_RELEASE=...` optional. If this is unset, the server falls back to `VITE_SENTRY_RELEASE`; if both are unset, the Sentry build plugin will normally inject an auto-detected release during production builds.
-- `SENTRY_TRACES_SAMPLE_RATE=...`
-
-#### Recommended Build Secret (for source map uploads)
-
-- `SENTRY_AUTH_TOKEN=...`
-
-For source map uploads and default runtime release injection during production builds, the Sentry build plugin can auto-detect a release from `SENTRY_RELEASE`, CI commit variables, or the current git SHA. In practice, leaving both `SENTRY_RELEASE` and `VITE_SENTRY_RELEASE` blank will usually still produce a release value in Sentry for production builds.
-
-Using both `VITE_SENTRY_*` and `SENTRY_*` in Netlify is recommended for production. The values often match, but they serve different purposes:
-
-- `VITE_SENTRY_*` configures the browser bundle at build time.
-- `SENTRY_*` keeps the server runtime configuration explicit.
-
-The replay sample-rate settings are client-only and do not need `SENTRY_*` runtime equivalents.
+- Client build values live in both stores: the Netlify copies serve preview and branch builds, the GitHub copies serve the production build. A client build value set beyond the code defaults needs both copies matching.
+- The client sample rates pass through the publish workflow as optional repository variables; unset falls back to the code defaults.
+- Release variables are optional and left unset in this deployment: the Sentry build plugin auto-detects a release from CI commit metadata or the current git SHA. An explicit `VITE_SENTRY_RELEASE` passes through the publish workflow like the sample rates and needs matching GitHub and Netlify copies; `SENTRY_RELEASE` is runtime-only and lives in Netlify.
+- Server runtime values live only in Netlify; the function reads them at runtime no matter which builder produced the deploy.
+- Only the publish job needs Sentry values; lint, typecheck, and the test jobs run without them.
 
 ## Providers
 
@@ -128,4 +130,4 @@ The e2e suite is the one exception. With `PROVIDER_FIXTURE_MODE=replay` no reque
 
 ## Showcase Provisioning
 
-- `SHOWCASE_USER_EMAIL`: used by `pnpm provision-showcase`; set in `.env.local` for local runs and as a GitHub Actions secret for production publishes. The email address of the provisioned showcase account. Whoever controls this mailbox can access the showcase account through password reset, so it must be an address the deployment owner controls. Any placeholder address works locally.
+- `SHOWCASE_USER_EMAIL`: used by `pnpm provision-showcase`. The email address of the provisioned showcase account. Whoever controls this mailbox can access the showcase account through password reset, so it must be an address the deployment owner controls. Any placeholder address works locally.
