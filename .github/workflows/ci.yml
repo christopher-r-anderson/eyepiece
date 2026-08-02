@@ -247,75 +247,48 @@ jobs:
           SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
         run: pnpm provision-showcase --phase=apply
 
-      # production push builds are skipped (netlify.toml ignore); the deploy
-      # is built here, after provisioning
-      - name: Trigger Netlify production build
+      - name: Build production site
         env:
-          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
-        run: |
-          echo "NETLIFY_TRIGGER_EPOCH=$(date -u +%s)" >> "$GITHUB_ENV"
-          curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL" >/dev/null
+          VITE_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SENTRY_ENABLED: ${{ vars.VITE_SENTRY_ENABLED }}
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          VITE_SENTRY_ENVIRONMENT: ${{ vars.VITE_SENTRY_ENVIRONMENT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: pnpm build
 
-      - name: Publish Netlify production deploy
+      # netlify deploy --prod refuses while the published deploy is locked;
+      # lift the lock for the publish, the re-lock step below restores it
+      - name: Unlock production publishing
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
-          GITHUB_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-
-          api="https://api.netlify.com/api/v1"
-          auth="Authorization: Bearer ${NETLIFY_AUTH_TOKEN}"
-
-          if ! command -v jq >/dev/null 2>&1; then
-            echo "ERROR: jq is required but not installed."
-            exit 1
+          published_id="$(pnpm -s netlify api getSite --data "{\"site_id\": \"${NETLIFY_SITE_ID}\"}" | jq -r '.published_deploy.id // empty')"
+          if [ -n "$published_id" ]; then
+            pnpm -s netlify api unlockDeploy --data "{\"deploy_id\": \"${published_id}\"}" > /dev/null
+            echo "Unlocked ${published_id}"
           fi
 
-          # Poll until Netlify has a READY production deploy for this exact
-          # commit on main, created after the trigger above. A workflow_dispatch
-          # rerun reuses a sha that already has a ready deploy; without the
-          # created_at cutoff the poll would publish that stale deploy instead
-          # of the post-provisioning build. The cutoff has a minute of slack
-          # for clock skew between the runner and Netlify.
-          cutoff=$((NETLIFY_TRIGGER_EPOCH - 60))
+      - name: Deploy Netlify production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+        run: pnpm netlify deploy --prod --no-build --message "ci publish ${GITHUB_SHA}"
 
-          for i in {1..120}; do
-            echo "Looking for Netlify production deploy for commit ${GITHUB_SHA} (attempt $i)..."
-
-            deploy_id="$(
-              curl -fsS -H "$auth" \
-                "${api}/sites/${NETLIFY_SITE_ID}/deploys?production=true&branch=main&per_page=50" \
-              | jq -r --arg sha "$GITHUB_SHA" --arg cutoff "$cutoff" '
-                  map(select(.commit_ref == $sha))
-                  | map(select(.state == "ready"))
-                  | map(select(
-                      (.created_at | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)
-                        >= ($cutoff | tonumber)
-                    ))
-                  | .[0].id // empty
-                '
-            )"
-
-            if [ -n "$deploy_id" ]; then
-              echo "Found ready deploy: $deploy_id"
-              break
-            fi
-
-            sleep 5
-          done
-
-          if [ -z "${deploy_id:-}" ]; then
-            echo "ERROR: No READY Netlify production deploy found for commit ${GITHUB_SHA}."
-            echo "Either Netlify hasn’t finished building yet, or the deploy isn't tagged with this commit."
-            exit 1
+      # always() so an aborted publish never leaves the site unlocked;
+      # re-locks whichever deploy is currently published
+      - name: Re-lock production publishing
+        if: ${{ always() }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+        run: |
+          published_id="$(pnpm -s netlify api getSite --data "{\"site_id\": \"${NETLIFY_SITE_ID}\"}" | jq -r '.published_deploy.id // empty')"
+          if [ -n "$published_id" ]; then
+            pnpm -s netlify api lockDeploy --data "{\"deploy_id\": \"${published_id}\"}" > /dev/null
+            echo "Locked ${published_id}"
           fi
-
-          echo "Publishing deploy $deploy_id to production..."
-          curl -fsS -X POST -H "$auth" \
-            "${api}/sites/${NETLIFY_SITE_ID}/deploys/${deploy_id}/restore" >/dev/null
-
-          echo "✅ Published ${deploy_id}"
 
       # after the publish so a failed publish never leaves the live homepage
       # linking a collection that has already been deleted

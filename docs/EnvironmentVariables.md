@@ -18,7 +18,7 @@ On the server, this project prefers the `SENTRY_*` runtime variables and falls b
 
 #### Build Secret for Source Map Upload
 
-- `SENTRY_AUTH_TOKEN`: used for build-time source map upload; set in Netlify build env and optionally local `.env.local`. Required wherever `pnpm build` should upload source maps to Sentry. Not needed for tests or runtime.
+- `SENTRY_AUTH_TOKEN`: used for build-time source map upload; set in GitHub Actions, Netlify build env, and optionally local `.env.local`. Required wherever `pnpm build` should upload source maps to Sentry. Not needed for tests or runtime.
 
 #### Client Build
 
@@ -72,17 +72,17 @@ Tests should leave Sentry disabled.
 
 ### GitHub Actions
 
-The current GitHub Actions workflow does not build the production site.
+The publish job builds the production site and uploads it with `netlify deploy`.
 
 - Lint, typecheck, unit tests, integration tests, and e2e do not need Sentry variables.
-- The current publish job promotes a deploy that Netlify already built.
-- Because Netlify performs the production build, `SENTRY_AUTH_TOKEN` does not need to be stored in GitHub Actions for the current workflow.
+- The publish job needs `SENTRY_AUTH_TOKEN` as a secret and `VITE_SENTRY_ENABLED`, `VITE_SENTRY_DSN`, and `VITE_SENTRY_ENVIRONMENT` as variables, matching the Netlify values.
+- The sample-rate and release variables are left unset in GitHub: the code defaults match the configured Netlify values, and releases are auto-detected from CI commit metadata.
 
 ### Netlify
 
-Netlify performs the production build and also runs the deployed server function.
+Netlify builds deploy previews and branch deploys and runs the deployed server function. The production site is built in CI.
 
-For the current deployment model, Netlify should own the production Sentry configuration.
+The client build variables below stay in Netlify for preview and branch builds; the production build reads its copies from GitHub.
 
 #### Recommended Client Build Variables
 
