@@ -105,6 +105,7 @@ export const Route = createFileRoute('/(public)/(pages)/(search)/search')({
       {
         title: getTitleText(searchTitle(toSearchPageState(match.search))),
       },
+      { name: 'robots', content: 'noindex' },
     ],
   }),
   errorComponent: SearchRouteError,

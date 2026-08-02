@@ -113,7 +113,10 @@ describe('search page route', () => {
       match: { search: { q: 'apollo' } },
     })
 
-    expect(head.meta).toEqual([{ title: 'Eyepiece | Search for "apollo"' }])
+    expect(head.meta).toEqual([
+      { title: 'Eyepiece | Search for "apollo"' },
+      { name: 'robots', content: 'noindex' },
+    ])
   })
 
   it('appends the provider label to the title for a provider scope', () => {
@@ -123,6 +126,7 @@ describe('search page route', () => {
 
     expect(head.meta).toEqual([
       { title: 'Eyepiece | Search for "apollo" – NASA' },
+      { name: 'robots', content: 'noindex' },
     ])
   })
 
@@ -131,7 +135,10 @@ describe('search page route', () => {
       match: { search: { q: '' } },
     })
 
-    expect(head.meta).toEqual([{ title: 'Eyepiece | Search' }])
+    expect(head.meta).toEqual([
+      { title: 'Eyepiece | Search' },
+      { name: 'robots', content: 'noindex' },
+    ])
   })
 
   it('extracts providerId for error capture from a provider-scoped raw search', () => {
