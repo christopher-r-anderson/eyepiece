@@ -101,6 +101,7 @@ describe('provisionShowcaseContent', () => {
       userCreated: true,
       snapshotsFetched: 4,
       collectionsWritten: 2,
+      collectionsHidden: 0,
       collectionsDeleted: 0,
       itemsWritten: 4,
       itemsRemoved: 0,
@@ -170,6 +171,7 @@ describe('provisionShowcaseContent', () => {
       userCreated: false,
       snapshotsFetched: 0,
       collectionsWritten: 2,
+      collectionsHidden: 0,
       collectionsDeleted: 0,
       itemsWritten: 4,
       itemsRemoved: 0,
@@ -219,6 +221,7 @@ describe('provisionShowcaseContent', () => {
       userCreated: false,
       snapshotsFetched: 0,
       collectionsWritten: 1,
+      collectionsHidden: 1,
       collectionsDeleted: 1,
       itemsWritten: 2,
       // one pruned from the kept collection, one cascaded with the dropped one
@@ -274,6 +277,7 @@ describe('provisionShowcaseContent', () => {
       userCreated: false,
       snapshotsFetched: 0,
       collectionsWritten: 0,
+      collectionsHidden: 2,
       collectionsDeleted: 2,
       itemsWritten: 0,
       itemsRemoved: 4,
@@ -286,7 +290,7 @@ describe('provisionShowcaseContent', () => {
     expect(count).toBe(0)
   })
 
-  it('defers collection deletion to the prune phase', async ({
+  it('hides removed collections on apply and defers deletion to prune', async ({
     adminClient,
   }) => {
     const curation = trackCuration(makeCuration())
@@ -306,12 +310,26 @@ describe('provisionShowcaseContent', () => {
       { email, phase: 'apply' },
     )
     expect(applySummary.collectionsDeleted).toBe(0)
+    expect(applySummary.collectionsHidden).toBe(1)
 
     const { count: afterApply } = await adminClient
       .from('collections')
       .select('id', { count: 'exact', head: true })
       .eq('owner_id', curation.user.id)
     expect(afterApply).toBe(2)
+
+    const { data: visibilities } = await adminClient
+      .from('collections')
+      .select('id, visibility')
+      .eq('owner_id', curation.user.id)
+    expect(
+      new Map(visibilities?.map((row) => [row.id, row.visibility])),
+    ).toEqual(
+      new Map([
+        [curation.collections[0].id, 'public'],
+        [curation.collections[1].id, 'private'],
+      ]),
+    )
 
     const pruneSummary = await provisionShowcaseContent(
       adminClient,
@@ -323,6 +341,7 @@ describe('provisionShowcaseContent', () => {
       userCreated: false,
       snapshotsFetched: 0,
       collectionsWritten: 0,
+      collectionsHidden: 0,
       collectionsDeleted: 1,
       itemsWritten: 0,
       itemsRemoved: 1,
@@ -333,6 +352,40 @@ describe('provisionShowcaseContent', () => {
       .select('id', { count: 'exact', head: true })
       .eq('owner_id', curation.user.id)
     expect(afterPrune).toBe(1)
+  })
+
+  it('re-adding a hidden collection restores its visibility', async ({
+    adminClient,
+  }) => {
+    const curation = trackCuration(makeCuration())
+    const email = uniqueEmail()
+    await provisionShowcaseContent(adminClient, stubFetchAsset, curation, {
+      email,
+    })
+
+    const edited: ShowcaseCuration = {
+      ...curation,
+      collections: [curation.collections[0]],
+    }
+    await provisionShowcaseContent(adminClient, stubFetchAsset, edited, {
+      email,
+      phase: 'apply',
+    })
+
+    const restoreSummary = await provisionShowcaseContent(
+      adminClient,
+      stubFetchAsset,
+      curation,
+      { email, phase: 'apply' },
+    )
+    expect(restoreSummary.collectionsHidden).toBe(0)
+
+    const { data: restored } = await adminClient
+      .from('collections')
+      .select('visibility')
+      .eq('id', curation.collections[1].id)
+      .single()
+    expect(restored?.visibility).toBe('public')
   })
 
   it('never touches collections owned by other users', async ({

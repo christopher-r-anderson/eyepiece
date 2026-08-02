@@ -28,6 +28,7 @@ export interface ProvisionShowcaseSummary {
   userCreated: boolean
   snapshotsFetched: number
   collectionsWritten: number
+  collectionsHidden: number
   collectionsDeleted: number
   itemsWritten: number
   itemsRemoved: number
@@ -239,12 +240,12 @@ async function upsertCollections(
   return { collectionsWritten: rows.length }
 }
 
-async function pruneRemovedCollections(
+async function selectRemovedCollectionIds(
   adminClient: SupabaseClient,
   curation: ShowcaseCuration,
-): Promise<{ collectionsDeleted: number; itemsRemoved: number }> {
+): Promise<Array<string>> {
   const keepIds = curation.collections.map((collection) => collection.id)
-  // an empty keep list means delete everything; PostgREST rejects `not.in.()`
+  // an empty keep list means everything is removed; PostgREST rejects `not.in.()`
   let staleQuery = adminClient
     .from('collections')
     .select('id')
@@ -254,13 +255,37 @@ async function pruneRemovedCollections(
   }
   const { data: stale, error: staleError } = await staleQuery
   if (staleError) {
-    throw new Error(`collections prune lookup failed: ${staleError.message}`)
+    throw new Error(`removed collections lookup failed: ${staleError.message}`)
   }
-  if (stale.length === 0) {
+  return stale.map((row) => row.id)
+}
+
+async function hideRemovedCollections(
+  adminClient: SupabaseClient,
+  curation: ShowcaseCuration,
+): Promise<{ collectionsHidden: number }> {
+  const removedIds = await selectRemovedCollectionIds(adminClient, curation)
+  if (removedIds.length === 0) {
+    return { collectionsHidden: 0 }
+  }
+  const { count, error } = await adminClient
+    .from('collections')
+    .update({ visibility: 'private' }, { count: 'exact' })
+    .in('id', removedIds)
+  if (error) {
+    throw new Error(`collections hide failed: ${error.message}`)
+  }
+  return { collectionsHidden: count ?? 0 }
+}
+
+async function pruneRemovedCollections(
+  adminClient: SupabaseClient,
+  curation: ShowcaseCuration,
+): Promise<{ collectionsDeleted: number; itemsRemoved: number }> {
+  const staleIds = await selectRemovedCollectionIds(adminClient, curation)
+  if (staleIds.length === 0) {
     return { collectionsDeleted: 0, itemsRemoved: 0 }
   }
-
-  const staleIds = stale.map((row) => row.id)
   // counted up front because deleting the collections cascades their items
   const { count: cascadedItems, error: countError } = await adminClient
     .from('collection_items')
@@ -329,9 +354,13 @@ async function reconcileItems(
 // publish (a newly published homepage must never link content that does not
 // exist yet) and 'prune' runs after a successful publish (a failed publish
 // must never leave the still-live homepage linking a deleted collection).
+// Deletion cannot simply move into 'apply' because the production build runs
+// between the phases and prerenders from the database, so 'apply' hides
+// removed collections instead: the build cannot render them, while they stay
+// recoverable until the publish succeeds and 'prune' deletes them.
 // 'full' does both for single-environment runs like local seeding. A failure
-// between the phases leaves at most stale extras, which the next successful
-// prune removes.
+// between the phases leaves at most stale extras (hidden, not visible),
+// which the next successful prune removes.
 export type ProvisionShowcasePhase = 'full' | 'apply' | 'prune'
 
 export interface ProvisionShowcaseOptions {
@@ -355,6 +384,7 @@ export async function provisionShowcaseContent(
     userCreated: false,
     snapshotsFetched: 0,
     collectionsWritten: 0,
+    collectionsHidden: 0,
     collectionsDeleted: 0,
     itemsWritten: 0,
     itemsRemoved: 0,
@@ -399,6 +429,12 @@ export async function provisionShowcaseContent(
       summary.itemsWritten += result.itemsWritten
       summary.itemsRemoved += result.itemsRemoved
     }
+
+    const { collectionsHidden } = await hideRemovedCollections(
+      adminClient,
+      curation,
+    )
+    summary.collectionsHidden = collectionsHidden
   }
 
   if (phase !== 'apply') {
