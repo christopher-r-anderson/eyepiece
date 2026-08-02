@@ -249,6 +249,8 @@ jobs:
 
       - name: Build production site
         env:
+          PRERENDER: '1'
+          SI_OA_API_KEY: ${{ secrets.SI_OA_API_KEY }}
           VITE_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SENTRY_ENABLED: ${{ vars.VITE_SENTRY_ENABLED }}
