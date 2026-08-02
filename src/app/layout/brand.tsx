@@ -1,5 +1,7 @@
 import { css } from 'styled-system/css'
 import logo from '@/assets/eyepiece-logo.svg'
+// no-inline: a data-URI asset can't serve the #mark fragment reference
+import mark from '@/assets/eyepiece-mark.svg?no-inline'
 import { Link } from '@/components/ui/link'
 
 interface BrandProps {
@@ -31,14 +33,7 @@ export function Brand({ fullWordmark, hideWordmarkWhenNarrow }: BrandProps) {
           aria-hidden="true"
           className={css({ display: 'block', flexShrink: 0, color: 'accent' })}
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="8.75"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <circle cx="12" cy="12" r="2.6" fill="currentColor" />
+          <use href={`${mark}#mark`} />
         </svg>
       )}
       <svg
