@@ -252,7 +252,9 @@ jobs:
       - name: Trigger Netlify production build
         env:
           NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
-        run: curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL" >/dev/null
+        run: |
+          echo "NETLIFY_TRIGGER_EPOCH=$(date -u +%s)" >> "$GITHUB_ENV"
+          curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL" >/dev/null
 
       - name: Publish Netlify production deploy
         env:
@@ -271,17 +273,26 @@ jobs:
           fi
 
           # Poll until Netlify has a READY production deploy for this exact
-          # commit on main. The build starts at the trigger above, so the
-          # window covers a full build.
+          # commit on main, created after the trigger above. A workflow_dispatch
+          # rerun reuses a sha that already has a ready deploy; without the
+          # created_at cutoff the poll would publish that stale deploy instead
+          # of the post-provisioning build. The cutoff has a minute of slack
+          # for clock skew between the runner and Netlify.
+          cutoff=$((NETLIFY_TRIGGER_EPOCH - 60))
+
           for i in {1..120}; do
             echo "Looking for Netlify production deploy for commit ${GITHUB_SHA} (attempt $i)..."
 
             deploy_id="$(
               curl -fsS -H "$auth" \
                 "${api}/sites/${NETLIFY_SITE_ID}/deploys?production=true&branch=main&per_page=50" \
-              | jq -r --arg sha "$GITHUB_SHA" '
+              | jq -r --arg sha "$GITHUB_SHA" --arg cutoff "$cutoff" '
                   map(select(.commit_ref == $sha))
                   | map(select(.state == "ready"))
+                  | map(select(
+                      (.created_at | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)
+                        >= ($cutoff | tonumber)
+                    ))
                   | .[0].id // empty
                 '
             )"
