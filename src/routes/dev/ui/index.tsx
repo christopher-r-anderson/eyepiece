@@ -53,15 +53,12 @@ function DevUiGalleryPage() {
     <div className={css(devPageSectionCss)}>
       <DevPageIntro
         title="UI gallery"
-        description="Every shared kit component with its real variants, rendered through the production styles. The styleguide's living exhibit."
+        description="Shared components and their variants, rendered with the production styles."
         backLink={<DevBackLink to="/dev">Back to dev</DevBackLink>}
       />
 
       <DevPanel>
-        <DevTitleBlock
-          title="Buttons"
-          description="The voice ladder: primary and secondary carry weight, ghost is the quiet control, text is a prose action, icon is a glyph, bare is the honest escape hatch."
-        />
+        <DevTitleBlock title="Buttons" />
         <div className={wrap({ gap: '3', align: 'center' })}>
           <Button variant="primary">Primary</Button>
           <Button>Secondary</Button>
@@ -97,7 +94,7 @@ function DevUiGalleryPage() {
       <DevPanel>
         <DevTitleBlock
           title="Form fields"
-          description="FormHeading owns the title ladder; the password field carries its visibility toggle."
+          description="A described field and a password field with its visibility toggle."
         />
         <Form
           // demo-only: a native submit would put the field values in the URL
@@ -197,7 +194,7 @@ function DevUiGalleryPage() {
       <DevPanel>
         <DevTitleBlock
           title="Overlays"
-          description="Modal dialog and sheet, with their entrance motion."
+          description="Modal dialog, sheet, and toast."
         />
         <div className={wrap({ align: 'center', gap: '3' })}>
           <Button onPress={() => setIsModalOpen(true)}>Open modal</Button>
@@ -219,7 +216,7 @@ function DevUiGalleryPage() {
       <DevPanel>
         <DevTitleBlock
           title="States"
-          description="The states vocabulary: loading notice, empty state, and the pretty exception panel."
+          description="Loading notice, empty state, and the error panel."
         />
         <div className={grid({ gap: '5' })}>
           <LoadingNotice>Loading examples…</LoadingNotice>
@@ -245,7 +242,7 @@ function DevUiGalleryPage() {
         isOpen={isSheetOpen}
         onOpenChange={setIsSheetOpen}
       >
-        <p>The sheet surface with its overlay-owned close control.</p>
+        <p>Sheet content with the close control in the top corner.</p>
       </Sheet>
     </div>
   )

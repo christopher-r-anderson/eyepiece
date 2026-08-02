@@ -15,13 +15,14 @@ export const Route = createFileRoute('/dev/')({
 const sections = [
   {
     title: 'UI gallery',
-    description: 'Every shared kit component with its real variants.',
+    description: 'Shared components and their variants.',
     to: '/dev/ui',
     label: 'Open the gallery',
   },
   {
     title: 'Observability',
-    description: 'Deterministic error scenarios for capture verification.',
+    description:
+      'Repeatable error scenarios for checking Sentry and boundary behavior.',
     to: '/dev/observability',
     label: 'Open observability',
   },
