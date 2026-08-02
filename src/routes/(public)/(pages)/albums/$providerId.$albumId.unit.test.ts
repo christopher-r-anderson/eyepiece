@@ -129,6 +129,7 @@ describe('album page route', () => {
 
     expect(withTitle.meta).toEqual([
       { title: 'Eyepiece | Mission Highlights Media' },
+      { property: 'og:title', content: 'Mission Highlights' },
     ])
 
     expect(fallback.meta).toEqual([{ title: 'Eyepiece | Album Media' }])
@@ -136,7 +137,7 @@ describe('album page route', () => {
 
   it('loader prefers collection title when available', async () => {
     mockEnsureInfiniteAlbum.mockResolvedValue({
-      pages: [{ collection: { title: 'Mission Highlights' } }],
+      pages: [{ collection: { title: 'Mission Highlights' }, items: [] }],
     })
 
     const result = await route.loader({

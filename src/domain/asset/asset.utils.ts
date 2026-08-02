@@ -29,3 +29,15 @@ export function toFallbackSrc(image: AssetImage) {
 // grids break rows on this; a record with no usable file lays out square
 export const toAspectRatio = (image: AssetImage | undefined) =>
   image ? image.width / image.height : 1
+
+// scrapers cap what they fetch, and the widest rendition can be enormous
+export function toSocialImage(image: AssetImage) {
+  const rendition =
+    image.renditions.find((r) => r.width <= 1600) ??
+    image.renditions[image.renditions.length - 1]
+  return {
+    url: rendition.href,
+    width: rendition.width,
+    height: rendition.height,
+  }
+}

@@ -10,6 +10,8 @@ import { AddToCollectionButton } from '@/app/add-to-collection-button'
 import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
+import { socialMeta } from '@/lib/social-meta'
+import { toSocialImage } from '@/domain/asset/asset.utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
 import {
@@ -66,6 +68,8 @@ export const Route = createFileRoute(
       const asset = await ensureAsset({ assetKey, queryClient, eyepieceClient })
       return {
         title: asset.title,
+        description: asset.description,
+        image: asset.image,
       }
     } catch (error) {
       if (isNotFoundApiError(error)) {
@@ -75,7 +79,16 @@ export const Route = createFileRoute(
     }
   },
   head: ({ loaderData }) => ({
-    meta: [{ title: getTitleText(loaderData?.title || 'NASA Media') }],
+    meta: [
+      { title: getTitleText(loaderData?.title || 'NASA Media') },
+      ...(loaderData
+        ? socialMeta({
+            title: loaderData.title,
+            description: loaderData.description,
+            image: loaderData.image && toSocialImage(loaderData.image),
+          })
+        : []),
+    ],
   }),
   errorComponent: AssetRouteError,
   notFoundComponent: () => (

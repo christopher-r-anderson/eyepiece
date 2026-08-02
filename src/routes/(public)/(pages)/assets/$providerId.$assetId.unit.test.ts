@@ -226,6 +226,7 @@ describe('asset page route', () => {
   it('uses asset title in head metadata and falls back when missing', () => {
     expect(route.head({ loaderData: { title: 'Apollo 11' } }).meta).toEqual([
       { title: 'Eyepiece | Apollo 11' },
+      { property: 'og:title', content: 'Apollo 11' },
     ])
 
     expect(route.head({ loaderData: undefined }).meta).toEqual([

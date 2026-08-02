@@ -30,6 +30,8 @@ import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/empty-state'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
+import { socialMeta } from '@/lib/social-meta'
+import { toSocialImage } from '@/domain/asset/asset.utils'
 
 // module-level so memoized grid rows see stable references
 const renderTileActions = (item: AssetPreview) => (
@@ -75,15 +77,24 @@ export const Route = createFileRoute(
         publicSupabaseClient,
       }),
     ])
-    await ensureAssetPreviewSnapshotsBatch({
+    const snapshots = await ensureAssetPreviewSnapshotsBatch({
       assetPreviewSnapshotIds: collectionItemPagesToAssetIds(edges),
       queryClient,
       publicSupabaseClient,
     })
-    return { title: collection.name }
+    const cover = snapshots[0]?.image
+    return {
+      title: collection.name,
+      cover: cover && toSocialImage(cover),
+    }
   },
   head: ({ loaderData }) => ({
-    meta: [{ title: getTitleText(loaderData?.title ?? 'Collection') }],
+    meta: [
+      { title: getTitleText(loaderData?.title ?? 'Collection') },
+      ...(loaderData
+        ? socialMeta({ title: loaderData.title, image: loaderData.cover })
+        : []),
+    ],
   }),
   notFoundComponent: () => (
     <NotFound
