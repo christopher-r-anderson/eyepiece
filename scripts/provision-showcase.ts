@@ -101,6 +101,7 @@ console.log(
       ? [
           `user ${summary.userCreated ? 'created' : 'already provisioned'}`,
           `${summary.collectionsWritten} collections written`,
+          `${summary.collectionsHidden} removed collections hidden`,
           `${summary.itemsWritten} items written`,
           `${summary.snapshotsFetched} snapshots fetched from providers`,
         ]
