@@ -76,7 +76,8 @@ The publish job builds the production site and uploads it with `netlify deploy`.
 
 - Lint, typecheck, unit tests, integration tests, and e2e do not need Sentry variables.
 - The publish job needs `SENTRY_AUTH_TOKEN` as a secret and `VITE_SENTRY_ENABLED`, `VITE_SENTRY_DSN`, and `VITE_SENTRY_ENVIRONMENT` as variables, matching the Netlify values.
-- The sample-rate and release variables are left unset in GitHub: the code defaults match the configured Netlify values, and releases are auto-detected from CI commit metadata.
+- The client sample-rate variables pass through as optional repository variables; unset falls back to the code defaults, which match the configured Netlify values.
+- The release variables are left unset in GitHub: releases are auto-detected from CI commit metadata.
 
 ### Netlify
 
