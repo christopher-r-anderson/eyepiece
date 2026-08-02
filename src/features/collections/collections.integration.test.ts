@@ -311,6 +311,38 @@ describe('collections RLS (non-owner and anon)', () => {
     expect(publicList.map((c) => c.id)).toEqual([publicCollection.id])
   })
 
+  it('walks past the response row cap when listing public collection ids', async ({
+    adminClient,
+    client,
+    user,
+  }) => {
+    const privateCollection = unwrapOrThrow(
+      await createCollectionForUser(client, user.id, {
+        name: 'walk private',
+        visibility: 'private',
+      }),
+    )
+
+    const rows = Array.from({ length: 1005 }, (_, index) => ({
+      id: crypto.randomUUID(),
+      owner_id: user.id,
+      name: `walk ${index + 1}`,
+      visibility: 'public' as const,
+      position: index + 1,
+    }))
+    const { error } = await adminClient.from('collections').insert(rows)
+    expect(error).toBeNull()
+
+    const ids = unwrapOrThrow(
+      await makeCollectionsRepo(createAnonClient()).listPublicCollectionIds(),
+    )
+
+    const walked = new Set(ids)
+    expect(ids.length).toBeGreaterThanOrEqual(rows.length)
+    expect(rows.every((row) => walked.has(row.id))).toBe(true)
+    expect(walked.has(privateCollection.id)).toBe(false)
+  })
+
   it("rejects writes to another user's collection as not-found", async ({
     client,
     user,
