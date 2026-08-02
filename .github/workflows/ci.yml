@@ -264,6 +264,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
         run: |
+          set -euo pipefail
           published_id="$(pnpm -s netlify api getSite --data "{\"site_id\": \"${NETLIFY_SITE_ID}\"}" | jq -r '.published_deploy.id // empty')"
           if [ -n "$published_id" ]; then
             pnpm -s netlify api unlockDeploy --data "{\"deploy_id\": \"${published_id}\"}" > /dev/null
@@ -284,6 +285,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
         run: |
+          set -euo pipefail
           published_id="$(pnpm -s netlify api getSite --data "{\"site_id\": \"${NETLIFY_SITE_ID}\"}" | jq -r '.published_deploy.id // empty')"
           if [ -n "$published_id" ]; then
             pnpm -s netlify api lockDeploy --data "{\"deploy_id\": \"${published_id}\"}" > /dev/null

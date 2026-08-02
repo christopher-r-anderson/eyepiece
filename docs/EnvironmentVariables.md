@@ -45,7 +45,7 @@ Local development should normally leave Sentry disabled.
 - Keep `VITE_SENTRY_ENABLED=false` in `.env.local` unless you are intentionally verifying the Sentry integration.
 - If Sentry is disabled, the rest of the Sentry vars can be left blank.
 - Local development usually does not need separate `SENTRY_*` runtime vars because the server falls back to the `VITE_SENTRY_*` values.
-- `SENTRY_AUTH_TOKEN` is only needed locally if you want a local `pnpm build` to upload source maps which is normally handled by the Netlify build server.
+- `SENTRY_AUTH_TOKEN` is only needed locally if you want a local `pnpm build` to upload source maps, which is normally handled by the publish workflow.
 
 When you do want to verify observability locally, set `VITE_SENTRY_ENABLED=true`, provide a valid `VITE_SENTRY_DSN`, and use the dev-only workbench at `/dev/observability` to exercise the supported scenarios.
 

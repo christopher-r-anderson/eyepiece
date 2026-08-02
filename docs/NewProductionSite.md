@@ -28,13 +28,11 @@ Once you have the key, add it to your local env files as part of local setup. Yo
 
 Sentry is optional but recommended for production deployments.
 
-The current deployment model builds the production site on Netlify, not in GitHub Actions. Because of that:
+The publish workflow builds the production site in GitHub Actions; Netlify builds deploy previews and branch deploys and runs the deployed server function. Because of that:
 
-- the build-time client Sentry variables belong in Netlify,
-- the server runtime Sentry variables also belong in Netlify, and
-- `SENTRY_AUTH_TOKEN` belongs in Netlify if you want the Netlify build to upload source maps.
-
-GitHub Actions does not need Sentry variables for the current CI and publish workflow.
+- the build-time client Sentry variables belong in Netlify and in GitHub,
+- the server runtime Sentry variables belong in Netlify only, and
+- `SENTRY_AUTH_TOKEN` belongs in Netlify and in GitHub so both builders can upload source maps.
 
 This project uses two Sentry variable prefixes:
 
@@ -159,7 +157,7 @@ Under `Project Configuration -> Environment variables`, add these variables:
 - `SENTRY_TRACES_SAMPLE_RATE`: server trace sample rate.
 - `SENTRY_AUTH_TOKEN`: used by the Netlify build to upload source maps to Sentry. Keep this as a secret.
 
-Netlify builds deploy previews and branch deploys and runs the deployed server function. The production site itself is built in CI, so the `VITE_*` values above must match their GitHub counterparts.
+Netlify builds deploy previews and branch deploys and runs the deployed server function. The production site itself is built in CI, so `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SENTRY_ENABLED`, `VITE_SENTRY_DSN`, and `VITE_SENTRY_ENVIRONMENT` must match their GitHub counterparts. The release and sample-rate variables are deliberately Netlify-only: the code defaults match them, and mirroring would add drift-prone copies.
 
 The `VITE_SENTRY_*` variables configure the client bundle at build time. The `SENTRY_*` variables configure the Netlify server function at runtime. The replay-related variables are client-only and do not need `SENTRY_*` equivalents.
 
