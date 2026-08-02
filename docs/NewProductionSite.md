@@ -64,7 +64,8 @@ Note that `deno.lock` is ignored in `.gitignore` because edge functions are not 
 3. Lock production auto-publishing under `Deploys -> Lock production auto-publishing`. Production publishing is intended to happen from CI after checks succeed.
 4. Note the Project ID under `Project Configuration -> General -> Project information -> Project ID`. This is used in GitHub as `NETLIFY_SITE_ID`.
 5. Generate a Personal Access Token under `User settings -> Applications -> Personal access tokens`. This is used in GitHub as `NETLIFY_AUTH_TOKEN` to publish production builds. Use an expiration date and keep track of it. If the token expires, production publishing will fail. If that failure happens alongside non-backwards-compatible database changes, the site can be left in a broken state.
-6. Choose a production domain:
+6. Create a build hook under `Project Configuration -> Build & deploy -> Continuous deployment -> Build hooks` with the branch set to `main` and a name like `CI post-provision production build`. The hook URL is used in GitHub as `NETLIFY_BUILD_HOOK_URL`. Push-triggered production builds are skipped (see `ignore` in `netlify.toml`); the publish workflow uses this hook to build the production deploy after showcase provisioning.
+7. Choose a production domain:
    - use the Netlify subdomain under `Domain Management -> Production domains -> Netlify subdomain`, or
    - configure a primary domain by following [Netlify Docs: Get started with domains](https://docs.netlify.com/manage/domains/get-started-with-domains/).
 
@@ -104,10 +105,11 @@ In your GitHub repository, go to `Settings -> Secrets and variables -> Actions`.
 
 You can use repository-level secrets and variables, or use an environment if you have one set up. Repository-level configuration is sufficient for the current setup.
 
-Add the following six secrets under `Secrets -> Repository secrets -> New repository secret`:
+Add the following seven secrets under `Secrets -> Repository secrets -> New repository secret`:
 
 - `SI_OA_API_KEY`: your Smithsonian Institution Open Access or `api.data.gov` API key.
 - `NETLIFY_AUTH_TOKEN`: the Netlify Personal Access Token.
+- `NETLIFY_BUILD_HOOK_URL`: the build hook URL created during Netlify setup. Anyone with the URL can trigger builds, so keep it secret.
 - `SUPABASE_ACCESS_TOKEN`: the Supabase access token.
 - `SUPABASE_DB_PASSWORD`: the database password created during Supabase project setup. If you reset it later in Supabase, any other systems using that password will also need to be updated.
 - `SUPABASE_SECRET_KEY`: the Supabase secret key, the same value used in Netlify. The publish workflow uses it to provision showcase content after database migrations are deployed.
