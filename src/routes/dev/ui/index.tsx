@@ -100,6 +100,8 @@ function DevUiGalleryPage() {
           description="FormHeading owns the title ladder; the password field carries its visibility toggle."
         />
         <Form
+          // demo-only: a native submit would put the field values in the URL
+          onSubmit={(event) => event.preventDefault()}
           controls={
             <FormActions>
               <Button variant="primary" type="submit">
