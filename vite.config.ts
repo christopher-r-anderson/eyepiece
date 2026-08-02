@@ -31,6 +31,24 @@ const config = defineConfig(({ mode }) => {
               files: ['**/server/**'],
             },
           },
+          // only the production publish (ci.yml) sets PRERENDER; other builds
+          // skip the provider and database traffic prerendering causes
+          ...(process.env.PRERENDER === '1' && {
+            pages: [{ path: '/' }],
+            prerender: {
+              enabled: true,
+              crawlLinks: true,
+              // discovery would sweep in auth, private, and dev routes, and
+              // the prerenderer writes a redirect's target html under the
+              // source path (the login page saved as /favorites)
+              autoStaticPathsDiscovery: false,
+              filter: (page) =>
+                page.path === '/' ||
+                page.path.startsWith('/albums/') ||
+                page.path.startsWith('/collections/'),
+              retryCount: 2,
+            },
+          }),
         }),
       viteReact(),
       netlify(),
