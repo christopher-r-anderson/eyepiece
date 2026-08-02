@@ -51,6 +51,8 @@ const config = defineConfig(({ mode }) => {
                 (page.path === '/' ||
                   page.path.startsWith('/albums/') ||
                   page.path.startsWith('/collections/')),
+              // page.html output prevents netlify trailing-slash 301s
+              autoSubfolderIndex: false,
               retryCount: 2,
             },
           }),
