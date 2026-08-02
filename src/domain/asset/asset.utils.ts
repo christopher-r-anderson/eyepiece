@@ -30,8 +30,7 @@ export function toFallbackSrc(image: AssetImage) {
 export const toAspectRatio = (image: AssetImage | undefined) =>
   image ? image.width / image.height : 1
 
-// link previews want a large-but-bounded file: scrapers cap what they
-// fetch, and the widest rendition can be enormous
+// scrapers cap what they fetch, and the widest rendition can be enormous
 export function toSocialImage(image: AssetImage) {
   const rendition =
     image.renditions.find((r) => r.width <= 1600) ??

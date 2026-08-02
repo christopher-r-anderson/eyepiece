@@ -1,10 +1,8 @@
-// Regenerates public/og.jpg: the site-default social preview image.
-// Rerun after changing the artwork or lockup: pnpm generate-og
+// Regenerates public/og.jpg, the default social preview: pnpm generate-og
 import { readFile, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 
-// JWST "Cosmic Cliffs" (Carina Nebula), NASA public domain - the showcase
-// deep-sky headliner. The ~large rendition is near the 1.91:1 OG ratio.
+// JWST "Cosmic Cliffs", NASA public domain, near the 1.91:1 OG ratio
 const SOURCE_URL =
   'https://images-assets.nasa.gov/image/carina_nebula/carina_nebula~large.jpg'
 
@@ -19,8 +17,7 @@ const wordSvg = await readFile('src/assets/eyepiece-logo.svg', 'utf8')
 
 const inner = (svg) => svg.replace(/^[^>]*>/, '').replace(/<\/svg>\s*$/, '')
 
-// lockup in the dark starfield: 94px mark, 76px-tall wordmark; the drop
-// shadow separates the glyphs from the stars crossing behind them
+// the drop shadow separates the glyphs from the stars behind them
 const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">
   <defs><filter id="s" x="-20%" y="-20%" width="140%" height="140%">
     <feDropShadow dx="0" dy="2" stdDeviation="4.5" flood-color="#050409" flood-opacity="1"/>

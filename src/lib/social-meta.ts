@@ -1,6 +1,5 @@
-// Link-preview meta (Open Graph + Twitter). Scrapers read only the SSR
-// document, so these must come from a route's head() and og:image must be
-// an absolute URL.
+// Link-preview meta: scrapers read only the SSR document, and og:image
+// must be an absolute URL.
 export const SITE_ORIGIN = 'https://eyepiece.net'
 export const SITE_DESCRIPTION = 'A personal view of public space photography'
 
