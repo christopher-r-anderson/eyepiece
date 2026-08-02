@@ -11,7 +11,7 @@ function trimDescription(text: string) {
   if (collapsed.length <= DESCRIPTION_MAX) {
     return collapsed
   }
-  const cut = collapsed.slice(0, DESCRIPTION_MAX)
+  const cut = collapsed.slice(0, DESCRIPTION_MAX - 1)
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 120))}…`
 }
 

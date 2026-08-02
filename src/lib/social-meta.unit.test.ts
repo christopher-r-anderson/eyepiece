@@ -41,7 +41,7 @@ describe('socialMeta', () => {
       description: `${'space  and\n stars '.repeat(30)}end`,
     })
     const description = contentOf(meta, 'og:description') ?? ''
-    expect(description.length).toBeLessThanOrEqual(201)
+    expect(description.length).toBeLessThanOrEqual(200)
     expect(description.endsWith('…')).toBe(true)
     expect(description).not.toMatch(/\s{2,}/)
     expect(contentOf(meta, 'description')).toBe(description)
