@@ -21,6 +21,7 @@
     "revalidate-snapshots": "tsx --env-file-if-exists=.env.local scripts/revalidate-snapshots.ts",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
+    "generate-og": "node scripts/generate-og.mjs",
     "predev": "pnpm fetch-fonts",
     "dev": "vite dev --port 3000",
     "prebuild": "pnpm fetch-fonts",

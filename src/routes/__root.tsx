@@ -16,6 +16,7 @@ import type { EyepieceClient } from '@/lib/eyepiece-api-client/client'
 import { App } from '@/app/shell'
 import { RouteErrorBoundary } from '@/app/layout/error'
 import { getTitleText } from '@/lib/utils'
+import { SITE_DESCRIPTION, socialMeta } from '@/lib/social-meta'
 
 // The user-scoped Supabase client is deliberately absent: it is accessed via
 // the isomorphic createUserSupabaseClient() factory, never router context, so
@@ -33,6 +34,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: getTitleText(undefined) },
+      { property: 'og:site_name', content: 'eyepiece' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      ...socialMeta({
+        title: getTitleText(undefined),
+        description: SITE_DESCRIPTION,
+        image: { url: '/og.jpg', width: 1200, height: 630 },
+      }),
     ],
     links: [
       // the body face is needed at first paint; other faces load on demand

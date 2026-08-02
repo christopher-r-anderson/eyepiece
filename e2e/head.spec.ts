@@ -19,3 +19,29 @@ test('routes with their own title override the default', async ({ page }) => {
 
   await expect(page).toHaveTitle(`Search | ${DEFAULT_TITLE}`)
 })
+
+test('the server document carries the default social preview', async ({
+  page,
+}) => {
+  const response = await page.goto('/')
+  const html = (await response?.text()) ?? ''
+
+  expect(html).toContain(
+    '<meta property="og:image" content="https://eyepiece.net/og.jpg"/>',
+  )
+  expect(html).toContain('<meta property="og:site_name" content="eyepiece"/>')
+})
+
+test('an asset page overrides the social preview with its own image', async ({
+  page,
+}) => {
+  const response = await page.goto('/assets/nasa_ivl/PIA14417')
+  const html = (await response?.text()) ?? ''
+
+  const ogImage = html.match(
+    /<meta property="og:image" content="([^"]*)"/g,
+  ) as Array<string>
+  // exactly one og:image, and it is the asset's rendition, not the default
+  expect(ogImage).toHaveLength(1)
+  expect(ogImage[0]).toContain('images-assets.nasa.gov')
+})

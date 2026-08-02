@@ -6,6 +6,8 @@ import { albumKeySchema } from '@/domain/album/album.schema'
 import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
 import { ensureInfiniteAlbum } from '@/features/albums/albums.queries'
 import { getTitleText } from '@/lib/utils'
+import { socialMeta } from '@/lib/social-meta'
+import { toSocialImage } from '@/domain/asset/asset.utils'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 
 export const Route = createFileRoute(
@@ -26,13 +28,20 @@ export const Route = createFileRoute(
       albumKey,
     })
 
+    const cover = album.pages[0]?.items[0]?.image
     return {
       title: album.pages[0]?.collection?.title ?? albumKey.externalId,
+      cover: cover && toSocialImage(cover),
     }
   },
   head: ({ loaderData }) => ({
     // https://github.com/TanStack/router/issues/4785
-    meta: [{ title: getTitleText(`${loaderData?.title ?? 'Album'} Media`) }],
+    meta: [
+      { title: getTitleText(`${loaderData?.title ?? 'Album'} Media`) },
+      ...(loaderData
+        ? socialMeta({ title: loaderData.title, image: loaderData.cover })
+        : []),
+    ],
   }),
   errorComponent: ({ error }) => (
     <RouteError

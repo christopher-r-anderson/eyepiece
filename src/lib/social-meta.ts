@@ -1,0 +1,55 @@
+// Link-preview meta (Open Graph + Twitter). Scrapers read only the SSR
+// document, so these must come from a route's head() and og:image must be
+// an absolute URL.
+export const SITE_ORIGIN = 'https://eyepiece.net'
+export const SITE_DESCRIPTION = 'A personal view of public space photography'
+
+const DESCRIPTION_MAX = 200
+
+function trimDescription(text: string) {
+  const collapsed = text.replace(/\s+/g, ' ').trim()
+  if (collapsed.length <= DESCRIPTION_MAX) {
+    return collapsed
+  }
+  const cut = collapsed.slice(0, DESCRIPTION_MAX)
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 120))}…`
+}
+
+export interface SocialImage {
+  url: string
+  width?: number
+  height?: number
+}
+
+// og:title carries the page name alone - og:site_name supplies the site
+export function socialMeta({
+  title,
+  description,
+  image,
+}: {
+  title: string
+  description?: string
+  image?: SocialImage
+}) {
+  const imageUrl = image
+    ? image.url.startsWith('http')
+      ? image.url
+      : `${SITE_ORIGIN}${image.url}`
+    : undefined
+  return [
+    { property: 'og:title', content: title },
+    ...(description
+      ? [
+          { name: 'description', content: trimDescription(description) },
+          { property: 'og:description', content: trimDescription(description) },
+        ]
+      : []),
+    ...(imageUrl ? [{ property: 'og:image', content: imageUrl }] : []),
+    ...(image?.width && image.height
+      ? [
+          { property: 'og:image:width', content: String(image.width) },
+          { property: 'og:image:height', content: String(image.height) },
+        ]
+      : []),
+  ]
+}
