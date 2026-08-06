@@ -2,23 +2,16 @@
 
 ## Scoped Search Model
 
-One search box everywhere. The provider is a scope owned by the URL, not a
-pre-search choice:
+One search box everywhere. The provider is a scope owned by the URL:
 
 - `/search?q=moon` - the default "All libraries" scope
 - `/search?providerId=nasa_ivl&q=moon` - a provider scope
 - `/search?providerId=nasa_ivl&q=moon&yearStart=1990` -
   provider filters, flat in the query string (params always key-sorted)
 
-### Why this shape
-
-- Pre-search source selection is a documented anti-pattern; scoped search
-  should default to "all" (NN/g scoped-search guidance, Baymard search-scope
-  research).
-- Blending live results across independent APIs is not legitimate without a
-  unified index, so the honest "all" view is a section per provider with top
-  results and a "see all" link (the NCSU Libraries bento pattern). No
-  cross-provider interleaving.
+The reasoning behind this model - the All default, the sectioned all view
+with no cross-provider interleaving, and the flat lenient URL grammar - is
+recorded in [the search decision](./decisions/02-search.md).
 
 The scope tabs are links styled as tabs, not ARIA tabs: switching scope is a
 navigation (crawlable hrefs, middle-click, back button).
@@ -33,7 +26,7 @@ at the boundary and strict after. `src/features/search/search-page-params.ts`:
 - `toSearchPageState` produces the strict scope model (`all` or `provider`
   plus filters); nothing downstream reads optional fields
 
-The failure taxonomy the parse must satisfy:
+The URL cases the parse must handle:
 
 | Case | Input                                        | Outcome                              |
 | ---- | -------------------------------------------- | ------------------------------------ |
@@ -47,36 +40,35 @@ The failure taxonomy the parse must satisfy:
 P4 also applies across fields: an inverted year range (`yearStart` >
 `yearEnd`) drops as a pair.
 
-The API route (`/api/v1/search`) stays strict and returns 400s: bad params
-from an API caller are a programming error; a mangled URL from a person is
-not.
+The API route (`/api/v1/search`) stays strict and returns 400s. Lenient
+parsing is only for URLs that people share and edit (the search decision
+records the dividing line).
 
 ## Canonicalization
 
-Equal searches resolve to a single spelling per document so the CDN caches
-one key per document. URLs the app generates are already canonical: the
-router serializes all search params through `stringifyCanonicalSearchParams`
+Equal searches resolve to a single spelling so the CDN caches one key per
+search. URLs the app generates are already canonical: the router serializes
+all search params through `stringifyCanonicalSearchParams`
 (`src/lib/search-params.ts`), which sorts keys and omits empty-string
-values. URLs from outside - shared links, hand edits, native form submits -
+values. URLs from outside (shared links, hand edits, native form submits)
 converge in two tiers.
 
 The server tier is the search route's own `beforeLoad`: any document
-request whose raw query string differs from the canonical spelling - key
-order, encoding (`+` for spaces), empty-valued params, values the
-validator rewrites (a padded `q` lands trimmed), and keys it drops (junk
-params, invalid or inverted year values, unknown `providerId`) - takes a
-307 to the canonical spelling. The redirect carries no cache headers
-(thrown redirects bypass the route's `headers()`; curl-pinned), so the
-CDN never caches it; it works without JavaScript and costs one origin
-round trip. The route owns this tier since router 1.170, which dropped
-the framework's built-in normalization redirect (and that one never
-covered dropped keys anyway - those used to serve 200s under their own
-CDN keys).
+request whose raw query string differs from the canonical spelling takes
+a 307 to the canonical spelling. Differences include key order, encoding
+(`+` for spaces), empty-valued params, values the validator rewrites (a
+padded `q` lands trimmed), and keys it drops (junk params, invalid or
+inverted year values, unknown `providerId`). The redirect carries no
+cache headers (thrown redirects bypass the route's `headers()`), so the
+CDN never caches it. It works without JavaScript and costs one origin
+round trip. The route owns this tier itself - the framework's built-in
+normalization redirect was dropped in router 1.170 and never covered
+dropped keys anyway.
 
 `useCanonicalSearchReplace` is the client tier for non-canonical
 spellings reached without a document load, replacing the address bar via
 `history.replace`. It stands down while an asset overlay masks the URL.
-Auth-modal state travels in history state, not search params; legacy auth
+Auth-modal state travels in history state, not search params. Legacy auth
 params (`auth`, `fp`) and one-shot form params (`next`, `formError`,
 `status`) are dropped as junk.
 
@@ -105,8 +97,8 @@ Constraints the client tier depends on:
   parse result, it always reads as already canonical): the server tier
   reads the request URL (`getRawSearch`), the client tier reads
   `router.history.location.href` - `window.location` lags the history's
-  microtask-deferred DOM writes and once replace-looped a navigation
-- the target derives from one `state.location` snapshot; mixing in
+  microtask-deferred DOM writes and can replace-loop a navigation
+- the target derives from one `state.location` snapshot. Mixing in
   `Route.useSearch()` tears during navigation transitions and cancels
   in-flight navigations
 - the parse is idempotent (unit-tested) and a client replace reaches
@@ -120,7 +112,7 @@ and a "See all from {provider}" link into the scoped tab. Rules it depends
 on:
 
 - sections read the same infinite query as the scoped tab through a top-N
-  `select`, so "See all" and returning to All render from cache; any drift
+  `select`, so "See all" and returning to All render from cache. Any drift
   in the query key reintroduces a double fetch (guarded by the key-parity
   test and the e2e request-count assertion)
 - the loader fires the all-scope prefetches without awaiting: queries
