@@ -22,14 +22,11 @@ export function initClientSentry(router: AnyRouter) {
     replaysSessionSampleRate: config.replaysSessionSampleRate,
     replaysOnErrorSampleRate: config.replaysOnErrorSampleRate,
   })
-  // referencing replayIntegration statically bundles ~300KiB into the entry
-  // chunk; lazy-loading fetches it from Sentry's CDN after startup, at the
-  // cost of not recording a session's first moments
-  void Sentry.lazyLoadIntegration('replayIntegration')
-    .then((replayIntegration) => {
-      Sentry.addIntegration(replayIntegration())
+  void import('@sentry/tanstackstart-react')
+    .then((lazy) => {
+      Sentry.addIntegration(lazy.replayIntegration())
     })
     .catch(() => {
-      // telemetry stays best-effort when the CDN is unreachable
+      // telemetry stays best-effort when the chunk fails to load
     })
 }

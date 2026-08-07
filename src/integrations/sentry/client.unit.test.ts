@@ -9,7 +9,7 @@ vi.mock('@sentry/tanstackstart-react', () => ({
   tanstackRouterBrowserTracingIntegration: vi
     .fn()
     .mockReturnValue('router-tracing'),
-  lazyLoadIntegration: vi.fn(),
+  replayIntegration: vi.fn(),
   addIntegration: vi.fn(),
 }))
 
@@ -21,7 +21,7 @@ const mockSentryInit = vi.mocked(Sentry.init)
 const mockTracingIntegration = vi.mocked(
   Sentry.tanstackRouterBrowserTracingIntegration,
 )
-const mockLazyLoadIntegration = vi.mocked(Sentry.lazyLoadIntegration)
+const mockReplayIntegration = vi.mocked(Sentry.replayIntegration)
 const mockAddIntegration = vi.mocked(Sentry.addIntegration)
 const mockGetClientSentryConfig = vi.mocked(getClientSentryConfig)
 
@@ -53,14 +53,13 @@ describe('initClientSentry', () => {
 
     expect(mockSentryInit).not.toHaveBeenCalled()
     expect(mockTracingIntegration).not.toHaveBeenCalled()
-    expect(mockLazyLoadIntegration).not.toHaveBeenCalled()
+    expect(mockAddIntegration).not.toHaveBeenCalled()
   })
 
-  it('initializes Sentry and attaches replay once it lazy-loads', async () => {
+  it('initializes Sentry and attaches replay once it loads', async () => {
     const router = { isServer: false } as AnyRouter
-    const replayIntegration = vi.fn().mockReturnValue('replay')
     mockGetClientSentryConfig.mockReturnValue(config)
-    mockLazyLoadIntegration.mockResolvedValue(replayIntegration as never)
+    mockReplayIntegration.mockReturnValue('replay' as never)
 
     initClientSentry(router)
 
@@ -74,21 +73,22 @@ describe('initClientSentry', () => {
       replaysSessionSampleRate: 0.5,
       replaysOnErrorSampleRate: 1,
     })
-    expect(mockLazyLoadIntegration).toHaveBeenCalledWith('replayIntegration')
     await vi.waitFor(() => {
       expect(mockAddIntegration).toHaveBeenCalledWith('replay')
     })
   })
 
-  it('leaves Sentry running when the replay bundle fails to load', async () => {
+  it('leaves Sentry running when replay fails to attach', async () => {
     mockGetClientSentryConfig.mockReturnValue(config)
-    mockLazyLoadIntegration.mockRejectedValue(new Error('cdn unreachable'))
+    mockReplayIntegration.mockImplementation(() => {
+      throw new Error('load failed')
+    })
 
     initClientSentry({ isServer: false } as AnyRouter)
 
     expect(mockSentryInit).toHaveBeenCalled()
     await vi.waitFor(() => {
-      expect(mockLazyLoadIntegration).toHaveBeenCalled()
+      expect(mockReplayIntegration).toHaveBeenCalled()
     })
     expect(mockAddIntegration).not.toHaveBeenCalled()
   })
