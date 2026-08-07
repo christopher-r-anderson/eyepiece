@@ -9,7 +9,8 @@ vi.mock('@sentry/tanstackstart-react', () => ({
   tanstackRouterBrowserTracingIntegration: vi
     .fn()
     .mockReturnValue('router-tracing'),
-  replayIntegration: vi.fn().mockReturnValue('replay'),
+  lazyLoadIntegration: vi.fn(),
+  addIntegration: vi.fn(),
 }))
 
 vi.mock('./config', () => ({
@@ -20,8 +21,18 @@ const mockSentryInit = vi.mocked(Sentry.init)
 const mockTracingIntegration = vi.mocked(
   Sentry.tanstackRouterBrowserTracingIntegration,
 )
-const mockReplayIntegration = vi.mocked(Sentry.replayIntegration)
+const mockLazyLoadIntegration = vi.mocked(Sentry.lazyLoadIntegration)
+const mockAddIntegration = vi.mocked(Sentry.addIntegration)
 const mockGetClientSentryConfig = vi.mocked(getClientSentryConfig)
+
+const config = {
+  dsn: 'https://example@sentry.invalid/1',
+  environment: 'development',
+  release: 'abc123',
+  tracesSampleRate: 0.25,
+  replaysSessionSampleRate: 0.5,
+  replaysOnErrorSampleRate: 1,
+}
 
 describe('initClientSentry', () => {
   beforeEach(() => {
@@ -42,33 +53,43 @@ describe('initClientSentry', () => {
 
     expect(mockSentryInit).not.toHaveBeenCalled()
     expect(mockTracingIntegration).not.toHaveBeenCalled()
-    expect(mockReplayIntegration).not.toHaveBeenCalled()
+    expect(mockLazyLoadIntegration).not.toHaveBeenCalled()
   })
 
-  it('initializes Sentry with the normalized client config', () => {
+  it('initializes Sentry and attaches replay once it lazy-loads', async () => {
     const router = { isServer: false } as AnyRouter
-
-    mockGetClientSentryConfig.mockReturnValue({
-      dsn: 'https://example@sentry.invalid/1',
-      environment: 'development',
-      release: 'abc123',
-      tracesSampleRate: 0.25,
-      replaysSessionSampleRate: 0.5,
-      replaysOnErrorSampleRate: 1,
-    })
+    const replayIntegration = vi.fn().mockReturnValue('replay')
+    mockGetClientSentryConfig.mockReturnValue(config)
+    mockLazyLoadIntegration.mockResolvedValue(replayIntegration as never)
 
     initClientSentry(router)
 
     expect(mockTracingIntegration).toHaveBeenCalledWith(router)
-    expect(mockReplayIntegration).toHaveBeenCalled()
     expect(mockSentryInit).toHaveBeenCalledWith({
       dsn: 'https://example@sentry.invalid/1',
       environment: 'development',
       release: 'abc123',
-      integrations: ['router-tracing', 'replay'],
+      integrations: ['router-tracing'],
       tracesSampleRate: 0.25,
       replaysSessionSampleRate: 0.5,
       replaysOnErrorSampleRate: 1,
     })
+    expect(mockLazyLoadIntegration).toHaveBeenCalledWith('replayIntegration')
+    await vi.waitFor(() => {
+      expect(mockAddIntegration).toHaveBeenCalledWith('replay')
+    })
+  })
+
+  it('leaves Sentry running when the replay bundle fails to load', async () => {
+    mockGetClientSentryConfig.mockReturnValue(config)
+    mockLazyLoadIntegration.mockRejectedValue(new Error('cdn unreachable'))
+
+    initClientSentry({ isServer: false } as AnyRouter)
+
+    expect(mockSentryInit).toHaveBeenCalled()
+    await vi.waitFor(() => {
+      expect(mockLazyLoadIntegration).toHaveBeenCalled()
+    })
+    expect(mockAddIntegration).not.toHaveBeenCalled()
   })
 })
