@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
 import type { AssetDetailHeightModel } from './asset-detail'
 import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
+import { Heading } from '@/components/ui/heading'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
@@ -16,12 +17,15 @@ export function AssetDetailSurface({
   heightModel,
   back,
   actions,
+  albumList,
 }: {
   asset: Asset
   titleLevel: 1 | 2
   heightModel: AssetDetailHeightModel
   back?: ReactNode
   actions?: ReactNode
+  // threaded from the route level; features must not import other features
+  albumList?: ReactNode
 }) {
   const canViewMetadata = providerSupportsMetadata(asset.key.providerId)
   return (
@@ -53,6 +57,35 @@ export function AssetDetailSurface({
           </div>
         }
       />
+      {/* a single row, before the metadata disclosure: a short nav line
+          must not sit below a section that expands long */}
+      {albumList && (
+        <section
+          className={css({
+            width: '100%',
+            maxWidth: 'contentMax',
+            marginInline: 'auto',
+            paddingInline: '4',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'baseline',
+            columnGap: '3',
+            rowGap: '1',
+          })}
+        >
+          <Heading
+            level={titleLevel === 1 ? 2 : 3}
+            css={css.raw({
+              color: 'text.muted',
+              fontSize: 'base',
+              fontWeight: 600,
+            })}
+          >
+            Albums
+          </Heading>
+          {albumList}
+        </section>
+      )}
       {canViewMetadata && (
         <MetadataDisclosure
           assetKey={asset.key}

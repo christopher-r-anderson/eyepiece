@@ -7,6 +7,7 @@ import type { HistoryState } from '@tanstack/react-router'
 import type { AssetKey } from '@/domain/asset/asset.schema'
 import type { TileLinkProps } from '@/features/assets/components/asset-tile'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
+import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { LoadingNotice } from '@/components/loading-notice'
@@ -168,6 +169,7 @@ export function AssetViewingOverlay() {
 
 function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
   const { data } = useSuspenseAsset(assetKey)
+  const router = useRouter()
 
   // the tab title follows the masked URL; nested navigations make the
   // router head re-apply the list title, so this re-runs per location
@@ -182,13 +184,21 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
     appliedTitleRef.current = next
     document.title = next
   }, [data.title, locationHref])
+  // the unmasked location: the list the overlay opened over
+  const openedOverPathnameRef = useRef(router.state.location.pathname)
   useEffect(() => {
     return () => {
-      if (previousTitleRef.current !== undefined) {
+      // restore only when the overlay closed back to that list; any other
+      // destination (an in-overlay album link) owns the title. Location,
+      // not title text: a name collision would defeat a string guard
+      if (
+        previousTitleRef.current !== undefined &&
+        router.state.location.pathname === openedOverPathnameRef.current
+      ) {
         document.title = previousTitleRef.current
       }
     }
-  }, [])
+  }, [router])
 
   return (
     <AssetDetailSurface
@@ -200,6 +210,11 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
           <FavoriteButton assetKey={assetKey} variant="detail" />
           <AddToCollectionButton assetKey={assetKey} variant="detail" />
         </>
+      }
+      albumList={
+        data.albums?.length ? (
+          <AlbumLinkList albums={data.albums} inline />
+        ) : undefined
       }
     />
   )
