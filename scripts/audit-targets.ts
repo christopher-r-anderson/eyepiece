@@ -50,7 +50,9 @@ async function resolveAuditTargets(
   const tileSection = 'section:has([data-asset-key])'
   // sitemap-resolved pages can be legitimately empty; their settled empty
   // state counts as ready
-  const tileOrEmpty = [{ selector: '[data-asset-key], [data-empty-state]' }]
+  const tileOrEmpty = [
+    { selector: '[data-asset-key], [data-audit-empty-state]' },
+  ]
   return [
     {
       name: 'home',

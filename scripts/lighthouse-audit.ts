@@ -162,7 +162,9 @@ async function pageSettles(
 ) {
   const page = await context.newPage()
   try {
-    const response = await page.goto(url, { waitUntil: 'load' })
+    // domcontentloaded, not load: a hung image must not reject an
+    // otherwise settled page
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded' })
     if (!response || !response.ok()) return false
     await waitForReady(page, target)
     return true

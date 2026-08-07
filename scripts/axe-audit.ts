@@ -47,8 +47,10 @@ async function main() {
         const name = `${target.name}.${colorScheme}`
         const page = await context.newPage()
         try {
+          // domcontentloaded, not load: a hung image must not reject an
+          // otherwise settled page
           const response = await page.goto(`${baseUrl}${target.path}`, {
-            waitUntil: 'load',
+            waitUntil: 'domcontentloaded',
           })
           if (!response || !response.ok()) {
             throw new Error(`HTTP ${response?.status() ?? 'error'}`)
