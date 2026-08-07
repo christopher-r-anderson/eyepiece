@@ -19,6 +19,8 @@
     "sample-provider-text": "tsx --env-file-if-exists=.env.local scripts/sample-provider-text.ts",
     "sample-provider-renditions": "tsx --env-file-if-exists=.env.local scripts/sample-provider-renditions.ts",
     "revalidate-snapshots": "tsx --env-file-if-exists=.env.local scripts/revalidate-snapshots.ts",
+    "audit:lighthouse": "tsx scripts/lighthouse-audit.ts",
+    "audit:axe": "tsx scripts/axe-audit.ts",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
     "generate-og": "node scripts/generate-og.mjs",
@@ -69,6 +71,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@pandacss/dev": "^1.11.4",
     "@playwright/test": "^1.58.2",
     "@tanstack/cli": "^0.69.6",
@@ -82,8 +85,10 @@
     "@types/react-dom": "^19.2.3",
     "@types/sanitize-html": "^2.16.0",
     "@vitejs/plugin-react": "^5.1.4",
+    "chrome-launcher": "^1.2.1",
     "eslint": "^10.0.2",
     "jsdom": "^28.1.0",
+    "lighthouse": "^13.4.1",
     "netlify-cli": "^24.0.1",
     "png-to-ico": "^3.0.2",
     "prettier": "^3.8.1",
