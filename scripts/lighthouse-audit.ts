@@ -197,7 +197,7 @@ async function main() {
         process.stdout.write(
           `${target.name}: page errored or never settled, skipping\n`,
         )
-        pageErrors++
+        pageErrors += formFactors.length * runs
         continue
       }
       for (const formFactor of formFactors) {

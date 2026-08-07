@@ -126,10 +126,9 @@ export function waitForReady(page: Page, target: AuditTarget) {
 
 export function makeReportDir(kind: string, baseUrl: string) {
   const stamp = `${new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '')}-${process.pid}`
-  const dir = path.join(
-    'audit-reports',
-    `${kind}-${new URL(baseUrl).hostname}-${stamp}`,
-  )
+  // ipv6 hostnames carry characters windows paths reject
+  const host = new URL(baseUrl).hostname.replace(/[^\w.-]/g, '-')
+  const dir = path.join('audit-reports', `${kind}-${host}-${stamp}`)
   fs.mkdirSync(dir, { recursive: true })
   return dir
 }
