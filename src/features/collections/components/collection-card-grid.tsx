@@ -1,6 +1,7 @@
 import { css } from 'styled-system/css'
 import { CollectionCard } from './collection-card'
 import type { CollectionCard as CollectionCardData } from '../collections.schema'
+import { EmptyState } from '@/components/empty-state'
 
 const cardGridCss = css.raw({
   display: 'grid',
@@ -17,9 +18,7 @@ export function CollectionCardGrid({
   curatedBy?: string
 }) {
   if (cards.length === 0) {
-    return (
-      <p className={css({ color: 'text.muted' })}>No public collections yet.</p>
-    )
+    return <EmptyState>No public collections yet.</EmptyState>
   }
   return (
     <ul

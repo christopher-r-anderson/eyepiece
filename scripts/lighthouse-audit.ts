@@ -23,7 +23,7 @@ import {
   waitForReady,
 } from './audit-targets'
 import type { AuditTarget } from './audit-targets'
-import type { BrowserContext } from '@playwright/test'
+import type { Browser, BrowserContext } from '@playwright/test'
 import type { Flags, Result } from 'lighthouse'
 
 const { values } = parseArgs({
@@ -183,14 +183,17 @@ async function main() {
   const summaries: Array<RunSummary> = []
   let pageErrors = 0
   const chrome = await launchChrome()
-  const probeBrowser = await chromium.launch()
-  const probeContext = await probeBrowser.newContext({ userAgent: DESKTOP_UA })
-  const flags: Flags = {
-    port: chrome.port,
-    output: ['json', 'html'],
-    logLevel: 'error',
-  }
+  let probeBrowser: Browser | undefined
   try {
+    probeBrowser = await chromium.launch()
+    const probeContext = await probeBrowser.newContext({
+      userAgent: DESKTOP_UA,
+    })
+    const flags: Flags = {
+      port: chrome.port,
+      output: ['json', 'html'],
+      logLevel: 'error',
+    }
     for (const target of selected) {
       const url = `${baseUrl}${target.path}`
       if (!(await pageSettles(probeContext, url, target))) {
@@ -235,7 +238,7 @@ async function main() {
     }
   } finally {
     await chrome.kill()
-    await probeBrowser.close()
+    await probeBrowser?.close()
   }
 
   fs.writeFileSync(

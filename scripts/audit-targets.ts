@@ -26,7 +26,7 @@ async function resolveAuditTargets(
   baseUrl: string,
 ): Promise<Array<AuditTarget>> {
   let album = fallbackTargets.album
-  let collection = fallbackTargets.collection
+  let collection: string | null = fallbackTargets.collection
   try {
     const response = await fetch(new URL('/sitemap.xml', baseUrl), {
       signal: AbortSignal.timeout(10_000),
@@ -38,9 +38,10 @@ async function resolveAuditTargets(
       (match) => new URL(match[1]).pathname,
     )
     album = paths.find((pathname) => pathname.startsWith('/albums/')) ?? album
+    // a reachable sitemap with no collections means the target has none;
+    // the production fallback would 404 there
     collection =
-      paths.find((pathname) => pathname.startsWith('/collections/')) ??
-      collection
+      paths.find((pathname) => pathname.startsWith('/collections/')) ?? null
   } catch (error) {
     process.stderr.write(
       `sitemap unavailable, using production fallbacks (${String(error)})\n`,
@@ -53,14 +54,18 @@ async function resolveAuditTargets(
   const tileOrEmpty = [
     { selector: '[data-asset-key], [data-audit-empty-state]' },
   ]
-  return [
+  const targets: Array<AuditTarget> = [
     {
       name: 'home',
       path: '/',
       // two featured album strips plus the public-collections section
+      // (cards or its settled empty state)
       ready: [
         { selector: tileSection, count: 2 },
-        { selector: 'section a[href^="/collections/"]' },
+        {
+          selector:
+            'section :is(a[href^="/collections/"], [data-audit-empty-state])',
+        },
       ],
     },
     {
@@ -78,10 +83,20 @@ async function resolveAuditTargets(
       path: '/assets/nasa_ivl/PIA14417',
       ready: [{ selector: 'main img' }],
     },
-    { name: 'collection-detail', path: collection, ready: tileOrEmpty },
+    ...(collection === null
+      ? []
+      : [{ name: 'collection-detail', path: collection, ready: tileOrEmpty }]),
     { name: 'album', path: album, ready: tileOrEmpty },
-    { name: 'login', path: '/login', ready: [{ selector: 'form' }] },
+    // the header search is also a form; only the login form proves the
+    // route rendered
+    { name: 'login', path: '/login', ready: [{ selector: 'main form' }] },
   ]
+  if (collection === null) {
+    process.stderr.write(
+      'target has no public collections; skipping collection-detail\n',
+    )
+  }
+  return targets
 }
 
 export function cliArgs() {
