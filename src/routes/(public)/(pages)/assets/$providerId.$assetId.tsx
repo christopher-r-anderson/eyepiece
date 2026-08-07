@@ -7,6 +7,7 @@ import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { css } from 'styled-system/css'
 import { FavoriteButton } from '../-components/favorite-button'
 import { AddToCollectionButton } from '@/app/add-to-collection-button'
+import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
@@ -149,6 +150,11 @@ function AssetPage() {
           <FavoriteButton assetKey={assetKey} variant="detail" />
           <AddToCollectionButton assetKey={assetKey} variant="detail" />
         </>
+      }
+      albumList={
+        data.albums?.length ? (
+          <AlbumLinkList albums={data.albums} inline />
+        ) : undefined
       }
     />
   )
