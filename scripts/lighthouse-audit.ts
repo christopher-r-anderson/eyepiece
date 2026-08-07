@@ -9,10 +9,16 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
+import { chromium } from '@playwright/test'
 import { launch } from 'chrome-launcher'
 import lighthouse from 'lighthouse'
 import desktopConfig from 'lighthouse/core/config/desktop-config.js'
-import { DESKTOP_UA, MOBILE_UA, resolveAuditTargets } from './audit-targets'
+import {
+  DESKTOP_UA,
+  MOBILE_UA,
+  resolveAuditTargets,
+  waitForReady,
+} from './audit-targets'
 import type { Flags, Result } from 'lighthouse'
 
 const { values } = parseArgs({
@@ -131,6 +137,20 @@ function summarize(
   }
 }
 
+async function launchChrome() {
+  const chromeFlags = ['--headless=new', `--user-agent=${DESKTOP_UA}`]
+  try {
+    return await launch({ chromeFlags })
+  } catch {
+    // no system chrome; fall back to playwright's browser, whose build
+    // cannot sandbox on distros restricting unprivileged user namespaces
+    return launch({
+      chromePath: chromium.executablePath(),
+      chromeFlags: [...chromeFlags, '--no-sandbox'],
+    })
+  }
+}
+
 async function main() {
   const targets = (await resolveAuditTargets(baseUrl)).filter(
     (target) => !target.auth,
@@ -156,14 +176,36 @@ async function main() {
 
   const summaries: Array<RunSummary> = []
   let pageErrors = 0
-  const chrome = await launch({
-    chromeFlags: ['--headless=new', `--user-agent=${DESKTOP_UA}`],
-  })
+  const chrome = await launchChrome()
+  const probeBrowser = await chromium.launch()
+  const probeContext = await probeBrowser.newContext({ userAgent: DESKTOP_UA })
   try {
     for (const target of selected) {
+      const url = `${baseUrl}${target.path}`
+      // lighthouse cannot wait on app readiness mid-run, so a probe rules
+      // out error documents and streamed sections that never settle before
+      // any report is accepted
+      const probePage = await probeContext.newPage()
+      let settled = false
+      try {
+        const response = await probePage.goto(url, { waitUntil: 'load' })
+        if (response && response.ok()) {
+          await waitForReady(probePage, target)
+          settled = true
+        }
+      } catch {
+        // fall through to the skip below
+      }
+      await probePage.close()
+      if (!settled) {
+        process.stdout.write(
+          `${target.name}: page errored or never settled, skipping\n`,
+        )
+        pageErrors++
+        continue
+      }
       for (const formFactor of formFactors) {
         for (let run = 1; run <= runs; run++) {
-          const url = `${baseUrl}${target.path}`
           const flags: Flags = {
             port: chrome.port,
             output: ['json', 'html'],
@@ -202,6 +244,7 @@ async function main() {
     }
   } finally {
     await chrome.kill()
+    await probeBrowser.close()
   }
 
   fs.writeFileSync(

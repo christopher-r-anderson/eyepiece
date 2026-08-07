@@ -1,6 +1,8 @@
 // Shared page list for the audit scripts: one URL per template. Album and
 // collection paths vary per environment, so they resolve from the target's
 // /sitemap.xml with production fallbacks.
+import type { Page } from '@playwright/test'
+
 export interface AuditTarget {
   name: string
   path: string
@@ -23,7 +25,9 @@ export async function resolveAuditTargets(
   let album = fallbackTargets.album
   let collection = fallbackTargets.collection
   try {
-    const response = await fetch(new URL('/sitemap.xml', baseUrl))
+    const response = await fetch(new URL('/sitemap.xml', baseUrl), {
+      signal: AbortSignal.timeout(10_000),
+    })
     if (!response.ok)
       throw new Error(`sitemap fetch failed: ${response.status}`)
     const xml = await response.text()
@@ -65,10 +69,28 @@ export async function resolveAuditTargets(
       path: '/assets/nasa_ivl/PIA14417',
       ready: [{ selector: 'main img' }],
     },
-    { name: 'collection-detail', path: collection, ready: tile },
+    {
+      // the sitemap lists every public collection, and a legitimately
+      // empty one settles into its empty state instead of tiles
+      name: 'collection-detail',
+      path: collection,
+      ready: [{ selector: '[data-asset-key], [data-empty-state]' }],
+    },
     { name: 'album', path: album, ready: tile },
     { name: 'login', path: '/login', ready: [{ selector: 'form' }] },
   ]
+}
+
+export function waitForReady(page: Page, target: AuditTarget) {
+  return page.waitForFunction(
+    (conditions) =>
+      conditions.every(
+        ({ selector, count }) =>
+          document.querySelectorAll(selector).length >= (count ?? 1),
+      ),
+    target.ready,
+    { timeout: 30_000 },
+  )
 }
 
 // ids.si.edu serves an HTML block page to Headless Chrome user agents

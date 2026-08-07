@@ -9,7 +9,7 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { AxeBuilder } from '@axe-core/playwright'
 import { chromium } from '@playwright/test'
-import { DESKTOP_UA, resolveAuditTargets } from './audit-targets'
+import { DESKTOP_UA, resolveAuditTargets, waitForReady } from './audit-targets'
 
 const { values } = parseArgs({
   // pnpm forwards a literal "--" when invoked as `pnpm audit:axe -- --x`
@@ -73,15 +73,7 @@ async function main() {
           continue
         }
         try {
-          await page.waitForFunction(
-            (conditions) =>
-              conditions.every(
-                ({ selector, count }) =>
-                  document.querySelectorAll(selector).length >= (count ?? 1),
-              ),
-            target.ready,
-            { timeout: 30_000 },
-          )
+          await waitForReady(page, target)
         } catch {
           process.stdout.write(
             `${target.name}.${colorScheme}: page never settled, skipping\n`,
