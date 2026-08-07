@@ -34,4 +34,7 @@ deno.lock
 
 # Provider sampling output (scripts/sample-provider-text.ts), regenerated on demand
 /provider-samples/
+
+# Lighthouse/axe audit reports (scripts/lighthouse-audit.ts, scripts/axe-audit.ts)
+/audit-reports/
 .claude/settings.local.json
