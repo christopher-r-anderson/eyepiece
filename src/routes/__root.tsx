@@ -44,11 +44,19 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       }),
     ],
     links: [
-      // the body face is needed at first paint; other faces load on demand
-      // (preload zodiak-400 here once display type ships on real surfaces)
+      // the first-paint faces: body text, and the display face whose late
+      // swap rewraps headings at narrow widths (a one-line-height layout
+      // shift); remaining weights load on demand
       {
         rel: 'preload',
         href: '/fonts/switzer-400.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'preload',
+        href: '/fonts/zodiak-400.woff2',
         as: 'font',
         type: 'font/woff2',
         crossOrigin: 'anonymous',
