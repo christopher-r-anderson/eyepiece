@@ -23,11 +23,11 @@ export const sheetRecipe = defineSlotRecipe({
       },
       // gaps live on the overlay so clicks in them count as outside the
       // modal and dismiss it; the close slot positions itself off the same
-      // variable, so the gap has one home
-      '--sheet-gap': 'token(spacing.6)',
+      // variable, so the gap has one home. One size at every breakpoint:
+      // a narrower gap cannot fit the close button
+      '--sheet-gap': 'token(spacing.7)',
       paddingTop: 'var(--sheet-gap)',
       md: {
-        '--sheet-gap': 'token(spacing.7)',
         paddingInline: '8',
       },
     },
@@ -62,20 +62,14 @@ export const sheetRecipe = defineSlotRecipe({
     },
     close: {
       // sits in the overlay's top gap (--sheet-gap); stays inside the
-      // dialog subtree so the modal focus trap can reach it
+      // dialog subtree so the modal focus trap can reach it. Paint styles
+      // live on the css prop in sheet.tsx - the composed button recipe
+      // outranks this slot by layer order
       position: 'absolute',
-      // the mobile gap is smaller than the button, so instead of centering
-      // it anchors below the viewport top by the hit-area overhang: the
-      // extended target starts at y=0 instead of being clipped above it
-      top: 'calc((token(sizes.touchTargetMin) - token(sizes.controlHeightSm)) / 2 - var(--sheet-gap))',
+      // centered in the gap at every breakpoint
+      top: 'calc((var(--sheet-gap) + token(sizes.controlHeightSm)) / -2)',
       right: '3',
-      // over the dimmed backdrop the glyph stays light and hover speaks
-      // through color alone
-      color: 'rgba(255, 255, 255, 0.8)',
-      _hovered: { color: 'white', backgroundColor: 'transparent' },
       md: {
-        // the desktop gap fits the button, so it centers
-        top: 'calc((var(--sheet-gap) + token(sizes.controlHeightSm)) / -2)',
         right: '0',
       },
     },

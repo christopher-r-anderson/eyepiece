@@ -34,10 +34,19 @@ export function Sheet({
             onPress={() => onOpenChange(false)}
             variant="icon"
             className={slots.close}
-            // the close slot's absolute placement loses to the icon
-            // variant's positioning context by layer order (recipes beats
-            // recipes.slots); the utilities layer beats both
-            css={css.raw({ position: 'absolute' })}
+            // every property the icon variant also sets (position, colors,
+            // hover background) loses in the close slot by layer order
+            // (recipes beats recipes.slots); the utilities layer beats
+            // both. Over the dimmed backdrop the glyph stays light and
+            // hover speaks through color alone
+            css={css.raw({
+              position: 'absolute',
+              color: 'rgba(255, 255, 255, 0.8)',
+              _hovered: {
+                backgroundColor: 'transparent',
+                color: 'white',
+              },
+            })}
           >
             <XIcon aria-hidden="true" size={22} weight="bold" />
           </Button>
