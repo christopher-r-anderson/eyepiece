@@ -4,11 +4,10 @@
 export interface AuditTarget {
   name: string
   path: string
-  // proves streamed content settled; a skeleton would audit vacuously
-  ready: string
-  // how many <section>s must each contain ready (multi-provider pages
-  // stream sections independently, so one settling proves nothing)
-  readySections?: number
+  // all must hold before auditing; sections stream independently, so one
+  // settling proves nothing about the others and a skeleton would audit
+  // vacuously
+  ready: Array<{ selector: string; count?: number }>
   // needs a session cookie; the scripts skip auth targets
   auth?: boolean
 }
@@ -39,14 +38,22 @@ export async function resolveAuditTargets(
       `sitemap unavailable, using production fallbacks (${String(error)})\n`,
     )
   }
-  const tile = '[data-asset-key]'
+  const tile = [{ selector: '[data-asset-key]' }]
+  const tileSection = 'section:has([data-asset-key])'
   return [
-    { name: 'home', path: '/', ready: tile },
+    {
+      name: 'home',
+      path: '/',
+      // two featured album strips plus the public-collections section
+      ready: [
+        { selector: tileSection, count: 2 },
+        { selector: 'section a[href^="/collections/"]' },
+      ],
+    },
     {
       name: 'search-all',
       path: '/search?q=apollo',
-      ready: tile,
-      readySections: 2,
+      ready: [{ selector: tileSection, count: 2 }],
     },
     {
       name: 'search-scoped',
@@ -56,11 +63,11 @@ export async function resolveAuditTargets(
     {
       name: 'asset-detail',
       path: '/assets/nasa_ivl/PIA14417',
-      ready: 'main img',
+      ready: [{ selector: 'main img' }],
     },
     { name: 'collection-detail', path: collection, ready: tile },
     { name: 'album', path: album, ready: tile },
-    { name: 'login', path: '/login', ready: 'form' },
+    { name: 'login', path: '/login', ready: [{ selector: 'form' }] },
   ]
 }
 

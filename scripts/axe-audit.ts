@@ -41,7 +41,7 @@ async function main() {
     : targets
   if (selected.length === 0) throw new Error(`--only matched no targets`)
 
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+  const stamp = `${new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '')}-${process.pid}`
   const outDir = path.join(
     'audit-reports',
     `axe-${new URL(baseUrl).hostname}-${stamp}`,
@@ -73,21 +73,18 @@ async function main() {
           continue
         }
         try {
-          if (target.readySections) {
-            await page.waitForFunction(
-              ({ selector, min }) =>
-                Array.from(document.querySelectorAll('section')).filter(
-                  (section) => section.querySelector(selector),
-                ).length >= min,
-              { selector: target.ready, min: target.readySections },
-              { timeout: 30_000 },
-            )
-          } else {
-            await page.waitForSelector(target.ready, { timeout: 30_000 })
-          }
+          await page.waitForFunction(
+            (conditions) =>
+              conditions.every(
+                ({ selector, count }) =>
+                  document.querySelectorAll(selector).length >= (count ?? 1),
+              ),
+            target.ready,
+            { timeout: 30_000 },
+          )
         } catch {
           process.stdout.write(
-            `${target.name}.${colorScheme}: "${target.ready}" never appeared, skipping\n`,
+            `${target.name}.${colorScheme}: page never settled, skipping\n`,
           )
           pageErrors++
           await page.close()
