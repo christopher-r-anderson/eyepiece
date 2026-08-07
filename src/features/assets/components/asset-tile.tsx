@@ -34,6 +34,9 @@ interface AssetTileProps extends Omit<
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
+  // owner-management surfaces keep the veil always-on where touch grids
+  // go bare: their controls (remove, undo) have no overlay equivalent
+  keepTouchReveal?: boolean
 }
 
 const Thumbnail = ({
@@ -127,14 +130,22 @@ const containerCss = css.raw({
     {
       pointerEvents: 'auto',
     },
-  // no hover means no reveal path, so coarse-pointer devices keep the
-  // veil and its controls present; phase 3 owns the real mobile design
-  '@media (hover: none)': {
-    '& [data-tile-reveal]': {
+  // touch grids stay bare (photo-grid convention); the detail overlay
+  // carries the title and every control. display, not opacity: tap focus
+  // must not flash the veil through :focus-within. pointer: coarse, the
+  // same predicate as the controlHeight bump - hover: none would also
+  // catch pointerless environments (headless Firefox reports no pointer
+  // devices at all, which broke its e2e project)
+  '@media (pointer: coarse)': {
+    '&:not([data-tile-keep-reveal]) [data-tile-reveal]': {
+      display: 'none',
+    },
+    // opted-out tiles get the old always-on veil instead
+    '&[data-tile-keep-reveal] [data-tile-reveal]': {
       opacity: 1,
       translate: '0 0',
     },
-    '& [data-tile-controls]': {
+    '&[data-tile-keep-reveal] [data-tile-controls]': {
       pointerEvents: 'auto',
     },
   },
@@ -148,10 +159,15 @@ export function AssetTile({
   className,
   isLinkDisabled,
   linkProps,
+  keepTouchReveal,
   ...props
 }: AssetTileProps) {
   return (
-    <div className={cx(css(containerCss), className)} {...props}>
+    <div
+      className={cx(css(containerCss), className)}
+      data-tile-keep-reveal={keepTouchReveal ? '' : undefined}
+      {...props}
+    >
       <Thumbnail
         assetPreview={assetPreview}
         sizes={sizes}
