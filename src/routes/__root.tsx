@@ -44,9 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       }),
     ],
     links: [
-      // the first-paint faces: body text, and the display face whose late
-      // swap rewraps headings at narrow widths (a one-line-height layout
-      // shift); remaining weights load on demand
+      // above the fold body text
       {
         rel: 'preload',
         href: '/fonts/switzer-400.woff2',
@@ -54,6 +52,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         type: 'font/woff2',
         crossOrigin: 'anonymous',
       },
+      // above the fold heading text
       {
         rel: 'preload',
         href: '/fonts/zodiak-400.woff2',
