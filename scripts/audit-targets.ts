@@ -1,14 +1,17 @@
-// Shared page list for the audit scripts: one URL per template. Album and
+// Shared plumbing for the audit scripts: the page-template list (one URL per
+// template), readiness conditions, and CLI/report helpers. Album and
 // collection paths vary per environment, so they resolve from the target's
 // /sitemap.xml with production fallbacks.
+import fs from 'node:fs'
+import path from 'node:path'
 import type { Page } from '@playwright/test'
 
 export interface AuditTarget {
   name: string
   path: string
   // all must hold before auditing; sections stream independently, so one
-  // settling proves nothing about the others and a skeleton would audit
-  // vacuously
+  // settling proves nothing about the others, and an audit of a skeleton
+  // proves nothing at all
   ready: Array<{ selector: string; count?: number }>
   // needs a session cookie; the scripts skip auth targets
   auth?: boolean
@@ -19,7 +22,7 @@ const fallbackTargets = {
   collection: '/collections/21c33a8c-f642-410a-9188-11054399140f',
 }
 
-export async function resolveAuditTargets(
+async function resolveAuditTargets(
   baseUrl: string,
 ): Promise<Array<AuditTarget>> {
   let album = fallbackTargets.album
@@ -34,9 +37,10 @@ export async function resolveAuditTargets(
     const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
       (match) => new URL(match[1]).pathname,
     )
-    album = paths.find((path) => path.startsWith('/albums/')) ?? album
+    album = paths.find((pathname) => pathname.startsWith('/albums/')) ?? album
     collection =
-      paths.find((path) => path.startsWith('/collections/')) ?? collection
+      paths.find((pathname) => pathname.startsWith('/collections/')) ??
+      collection
   } catch (error) {
     process.stderr.write(
       `sitemap unavailable, using production fallbacks (${String(error)})\n`,
@@ -44,6 +48,9 @@ export async function resolveAuditTargets(
   }
   const tile = [{ selector: '[data-asset-key]' }]
   const tileSection = 'section:has([data-asset-key])'
+  // sitemap-resolved pages can be legitimately empty; their settled empty
+  // state counts as ready
+  const tileOrEmpty = [{ selector: '[data-asset-key], [data-empty-state]' }]
   return [
     {
       name: 'home',
@@ -69,16 +76,38 @@ export async function resolveAuditTargets(
       path: '/assets/nasa_ivl/PIA14417',
       ready: [{ selector: 'main img' }],
     },
-    {
-      // the sitemap lists every public collection, and a legitimately
-      // empty one settles into its empty state instead of tiles
-      name: 'collection-detail',
-      path: collection,
-      ready: [{ selector: '[data-asset-key], [data-empty-state]' }],
-    },
-    { name: 'album', path: album, ready: tile },
+    { name: 'collection-detail', path: collection, ready: tileOrEmpty },
+    { name: 'album', path: album, ready: tileOrEmpty },
     { name: 'login', path: '/login', ready: [{ selector: 'form' }] },
   ]
+}
+
+export function cliArgs() {
+  // pnpm forwards a literal "--" when invoked as `pnpm audit:x -- --y`
+  return process.argv
+    .slice(2)
+    .filter((arg, index) => !(index === 0 && arg === '--'))
+}
+
+export function parseBaseUrl(base: string) {
+  const baseUrl = base.replace(/\/$/, '')
+  if (!/^https?:\/\//.test(baseUrl))
+    throw new Error(`--base must include http:// or https://`)
+  return baseUrl
+}
+
+export async function selectAuditTargets(baseUrl: string, only?: string) {
+  const targets = (await resolveAuditTargets(baseUrl)).filter(
+    (target) => !target.auth,
+  )
+  const names = only?.split(',')
+  if (!names) return targets
+  const unknown = names.filter(
+    (name) => !targets.some((target) => target.name === name),
+  )
+  if (unknown.length > 0)
+    throw new Error(`--only: unknown template(s): ${unknown.join(', ')}`)
+  return targets.filter((target) => names.includes(target.name))
 }
 
 export function waitForReady(page: Page, target: AuditTarget) {
@@ -91,6 +120,16 @@ export function waitForReady(page: Page, target: AuditTarget) {
     target.ready,
     { timeout: 30_000 },
   )
+}
+
+export function makeReportDir(kind: string, baseUrl: string) {
+  const stamp = `${new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '')}-${process.pid}`
+  const dir = path.join(
+    'audit-reports',
+    `${kind}-${new URL(baseUrl).hostname}-${stamp}`,
+  )
+  fs.mkdirSync(dir, { recursive: true })
+  return dir
 }
 
 // ids.si.edu serves an HTML block page to Headless Chrome user agents

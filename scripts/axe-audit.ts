@@ -9,44 +9,28 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { AxeBuilder } from '@axe-core/playwright'
 import { chromium } from '@playwright/test'
-import { DESKTOP_UA, resolveAuditTargets, waitForReady } from './audit-targets'
+import {
+  DESKTOP_UA,
+  cliArgs,
+  makeReportDir,
+  parseBaseUrl,
+  selectAuditTargets,
+  waitForReady,
+} from './audit-targets'
 
 const { values } = parseArgs({
-  // pnpm forwards a literal "--" when invoked as `pnpm audit:axe -- --x`
-  args: process.argv
-    .slice(2)
-    .filter((arg, index) => !(index === 0 && arg === '--')),
+  args: cliArgs(),
   options: {
     base: { type: 'string', default: 'https://eyepiece.net' },
     only: { type: 'string' },
   },
 })
 
-const baseUrl = values.base.replace(/\/$/, '')
-if (!/^https?:\/\//.test(baseUrl))
-  throw new Error(`--base must include http:// or https://`)
+const baseUrl = parseBaseUrl(values.base)
 
 async function main() {
-  const targets = (await resolveAuditTargets(baseUrl)).filter(
-    (target) => !target.auth,
-  )
-  const only = values.only?.split(',')
-  const unknown = only?.filter(
-    (name) => !targets.some((target) => target.name === name),
-  )
-  if (unknown && unknown.length > 0)
-    throw new Error(`--only: unknown template(s): ${unknown.join(', ')}`)
-  const selected = only
-    ? targets.filter((target) => only.includes(target.name))
-    : targets
-  if (selected.length === 0) throw new Error(`--only matched no targets`)
-
-  const stamp = `${new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '')}-${process.pid}`
-  const outDir = path.join(
-    'audit-reports',
-    `axe-${new URL(baseUrl).hostname}-${stamp}`,
-  )
-  fs.mkdirSync(outDir, { recursive: true })
+  const selected = await selectAuditTargets(baseUrl, values.only)
+  const outDir = makeReportDir('axe', baseUrl)
   process.stdout.write(`auditing ${baseUrl} -> ${outDir}\n`)
 
   const browser = await chromium.launch()
@@ -60,29 +44,25 @@ async function main() {
         viewport: { width: 1440, height: 900 },
       })
       for (const target of selected) {
+        const name = `${target.name}.${colorScheme}`
         const page = await context.newPage()
-        const response = await page.goto(`${baseUrl}${target.path}`, {
-          waitUntil: 'load',
-        })
-        if (!response || !response.ok()) {
-          process.stdout.write(
-            `${target.name}.${colorScheme}: HTTP ${response?.status() ?? '?'}, skipping\n`,
-          )
-          pageErrors++
-          await page.close()
-          continue
-        }
         try {
+          const response = await page.goto(`${baseUrl}${target.path}`, {
+            waitUntil: 'load',
+          })
+          if (!response || !response.ok()) {
+            throw new Error(`HTTP ${response?.status() ?? 'error'}`)
+          }
           await waitForReady(page, target)
-        } catch {
+        } catch (error) {
           process.stdout.write(
-            `${target.name}.${colorScheme}: page never settled, skipping\n`,
+            `${name}: skipped, page errored or never settled (${String(error).slice(0, 120)})\n`,
           )
           pageErrors++
           await page.close()
           continue
         }
-        // let streamed sections settle; don't fail on long-lived connections
+        // let image loads finish; don't fail on long-lived connections
         await page
           .waitForLoadState('networkidle', { timeout: 15_000 })
           .catch(() => {})
@@ -90,7 +70,6 @@ async function main() {
         const results = await new AxeBuilder({ page })
           .options({ rules: { 'target-size': { enabled: true } } })
           .analyze()
-        const name = `${target.name}.${colorScheme}`
         fs.writeFileSync(
           path.join(outDir, `${name}.json`),
           `${JSON.stringify(results, null, 2)}\n`,

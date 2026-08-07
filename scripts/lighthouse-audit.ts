@@ -16,16 +16,18 @@ import desktopConfig from 'lighthouse/core/config/desktop-config.js'
 import {
   DESKTOP_UA,
   MOBILE_UA,
-  resolveAuditTargets,
+  cliArgs,
+  makeReportDir,
+  parseBaseUrl,
+  selectAuditTargets,
   waitForReady,
 } from './audit-targets'
+import type { AuditTarget } from './audit-targets'
+import type { BrowserContext } from '@playwright/test'
 import type { Flags, Result } from 'lighthouse'
 
 const { values } = parseArgs({
-  // pnpm forwards a literal "--" when invoked as `pnpm audit:lighthouse -- --x`
-  args: process.argv
-    .slice(2)
-    .filter((arg, index) => !(index === 0 && arg === '--')),
+  args: cliArgs(),
   options: {
     base: { type: 'string', default: 'https://eyepiece.net' },
     runs: { type: 'string', default: '1' },
@@ -34,9 +36,7 @@ const { values } = parseArgs({
   },
 })
 
-const baseUrl = values.base.replace(/\/$/, '')
-if (!/^https?:\/\//.test(baseUrl))
-  throw new Error(`--base must include http:// or https://`)
+const baseUrl = parseBaseUrl(values.base)
 const runs = Number(values.runs)
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error(`--runs must be a positive integer`)
@@ -151,27 +151,31 @@ async function launchChrome() {
   }
 }
 
-async function main() {
-  const targets = (await resolveAuditTargets(baseUrl)).filter(
-    (target) => !target.auth,
-  )
-  const only = values.only?.split(',')
-  const unknown = only?.filter(
-    (name) => !targets.some((target) => target.name === name),
-  )
-  if (unknown && unknown.length > 0)
-    throw new Error(`--only: unknown template(s): ${unknown.join(', ')}`)
-  const selected = only
-    ? targets.filter((target) => only.includes(target.name))
-    : targets
-  if (selected.length === 0) throw new Error(`--only matched no targets`)
+// lighthouse cannot wait on app readiness mid-run, so a probe rules out error
+// documents and streamed sections that never settle before any report is
+// accepted; the audited navigations themselves stay unguarded, and a run that
+// stalls anyway surfaces through its failed-request count
+async function pageSettles(
+  context: BrowserContext,
+  url: string,
+  target: AuditTarget,
+) {
+  const page = await context.newPage()
+  try {
+    const response = await page.goto(url, { waitUntil: 'load' })
+    if (!response || !response.ok()) return false
+    await waitForReady(page, target)
+    return true
+  } catch {
+    return false
+  } finally {
+    await page.close()
+  }
+}
 
-  const stamp = `${new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '')}-${process.pid}`
-  const outDir = path.join(
-    'audit-reports',
-    `lighthouse-${new URL(baseUrl).hostname}-${stamp}`,
-  )
-  fs.mkdirSync(outDir, { recursive: true })
+async function main() {
+  const selected = await selectAuditTargets(baseUrl, values.only)
+  const outDir = makeReportDir('lighthouse', baseUrl)
   process.stdout.write(`auditing ${baseUrl} -> ${outDir}\n`)
 
   const summaries: Array<RunSummary> = []
@@ -179,25 +183,15 @@ async function main() {
   const chrome = await launchChrome()
   const probeBrowser = await chromium.launch()
   const probeContext = await probeBrowser.newContext({ userAgent: DESKTOP_UA })
+  const flags: Flags = {
+    port: chrome.port,
+    output: ['json', 'html'],
+    logLevel: 'error',
+  }
   try {
     for (const target of selected) {
       const url = `${baseUrl}${target.path}`
-      // lighthouse cannot wait on app readiness mid-run, so a probe rules
-      // out error documents and streamed sections that never settle before
-      // any report is accepted
-      const probePage = await probeContext.newPage()
-      let settled = false
-      try {
-        const response = await probePage.goto(url, { waitUntil: 'load' })
-        if (response && response.ok()) {
-          await waitForReady(probePage, target)
-          settled = true
-        }
-      } catch {
-        // fall through to the skip below
-      }
-      await probePage.close()
-      if (!settled) {
+      if (!(await pageSettles(probeContext, url, target))) {
         process.stdout.write(
           `${target.name}: page errored or never settled, skipping\n`,
         )
@@ -206,11 +200,6 @@ async function main() {
       }
       for (const formFactor of formFactors) {
         for (let run = 1; run <= runs; run++) {
-          const flags: Flags = {
-            port: chrome.port,
-            output: ['json', 'html'],
-            logLevel: 'error',
-          }
           const result = await lighthouse(url, flags, configs[formFactor])
           if (!result)
             throw new Error(`lighthouse returned no result for ${url}`)
@@ -251,10 +240,6 @@ async function main() {
     path.join(outDir, 'summary.json'),
     `${JSON.stringify(summaries, null, 2)}\n`,
   )
-  if (pageErrors > 0) {
-    process.stdout.write(`${pageErrors} runs failed without a report\n`)
-    process.exitCode = 1
-  }
   process.stdout.write(
     `\n| template | factor | run | perf | a11y | best | seo | LCP ms | CLS | TBT ms |\n`,
   )
@@ -269,6 +254,10 @@ async function main() {
     process.stdout.write(
       `| ${summary.template} | ${summary.formFactor} | ${summary.run} | ${score('performance')} | ${score('accessibility')} | ${score('best-practices')} | ${score('seo')} | ${Math.round(summary.metrics.largestContentfulPaintMs ?? -1)} | ${(summary.metrics.cumulativeLayoutShift ?? -1).toFixed(3)} | ${Math.round(summary.metrics.totalBlockingTimeMs ?? -1)} |\n`,
     )
+  }
+  if (pageErrors > 0) {
+    process.stdout.write(`\n${pageErrors} runs failed without a report\n`)
+    process.exitCode = 1
   }
 }
 
