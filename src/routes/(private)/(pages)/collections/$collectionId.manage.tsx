@@ -232,7 +232,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     edgesResult.data.edges.map((edge) => edge.assetPreviewSnapshotId),
   )
   // mutateAsync alone: the mutation result object is fresh every render
-  // and would defeat the grid rows' memo through the tileActions identity
+  // and would defeat the grid rows' memo through the tile-actions identity
   const { mutateAsync: removeItemAsync } = useRemoveCollectionItem()
   const { mutateAsync: reAddItemAsync } = useAddCollectionItemAtPosition()
   const queueToastMessage = useQueueToastMessage()
@@ -267,7 +267,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
     return map
   }, [edgesResult.data.edges])
 
-  const tileActions = useCallback(
+  const tilePersistentActions = useCallback(
     (item: AssetPreviewSnapshot) => {
       const edge = edgesBySnapshotId.get(item.id)
       if (!edge) {
@@ -362,12 +362,9 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
           tileLinkProps={tileLinkProps}
           aria-label="Collection items"
           items={snapshotsResult.data ?? []}
-          tileActions={tileActions}
+          tilePersistentActions={tilePersistentActions}
           tileClassName={tileClassName}
           tileLinkDisabled={tileLinkDisabled}
-          // remove and undo have no overlay equivalent, so this grid keeps
-          // its veil on touch
-          keepTouchReveal
         />
       </InfiniteLoader>
     </section>
