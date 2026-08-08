@@ -34,9 +34,11 @@ Client Sentry is initialized in `src/router.tsx` through `initClientSentry` from
 The client integration enables:
 
 - TanStack Router browser tracing.
-- Replay, dynamically imported after init so it stays out of the entry
-  bundle. Recording starts once the chunk loads, so the first moments of a
-  session are not captured, and a failed chunk load skips Replay while the
+- Replay, dynamically imported on the first pointer or key input so its
+  chunk stays out of the entry bundle and out of passive visits entirely.
+  Recording starts once the chunk loads, so the moments before and just
+  after that first input are not captured (including a crash that happens
+  before any interaction), and a failed chunk load skips Replay while the
   rest of Sentry keeps working.
 - Environment, release, and sampling from the normalized client config.
 

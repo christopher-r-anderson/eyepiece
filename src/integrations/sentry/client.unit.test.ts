@@ -56,7 +56,7 @@ describe('initClientSentry', () => {
     expect(mockAddIntegration).not.toHaveBeenCalled()
   })
 
-  it('initializes Sentry and attaches replay once it loads', async () => {
+  it('initializes Sentry and attaches replay on first interaction', async () => {
     const router = { isServer: false } as AnyRouter
     mockGetClientSentryConfig.mockReturnValue(config)
     mockReplayIntegration.mockReturnValue('replay' as never)
@@ -73,8 +73,17 @@ describe('initClientSentry', () => {
       replaysSessionSampleRate: 0.5,
       replaysOnErrorSampleRate: 1,
     })
+    expect(mockAddIntegration).not.toHaveBeenCalled()
+
+    window.dispatchEvent(new Event('pointerdown'))
     await vi.waitFor(() => {
       expect(mockAddIntegration).toHaveBeenCalledWith('replay')
+    })
+
+    // the other interaction listener was removed on the first fire
+    window.dispatchEvent(new Event('keydown'))
+    await vi.waitFor(() => {
+      expect(mockAddIntegration).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -87,6 +96,7 @@ describe('initClientSentry', () => {
     initClientSentry({ isServer: false } as AnyRouter)
 
     expect(mockSentryInit).toHaveBeenCalled()
+    window.dispatchEvent(new Event('keydown'))
     await vi.waitFor(() => {
       expect(mockReplayIntegration).toHaveBeenCalled()
     })

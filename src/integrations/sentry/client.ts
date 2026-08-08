@@ -22,11 +22,22 @@ export function initClientSentry(router: AnyRouter) {
     replaysSessionSampleRate: config.replaysSessionSampleRate,
     replaysOnErrorSampleRate: config.replaysOnErrorSampleRate,
   })
-  void import('@sentry/tanstackstart-react')
-    .then((lazy) => {
-      Sentry.addIntegration(lazy.replayIntegration())
-    })
-    .catch(() => {
-      // telemetry stays best-effort when the chunk fails to load
-    })
+  // loading on first input keeps the replay chunk out of passive visits;
+  // a crash before any interaction gets error events but no replay
+  const interactionEvents = ['pointerdown', 'keydown'] as const
+  const loadReplay = () => {
+    for (const event of interactionEvents) {
+      removeEventListener(event, loadReplay)
+    }
+    void import('@sentry/tanstackstart-react')
+      .then((lazy) => {
+        Sentry.addIntegration(lazy.replayIntegration())
+      })
+      .catch(() => {
+        // telemetry stays best-effort when the chunk fails to load
+      })
+  }
+  for (const event of interactionEvents) {
+    addEventListener(event, loadReplay, { once: true, passive: true })
+  }
 }
