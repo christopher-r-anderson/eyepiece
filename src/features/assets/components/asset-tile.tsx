@@ -115,6 +115,7 @@ const containerCss = css.raw({
   backgroundColor: 'assetTile.bg',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
+  containerType: 'inline-size',
   // the grid's roving focus lands on the ancestor row, not on the tile, so
   // the reveal also keys off a focused row - :focus-within on the tile
   // alone would miss keyboard navigation
@@ -166,25 +167,37 @@ const actionPillCss = css.raw({
   color: 'assetTile.captionText',
 })
 
+// the cluster (28px star box + controlHeightSm square + gaps, padding,
+// and corner offsets) needs ~104px; narrow-row portrait tiles go below
+// that on fine pointers, where the detail surface still carries every
+// action
+const NARROW_TILE_QUERY = '@container (max-width: 104px)'
+
 const relatedLinksCss = css(revealCss, {
   position: 'absolute',
   top: '2',
   left: '2',
-  // leaves the action pill's corner alone: its cluster is the 28px star
-  // box plus a controlHeightSm square with the pill padding and gaps
-  // around them
+  // leaves the action pill's corner alone
   maxWidth:
     'calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))',
+  overflow: 'hidden',
   paddingBlock: '1',
   paddingInline: '2',
   backgroundColor: 'assetTile.captionBg',
   color: 'assetTile.captionText',
   fontSize: 'xs',
   translate: '0 -4px',
+  // with the pill hidden the chip has the tile to itself
+  [NARROW_TILE_QUERY]: {
+    maxWidth: 'calc(100% - (2 * token(spacing.2)))',
+  },
 })
 
 const revealedActionsCss = css(actionPillCss, revealCss, {
   translate: '0 -4px',
+  [NARROW_TILE_QUERY]: {
+    display: 'none',
+  },
 })
 
 const persistentActionsCss = css(actionPillCss)
