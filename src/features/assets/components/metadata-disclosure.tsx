@@ -25,14 +25,7 @@ export function MetadataDisclosure({
   // staleTime is removed
   const prefetch = usePrefetchMetadata(assetKey)
   return (
-    <Disclosure
-      className={css({
-        width: '100%',
-        maxWidth: 'contentMax',
-        marginInline: 'auto',
-        paddingInline: '4',
-      })}
-    >
+    <Disclosure>
       {({ isExpanded }) => (
         <>
           <Heading level={headingLevel}>

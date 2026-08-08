@@ -189,8 +189,7 @@ function OverlayAssetContent({ assetKey }: { assetKey: AssetKey }) {
   useEffect(() => {
     return () => {
       // restore only when the overlay closed back to that list; any other
-      // destination (an in-overlay album link) owns the title. Location,
-      // not title text: a name collision would defeat a string guard
+      // destination (an in-overlay album link) owns the title
       if (
         previousTitleRef.current !== undefined &&
         router.state.location.pathname === openedOverPathnameRef.current

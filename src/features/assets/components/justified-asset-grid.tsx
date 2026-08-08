@@ -200,12 +200,22 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
 // that gains focus has to re-render for useGridListItem to move DOM
 // focus onto it.
 const JustifiedGridRow = memo(JustifiedGridRowInner, (prev, next) => {
-  const keys = new Set([...Object.keys(prev), ...Object.keys(next)])
-  keys.delete('state')
-  return [...keys].every((key) =>
-    Object.is(
-      (prev as Record<string, unknown>)[key],
-      (next as Record<string, unknown>)[key],
-    ),
-  )
+  const prevKeys = Object.keys(prev)
+  if (prevKeys.length !== Object.keys(next).length) {
+    return false
+  }
+  for (const key of prevKeys) {
+    if (key === 'state') {
+      continue
+    }
+    if (
+      !Object.is(
+        (prev as Record<string, unknown>)[key],
+        (next as Record<string, unknown>)[key],
+      )
+    ) {
+      return false
+    }
+  }
+  return true
 }) as typeof JustifiedGridRowInner

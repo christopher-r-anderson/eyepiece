@@ -62,13 +62,17 @@ export const sheetRecipe = defineSlotRecipe({
     },
     close: {
       // sits in the overlay's top gap (--sheet-gap); stays inside the
-      // dialog subtree so the modal focus trap can reach it. Paint styles
-      // live on the css prop in sheet.tsx - the composed button recipe
-      // outranks this slot by layer order
-      position: 'absolute',
+      // dialog subtree so the modal focus trap can reach it. position is
+      // patched through the css prop in sheet.tsx (layer order, see the
+      // button recipe's icon variant)
       // centered in the gap at every breakpoint
       top: 'calc((var(--sheet-gap) + token(sizes.controlHeightSm)) / -2)',
       right: '3',
+      // over the dimmed backdrop the glyph stays light and hover speaks
+      // through color alone
+      '--button-icon-color': 'rgba(255, 255, 255, 0.8)',
+      '--button-icon-hover-color': 'white',
+      '--button-icon-hover-bg': 'transparent',
       md: {
         right: '0',
       },
@@ -76,6 +80,10 @@ export const sheetRecipe = defineSlotRecipe({
     body: {
       minHeight: 0,
       flex: 1,
+      // the scrollport is a size container so content can floor itself
+      // against it in cq units (a percentage cannot resolve through
+      // intermediate auto-height wrappers)
+      containerType: 'size',
       overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
