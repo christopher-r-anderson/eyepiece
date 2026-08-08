@@ -195,21 +195,18 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   )
 }
 
-// Re-render a row only when its item, its focus role, or the tile callbacks
-// change; keydown handling that needs fresh list state lives on the
-// container. isFocused must stay a prop: the row that gains focus has to
-// re-render for useGridListItem to move DOM focus onto it.
+// Shallow-compare every prop except state, whose identity changes each
+// render by RAC's design; keydown handling that needs fresh list state
+// lives on the container. isFocused must stay a compared prop: the row
+// that gains focus has to re-render for useGridListItem to move DOM
+// focus onto it.
 const JustifiedGridRow = memo(JustifiedGridRowInner, (prev, next) => {
-  return (
-    prev.item === next.item &&
-    prev.itemKey === next.itemKey &&
-    prev.isTabStop === next.isTabStop &&
-    prev.isFocused === next.isFocused &&
-    prev.tileActions === next.tileActions &&
-    prev.tileRelatedLinks === next.tileRelatedLinks &&
-    prev.tileClassName === next.tileClassName &&
-    prev.tileLinkDisabled === next.tileLinkDisabled &&
-    prev.tileLinkProps === next.tileLinkProps &&
-    prev.keepTouchReveal === next.keepTouchReveal
+  const keys = new Set([...Object.keys(prev), ...Object.keys(next)])
+  keys.delete('state')
+  return [...keys].every((key) =>
+    Object.is(
+      (prev as Record<string, unknown>)[key],
+      (next as Record<string, unknown>)[key],
+    ),
   )
 }) as typeof JustifiedGridRowInner
