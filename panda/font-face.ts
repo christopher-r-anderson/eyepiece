@@ -12,18 +12,21 @@ import { defineGlobalFontface } from '@pandacss/dev'
 // Sans tracks Arial, Gelasio and Liberation Mono track Georgia and Courier
 // New). Recompute the values if the pinned fonts ever change.
 export const globalFontface = defineGlobalFontface({
+  // the preloaded first-paint faces are optional: the preload nearly always
+  // wins the race, and a slow font then keeps the metric-matched fallback
+  // instead of swapping in late and rewrapping; on-demand faces still swap
   Zodiak: {
     src: "url('/fonts/zodiak-400.woff2') format('woff2')",
     fontWeight: 400,
     fontStyle: 'normal',
-    fontDisplay: 'swap',
+    fontDisplay: 'optional',
   },
   Switzer: [
     {
       src: "url('/fonts/switzer-400.woff2') format('woff2')",
       fontWeight: 400,
       fontStyle: 'normal',
-      fontDisplay: 'swap',
+      fontDisplay: 'optional',
     },
     {
       src: "url('/fonts/switzer-400-italic.woff2') format('woff2')",
