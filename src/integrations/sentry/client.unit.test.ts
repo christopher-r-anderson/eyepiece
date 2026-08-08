@@ -9,7 +9,8 @@ vi.mock('@sentry/tanstackstart-react', () => ({
   tanstackRouterBrowserTracingIntegration: vi
     .fn()
     .mockReturnValue('router-tracing'),
-  replayIntegration: vi.fn().mockReturnValue('replay'),
+  replayIntegration: vi.fn(),
+  addIntegration: vi.fn(),
 }))
 
 vi.mock('./config', () => ({
@@ -21,7 +22,17 @@ const mockTracingIntegration = vi.mocked(
   Sentry.tanstackRouterBrowserTracingIntegration,
 )
 const mockReplayIntegration = vi.mocked(Sentry.replayIntegration)
+const mockAddIntegration = vi.mocked(Sentry.addIntegration)
 const mockGetClientSentryConfig = vi.mocked(getClientSentryConfig)
+
+const config = {
+  dsn: 'https://example@sentry.invalid/1',
+  environment: 'development',
+  release: 'abc123',
+  tracesSampleRate: 0.25,
+  replaysSessionSampleRate: 0.5,
+  replaysOnErrorSampleRate: 1,
+}
 
 describe('initClientSentry', () => {
   beforeEach(() => {
@@ -42,33 +53,53 @@ describe('initClientSentry', () => {
 
     expect(mockSentryInit).not.toHaveBeenCalled()
     expect(mockTracingIntegration).not.toHaveBeenCalled()
-    expect(mockReplayIntegration).not.toHaveBeenCalled()
+    expect(mockAddIntegration).not.toHaveBeenCalled()
   })
 
-  it('initializes Sentry with the normalized client config', () => {
+  it('initializes Sentry and attaches replay on first interaction', async () => {
     const router = { isServer: false } as AnyRouter
-
-    mockGetClientSentryConfig.mockReturnValue({
-      dsn: 'https://example@sentry.invalid/1',
-      environment: 'development',
-      release: 'abc123',
-      tracesSampleRate: 0.25,
-      replaysSessionSampleRate: 0.5,
-      replaysOnErrorSampleRate: 1,
-    })
+    mockGetClientSentryConfig.mockReturnValue(config)
+    mockReplayIntegration.mockReturnValue('replay' as never)
 
     initClientSentry(router)
 
     expect(mockTracingIntegration).toHaveBeenCalledWith(router)
-    expect(mockReplayIntegration).toHaveBeenCalled()
     expect(mockSentryInit).toHaveBeenCalledWith({
       dsn: 'https://example@sentry.invalid/1',
       environment: 'development',
       release: 'abc123',
-      integrations: ['router-tracing', 'replay'],
+      integrations: ['router-tracing'],
       tracesSampleRate: 0.25,
       replaysSessionSampleRate: 0.5,
       replaysOnErrorSampleRate: 1,
     })
+    expect(mockAddIntegration).not.toHaveBeenCalled()
+
+    window.dispatchEvent(new Event('pointerdown'))
+    await vi.waitFor(() => {
+      expect(mockAddIntegration).toHaveBeenCalledWith('replay')
+    })
+
+    // the other interaction listener was removed on the first fire
+    window.dispatchEvent(new Event('keydown'))
+    await vi.waitFor(() => {
+      expect(mockAddIntegration).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('leaves Sentry running when replay fails to attach', async () => {
+    mockGetClientSentryConfig.mockReturnValue(config)
+    mockReplayIntegration.mockImplementation(() => {
+      throw new Error('load failed')
+    })
+
+    initClientSentry({ isServer: false } as AnyRouter)
+
+    expect(mockSentryInit).toHaveBeenCalled()
+    window.dispatchEvent(new Event('keydown'))
+    await vi.waitFor(() => {
+      expect(mockReplayIntegration).toHaveBeenCalled()
+    })
+    expect(mockAddIntegration).not.toHaveBeenCalled()
   })
 })
