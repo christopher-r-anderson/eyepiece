@@ -34,13 +34,15 @@ test('touch grids are bare: no veil, title, or tile controls', async ({
   await expect(page.getByRole('button', { name: 'Star' })).toHaveCount(0)
 })
 
-test('the manage grid keeps its veil on touch so remove stays reachable', async ({
+test('manage controls stay reachable on touch outside the hidden veil', async ({
   page,
 }) => {
   await logInAsFixtureUser(page, `/collections/${publicCollection.id}/manage`)
 
-  await expect(page.locator('[data-tile-reveal]').first()).toBeVisible()
+  // the veil hides on touch here like everywhere else
+  await expect(page.locator('[data-tile-reveal]').first()).toBeHidden()
 
+  // remove lives outside the reveal rules and shows without any hover
   await page.getByRole('button', { name: 'Edit items' }).click()
   await expect(
     page.getByRole('button', { name: /^Remove / }).first(),

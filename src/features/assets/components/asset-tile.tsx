@@ -30,13 +30,14 @@ interface AssetTileProps extends Omit<
   // without it falls back to assuming the full viewport
   sizes: string
   relatedLinks?: ReactNode
+  // revealed with the veil on hover/focus
   actions?: ReactNode
+  // shown unconditionally, outside the reveal rules: owner-management
+  // controls (remove, undo) have no overlay equivalent on any device
+  persistentActions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
-  // owner-management surfaces keep the veil always-on where touch grids
-  // go bare: their controls (remove, undo) have no overlay equivalent
-  keepTouchReveal?: boolean
 }
 
 const Thumbnail = ({
@@ -137,16 +138,8 @@ const containerCss = css.raw({
   // catch pointerless environments (headless Firefox reports no pointer
   // devices at all, which broke its e2e project)
   '@media (pointer: coarse)': {
-    '&:not([data-tile-keep-reveal]) [data-tile-reveal]': {
+    '& [data-tile-reveal]': {
       display: 'none',
-    },
-    // opted-out tiles get the old always-on veil instead
-    '&[data-tile-keep-reveal] [data-tile-reveal]': {
-      opacity: 1,
-      translate: '0 0',
-    },
-    '&[data-tile-keep-reveal] [data-tile-controls]': {
-      pointerEvents: 'auto',
     },
   },
 })
@@ -156,18 +149,14 @@ export function AssetTile({
   sizes,
   relatedLinks,
   actions,
+  persistentActions,
   className,
   isLinkDisabled,
   linkProps,
-  keepTouchReveal,
   ...props
 }: AssetTileProps) {
   return (
-    <div
-      className={cx(css(containerCss), className)}
-      data-tile-keep-reveal={keepTouchReveal ? '' : undefined}
-      {...props}
-    >
+    <div className={cx(css(containerCss), className)} {...props}>
       <Thumbnail
         assetPreview={assetPreview}
         sizes={sizes}
@@ -231,6 +220,22 @@ export function AssetTile({
           })}
         >
           {actions}
+        </div>
+      )}
+      {persistentActions && (
+        <div
+          className={flex({
+            position: 'absolute',
+            top: '2',
+            right: '2',
+            alignItems: 'center',
+            gap: '2',
+            padding: '1',
+            backgroundColor: 'assetTile.captionBg',
+            color: 'assetTile.captionText',
+          })}
+        >
+          {persistentActions}
         </div>
       )}
       <div

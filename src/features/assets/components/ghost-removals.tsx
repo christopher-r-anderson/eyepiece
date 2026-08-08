@@ -39,9 +39,9 @@ export function refocusTileControlAfterSwap(assetKeyString: string) {
     if (current && current !== document.body && !row.contains(current)) {
       return
     }
-    const control = row.querySelector<HTMLElement>(
-      '[data-tile-controls] button:not([disabled])',
-    )
+    // any action cluster's button, revealed or persistent; the tile's
+    // only other focusables are links
+    const control = row.querySelector<HTMLElement>('button:not([disabled])')
     ;(control ?? row).focus()
   })
 }

@@ -48,9 +48,8 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   // ghost rows stay rendered but must not navigate (row action or link)
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
-  // owner-management grids keep the tile veil always-on where touch goes
-  // bare (their controls have no overlay equivalent)
-  keepTouchReveal?: boolean
+  // always-visible owner-management controls, outside the reveal rules
+  tilePersistentActions?: (item: TItem) => ReactNode
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -61,7 +60,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileClassName,
   tileLinkDisabled,
   tileLinkProps,
-  keepTouchReveal,
+  tilePersistentActions,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -125,7 +124,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             tileClassName={tileClassName}
             tileLinkDisabled={tileLinkDisabled}
             tileLinkProps={tileLinkProps}
-            keepTouchReveal={keepTouchReveal}
+            tilePersistentActions={tilePersistentActions}
           />
         )
       })}
@@ -144,7 +143,7 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   tileClassName?: (item: TItem) => string | undefined
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
-  keepTouchReveal?: boolean
+  tilePersistentActions?: (item: TItem) => ReactNode
 }
 
 function JustifiedGridRowInner<TItem extends AssetPreview>({
@@ -156,7 +155,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   tileClassName,
   tileLinkDisabled,
   tileLinkProps,
-  keepTouchReveal,
+  tilePersistentActions,
 }: JustifiedGridRowProps<TItem>) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -185,7 +184,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}
           linkProps={tileLinkProps?.(item)}
-          keepTouchReveal={keepTouchReveal}
+          persistentActions={tilePersistentActions?.(item)}
           // width and height both set leaves the tile's own square
           // aspect-ratio inert; the ratio lives on the row
           className={css(fillCss)}
