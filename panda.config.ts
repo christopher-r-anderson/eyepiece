@@ -30,10 +30,14 @@ export default defineConfig({
   jsxStyleProps: 'minimal',
   globalCss,
   globalFontface,
-  // the icon toggle-button's per-instance theming channel, set by consumers
-  // through the css prop; registered for typing and autocomplete only
-  // (universal syntax + no initial value keeps the variant fallbacks active)
+  // the icon button and icon toggle-button per-instance theming channels,
+  // set by consumers through the css prop or a slot recipe; registered for
+  // typing and autocomplete only (universal syntax + no initial value
+  // keeps the variant fallbacks active)
   globalVars: {
+    '--button-icon-color': { syntax: '*', inherits: true },
+    '--button-icon-hover-color': { syntax: '*', inherits: true },
+    '--button-icon-hover-bg': { syntax: '*', inherits: true },
     '--toggle-icon-color': { syntax: '*', inherits: true },
     '--toggle-icon-hover-color': { syntax: '*', inherits: true },
     '--toggle-icon-selected-color': { syntax: '*', inherits: true },

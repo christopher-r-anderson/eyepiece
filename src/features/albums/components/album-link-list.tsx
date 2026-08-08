@@ -1,4 +1,5 @@
 import { css, cx } from 'styled-system/css'
+import { wrap } from 'styled-system/patterns'
 import type { AlbumKey } from '@/domain/album/album.schema'
 import { Link } from '@/components/ui/link'
 import { toAlbumKeyString } from '@/domain/album/album.utils'
@@ -8,12 +9,7 @@ const listCss = css({
   padding: 0,
 })
 
-const inlineListCss = css({
-  display: 'flex',
-  flexWrap: 'wrap',
-  columnGap: '3',
-  rowGap: '1',
-})
+const inlineListCss = wrap({ columnGap: '3', rowGap: '1' })
 
 export function AlbumLinkList({
   albums,

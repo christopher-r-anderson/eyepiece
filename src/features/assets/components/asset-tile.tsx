@@ -1,6 +1,5 @@
 import { useLocation } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
-import { flex } from 'styled-system/patterns'
 import type {
   ComponentPropsWithRef,
   ComponentPropsWithoutRef,
@@ -133,15 +132,85 @@ const containerCss = css.raw({
     },
   // touch grids stay bare (photo-grid convention); the detail overlay
   // carries the title and every control. display, not opacity: tap focus
-  // must not flash the veil through :focus-within. pointer: coarse, the
-  // same predicate as the controlHeight bump - hover: none would also
-  // catch pointerless environments (headless Firefox reports no pointer
-  // devices at all, which broke its e2e project)
-  '@media (pointer: coarse)': {
+  // must not flash the veil through :focus-within
+  _coarsePointer: {
     '& [data-tile-reveal]': {
       display: 'none',
     },
   },
+})
+
+// hidden at rest, revealed by the containerCss selectors; blocks add
+// their own resting translate for the slide direction
+const revealCss = css.raw({
+  opacity: 0,
+  pointerEvents: 'none',
+  transitionFast: 'opacity, translate',
+  _motionReduce: {
+    transition: 'none',
+    translate: '0 0',
+  },
+})
+
+const actionPillCss = css.raw({
+  position: 'absolute',
+  top: '2',
+  right: '2',
+  display: 'flex',
+  alignItems: 'center',
+  // keeps adjacent controls' extended hit areas out of each other's
+  // visible squares
+  gap: '2',
+  padding: '1',
+  backgroundColor: 'assetTile.captionBg',
+  color: 'assetTile.captionText',
+})
+
+const relatedLinksCss = css(revealCss, {
+  position: 'absolute',
+  top: '2',
+  left: '2',
+  // leaves the action pill's corner alone: its cluster is the 28px star
+  // box plus a controlHeightSm square with the pill padding and gaps
+  // around them
+  maxWidth:
+    'calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))',
+  paddingBlock: '1',
+  paddingInline: '2',
+  backgroundColor: 'assetTile.captionBg',
+  color: 'assetTile.captionText',
+  fontSize: 'xs',
+  translate: '0 -4px',
+})
+
+const revealedActionsCss = css(actionPillCss, revealCss, {
+  translate: '0 -4px',
+})
+
+const persistentActionsCss = css(actionPillCss)
+
+const veilCss = css(revealCss, {
+  position: 'absolute',
+  insetInline: 0,
+  bottom: 0,
+  display: 'flex',
+  alignItems: 'center',
+  paddingBlock: '2',
+  paddingInline: '3',
+  backgroundColor: 'assetTile.captionBg',
+  color: 'assetTile.captionText',
+  translate: '0 4px',
+})
+
+const titleCss = css({
+  flex: 1,
+  minWidth: 0,
+  fontSize: 'sm',
+  lineHeight: 1.3,
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 2,
+  overflow: 'hidden',
 })
 
 export function AssetTile({
@@ -164,116 +233,30 @@ export function AssetTile({
         linkProps={linkProps}
       />
       {relatedLinks && (
-        <div
-          data-tile-reveal
-          data-tile-controls
-          className={css({
-            position: 'absolute',
-            top: '2',
-            left: '2',
-            // leaves the action pill's corner alone: its cluster is the
-            // 28px star box plus a controlHeightSm square with the pill
-            // padding and gaps around them
-            maxWidth:
-              'calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))',
-            paddingBlock: '1',
-            paddingInline: '2',
-            backgroundColor: 'assetTile.captionBg',
-            color: 'assetTile.captionText',
-            fontSize: 'xs',
-            opacity: 0,
-            translate: '0 -4px',
-            pointerEvents: 'none',
-            transitionFast: 'opacity, translate',
-            _motionReduce: {
-              transition: 'none',
-              translate: '0 0',
-            },
-          })}
-        >
+        <div data-tile-reveal data-tile-controls className={relatedLinksCss}>
           {relatedLinks}
         </div>
       )}
       {actions && (
-        <div
-          data-tile-reveal
-          data-tile-controls
-          className={flex({
-            position: 'absolute',
-            top: '2',
-            right: '2',
-            alignItems: 'center',
-            // keeps adjacent controls' extended hit areas out of each
-            // other's visible squares
-            gap: '2',
-            padding: '1',
-            backgroundColor: 'assetTile.captionBg',
-            color: 'assetTile.captionText',
-            opacity: 0,
-            translate: '0 -4px',
-            pointerEvents: 'none',
-            transitionFast: 'opacity, translate',
-            _motionReduce: {
-              transition: 'none',
-              translate: '0 0',
-            },
-          })}
-        >
+        <div data-tile-reveal data-tile-controls className={revealedActionsCss}>
           {actions}
         </div>
       )}
       {persistentActions && (
-        <div
-          className={flex({
-            position: 'absolute',
-            top: '2',
-            right: '2',
-            alignItems: 'center',
-            gap: '2',
-            padding: '1',
-            backgroundColor: 'assetTile.captionBg',
-            color: 'assetTile.captionText',
-          })}
-        >
+        <div data-tile-controls className={persistentActionsCss}>
           {persistentActions}
         </div>
       )}
       <div
         data-tile-reveal
         // clicks over the veil fall through to the link
-        className={flex({
-          position: 'absolute',
-          insetInline: 0,
-          bottom: 0,
-          alignItems: 'center',
-          paddingBlock: '2',
-          paddingInline: '3',
-          backgroundColor: 'assetTile.captionBg',
-          color: 'assetTile.captionText',
-          opacity: 0,
-          translate: '0 4px',
-          pointerEvents: 'none',
-          transitionFast: 'opacity, translate',
-          _motionReduce: {
-            transition: 'none',
-            translate: '0 0',
-          },
-        })}
+        className={veilCss}
       >
         <p
           // the thumbnail link already exposes the title via aria-label;
           // this is its visible echo
           aria-hidden="true"
-          className={css({
-            flex: 1,
-            minWidth: 0,
-            fontSize: 'sm',
-            lineHeight: 1.3,
-            display: '-webkit-box',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 2,
-            overflow: 'hidden',
-          })}
+          className={titleCss}
         >
           {assetPreview.title}
         </p>

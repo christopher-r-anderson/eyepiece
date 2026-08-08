@@ -10,15 +10,14 @@ import { toFallbackSrc, toSrcSet } from '@/domain/asset/asset.utils'
 // the route measures the height off the viewport; the sheet already bounds it
 export type AssetDetailHeightModel = 'viewport' | 'container'
 
-// a floor, not a fixed height: a long title moves the caption, never overlaps
+// the surface's wrapper owns the content column. The height models add
+// a floor, not a fixed height: a long title moves the caption, never
+// overlaps
 const boxCss = css.raw({
+  width: '100%',
   display: 'flex',
   flexDirection: 'column',
   gap: '3',
-  width: '100%',
-  maxWidth: 'contentMax',
-  marginInline: 'auto',
-  paddingInline: '4',
   flexShrink: 0,
 })
 
@@ -30,7 +29,11 @@ const viewportBoxCss = css(boxCss, {
 })
 
 const containerBoxCss = css(boxCss, {
-  minHeight: '100%',
+  // floored against the sheet scrollport (a size container), independent
+  // of the siblings below so expanding the metadata cannot reflow the
+  // viewer; the last term leaves the same sliver of prose as the
+  // viewport model
+  minHeight: 'calc(100cqh - token(spacing.8))',
 })
 
 const viewerCss = css({
@@ -43,9 +46,9 @@ const viewerCss = css({
   gap: '4',
 })
 
-// contentMax less boxCss's padding, which is as wide as the picture can get.
-// A portrait record is bounded by the height instead and this overstates it,
-// which costs bytes rather than sharpness.
+// contentMax less the surface wrapper's padding, which is as wide as the
+// picture can get. A portrait record is bounded by the height instead and
+// this overstates it, which costs bytes rather than sharpness.
 const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
 const PADDING = 2 * parseFloat(token('spacing.4'))
 const DETAIL_IMAGE_SIZES = `(max-width: ${CONTENT_MAX}rem) calc(100vw - ${PADDING}rem), ${CONTENT_MAX - PADDING}rem`
@@ -129,9 +132,6 @@ export function AssetDetail({
           gap: '4',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 'contentMax',
-          marginInline: 'auto',
-          paddingInline: '4',
         })}
       >
         <p className={sourceCss}>

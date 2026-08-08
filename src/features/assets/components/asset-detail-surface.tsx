@@ -1,4 +1,5 @@
 import { css } from 'styled-system/css'
+import { wrap } from 'styled-system/patterns'
 import { AssetDetail } from './asset-detail'
 import { MetadataDisclosure } from './metadata-disclosure'
 import type { ReactNode } from 'react'
@@ -8,6 +9,21 @@ import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { Heading } from '@/components/ui/heading'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
+
+// the content column both hosts leave to the surface: the route's main is
+// padded and capped the same way, but the sheet body is a bare full-width
+// scroller. The internal rhythm matches both hosts' gap so the sections
+// space the same as page-level siblings
+const surfaceCss = css.raw({
+  width: '100%',
+  maxWidth: 'contentMax',
+  marginInline: 'auto',
+  paddingInline: '4',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6',
+  flexShrink: 0,
+})
 
 // The full detail page minus app chrome, shared by the detail route and
 // the list overlay.
@@ -29,7 +45,7 @@ export function AssetDetailSurface({
 }) {
   const canViewMetadata = providerSupportsMetadata(asset.key.providerId)
   return (
-    <>
+    <div className={css(surfaceCss)}>
       <AssetDetail
         asset={asset}
         titleLevel={titleLevel}
@@ -57,21 +73,9 @@ export function AssetDetailSurface({
           </div>
         }
       />
-      {/* a single row, before the metadata disclosure: a short nav line
-          must not sit below a section that expands long */}
       {albumList && (
         <section
-          className={css({
-            width: '100%',
-            maxWidth: 'contentMax',
-            marginInline: 'auto',
-            paddingInline: '4',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'baseline',
-            columnGap: '3',
-            rowGap: '1',
-          })}
+          className={wrap({ align: 'baseline', columnGap: '3', rowGap: '1' })}
         >
           <Heading
             level={titleLevel === 1 ? 2 : 3}
@@ -106,6 +110,6 @@ export function AssetDetailSurface({
           )}
         />
       )}
-    </>
+    </div>
   )
 }

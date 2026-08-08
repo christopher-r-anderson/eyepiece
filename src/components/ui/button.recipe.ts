@@ -1,5 +1,9 @@
 import { defineRecipe } from '@pandacss/dev'
-import { ghostCompactGeometry, ghostVisualStyles } from './button.styles'
+import {
+  ghostCompactGeometry,
+  ghostVisualStyles,
+  touchHitAreaStyles,
+} from './button.styles'
 
 export const buttonRecipe = defineRecipe({
   className: 'button',
@@ -71,26 +75,23 @@ export const buttonRecipe = defineRecipe({
         },
         _disabled: { color: 'text.muted' },
       },
-      // an icon-only glyph in the compact control square; the hit area
-      // extends to touchTargetMin without growing the visible square
+      // an icon-only glyph in the compact control square. The --button-icon-*
+      // custom properties are the per-instance theming channel; composed
+      // slot recipes must use them because their direct declarations lose
+      // to this recipe by layer order (recipes beats recipes.slots)
       icon: {
+        ...touchHitAreaStyles,
         width: 'controlHeightSm',
         height: 'controlHeightSm',
         flexShrink: 0,
         minHeight: 'auto',
         padding: 0,
         backgroundColor: 'transparent',
-        color: 'text.muted',
-        position: 'relative',
-        _before: {
-          content: '""',
-          position: 'absolute',
-          inset:
-            'calc((token(sizes.controlHeightSm) - token(sizes.touchTargetMin)) / 2)',
-        },
+        color: 'var(--button-icon-color, token(colors.text.muted))',
         _hovered: {
-          color: 'text',
-          backgroundColor: 'bg.surface.3',
+          color: 'var(--button-icon-hover-color, token(colors.text))',
+          backgroundColor:
+            'var(--button-icon-hover-bg, token(colors.bg.surface.3))',
         },
         _disabled: { color: 'text.muted' },
       },

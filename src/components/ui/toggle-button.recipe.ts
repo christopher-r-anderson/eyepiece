@@ -1,4 +1,5 @@
 import { defineRecipe } from '@pandacss/dev'
+import { touchHitAreaStyles } from './button.styles'
 
 export const toggleButtonRecipe = defineRecipe({
   className: 'toggle-button',
@@ -77,14 +78,7 @@ export const toggleButtonRecipe = defineRecipe({
         border: 'none',
         backgroundColor: 'transparent',
         color: 'var(--toggle-icon-color, token(colors.text.muted))',
-        position: 'relative',
-        // touch comfort beyond the honest box; overlap with neighbors
-        // resolves by paint order
-        _before: {
-          content: '""',
-          position: 'absolute',
-          inset: 'calc(50% - token(sizes.touchTargetMin) / 2)',
-        },
+        ...touchHitAreaStyles,
         transitionFast: 'color, transform, outline-color',
         _hovered: {
           backgroundColor: 'transparent',
