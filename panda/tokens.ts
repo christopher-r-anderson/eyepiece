@@ -40,7 +40,8 @@ export const tokens = defineTokens({
     touchTargetMin: { value: '44px' },
     // what the sticky header takes off the viewport, with a little slack
     stickyHeader: { value: '4.5rem' },
-    controlHeight: { value: 'clamp(2.25rem, 2.1rem + 0.5vw, 2.75rem)' },
+    // controlHeight lives in semantic-tokens.ts: its coarse-pointer value
+    // needs a condition, which plain tokens cannot carry
     // the justified grid's target row height, which is also what a tile
     // reports as its laid-out width
     assetGridRow: { value: '225px' },

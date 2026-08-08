@@ -365,6 +365,9 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
           tileActions={tileActions}
           tileClassName={tileClassName}
           tileLinkDisabled={tileLinkDisabled}
+          // remove and undo have no overlay equivalent, so this grid keeps
+          // its veil on touch
+          keepTouchReveal
         />
       </InfiniteLoader>
     </section>

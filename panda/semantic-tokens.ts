@@ -194,4 +194,19 @@ export const semanticTokens = defineSemanticTokens({
       },
     },
   },
+  sizes: {
+    // every control rides this (button, toggle, fields, switch), and
+    // controlHeightSm derives from it in tokens.ts. The clamp scales with
+    // viewport for pointer density; a coarse primary pointer gets the 44px
+    // touch floor instead (Apple 44pt, Material 48dp, WCAG AAA) - touch
+    // guidance keys on the pointer, not the screen size. Semantic rather
+    // than plain token: the conditional value must emit in the tokens
+    // layer, where a globalCss override (base layer) would lose
+    controlHeight: {
+      value: {
+        base: 'clamp(2.25rem, 2.1rem + 0.5vw, 2.75rem)',
+        _coarsePointer: '{sizes.touchTargetMin}',
+      },
+    },
+  },
 })
