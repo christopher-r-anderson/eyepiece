@@ -182,7 +182,11 @@ export function AssetTile({
             position: 'absolute',
             top: '2',
             left: '2',
-            maxWidth: 'calc(100% - (2 * token(spacing.2)))',
+            // leaves the action pill's corner alone: its cluster is the
+            // 28px star box plus a controlHeightSm square with the pill
+            // padding and gaps around them
+            maxWidth:
+              'calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))',
             paddingBlock: '1',
             paddingInline: '2',
             backgroundColor: 'assetTile.captionBg',
@@ -201,16 +205,42 @@ export function AssetTile({
           {relatedLinks}
         </div>
       )}
+      {actions && (
+        <div
+          data-tile-reveal
+          data-tile-controls
+          className={flex({
+            position: 'absolute',
+            top: '2',
+            right: '2',
+            alignItems: 'center',
+            // keeps adjacent controls' extended hit areas out of each
+            // other's visible squares
+            gap: '2',
+            padding: '1',
+            backgroundColor: 'assetTile.captionBg',
+            color: 'assetTile.captionText',
+            opacity: 0,
+            translate: '0 -4px',
+            pointerEvents: 'none',
+            transitionFast: 'opacity, translate',
+            _motionReduce: {
+              transition: 'none',
+              translate: '0 0',
+            },
+          })}
+        >
+          {actions}
+        </div>
+      )}
       <div
         data-tile-reveal
-        // clicks over the veil fall through to the link; only the action
-        // cluster takes the pointer back, and only while revealed
+        // clicks over the veil fall through to the link
         className={flex({
           position: 'absolute',
           insetInline: 0,
           bottom: 0,
           alignItems: 'center',
-          gap: '2',
           paddingBlock: '2',
           paddingInline: '3',
           backgroundColor: 'assetTile.captionBg',
@@ -242,21 +272,6 @@ export function AssetTile({
         >
           {assetPreview.title}
         </p>
-        {actions && (
-          <div
-            data-tile-controls
-            className={flex({
-              pointerEvents: 'none',
-              flexShrink: 0,
-              alignItems: 'center',
-              // keeps adjacent controls' extended hit areas out of each
-              // other's visible squares
-              gap: '2',
-            })}
-          >
-            {actions}
-          </div>
-        )}
       </div>
     </div>
   )
