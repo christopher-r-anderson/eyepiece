@@ -86,8 +86,7 @@ export default defineConfig({
       selected: '&[data-selected]',
       // binds _dark to the app's theme mechanism (see theme-provider.tsx)
       dark: ':root[data-theme=dark] &',
-      // the primary pointer is a finger; any-pointer would also catch
-      // touch-capable laptops, which keep desktop density
+      // pointer, not any-pointer: touch-capable laptops keep desktop density
       coarsePointer: '@media (pointer: coarse)',
     },
   },

@@ -10,9 +10,7 @@ import { toFallbackSrc, toSrcSet } from '@/domain/asset/asset.utils'
 // the route measures the height off the viewport; the sheet already bounds it
 export type AssetDetailHeightModel = 'viewport' | 'container'
 
-// the surface's wrapper owns the content column. The height models add
-// a floor, not a fixed height: a long title moves the caption, never
-// overlaps
+// the surface's wrapper owns the content column
 const boxCss = css.raw({
   width: '100%',
   display: 'flex',
@@ -29,10 +27,8 @@ const viewportBoxCss = css(boxCss, {
 })
 
 const containerBoxCss = css(boxCss, {
-  // floored against the sheet scrollport (a size container), independent
-  // of the siblings below so expanding the metadata cannot reflow the
-  // viewer; the last term leaves the same sliver of prose as the
-  // viewport model
+  // floored against the sheet scrollport so expanding the metadata cannot
+  // reflow the viewer; the last term leaves the prose sliver
   minHeight: 'calc(100cqh - token(spacing.8))',
 })
 

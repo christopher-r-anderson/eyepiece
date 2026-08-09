@@ -29,10 +29,8 @@ interface AssetTileProps extends Omit<
   // without it falls back to assuming the full viewport
   sizes: string
   relatedLinks?: ReactNode
-  // revealed with the veil on hover/focus
   actions?: ReactNode
-  // shown unconditionally, outside the reveal rules: owner-management
-  // controls (remove, undo) have no overlay equivalent on any device
+  // never hidden: owner-management controls have no overlay equivalent
   persistentActions?: ReactNode
   // ghost tiles keep their markup but must not navigate or take focus
   isLinkDisabled?: boolean
@@ -131,9 +129,8 @@ const containerCss = css.raw({
     {
       pointerEvents: 'auto',
     },
-  // touch grids stay bare (photo-grid convention); the detail overlay
-  // carries the title and every control. display, not opacity: tap focus
-  // must not flash the veil through :focus-within
+  // display, not opacity: tap focus must not flash the bare touch grid's
+  // veil through :focus-within
   _coarsePointer: {
     '& [data-tile-reveal]': {
       display: 'none',
@@ -141,8 +138,8 @@ const containerCss = css.raw({
   },
 })
 
-// hidden at rest, revealed by the containerCss selectors; blocks add
-// their own resting translate for the slide direction
+// revealed by the containerCss selectors; blocks add their own resting
+// translate for the slide direction
 const revealCss = css.raw({
   opacity: 0,
   pointerEvents: 'none',
@@ -168,9 +165,7 @@ const actionPillCss = css.raw({
 })
 
 // the cluster (28px star box + controlHeightSm square + gaps, padding,
-// and corner offsets) needs ~104px; narrow-row portrait tiles go below
-// that on fine pointers, where the detail surface still carries every
-// action
+// and corner offsets) needs ~104px; narrow-row portrait tiles go below it
 const NARROW_TILE_QUERY = '@container (max-width: 104px)'
 
 const relatedLinksCss = css(revealCss, {
@@ -187,7 +182,6 @@ const relatedLinksCss = css(revealCss, {
   color: 'assetTile.captionText',
   fontSize: 'xs',
   translate: '0 -4px',
-  // with the pill hidden the chip has the tile to itself
   [NARROW_TILE_QUERY]: {
     maxWidth: 'calc(100% - (2 * token(spacing.2)))',
   },

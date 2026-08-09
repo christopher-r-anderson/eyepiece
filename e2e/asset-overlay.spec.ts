@@ -63,7 +63,6 @@ test('opening a tile masks the URL above the still-mounted list', async ({
     dialog.getByRole('heading', { level: 2, name: wideSnapshot.title }),
   ).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Metadata' })).toBeVisible()
-  // albums thread from the route level into the surface
   await expect(dialog.getByRole('heading', { name: 'Albums' })).toBeVisible()
   await expect(dialog.getByRole('link', { name: 'Apollo-at-50' })).toBeVisible()
   // the list stays mounted underneath
@@ -77,8 +76,6 @@ test('an album link navigates out of the overlay and the album owns the title', 
   await stubAssetApi(page)
   await openOverlayFromCollection(page)
 
-  // leaves the overlay entirely: the destination must keep its own title
-  // (the close path restores the list title; this navigation must not)
   await page.getByRole('link', { name: 'Apollo-at-50' }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
   await expect(page).toHaveURL('/albums/nasa_ivl/Apollo-at-50')

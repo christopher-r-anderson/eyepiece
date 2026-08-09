@@ -71,8 +71,6 @@ export const toggleButtonRecipe = defineRecipe({
       icon: {
         minHeight: 'auto',
         minWidth: 'auto',
-        // a real box around the glyph: target-size audits measure the
-        // border box and cannot see pseudo-element hit areas
         padding: '1',
         borderRadius: 'sm',
         border: 'none',

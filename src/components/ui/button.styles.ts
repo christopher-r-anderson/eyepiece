@@ -22,10 +22,8 @@ export const ghostCompactGeometry = defineStyles({
   paddingInline: '3',
 })
 
-// extends the hit area to touchTargetMin without growing the visible box,
-// whatever size that box is; shared by the button and toggle-button icon
-// variants. Pseudo hit areas are invisible to target-size audits - this
-// is touch comfort on top of a compliant box, not compliance itself
+// extends the tap area to touchTargetMin without growing the visible box;
+// shared by the button and toggle-button icon variants
 export const touchHitAreaStyles = defineStyles({
   position: 'relative',
   _before: {
