@@ -16,7 +16,6 @@ export function AlbumLinkList({
   inline,
 }: {
   albums: Array<AlbumKey>
-  // detail surfaces lay the links out in a row; tile chips keep the stack
   inline?: boolean
 }) {
   return (

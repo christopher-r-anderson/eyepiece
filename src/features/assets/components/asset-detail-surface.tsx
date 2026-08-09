@@ -10,10 +10,8 @@ import { Heading } from '@/components/ui/heading'
 import { providerSupportsMetadata } from '@/domain/provider/provider.schema'
 import { toAssetKeyString } from '@/domain/asset/asset.utils'
 
-// the content column both hosts leave to the surface: the route's main is
-// padded and capped the same way, but the sheet body is a bare full-width
-// scroller. The internal rhythm matches both hosts' gap so the sections
-// space the same as page-level siblings
+// the sheet body is a bare full-width scroller, so the surface owns its
+// content column in both hosts
 const surfaceCss = css.raw({
   width: '100%',
   maxWidth: 'contentMax',

@@ -75,10 +75,8 @@ export const buttonRecipe = defineRecipe({
         },
         _disabled: { color: 'text.muted' },
       },
-      // an icon-only glyph in the compact control square. The --button-icon-*
-      // custom properties are the per-instance theming channel; composed
-      // slot recipes must use them because their direct declarations lose
-      // to this recipe by layer order (recipes beats recipes.slots)
+      // composed slot recipes theme through the --button-icon-* vars; their
+      // direct declarations lose by layer order (recipes beats recipes.slots)
       icon: {
         ...touchHitAreaStyles,
         width: 'controlHeightSm',

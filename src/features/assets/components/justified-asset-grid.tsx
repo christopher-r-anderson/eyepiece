@@ -48,7 +48,6 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   // ghost rows stay rendered but must not navigate (row action or link)
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
-  // always-visible owner-management controls, outside the reveal rules
   tilePersistentActions?: (item: TItem) => ReactNode
 }
 
