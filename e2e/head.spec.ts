@@ -45,3 +45,16 @@ test('an asset page overrides the social preview with its own image', async ({
   expect(ogImage).toHaveLength(1)
   expect(ogImage[0]).toContain('images-assets.nasa.gov')
 })
+
+test('the server document preloads the detail image', async ({ page }) => {
+  const response = await page.goto('/assets/nasa_ivl/PIA14417')
+  const html = (await response?.text()) ?? ''
+
+  // React hoists this from the img's fetchPriority; it is what lets the
+  // browser find the LCP image before hydration
+  const preload = html.match(/<link rel="preload"[^>]*as="image"[^>]*>/g)
+  expect(preload).toHaveLength(1)
+  expect(preload?.[0]).toContain('fetchPriority="high"')
+  expect(preload?.[0]).toContain('imageSrcSet=')
+  expect(preload?.[0]).toContain('imageSizes=')
+})

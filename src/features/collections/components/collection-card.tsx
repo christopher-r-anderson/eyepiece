@@ -42,7 +42,7 @@ export function CollectionCard({
     <>
       {cover?.image ? (
         <img
-          src={toFallbackSrc(cover.image, COVER_MAX_SLOT)}
+          src={toFallbackSrc(cover.image)}
           srcSet={toSrcSet(cover.image, COVER_MAX_SLOT)}
           sizes={COVER_SIZES}
           alt=""

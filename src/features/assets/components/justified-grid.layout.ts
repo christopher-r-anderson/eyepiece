@@ -27,6 +27,36 @@ export function justifiedTileImageGeometry(aspectRatio: number) {
     )
   return {
     sizes: `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`,
-    maxSlotWidth: at(ROW_HEIGHT),
+    // a sparse row can grow any tile to the width cap regardless of ratio,
+    // so the candidate bound comes from the cap, not the sizes estimate
+    maxSlotWidth: Math.round(ROW_HEIGHT * WIDTH_CAP_RATIO),
   }
+}
+
+// grids stop at the content column; below md the viewport itself is narrower
+const LINE_MAX = 16 * parseFloat(token('sizes.contentMax'))
+const LINE_MAX_NARROW = 16 * parseFloat(token('breakpoints.md'))
+const EAGER_ROWS = 2
+const EAGER_ROWS_NARROW = 4
+
+// Row membership depends on aspect ratios, so the eager set walks flex
+// bases against a budget of lines per breakpoint; tiles just past it still
+// load early through the browser's lazy-load margin.
+export function eagerTileCount(aspectRatios: Array<number>) {
+  const count = (rowHeight: number, budget: number) => {
+    let sum = 0
+    let index = 0
+    while (index < aspectRatios.length && sum < budget) {
+      sum += Math.min(
+        aspectRatios[index] * rowHeight,
+        rowHeight * WIDTH_CAP_RATIO,
+      )
+      index += 1
+    }
+    return index
+  }
+  return Math.max(
+    count(ROW_HEIGHT, EAGER_ROWS * LINE_MAX),
+    count(ROW_HEIGHT_NARROW, EAGER_ROWS_NARROW * LINE_MAX_NARROW),
+  )
 }

@@ -104,7 +104,7 @@ const Thumbnail = ({
             height: '100%',
             objectFit: 'cover',
           })}
-          src={toFallbackSrc(assetPreview.image, maxSlotWidth)}
+          src={toFallbackSrc(assetPreview.image)}
           srcSet={toSrcSet(assetPreview.image, maxSlotWidth)}
           sizes={sizes}
           alt=""

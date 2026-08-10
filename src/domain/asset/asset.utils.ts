@@ -47,10 +47,11 @@ export function toSrcSet(image: AssetImage, maxSlotWidth: number) {
 
 // srcset with width descriptors takes over wherever it is understood, so this
 // is only reached by a browser that ignores it, or when every candidate fails.
-// The narrowest is the cheaper thing to be wrong about.
-export function toFallbackSrc(image: AssetImage, maxSlotWidth: number) {
-  const candidates = toImageCandidates(image, maxSlotWidth)
-  return candidates[candidates.length - 1].href
+// The narrowest is the cheaper thing to be wrong about, and serving it from
+// its own rendition keeps it usable when the widest file cannot be served.
+export function toFallbackSrc(image: AssetImage) {
+  const narrowest = image.renditions[image.renditions.length - 1]
+  return toDeliveryHref(narrowest.href, narrowest.width)
 }
 
 // grids break rows on this; a record with no usable file lays out square

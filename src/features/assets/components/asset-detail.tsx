@@ -111,7 +111,7 @@ export function AssetDetail({
           {asset.image && (
             <img
               className={imageCss}
-              src={toFallbackSrc(asset.image, DETAIL_MAX_SLOT)}
+              src={toFallbackSrc(asset.image)}
               srcSet={toSrcSet(asset.image, DETAIL_MAX_SLOT)}
               sizes={DETAIL_IMAGE_SIZES}
               // the LCP element on asset pages

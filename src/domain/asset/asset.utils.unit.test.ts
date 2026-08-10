@@ -144,13 +144,13 @@ describe('toFallbackSrc', () => {
     renditions: [nasaRendition(1920, 'large'), nasaRendition(640, 'small')],
   }
 
-  it('serves the narrowest ladder width from the widest rendition', () => {
-    expect(toFallbackSrc(image, 506)).toBe(nasaTransform(320))
+  it('serves the narrowest rendition from its own file, not the widest source', () => {
+    expect(toFallbackSrc(image)).toBe(nasaTransform(640, 'small'))
   })
 
-  it('falls back to the narrowest rendition when delivery is disabled', () => {
+  it('serves the narrowest origin href when delivery is disabled', () => {
     vi.stubEnv('VITE_IMAGE_CDN_ENABLED', 'false')
-    expect(toFallbackSrc(image, 506)).toBe(nasaRendition(640, 'small').href)
+    expect(toFallbackSrc(image)).toBe(nasaRendition(640, 'small').href)
   })
 })
 

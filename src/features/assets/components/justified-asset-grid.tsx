@@ -5,7 +5,10 @@ import { Item as StatelyItem } from '@react-stately/collections'
 import { css, cx } from 'styled-system/css'
 import { AssetTile } from './asset-tile'
 import { JustifiedKeyboardDelegate } from './justified-keyboard-delegate'
-import { justifiedTileImageGeometry } from './justified-grid.layout'
+import {
+  eagerTileCount,
+  justifiedTileImageGeometry,
+} from './justified-grid.layout'
 import type { TileLinkProps } from './asset-tile'
 import type { Key } from 'react-aria'
 import type { ListState } from '@react-stately/list'
@@ -37,9 +40,6 @@ export const justifiedGridItemCss = css.raw({
 })
 
 const fillCss = css.raw({ width: '100%', height: '100%' })
-
-// covers the first couple of rows at either breakpoint
-const EAGER_TILE_COUNT = 6
 
 interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   items: Array<TItem>
@@ -108,6 +108,11 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   const focusedKey = state.selectionManager.focusedKey
   const tabStopKey = focusedKey ?? state.collection.getFirstKey()
 
+  const eagerCount = useMemo(
+    () => eagerTileCount(items.map((item) => toAspectRatio(item.image))),
+    [items],
+  )
+
   return (
     <div ref={gridRef} {...gridProps} className={css(justifiedGridCss)}>
       {[...state.collection].map((node, index) => {
@@ -121,7 +126,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             state={state}
             isTabStop={node.key === tabStopKey}
             isFocused={node.key === focusedKey}
-            loading={index < EAGER_TILE_COUNT ? undefined : 'lazy'}
+            loading={index < eagerCount ? undefined : 'lazy'}
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
