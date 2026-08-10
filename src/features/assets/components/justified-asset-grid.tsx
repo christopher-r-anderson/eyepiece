@@ -127,6 +127,8 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             isTabStop={node.key === tabStopKey}
             isFocused={node.key === focusedKey}
             loading={index < eagerCount ? undefined : 'lazy'}
+            // the leading tile is the surface's likely LCP element
+            fetchPriority={index === 0 ? 'high' : undefined}
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
@@ -147,6 +149,7 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   isTabStop: boolean
   isFocused: boolean
   loading?: 'lazy'
+  fetchPriority?: 'high'
   tileActions?: (item: TItem) => ReactNode
   tileRelatedLinks?: (item: TItem) => ReactNode
   tileClassName?: (item: TItem) => string | undefined
@@ -160,6 +163,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   itemKey,
   state,
   loading,
+  fetchPriority,
   tileActions,
   tileRelatedLinks,
   tileClassName,
@@ -191,6 +195,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
           assetPreview={item}
           {...justifiedTileImageGeometry(toAspectRatio(item.image))}
           loading={loading}
+          fetchPriority={fetchPriority}
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}

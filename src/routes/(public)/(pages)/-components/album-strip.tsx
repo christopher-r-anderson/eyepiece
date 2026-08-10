@@ -61,8 +61,6 @@ function stripTileImageGeometry(aspectRatio: number) {
 const SCROLLPORT_MAX = 16 * parseFloat(token('sizes.contentMax'))
 const SCROLLPORT_MAX_NARROW = 16 * parseFloat(token('breakpoints.md'))
 
-// tiles that can start inside the unscrolled strip at either breakpoint
-// load eagerly
 function eagerStripTileCount(aspectRatios: Array<number>) {
   const count = (rowHeight: number, scrollport: number) => {
     let offset = 0

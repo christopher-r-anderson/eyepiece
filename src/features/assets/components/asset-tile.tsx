@@ -32,6 +32,7 @@ interface AssetTileProps extends Omit<
   // srcset candidates
   maxSlotWidth: number
   loading?: 'lazy' | 'eager'
+  fetchPriority?: 'high'
   relatedLinks?: ReactNode
   actions?: ReactNode
   // never hidden: owner-management controls have no overlay equivalent
@@ -46,6 +47,7 @@ const Thumbnail = ({
   sizes,
   maxSlotWidth,
   loading,
+  fetchPriority,
   isLinkDisabled,
   linkProps,
 }: {
@@ -53,6 +55,7 @@ const Thumbnail = ({
   sizes: string
   maxSlotWidth: number
   loading?: 'lazy' | 'eager'
+  fetchPriority?: 'high'
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
 }) => {
@@ -109,6 +112,7 @@ const Thumbnail = ({
           sizes={sizes}
           alt=""
           loading={loading}
+          fetchPriority={fetchPriority}
           decoding="async"
           width={assetPreview.image.width}
           height={assetPreview.image.height}
@@ -235,6 +239,7 @@ export function AssetTile({
   sizes,
   maxSlotWidth,
   loading,
+  fetchPriority,
   relatedLinks,
   actions,
   persistentActions,
@@ -250,6 +255,7 @@ export function AssetTile({
         sizes={sizes}
         maxSlotWidth={maxSlotWidth}
         loading={loading}
+        fetchPriority={fetchPriority}
         isLinkDisabled={isLinkDisabled}
         linkProps={linkProps}
       />

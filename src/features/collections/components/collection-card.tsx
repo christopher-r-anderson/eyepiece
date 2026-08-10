@@ -27,6 +27,7 @@ interface CollectionCardProps {
   // defaults to 3 for cards under a section heading; pages whose cards sit
   // directly under the h1 pass 2 to keep the outline gapless
   titleLevel?: 2 | 3
+  loading?: 'lazy' | 'eager'
 }
 
 export function CollectionCard({
@@ -35,6 +36,7 @@ export function CollectionCard({
   showVisibility,
   linkTarget = 'publicDetail',
   titleLevel = 3,
+  loading = 'lazy',
 }: CollectionCardProps) {
   const { collection, itemCount, cover } = card
   const TitleTag = `h${titleLevel}` as const
@@ -46,7 +48,7 @@ export function CollectionCard({
           srcSet={toSrcSet(cover.image, COVER_MAX_SLOT)}
           sizes={COVER_SIZES}
           alt=""
-          loading="lazy"
+          loading={loading}
           decoding="async"
           width={cover.image.width}
           height={cover.image.height}

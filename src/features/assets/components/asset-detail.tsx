@@ -5,7 +5,11 @@ import type { ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { Heading } from '@/components/ui/heading'
 import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
-import { toFallbackSrc, toSrcSet } from '@/domain/asset/asset.utils'
+import {
+  toAspectRatio,
+  toFallbackSrc,
+  toSrcSet,
+} from '@/domain/asset/asset.utils'
 
 // the route measures the height off the viewport; the sheet already bounds it
 export type AssetDetailHeightModel = 'viewport' | 'container'
@@ -43,12 +47,17 @@ const viewerCss = css({
 })
 
 // contentMax less the surface wrapper's padding, which is as wide as the
-// picture can get. A portrait record is bounded by the height instead and
-// this overstates it, which costs bytes rather than sharpness.
+// picture can get. A portrait record is bounded by the height instead, so
+// its share is the ratio times imageCss's maxHeight, with vh standing in
+// for dvh since sizes resolves before layout.
 const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
 const PADDING = 2 * parseFloat(token('spacing.4'))
-const DETAIL_IMAGE_SIZES = `(max-width: ${CONTENT_MAX}rem) calc(100vw - ${PADDING}rem), ${CONTENT_MAX - PADDING}rem`
 const DETAIL_MAX_SLOT = 16 * (CONTENT_MAX - PADDING)
+
+function detailImageSizes(aspectRatio: number) {
+  const heightBound = `calc(max(45vh, 100vh - 19rem) * ${aspectRatio.toFixed(4)})`
+  return `(max-width: ${CONTENT_MAX}rem) min(calc(100vw - ${PADDING}rem), ${heightBound}), min(${CONTENT_MAX - PADDING}rem, ${heightBound})`
+}
 
 // bounded by the viewport, not by what the title leaves. The subtraction
 // covers the chrome above and a caption of a line or two.
@@ -113,7 +122,7 @@ export function AssetDetail({
               className={imageCss}
               src={toFallbackSrc(asset.image)}
               srcSet={toSrcSet(asset.image, DETAIL_MAX_SLOT)}
-              sizes={DETAIL_IMAGE_SIZES}
+              sizes={detailImageSizes(toAspectRatio(asset.image))}
               // the LCP element on asset pages
               fetchPriority="high"
               decoding="async"

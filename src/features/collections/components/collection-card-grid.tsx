@@ -29,9 +29,13 @@ export function CollectionCardGrid({
         paddingInlineStart: '0',
       })}
     >
-      {cards.map((card) => (
+      {cards.map((card, index) => (
         <li key={card.collection.id} className={css({ minWidth: 0 })}>
-          <CollectionCard card={card} curatedBy={curatedBy} />
+          <CollectionCard
+            card={card}
+            curatedBy={curatedBy}
+            loading={index < 3 ? 'eager' : 'lazy'}
+          />
         </li>
       ))}
     </ul>

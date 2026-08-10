@@ -27,9 +27,7 @@ export function justifiedTileImageGeometry(aspectRatio: number) {
     )
   return {
     sizes: `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`,
-    // a sparse row can grow any tile to the width cap regardless of ratio,
-    // so the candidate bound comes from the cap, not the sizes estimate
-    maxSlotWidth: Math.round(ROW_HEIGHT * WIDTH_CAP_RATIO),
+    maxSlotWidth: at(ROW_HEIGHT),
   }
 }
 

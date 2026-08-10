@@ -18,9 +18,8 @@ export const assetKeyIsEqual = (a: AssetKey, b: AssetKey) => {
 // transform cache warm
 const DELIVERY_WIDTHS = [320, 480, 640, 960, 1280, 1920, 2560]
 
-// Candidates scale from the widest rendition, stopping at the first step
-// covering 2x the slot (denser screens get the 2x file) and never above the
-// source width, which the CDN would upscale silently.
+// the ladder tops out at 2x the slot (what denser screens get) and at the
+// source width, which the CDN would silently upscale past
 function toImageCandidates(image: AssetImage, maxSlotWidth: number) {
   const widest = image.renditions[0]
   if (!isCdnDelivered(widest.href)) {

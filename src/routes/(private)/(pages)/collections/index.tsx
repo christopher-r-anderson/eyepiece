@@ -108,13 +108,14 @@ function CollectionsPage() {
             paddingInlineStart: '0',
           })}
         >
-          {cards.map((card) => (
+          {cards.map((card, index) => (
             <li key={card.collection.id} className={css({ minWidth: 0 })}>
               <CollectionCard
                 card={card}
                 showVisibility
                 linkTarget="manage"
                 titleLevel={2}
+                loading={index < 3 ? 'eager' : 'lazy'}
               />
             </li>
           ))}
