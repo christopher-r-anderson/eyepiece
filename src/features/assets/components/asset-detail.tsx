@@ -48,6 +48,7 @@ const viewerCss = css({
 const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
 const PADDING = 2 * parseFloat(token('spacing.4'))
 const DETAIL_IMAGE_SIZES = `(max-width: ${CONTENT_MAX}rem) calc(100vw - ${PADDING}rem), ${CONTENT_MAX - PADDING}rem`
+const DETAIL_MAX_SLOT = 16 * (CONTENT_MAX - PADDING)
 
 // bounded by the viewport, not by what the title leaves. The subtraction
 // covers the chrome above and a caption of a line or two.
@@ -110,9 +111,12 @@ export function AssetDetail({
           {asset.image && (
             <img
               className={imageCss}
-              src={toFallbackSrc(asset.image)}
-              srcSet={toSrcSet(asset.image)}
+              src={toFallbackSrc(asset.image, DETAIL_MAX_SLOT)}
+              srcSet={toSrcSet(asset.image, DETAIL_MAX_SLOT)}
               sizes={DETAIL_IMAGE_SIZES}
+              // the LCP element on asset pages
+              fetchPriority="high"
+              decoding="async"
               alt={asset.alt ?? asset.title}
               width={asset.image.width}
               height={asset.image.height}

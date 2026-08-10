@@ -5,7 +5,7 @@ import { Item as StatelyItem } from '@react-stately/collections'
 import { css, cx } from 'styled-system/css'
 import { AssetTile } from './asset-tile'
 import { JustifiedKeyboardDelegate } from './justified-keyboard-delegate'
-import { justifiedTileSizes } from './justified-grid.layout'
+import { justifiedTileImageGeometry } from './justified-grid.layout'
 import type { TileLinkProps } from './asset-tile'
 import type { Key } from 'react-aria'
 import type { ListState } from '@react-stately/list'
@@ -37,6 +37,9 @@ export const justifiedGridItemCss = css.raw({
 })
 
 const fillCss = css.raw({ width: '100%', height: '100%' })
+
+// covers the first couple of rows at either breakpoint
+const EAGER_TILE_COUNT = 6
 
 interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   items: Array<TItem>
@@ -107,7 +110,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
 
   return (
     <div ref={gridRef} {...gridProps} className={css(justifiedGridCss)}>
-      {[...state.collection].map((node) => {
+      {[...state.collection].map((node, index) => {
         const item = node.value
         if (!item) return null
         return (
@@ -118,6 +121,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             state={state}
             isTabStop={node.key === tabStopKey}
             isFocused={node.key === focusedKey}
+            loading={index < EAGER_TILE_COUNT ? undefined : 'lazy'}
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
@@ -137,6 +141,7 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   state: ListState<TItem>
   isTabStop: boolean
   isFocused: boolean
+  loading?: 'lazy'
   tileActions?: (item: TItem) => ReactNode
   tileRelatedLinks?: (item: TItem) => ReactNode
   tileClassName?: (item: TItem) => string | undefined
@@ -149,6 +154,7 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   item,
   itemKey,
   state,
+  loading,
   tileActions,
   tileRelatedLinks,
   tileClassName,
@@ -178,7 +184,8 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
       <div {...gridCellProps} className={css(fillCss)}>
         <AssetTile
           assetPreview={item}
-          sizes={justifiedTileSizes(toAspectRatio(item.image))}
+          {...justifiedTileImageGeometry(toAspectRatio(item.image))}
+          loading={loading}
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}

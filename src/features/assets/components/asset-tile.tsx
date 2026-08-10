@@ -28,6 +28,10 @@ interface AssetTileProps extends Omit<
   // how wide this tile renders is the surface's layout to know, and a srcset
   // without it falls back to assuming the full viewport
   sizes: string
+  // the widest CSS width the surface ever renders this tile at; bounds the
+  // srcset candidates
+  maxSlotWidth: number
+  loading?: 'lazy' | 'eager'
   relatedLinks?: ReactNode
   actions?: ReactNode
   // never hidden: owner-management controls have no overlay equivalent
@@ -40,11 +44,15 @@ interface AssetTileProps extends Omit<
 const Thumbnail = ({
   assetPreview,
   sizes,
+  maxSlotWidth,
+  loading,
   isLinkDisabled,
   linkProps,
 }: {
   assetPreview: AssetPreview
   sizes: string
+  maxSlotWidth: number
+  loading?: 'lazy' | 'eager'
   isLinkDisabled?: boolean
   linkProps?: TileLinkProps
 }) => {
@@ -96,10 +104,12 @@ const Thumbnail = ({
             height: '100%',
             objectFit: 'cover',
           })}
-          src={toFallbackSrc(assetPreview.image)}
-          srcSet={toSrcSet(assetPreview.image)}
+          src={toFallbackSrc(assetPreview.image, maxSlotWidth)}
+          srcSet={toSrcSet(assetPreview.image, maxSlotWidth)}
           sizes={sizes}
           alt=""
+          loading={loading}
+          decoding="async"
           width={assetPreview.image.width}
           height={assetPreview.image.height}
         />
@@ -223,6 +233,8 @@ const titleCss = css({
 export function AssetTile({
   assetPreview,
   sizes,
+  maxSlotWidth,
+  loading,
   relatedLinks,
   actions,
   persistentActions,
@@ -236,6 +248,8 @@ export function AssetTile({
       <Thumbnail
         assetPreview={assetPreview}
         sizes={sizes}
+        maxSlotWidth={maxSlotWidth}
+        loading={loading}
         isLinkDisabled={isLinkDisabled}
         linkProps={linkProps}
       />

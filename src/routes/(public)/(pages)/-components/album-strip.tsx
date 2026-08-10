@@ -49,9 +49,15 @@ const STRIP_ROW_NARROW = parseFloat(token('sizes.albumStripRowNarrow'))
 
 // strip tiles sit at a fixed height and never grow, so a tile renders at
 // exactly its ratio times the row height
-function stripTileSizes(aspectRatio: number) {
-  return `${BELOW_MD_QUERY} ${Math.round(aspectRatio * STRIP_ROW_NARROW)}px, ${Math.round(aspectRatio * STRIP_ROW)}px`
+function stripTileImageGeometry(aspectRatio: number) {
+  return {
+    sizes: `${BELOW_MD_QUERY} ${Math.round(aspectRatio * STRIP_ROW_NARROW)}px, ${Math.round(aspectRatio * STRIP_ROW)}px`,
+    maxSlotWidth: Math.round(aspectRatio * STRIP_ROW),
+  }
 }
+
+// roughly what fits on screen before the strip scrolls
+const EAGER_TILE_COUNT = 4
 
 export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
   const headingId = useId()
@@ -119,7 +125,7 @@ function AlbumStripItems({ albumKey }: { albumKey: AlbumKey }) {
       role="list"
       className={css(stripCss)}
     >
-      {data.items.map((item) => (
+      {data.items.map((item, index) => (
         <li
           key={toAssetKeyString(item.key)}
           style={
@@ -131,7 +137,8 @@ function AlbumStripItems({ albumKey }: { albumKey: AlbumKey }) {
         >
           <AssetTile
             assetPreview={item}
-            sizes={stripTileSizes(toAspectRatio(item.image))}
+            {...stripTileImageGeometry(toAspectRatio(item.image))}
+            loading={index < EAGER_TILE_COUNT ? undefined : 'lazy'}
             actions={<FavoriteButton assetKey={item.key} />}
             linkProps={tileLinkProps(item)}
             className={css({ width: '100%', height: '100%' })}

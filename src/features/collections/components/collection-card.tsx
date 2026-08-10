@@ -14,6 +14,8 @@ const CARD_MAX =
     2 * parseFloat(token('spacing.5'))) /
   3
 const COVER_SIZES = `${BELOW_MD_QUERY} 100vw, (max-width: ${CONTENT_MAX}rem) 33vw, ${CARD_MAX.toFixed(2)}rem`
+// full-viewport below md, so the widest slot is just under the breakpoint
+const COVER_MAX_SLOT = 16 * parseFloat(token('breakpoints.md'))
 
 interface CollectionCardProps {
   card: CollectionCardData
@@ -40,11 +42,12 @@ export function CollectionCard({
     <>
       {cover?.image ? (
         <img
-          src={toFallbackSrc(cover.image)}
-          srcSet={toSrcSet(cover.image)}
+          src={toFallbackSrc(cover.image, COVER_MAX_SLOT)}
+          srcSet={toSrcSet(cover.image, COVER_MAX_SLOT)}
           sizes={COVER_SIZES}
           alt=""
           loading="lazy"
+          decoding="async"
           width={cover.image.width}
           height={cover.image.height}
           className={css({

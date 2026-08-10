@@ -17,7 +17,7 @@ const GROWTH_HEADROOM = 1.5
 // mirrors the maxWidth in justifiedGridItemCss
 const WIDTH_CAP_RATIO = 2.4 * 1.6
 
-export function justifiedTileSizes(aspectRatio: number) {
+export function justifiedTileImageGeometry(aspectRatio: number) {
   const at = (height: number) =>
     Math.round(
       Math.min(
@@ -25,5 +25,8 @@ export function justifiedTileSizes(aspectRatio: number) {
         height * WIDTH_CAP_RATIO,
       ),
     )
-  return `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`
+  return {
+    sizes: `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`,
+    maxSlotWidth: at(ROW_HEIGHT),
+  }
 }
