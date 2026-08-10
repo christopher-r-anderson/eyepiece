@@ -5,7 +5,10 @@ import { Item as StatelyItem } from '@react-stately/collections'
 import { css, cx } from 'styled-system/css'
 import { AssetTile } from './asset-tile'
 import { JustifiedKeyboardDelegate } from './justified-keyboard-delegate'
-import { justifiedTileSizes } from './justified-grid.layout'
+import {
+  eagerTileCount,
+  justifiedTileImageGeometry,
+} from './justified-grid.layout'
 import type { TileLinkProps } from './asset-tile'
 import type { Key } from 'react-aria'
 import type { ListState } from '@react-stately/list'
@@ -49,6 +52,9 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
   tilePersistentActions?: (item: TItem) => ReactNode
+  // set on the grid that starts in the viewport: its leading rows load
+  // eagerly and its first image tile carries the LCP fetch priority
+  startsInViewport?: boolean
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -60,6 +66,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileLinkDisabled,
   tileLinkProps,
   tilePersistentActions,
+  startsInViewport,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -105,9 +112,23 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   const focusedKey = state.selectionManager.focusedKey
   const tabStopKey = focusedKey ?? state.collection.getFirstKey()
 
+  const eagerCount = useMemo(
+    () =>
+      startsInViewport
+        ? eagerTileCount(items.map((item) => toAspectRatio(item.image)))
+        : 0,
+    [items, startsInViewport],
+  )
+
+  // the first tile with a file to fetch; a record with no image would soak
+  // up the priority
+  const priorityIndex = startsInViewport
+    ? items.findIndex((item) => item.image)
+    : -1
+
   return (
     <div ref={gridRef} {...gridProps} className={css(justifiedGridCss)}>
-      {[...state.collection].map((node) => {
+      {[...state.collection].map((node, index) => {
         const item = node.value
         if (!item) return null
         return (
@@ -118,6 +139,8 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             state={state}
             isTabStop={node.key === tabStopKey}
             isFocused={node.key === focusedKey}
+            loading={index < eagerCount ? undefined : 'lazy'}
+            fetchPriority={index === priorityIndex ? 'high' : undefined}
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}
@@ -137,6 +160,8 @@ interface JustifiedGridRowProps<TItem extends AssetPreview> {
   state: ListState<TItem>
   isTabStop: boolean
   isFocused: boolean
+  loading?: 'lazy'
+  fetchPriority?: 'high'
   tileActions?: (item: TItem) => ReactNode
   tileRelatedLinks?: (item: TItem) => ReactNode
   tileClassName?: (item: TItem) => string | undefined
@@ -149,6 +174,8 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
   item,
   itemKey,
   state,
+  loading,
+  fetchPriority,
   tileActions,
   tileRelatedLinks,
   tileClassName,
@@ -178,7 +205,9 @@ function JustifiedGridRowInner<TItem extends AssetPreview>({
       <div {...gridCellProps} className={css(fillCss)}>
         <AssetTile
           assetPreview={item}
-          sizes={justifiedTileSizes(toAspectRatio(item.image))}
+          {...justifiedTileImageGeometry(toAspectRatio(item.image))}
+          loading={loading}
+          fetchPriority={fetchPriority}
           relatedLinks={tileRelatedLinks?.(item)}
           actions={tileActions?.(item)}
           isLinkDisabled={tileLinkDisabled?.(item)}

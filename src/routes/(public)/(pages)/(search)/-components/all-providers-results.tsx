@@ -27,11 +27,12 @@ import {
 export function AllProvidersResults({ query }: { query: SearchQuery }) {
   return (
     <div className={grid({ gap: '7' })}>
-      {PROVIDERS.map((providerId) => (
+      {PROVIDERS.map((providerId, index) => (
         <ProviderSection
           key={providerId}
           query={query}
           providerId={providerId}
+          startsInViewport={index === 0}
         />
       ))}
     </div>
@@ -41,9 +42,14 @@ export function AllProvidersResults({ query }: { query: SearchQuery }) {
 interface ProviderSectionProps {
   query: SearchQuery
   providerId: ProviderId
+  startsInViewport?: boolean
 }
 
-function ProviderSection({ query, providerId }: ProviderSectionProps) {
+function ProviderSection({
+  query,
+  providerId,
+  startsInViewport,
+}: ProviderSectionProps) {
   const headingId = useId()
   const display = PROVIDER_DISPLAY[providerId]
 
@@ -95,7 +101,11 @@ function ProviderSection({ query, providerId }: ProviderSectionProps) {
         <Suspense
           fallback={<AssetGridSkeleton count={ALL_SCOPE_SECTION_SIZE} />}
         >
-          <ProviderSectionResults query={query} providerId={providerId} />
+          <ProviderSectionResults
+            query={query}
+            providerId={providerId}
+            startsInViewport={startsInViewport}
+          />
         </Suspense>
       </CapturedCatchBoundary>
     </section>
@@ -121,7 +131,11 @@ function SeeAllLink({ query, providerId }: ProviderSectionProps) {
   )
 }
 
-function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
+function ProviderSectionResults({
+  query,
+  providerId,
+  startsInViewport,
+}: ProviderSectionProps) {
   const { data } = useSuspenseSearchSection(
     query,
     defaultSearchFilters(providerId),
@@ -131,5 +145,7 @@ function ProviderSectionResults({ query, providerId }: ProviderSectionProps) {
     return <EmptyResultsNotice query={query} providerId={providerId} />
   }
 
-  return <AssetResultsGrid items={data.items} />
+  return (
+    <AssetResultsGrid items={data.items} startsInViewport={startsInViewport} />
+  )
 }

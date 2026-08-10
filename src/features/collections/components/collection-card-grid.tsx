@@ -13,9 +13,13 @@ const cardGridCss = css.raw({
 export function CollectionCardGrid({
   cards,
   curatedBy,
+  startsInViewport,
 }: {
   cards: Array<CollectionCardData>
   curatedBy?: string
+  // set on a grid that starts in the viewport: its first desktop row loads
+  // eagerly
+  startsInViewport?: boolean
 }) {
   if (cards.length === 0) {
     return <EmptyState>No public collections yet.</EmptyState>
@@ -29,9 +33,13 @@ export function CollectionCardGrid({
         paddingInlineStart: '0',
       })}
     >
-      {cards.map((card) => (
+      {cards.map((card, index) => (
         <li key={card.collection.id} className={css({ minWidth: 0 })}>
-          <CollectionCard card={card} curatedBy={curatedBy} />
+          <CollectionCard
+            card={card}
+            curatedBy={curatedBy}
+            loading={startsInViewport && index < 3 ? 'eager' : 'lazy'}
+          />
         </li>
       ))}
     </ul>

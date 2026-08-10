@@ -146,25 +146,25 @@ The sampling behind these numbers, and the screen reader testing behind the mark
 
 ## Asset Images
 
-An asset carries at most one image: the master's width and height plus a rendition ladder, widest first and never empty. Surfaces lay out on the master's aspect ratio and build a `srcset` from the ladder. A record with no browser-decodable file carries no image at all; a placeholder would hand the layout a dimension it then believes.
+An asset carries at most one image: the master's width and height plus a rendition ladder, widest first and never empty. Surfaces lay out on the master's aspect ratio and build a `srcset` from the ladder - see [Image Delivery](#image-delivery) for how. A record with no browser-decodable file carries no image at all; a placeholder would hand the layout a dimension it then believes.
 
 Where the ladder comes from:
 
-- NASA publishes fixed derivative files per record: the sized alternates, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
+- NASA publishes fixed derivative files per record: the sized alternates, excluding any whose declared size the delivery source would refuse, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
 - Smithsonian's delivery service is a IIIF Image API 2.0 server, so the ladder is scaled from the master at fixed widths up to 2560, never asking for an upscale. Records that declare no size anywhere (about one in nine) cost one `info.json` request for the master's dimensions.
 
-The byte cap on NASA originals bounds weight only, and NASA offers no size between the 1920 alternate and the original. On records whose original is under the cap but far wider than any surface renders (about 15% of the originals that make it), a 2x detail view pays the full file for detail it can only partly show. Accepted in favor of sharpness; a width guard would trim those bytes by capping those records at 1920. The sampled numbers are in #194.
+The byte cap on NASA originals bounds weight only, and NASA offers no size between the 1920 alternate and the original. An admitted original becomes the record's widest delivery source; only a build linking origin URLs directly still pays its full file on a 2x detail view. The sampled numbers are in #194.
 
 ### Image Delivery
 
-The project uses render-time URL rewriting to route provider images through Netlify's image CDN (`/.netlify/images`): srcset construction wraps each rendition href in a transform URL, stored snapshots keep the origin URLs, and format negotiation is deferred to the CDN.
+The project uses render-time URL rewriting to route provider images through Netlify's image CDN (`/.netlify/images`): srcset construction requests a shared set of widths, all scaled from the record's widest rendition, stored snapshots keep the origin URLs, and format negotiation is deferred to the CDN. The set stops at the first width covering 2x the surface's rendered slot and never exceeds the source width, which the CDN would upscale silently; hrefs the CDN does not handle keep one candidate per stored rendition (`toSrcSet` in `src/domain/asset/asset.utils.ts`).
 
 What routing through the CDN can fix for a provider:
 
 - no modern formats: neither current provider serves AVIF or WebP
 - short cache durations: NASA's origin sends `max-age=300`, so repeat visitors re-download every thumbnail
 - response noise: ids.si.edu sets bot-defense cookies that count against the site as third-party cookies
-- fixed rendition widths: NASA publishes a few sizes with nothing between them; requesting other widths is #245
+- fixed rendition widths: NASA publishes a few sizes with nothing between them; the CDN scales any width from the widest one
 
 An image host with none of these issues may be better served by linking directly.
 

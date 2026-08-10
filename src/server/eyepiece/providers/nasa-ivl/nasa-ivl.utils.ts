@@ -14,6 +14,7 @@ import type {
 import type { Pagination } from '@/domain/pagination/pagination.schema'
 import type { SearchQuery } from '@/domain/search/search.schema'
 import { NASA_IVL_PROVIDER_ID } from '@/domain/provider/provider.schema'
+import { NASA_IMAGE_SOURCE_MAX_BYTES } from '@/domain/provider/provider-image-delivery'
 import { albumKeySchema } from '@/domain/album/album.schema'
 import { NASA_ALBUM_PAGE_SIZE } from '@/integrations/nasa-ivl/client'
 
@@ -61,6 +62,9 @@ function toRendition(link: NasaMediaLink | undefined): Rendition | undefined {
   }
   if (link.width <= 0 || link.height <= 0) return undefined
   if (!isDecodableImageHref(link.href)) return undefined
+  // a file the delivery source refuses would break every candidate scaled
+  // from it; undeclared sizes pass
+  if ((link.size ?? 0) > NASA_IMAGE_SOURCE_MAX_BYTES) return undefined
   return { href: link.href, width: link.width, height: link.height }
 }
 

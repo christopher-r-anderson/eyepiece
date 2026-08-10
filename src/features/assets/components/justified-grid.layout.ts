@@ -17,7 +17,7 @@ const GROWTH_HEADROOM = 1.5
 // mirrors the maxWidth in justifiedGridItemCss
 const WIDTH_CAP_RATIO = 2.4 * 1.6
 
-export function justifiedTileSizes(aspectRatio: number) {
+export function justifiedTileImageGeometry(aspectRatio: number) {
   const at = (height: number) =>
     Math.round(
       Math.min(
@@ -25,5 +25,29 @@ export function justifiedTileSizes(aspectRatio: number) {
         height * WIDTH_CAP_RATIO,
       ),
     )
-  return `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`
+  return {
+    sizes: `${BELOW_MD_QUERY} ${at(ROW_HEIGHT_NARROW)}px, ${at(ROW_HEIGHT)}px`,
+    maxSlotWidth: at(ROW_HEIGHT),
+  }
+}
+
+// grids stop at the content column
+const LINE_MAX = 16 * parseFloat(token('sizes.contentMax'))
+const EAGER_ROWS = 2
+
+// Row membership depends on aspect ratios, so the eager set walks flex
+// bases against a two-desktop-line budget; the same count reaches deeper
+// on narrow screens, whose bases shrink in proportion.
+export function eagerTileCount(aspectRatios: Array<number>) {
+  const budget = EAGER_ROWS * LINE_MAX
+  let sum = 0
+  let index = 0
+  while (index < aspectRatios.length && sum < budget) {
+    sum += Math.min(
+      aspectRatios[index] * ROW_HEIGHT,
+      ROW_HEIGHT * WIDTH_CAP_RATIO,
+    )
+    index += 1
+  }
+  return index
 }

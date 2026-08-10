@@ -14,6 +14,8 @@ const CARD_MAX =
     2 * parseFloat(token('spacing.5'))) /
   3
 const COVER_SIZES = `${BELOW_MD_QUERY} 100vw, (max-width: ${CONTENT_MAX}rem) 33vw, ${CARD_MAX.toFixed(2)}rem`
+// full-viewport below md, so the widest slot is just under the breakpoint
+const COVER_MAX_SLOT = 16 * parseFloat(token('breakpoints.md'))
 
 interface CollectionCardProps {
   card: CollectionCardData
@@ -25,6 +27,7 @@ interface CollectionCardProps {
   // defaults to 3 for cards under a section heading; pages whose cards sit
   // directly under the h1 pass 2 to keep the outline gapless
   titleLevel?: 2 | 3
+  loading?: 'lazy' | 'eager'
 }
 
 export function CollectionCard({
@@ -33,6 +36,7 @@ export function CollectionCard({
   showVisibility,
   linkTarget = 'publicDetail',
   titleLevel = 3,
+  loading = 'lazy',
 }: CollectionCardProps) {
   const { collection, itemCount, cover } = card
   const TitleTag = `h${titleLevel}` as const
@@ -41,10 +45,11 @@ export function CollectionCard({
       {cover?.image ? (
         <img
           src={toFallbackSrc(cover.image)}
-          srcSet={toSrcSet(cover.image)}
+          srcSet={toSrcSet(cover.image, COVER_MAX_SLOT)}
           sizes={COVER_SIZES}
           alt=""
-          loading="lazy"
+          loading={loading}
+          decoding="async"
           width={cover.image.width}
           height={cover.image.height}
           className={css({
