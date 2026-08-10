@@ -238,6 +238,7 @@ function FavoritesPage() {
         className={css({ width: '100%' })}
       >
         <JustifiedAssetGrid
+          priorityFirstTile
           tileLinkProps={tileLinkProps}
           aria-label="Favorites"
           items={assetPreviewSnapshotsResult.data ?? []}

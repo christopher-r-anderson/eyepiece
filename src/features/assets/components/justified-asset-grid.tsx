@@ -52,6 +52,9 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
   tilePersistentActions?: (item: TItem) => ReactNode
+  // only for the grid holding the page's LCP candidate; a later grid's
+  // first tile sits below the fold
+  priorityFirstTile?: boolean
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -63,6 +66,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileLinkDisabled,
   tileLinkProps,
   tilePersistentActions,
+  priorityFirstTile,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -113,6 +117,12 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
     [items],
   )
 
+  // the first tile with a file to fetch; a record with no image would soak
+  // up the priority
+  const priorityIndex = priorityFirstTile
+    ? items.findIndex((item) => item.image)
+    : -1
+
   return (
     <div ref={gridRef} {...gridProps} className={css(justifiedGridCss)}>
       {[...state.collection].map((node, index) => {
@@ -127,8 +137,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
             isTabStop={node.key === tabStopKey}
             isFocused={node.key === focusedKey}
             loading={index < eagerCount ? undefined : 'lazy'}
-            // the leading tile is the surface's likely LCP element
-            fetchPriority={index === 0 ? 'high' : undefined}
+            fetchPriority={index === priorityIndex ? 'high' : undefined}
             tileActions={tileActions}
             tileRelatedLinks={tileRelatedLinks}
             tileClassName={tileClassName}

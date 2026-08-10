@@ -359,6 +359,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         className={css({ width: '100%', marginTop: '4' })}
       >
         <JustifiedAssetGrid
+          priorityFirstTile
           tileLinkProps={tileLinkProps}
           aria-label="Collection items"
           items={snapshotsResult.data ?? []}

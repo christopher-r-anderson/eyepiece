@@ -35,6 +35,35 @@ describe('asset detail', () => {
     cleanup()
   })
 
+  it('sizes a landscape by the column and the height share at its ratio', () => {
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+
+    expect(screen.getByRole('img').getAttribute('sizes')).toBe(
+      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45vh, 100vh - 19rem) * 2.0000)), min(70rem, calc(max(45vh, 100vh - 19rem) * 2.0000))',
+    )
+  })
+
+  it('sizes a portrait to its height share, under the full column', () => {
+    const portrait = {
+      width: 640,
+      height: 1280,
+      renditions: [image.renditions[0]],
+    }
+    render(
+      <AssetDetail
+        asset={asset({ image: portrait })}
+        titleLevel={1}
+        heightModel="viewport"
+      />,
+    )
+
+    expect(screen.getByRole('img').getAttribute('sizes')).toBe(
+      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45vh, 100vh - 19rem) * 0.5000)), min(70rem, calc(max(45vh, 100vh - 19rem) * 0.5000))',
+    )
+  })
+
   it('renders the image ahead of the title and the prose under it', () => {
     const { container } = render(
       <AssetDetail
