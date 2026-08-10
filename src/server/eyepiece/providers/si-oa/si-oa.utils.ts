@@ -32,7 +32,7 @@ export function buildSioaSearchParams(
   }
 }
 
-// widths worth cutting from the master. The top of the ladder covers a
+// widths worth requesting from the master. The top of the ladder covers a
 // detail image on a 2x display; past that the file costs more than the
 // sharpness is worth, and the masters run to 12000px.
 const RENDITION_WIDTHS = [320, 640, 960, 1280, 1920, 2560]
@@ -66,7 +66,7 @@ function buildImage(
   master: { width: number; height: number } | undefined,
 ): AssetImage | undefined {
   if (!media?.idsId || !master) {
-    // no master to cut from: the labelled resources are all there is, and
+    // no master to scale from: the labelled resources are all there is, and
     // only the ones declaring a size can be laid out
     return toAssetImage(
       (media?.resources ?? []).map((resource) => {

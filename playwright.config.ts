@@ -87,6 +87,8 @@ export default defineConfig({
     // are served from recorded fixtures instead of the live APIs (#185)
     env: {
       PROVIDER_FIXTURE_MODE: process.env.PROVIDER_FIXTURE_MODE ?? 'replay',
+      // tests are written against origin URLs
+      VITE_IMAGE_CDN_ENABLED: 'false',
     },
     // currently always using false since we are running a prod-like server for tests which we don't normally run locally
     reuseExistingServer: false, // !process.env.CI,

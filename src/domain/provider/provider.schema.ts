@@ -1,4 +1,9 @@
 import { z } from 'zod'
+import {
+  NASA_IMAGE_HREF_PREFIX,
+  NASA_IMAGE_SOURCE_PREFIX,
+  SI_IMAGE_HREF_PREFIX,
+} from './provider-image-delivery'
 
 export const NASA_IVL_PROVIDER_ID = 'nasa_ivl' as const
 export const SI_OA_PROVIDER_ID = 'si_oa' as const
@@ -45,3 +50,24 @@ export function providerSupportsMetadata(providerId: ProviderId) {
   const capabilities: ProviderCapabilities = PROVIDER_CAPABILITIES[providerId]
   return capabilities.metadata === true
 }
+
+export type ImageDeliveryPolicy = {
+  // hrefs carrying this prefix route through the image CDN
+  hrefPrefix: string
+  // 'remote': the CDN fetches the origin directly. A path prefix routes the
+  // fetch through our same-site source, whose headers the transforms inherit.
+  source: 'remote' | { pathPrefix: string }
+}
+
+export const PROVIDER_IMAGE_DELIVERY = {
+  [NASA_IVL_PROVIDER_ID]: {
+    // origin-wide since we include video records in results and their
+    // stills live under /video/
+    hrefPrefix: NASA_IMAGE_HREF_PREFIX,
+    source: { pathPrefix: NASA_IMAGE_SOURCE_PREFIX },
+  },
+  [SI_OA_PROVIDER_ID]: {
+    hrefPrefix: SI_IMAGE_HREF_PREFIX,
+    source: 'remote',
+  },
+} as const satisfies Record<ProviderId, ImageDeliveryPolicy>

@@ -151,9 +151,48 @@ An asset carries at most one image: the master's width and height plus a renditi
 Where the ladder comes from:
 
 - NASA publishes fixed derivative files per record: the sized alternates, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
-- Smithsonian's delivery service is a IIIF Image API 2.0 server, so the ladder is cut from the master at fixed widths up to 2560, never asking for an upscale. Records that declare no size anywhere (about one in nine) cost one `info.json` request for the master's dimensions.
+- Smithsonian's delivery service is a IIIF Image API 2.0 server, so the ladder is scaled from the master at fixed widths up to 2560, never asking for an upscale. Records that declare no size anywhere (about one in nine) cost one `info.json` request for the master's dimensions.
 
-The byte cap on NASA originals bounds weight only, and NASA offers no cut between the 1920 alternate and the original. On records whose original is under the cap but far wider than any surface renders (about 15% of the originals that make it), a 2x detail view pays the full file for detail it can only partly show. Accepted in favor of sharpness; a width guard would trim those bytes by capping those records at 1920. The sampled numbers are in #194.
+The byte cap on NASA originals bounds weight only, and NASA offers no size between the 1920 alternate and the original. On records whose original is under the cap but far wider than any surface renders (about 15% of the originals that make it), a 2x detail view pays the full file for detail it can only partly show. Accepted in favor of sharpness; a width guard would trim those bytes by capping those records at 1920. The sampled numbers are in #194.
+
+### Image Delivery
+
+The project uses render-time URL rewriting to route provider images through Netlify's image CDN (`/.netlify/images`): srcset construction wraps each rendition href in a transform URL, stored snapshots keep the origin URLs, and format negotiation is deferred to the CDN.
+
+What routing through the CDN can fix for a provider:
+
+- no modern formats: neither current provider serves AVIF or WebP
+- short cache durations: NASA's origin sends `max-age=300`, so repeat visitors re-download every thumbnail
+- response noise: ids.si.edu sets bot-defense cookies that count against the site as third-party cookies
+- fixed rendition widths: NASA publishes a few sizes with nothing between them; requesting other widths is #245
+
+An image host with none of these issues may be better served by linking directly.
+
+A CDN-routed source can additionally route through an edge function to serve the origin's bytes under our headers and domain. Use cases include:
+
+- the origin's cache duration needs overriding: transformed responses inherit the source's `Cache-Control`, and [Netlify offers no override for third-party sources](https://docs.netlify.com/build/image-cdn/overview/)
+- caching should survive deploys: the `durable` directive keeps the fetched source bytes cached across them
+- untested candidate: if custom response headers propagate to transforms the way cache headers do, `Cross-Origin-Resource-Policy: same-site` would block hotlinking in browsers and be a reason to route every provider through one
+
+Both decisions are per image source:
+
+| images                                                              | CDN | edge function |
+| ------------------------------------------------------------------- | --- | ------------- |
+| NASA                                                                | Y   | Y             |
+| Smithsonian IIIF                                                    | Y   | N             |
+| Smithsonian labelled resources (no `idsId` or no master dimensions) | N   | N/A           |
+| social/OG (scrapers do not negotiate formats)                       | N   | N/A           |
+| unrecognized origins (old snapshots, anything else)                 | N   | N/A           |
+
+`PROVIDER_IMAGE_DELIVERY` (`src/domain/provider/provider.schema.ts`) holds the per provider configurations including the href matching prefix and the optional use of an edge function.
+
+When using the CDN for a provider without an accompanying edge function, the href pattern must be specified in the `[images]` allowlist in `netlify.toml` and therefore cannot be code driven. Unit tests are used to catch potential misalignment.
+
+Note that Netlify does not sign transform URLs, so either approach (CDN with or without an edge function) should use patterns to restrict matches and minimize external abuse.
+
+The only current edge function is NASA's (`netlify/edge-functions/nasa-image-source.ts`) which replaces the five-minute origin `max-age` with a week and adds `durable`. This logic should be used more broadly when there is another provider which needs edge function handling.
+
+Delivery is on unless a build sets `VITE_IMAGE_CDN_ENABLED=false`; the e2e suite does, since tests are written against origin URLs - see [EnvironmentVariables.md](EnvironmentVariables.md).
 
 ## Source Link
 
