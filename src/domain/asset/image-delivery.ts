@@ -5,8 +5,7 @@ const policies: Array<ImageDeliveryPolicy> = Object.values(
   PROVIDER_IMAGE_DELIVERY,
 )
 
-// e2e fixture runs serve provider responses from recordings and must not let
-// the local image CDN emulator fetch live origins, so they build with 'false'
+// e2e builds set 'false': tests are written against origin URLs
 export function isImageCdnEnabled() {
   return import.meta.env.VITE_IMAGE_CDN_ENABLED !== 'false'
 }

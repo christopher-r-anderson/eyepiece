@@ -123,7 +123,7 @@ The publish workflow builds the production site in CI and uploads it with `netli
 
 ### `VITE_IMAGE_CDN_ENABLED`
 
-Routes provider images through the Netlify Image CDN (see the Image Delivery section of [Providers.md](Providers.md)). On unless explicitly `false`, so no deployed environment provisions it. The e2e suite sets `false` in `playwright.config.ts`: fixture runs must not have the serve-time image emulator fetch live provider origins. Set `false` in `.env.local` to see direct provider URLs locally, such as when working offline.
+Routes provider images through the Netlify Image CDN (see the Image Delivery section of [Providers.md](Providers.md)). On unless explicitly `false`, so no deployed environment needs it set for standard behavior. The e2e suite sets `false` in `playwright.config.ts` since tests are written against origin URLs. Set `false` in `.env.local` to use direct provider URLs locally.
 
 ## Providers
 

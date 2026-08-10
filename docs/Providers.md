@@ -166,7 +166,7 @@ How the CDN reaches each provider differs, and the difference is cache headers: 
 
 The per-provider policy lives in `PROVIDER_IMAGE_DELIVERY` (`src/domain/provider/provider.schema.ts`), next to the other provider configuration. Two artifacts cannot read that map: the `[images] remote_images` allowlist in `netlify.toml` (which admits only the remote-fetched origins - there is no URL signing, so the list is the abuse control) and the edge function's route. The sync test in `provider-image-delivery.unit.test.ts` fails the suite when they drift. A new provider needs a policy entry here and, if fetched remotely, an allowlist pattern; if its origin's cache headers are short, the same-site source pattern is the template.
 
-Delivery is on unless a build sets `VITE_IMAGE_CDN_ENABLED=false`; the e2e suite does (fixture runs must not fetch live origins), see [EnvironmentVariables.md](EnvironmentVariables.md).
+Delivery is on unless a build sets `VITE_IMAGE_CDN_ENABLED=false`; the e2e suite does, since tests are written against origin URLs - see [EnvironmentVariables.md](EnvironmentVariables.md).
 
 ## Source Link
 
