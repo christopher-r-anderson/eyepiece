@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import {
-  NASA_IMAGE_ORIGIN,
+  NASA_IMAGE_HREF_PREFIX,
   NASA_IMAGE_SOURCE_PREFIX,
-  SI_IMAGE_ORIGIN,
+  SI_IMAGE_HREF_PREFIX,
 } from './provider-image-delivery'
 
 export const NASA_IVL_PROVIDER_ID = 'nasa_ivl' as const
@@ -52,7 +52,9 @@ export function providerSupportsMetadata(providerId: ProviderId) {
 }
 
 export type ImageDeliveryPolicy = {
-  origin: string
+  // a rendition routes through the image CDN only when its href carries
+  // this prefix; anything else on the same host stays direct
+  hrefPrefix: string
   // 'remote': the image CDN fetches the provider origin itself. A path
   // prefix instead routes the fetch through our same-site source at that
   // prefix, whose cache headers the transformed responses then inherit.
@@ -67,11 +69,12 @@ export type ImageDeliveryPolicy = {
 // provider-image-delivery.unit.test.ts holds them together.
 export const PROVIDER_IMAGE_DELIVERY = {
   [NASA_IVL_PROVIDER_ID]: {
-    origin: NASA_IMAGE_ORIGIN,
+    // origin-wide on purpose: renditions live under /image/ and /video/
+    hrefPrefix: NASA_IMAGE_HREF_PREFIX,
     source: { pathPrefix: NASA_IMAGE_SOURCE_PREFIX },
   },
   [SI_OA_PROVIDER_ID]: {
-    origin: SI_IMAGE_ORIGIN,
+    hrefPrefix: SI_IMAGE_HREF_PREFIX,
     source: 'remote',
   },
 } as const satisfies Record<ProviderId, ImageDeliveryPolicy>

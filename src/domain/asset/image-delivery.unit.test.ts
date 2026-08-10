@@ -31,6 +31,25 @@ describe('toDeliveryHref', () => {
     expect(delivered).not.toMatch(/[\s,]/)
   })
 
+  it('routes NASA video-record stills, which live outside /image/', () => {
+    const still =
+      'https://images-assets.nasa.gov/video/NHQ_2019_0311/NHQ_2019_0311~small.jpg'
+    expect(toDeliveryHref(still, 640, true)).toBe(
+      `/.netlify/images?url=${encodeURIComponent(
+        '/img/nasa/video/NHQ_2019_0311/NHQ_2019_0311~small.jpg',
+      )}&w=640`,
+    )
+  })
+
+  it('leaves SI labelled-resource fallback urls direct - the allowlist admits only IIIF', () => {
+    for (const fallback of [
+      'https://ids.si.edu/ids/download?id=NASM-A19721168000',
+      'https://ids.si.edu/ids/delivery?id=NASM-A19721168000&max=640',
+    ]) {
+      expect(toDeliveryHref(fallback, 640, true)).toBe(fallback)
+    }
+  })
+
   it('passes through hrefs from origins outside the delivery map', () => {
     const href = 'https://example.test/photo.jpg'
     expect(toDeliveryHref(href, 640, true)).toBe(href)

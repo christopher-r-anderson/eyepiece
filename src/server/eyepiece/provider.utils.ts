@@ -1,13 +1,10 @@
 import sanitizeHtml from 'sanitize-html'
 import type { AssetImage, Rendition } from '@/domain/asset/asset.schema'
 import type { Pagination } from '@/domain/pagination/pagination.schema'
-
-// browsers do not decode TIFF, and NASA serves one as the original on about a
-// tenth of its records
-const UNDECODABLE_PATTERN = /\.tiff?($|\?)/i
+import { UNDECODABLE_IMAGE_PATTERN } from '@/domain/provider/provider-image-delivery'
 
 export function isDecodableImageHref(href: string) {
-  return !UNDECODABLE_PATTERN.test(href)
+  return !UNDECODABLE_IMAGE_PATTERN.test(href)
 }
 
 // A srcset splits candidates on whitespace, so a rendition href carrying a

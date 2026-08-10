@@ -161,8 +161,8 @@ Surfaces do not point the browser at provider hosts. At render time each renditi
 
 How the CDN reaches each provider differs, and the difference is cache headers: transformed responses inherit the source's `Cache-Control`, and a headers rule on the transform path does not apply (verified in the #253 spike).
 
-- Smithsonian is fetched directly; its two-day origin `Cache-Control` is fine as inherited.
-- NASA routes through a same-site edge function (`netlify/edge-functions/nasa-image-source.ts`, serving `/img/nasa/*`) whose responses carry our week-long `Cache-Control` and a durable directive, because NASA's own five-minute header would otherwise pass through to every transform.
+- Smithsonian IIIF cuts are fetched directly; the two-day origin `Cache-Control` is fine as inherited. Only `/ids/iiif/` hrefs route through the CDN: records without an `idsId` fall back to labelled resource urls (`ids/download`, `ids/delivery`) that stay direct, because the allowlist admits only what the IIIF path shape can produce.
+- NASA routes through a same-site edge function (`netlify/edge-functions/nasa-image-source.ts`, serving `/img/nasa/*`) whose responses carry our week-long `Cache-Control` and a durable directive, because NASA's own five-minute header would otherwise pass through to every transform. The route is publicly reachable, so it refuses what the app never emits: TIFF paths and files over the rendition byte cap.
 
 The per-provider policy lives in `PROVIDER_IMAGE_DELIVERY` (`src/domain/provider/provider.schema.ts`), next to the other provider configuration. Two artifacts cannot read that map: the `[images] remote_images` allowlist in `netlify.toml` (which admits only the remote-fetched origins - there is no URL signing, so the list is the abuse control) and the edge function's route. The sync test in `provider-image-delivery.unit.test.ts` fails the suite when they drift. A new provider needs a policy entry here and, if fetched remotely, an allowlist pattern; if its origin's cache headers are short, the same-site source pattern is the template.
 

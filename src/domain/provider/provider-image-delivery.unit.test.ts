@@ -23,28 +23,30 @@ function remoteImagePatterns() {
   return patterns
 }
 
+// what the builder would emit for a rendition carrying the policy's prefix
+const sampleFor = (hrefPrefix: string) => `${hrefPrefix}some/id/image.jpg`
+
 describe('image delivery artifacts stay in sync', () => {
-  it('allowlists every remote-source provider origin', () => {
+  it('allowlists everything a remote-source policy can emit', () => {
     const patterns = remoteImagePatterns()
     for (const policy of Object.values(PROVIDER_IMAGE_DELIVERY)) {
       if (policy.source !== 'remote') continue
-      const sample = `${policy.origin}/ids/iiif/any-id/full/640,/0/default.jpg`
+      const sample = sampleFor(policy.hrefPrefix)
       expect(
         patterns.some((pattern) => pattern.test(sample)),
-        `${policy.origin} is a remote image source but no netlify.toml remote_images pattern matches ${sample}`,
+        `${policy.hrefPrefix} is a remote image source but no netlify.toml remote_images pattern matches ${sample}`,
       ).toBe(true)
     }
   })
 
-  it('does not allowlist origins that route through a same-site source', () => {
+  it('does not allowlist prefixes that route through a same-site source', () => {
     const patterns = remoteImagePatterns()
     for (const policy of Object.values(PROVIDER_IMAGE_DELIVERY)) {
       if (policy.source === 'remote') continue
+      const sample = sampleFor(policy.hrefPrefix)
       expect(
-        patterns.some((pattern) =>
-          pattern.test(`${policy.origin}/image/any/any.jpg`),
-        ),
-        `${policy.origin} routes through ${policy.source.pathPrefix} and should not also be an open remote source`,
+        patterns.some((pattern) => pattern.test(sample)),
+        `${policy.hrefPrefix} routes through ${policy.source.pathPrefix} and should not also be an open remote source`,
       ).toBe(false)
     }
   })
