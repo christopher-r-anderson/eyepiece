@@ -43,6 +43,21 @@ describe('nasa image source', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
+  it('refuses upstream responses that do not declare a valid size', async () => {
+    const cases: Array<Record<string, string>> = [
+      { 'content-type': 'image/jpeg' },
+      { 'content-type': 'image/jpeg', 'content-length': 'garbage' },
+    ]
+    for (const headers of cases) {
+      stubUpstream(new Response('bytes', { status: 200, headers }))
+      const response = await invoke(
+        '/img/nasa/image/PIA24439/PIA24439~large.jpg',
+      )
+      expect(response.status).toBe(502)
+      vi.restoreAllMocks()
+    }
+  })
+
   it('refuses files over the rendition byte cap', async () => {
     stubUpstream(
       new Response('big', {

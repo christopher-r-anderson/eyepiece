@@ -29,11 +29,19 @@ export default async (request: Request) => {
       status: upstreamResponse.status,
     })
   }
-  const contentLength = Number(
-    upstreamResponse.headers.get('content-length') ?? 0,
-  )
+  // the cap is enforced on the declared length, and a declaration is
+  // required: counting bytes mid-stream cannot retract a 200 already sent,
+  // so an over-cap stream would truncate into the CDN's cache. NASA serves
+  // static files that always declare a size.
+  const contentLength = Number(upstreamResponse.headers.get('content-length'))
+  if (!Number.isFinite(contentLength) || contentLength <= 0) {
+    await upstreamResponse.body?.cancel()
+    return new Response('upstream response did not declare a size', {
+      status: 502,
+    })
+  }
   if (contentLength > NASA_IMAGE_SOURCE_MAX_BYTES) {
-    upstreamResponse.body?.cancel()
+    await upstreamResponse.body?.cancel()
     return new Response('image exceeds the rendition byte cap', {
       status: 413,
     })
