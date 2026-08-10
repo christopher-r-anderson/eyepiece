@@ -1,5 +1,6 @@
 import { PROVIDER_KEY_DELIMITER } from '../provider/provider.schema'
 import { assetKeyStringSchema } from './asset.schema'
+import { toDeliveryHref } from './image-delivery'
 import type { AssetImage, AssetKey, AssetKeyString } from './asset.schema'
 
 export function toAssetKeyString(assetKey: AssetKey): AssetKeyString {
@@ -15,7 +16,10 @@ export const assetKeyIsEqual = (a: AssetKey, b: AssetKey) => {
 
 export function toSrcSet(image: AssetImage) {
   return image.renditions
-    .map((rendition) => `${rendition.href} ${rendition.width}w`)
+    .map(
+      (rendition) =>
+        `${toDeliveryHref(rendition.href, rendition.width)} ${rendition.width}w`,
+    )
     .join(', ')
 }
 
@@ -23,14 +27,17 @@ export function toSrcSet(image: AssetImage) {
 // is only reached by a browser that ignores it, or when every candidate fails.
 // The narrowest is the cheaper thing to be wrong about.
 export function toFallbackSrc(image: AssetImage) {
-  return image.renditions[image.renditions.length - 1].href
+  const narrowest = image.renditions[image.renditions.length - 1]
+  return toDeliveryHref(narrowest.href, narrowest.width)
 }
 
 // grids break rows on this; a record with no usable file lays out square
 export const toAspectRatio = (image: AssetImage | undefined) =>
   image ? image.width / image.height : 1
 
-// scrapers cap what they fetch, and the widest rendition can be enormous
+// scrapers cap what they fetch, and the widest rendition can be enormous.
+// Deliberately not routed through the image CDN: scrapers do not negotiate
+// formats, and og tags want a stable absolute provider URL.
 export function toSocialImage(image: AssetImage) {
   const rendition =
     image.renditions.find((r) => r.width <= 1600) ??

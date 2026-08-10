@@ -155,6 +155,19 @@ Where the ladder comes from:
 
 The byte cap on NASA originals bounds weight only, and NASA offers no cut between the 1920 alternate and the original. On records whose original is under the cap but far wider than any surface renders (about 15% of the originals that make it), a 2x detail view pays the full file for detail it can only partly show. Accepted in favor of sharpness; a width guard would trim those bytes by capping those records at 1920. The sampled numbers are in #194.
 
+### Image Delivery
+
+Surfaces do not point the browser at provider hosts. At render time each rendition href is rewritten to the Netlify Image CDN (`/.netlify/images`), which fetches the file, converts it to whatever format the browser negotiates, and caches the result at our edge. Neither provider serves AVIF or WebP itself, NASA's origin caches for five minutes, and ids.si.edu attaches bot-defense cookies; the proxy addresses all three (#253). The rewrite requests each rendition at its own width, so delivery changes format and caching, never geometry. Stored snapshot hrefs stay absolute provider URLs - the rewrite is render-time only, and a href from an origin the delivery map does not know passes through untouched. Social/OG images are the exception: scrapers do not negotiate formats, so they keep direct provider URLs.
+
+How the CDN reaches each provider differs, and the difference is cache headers: transformed responses inherit the source's `Cache-Control`, and a headers rule on the transform path does not apply (verified in the #253 spike).
+
+- Smithsonian is fetched directly; its two-day origin `Cache-Control` is fine as inherited.
+- NASA routes through a same-site edge function (`netlify/edge-functions/nasa-image-source.ts`, serving `/img/nasa/*`) whose responses carry our week-long `Cache-Control` and a durable directive, because NASA's own five-minute header would otherwise pass through to every transform.
+
+The per-provider policy lives in `PROVIDER_IMAGE_DELIVERY` (`src/domain/provider/provider.schema.ts`), next to the other provider configuration. Two artifacts cannot read that map: the `[images] remote_images` allowlist in `netlify.toml` (which admits only the remote-fetched origins - there is no URL signing, so the list is the abuse control) and the edge function's route. The sync test in `provider-image-delivery.unit.test.ts` fails the suite when they drift. A new provider needs a policy entry here and, if fetched remotely, an allowlist pattern; if its origin's cache headers are short, the same-site source pattern is the template.
+
+Delivery is on unless a build sets `VITE_IMAGE_CDN_ENABLED=false`; the e2e suite does (fixture runs must not fetch live origins), see [EnvironmentVariables.md](EnvironmentVariables.md).
+
 ## Source Link
 
 An asset carries a link to its own record at the provider, rendered as attribution under the detail image. Both current providers supply one for every record, but the field is optional: a provider that cannot address its records is a real possibility.

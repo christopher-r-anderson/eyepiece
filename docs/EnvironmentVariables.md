@@ -16,6 +16,7 @@ Reference for every environment variable the project uses: the table shows where
 | `SHOWCASE_USER_EMAIL`                      | secret         |          | yes          |
 | `VITE_SUPABASE_URL`                        | derived        | yes      | yes          |
 | `VITE_SUPABASE_PUBLISHABLE_KEY`            | variable       | yes      | yes          |
+| `VITE_IMAGE_CDN_ENABLED`                   |                |          | optional     |
 | `VITE_SENTRY_ENABLED`                      | variable       | yes      | yes          |
 | `VITE_SENTRY_DSN`                          | variable       | yes      | optional     |
 | `VITE_SENTRY_ENVIRONMENT`                  | variable       | yes      | optional     |
@@ -117,6 +118,12 @@ The publish workflow builds the production site in CI and uploads it with `netli
 - Release variables are optional and left unset in this deployment: the Sentry build plugin auto-detects a release from CI commit metadata or the current git SHA. An explicit `VITE_SENTRY_RELEASE` passes through the publish workflow like the sample rates and needs matching GitHub and Netlify copies; `SENTRY_RELEASE` is runtime-only and lives in Netlify.
 - Server runtime values live only in Netlify; the function reads them at runtime no matter which builder produced the deploy.
 - Only the publish job needs Sentry values; lint, typecheck, and the test jobs run without them.
+
+## Image Delivery
+
+### `VITE_IMAGE_CDN_ENABLED`
+
+Routes provider images through the Netlify Image CDN (see the Image Delivery section of [Providers.md](Providers.md)). On unless explicitly `false`, so no deployed environment provisions it. The e2e suite sets `false` in `playwright.config.ts`: fixture runs must not have the serve-time image emulator fetch live provider origins. Set `false` in `.env.local` to see direct provider URLs locally, such as when working offline.
 
 ## Providers
 

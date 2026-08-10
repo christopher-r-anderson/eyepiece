@@ -9,6 +9,15 @@
 [build.environment]
   NODE_VERSION = "24"
 
+# image CDN remote sources; no URL signing exists, so this stays as tight as
+# the URL shapes allow. NASA is absent on purpose: its fetches route through
+# the same-site edge function (netlify/edge-functions/nasa-image-source.ts).
+# Kept in sync with PROVIDER_IMAGE_DELIVERY by its unit test.
+[images]
+  remote_images = [
+    "https://ids\\.si\\.edu/ids/iiif/.*",
+  ]
+
 # safe with immutable because font files are pinned (scripts/fonts-manifest.json);
 # an updated font must ship under a new filename
 [[headers]]
