@@ -17,16 +17,16 @@ const renderTileActions = (item: Asset) => (
 
 export function AssetResultsGrid({
   items,
-  priorityFirstTile,
+  startsInViewport,
 }: {
   items: Array<Asset>
-  priorityFirstTile?: boolean
+  startsInViewport?: boolean
 }) {
   const tileLinkProps = useViewingAssetTileLinkProps()
   return (
     <JustifiedAssetGrid
       items={items}
-      priorityFirstTile={priorityFirstTile}
+      startsInViewport={startsInViewport}
       tileRelatedLinks={renderTileRelatedLinks}
       tileActions={renderTileActions}
       tileLinkProps={tileLinkProps}

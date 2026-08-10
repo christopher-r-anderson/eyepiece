@@ -48,7 +48,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
       className={css({ width: '100%' })}
     >
       <JustifiedAssetGrid
-        priorityFirstTile
+        startsInViewport
         items={data.items}
         tileActions={renderTileActions}
         tileLinkProps={tileLinkProps}

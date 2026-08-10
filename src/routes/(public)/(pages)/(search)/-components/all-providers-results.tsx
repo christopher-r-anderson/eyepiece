@@ -32,7 +32,7 @@ export function AllProvidersResults({ query }: { query: SearchQuery }) {
           key={providerId}
           query={query}
           providerId={providerId}
-          priorityFirstTile={index === 0}
+          startsInViewport={index === 0}
         />
       ))}
     </div>
@@ -42,13 +42,13 @@ export function AllProvidersResults({ query }: { query: SearchQuery }) {
 interface ProviderSectionProps {
   query: SearchQuery
   providerId: ProviderId
-  priorityFirstTile?: boolean
+  startsInViewport?: boolean
 }
 
 function ProviderSection({
   query,
   providerId,
-  priorityFirstTile,
+  startsInViewport,
 }: ProviderSectionProps) {
   const headingId = useId()
   const display = PROVIDER_DISPLAY[providerId]
@@ -104,7 +104,7 @@ function ProviderSection({
           <ProviderSectionResults
             query={query}
             providerId={providerId}
-            priorityFirstTile={priorityFirstTile}
+            startsInViewport={startsInViewport}
           />
         </Suspense>
       </CapturedCatchBoundary>
@@ -134,7 +134,7 @@ function SeeAllLink({ query, providerId }: ProviderSectionProps) {
 function ProviderSectionResults({
   query,
   providerId,
-  priorityFirstTile,
+  startsInViewport,
 }: ProviderSectionProps) {
   const { data } = useSuspenseSearchSection(
     query,
@@ -146,9 +146,6 @@ function ProviderSectionResults({
   }
 
   return (
-    <AssetResultsGrid
-      items={data.items}
-      priorityFirstTile={priorityFirstTile}
-    />
+    <AssetResultsGrid items={data.items} startsInViewport={startsInViewport} />
   )
 }

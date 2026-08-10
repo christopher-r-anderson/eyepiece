@@ -180,7 +180,7 @@ function CollectionPage() {
             uiResetKey={collectionId}
           >
             <JustifiedAssetGrid
-              priorityFirstTile
+              startsInViewport
               tileLinkProps={tileLinkProps}
               items={snapshotsResult.data ?? []}
               tileActions={renderTileActions}

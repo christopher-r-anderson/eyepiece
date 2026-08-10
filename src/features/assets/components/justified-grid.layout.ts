@@ -36,9 +36,8 @@ const LINE_MAX = 16 * parseFloat(token('sizes.contentMax'))
 const EAGER_ROWS = 2
 
 // Row membership depends on aspect ratios, so the eager set walks flex
-// bases against a two-desktop-line budget. The same count reaches deeper
-// on narrow screens, whose bases shrink in proportion; tiles just past it
-// still load early through the browser's lazy-load margin.
+// bases against a two-desktop-line budget; the same count reaches deeper
+// on narrow screens, whose bases shrink in proportion.
 export function eagerTileCount(aspectRatios: Array<number>) {
   const budget = EAGER_ROWS * LINE_MAX
   let sum = 0

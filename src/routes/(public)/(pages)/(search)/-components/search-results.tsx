@@ -35,7 +35,7 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
       uiResetKey={uiResetKey}
       className={css({ width: '100%' })}
     >
-      <AssetResultsGrid items={data.items} priorityFirstTile />
+      <AssetResultsGrid items={data.items} startsInViewport />
     </InfiniteLoader>
   )
 }

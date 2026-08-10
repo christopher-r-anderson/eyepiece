@@ -50,9 +50,8 @@ test('the server document preloads the detail image', async ({ page }) => {
   const response = await page.goto('/assets/nasa_ivl/PIA14417')
   const html = (await response?.text()) ?? ''
 
-  // React hoists this from the img's fetchPriority; it is what lets the
-  // browser find the LCP image before hydration. Attribute casing follows
-  // the React version, so match it insensitively.
+  // React hoists this from the img's fetchPriority. Attribute casing
+  // follows the React version, so match it insensitively.
   const preload = html
     .toLowerCase()
     .match(/<link rel="preload"[^>]*as="image"[^>]*>/g)

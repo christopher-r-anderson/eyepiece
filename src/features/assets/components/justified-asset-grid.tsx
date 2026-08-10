@@ -52,9 +52,9 @@ interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   tileLinkDisabled?: (item: TItem) => boolean
   tileLinkProps?: (item: TItem) => TileLinkProps | undefined
   tilePersistentActions?: (item: TItem) => ReactNode
-  // only for the grid holding the page's LCP candidate; a later grid's
-  // first tile sits below the fold
-  priorityFirstTile?: boolean
+  // set on the grid that starts in the viewport: its leading rows load
+  // eagerly and its first image tile carries the LCP fetch priority
+  startsInViewport?: boolean
 }
 
 export function JustifiedAssetGrid<TItem extends AssetPreview>({
@@ -66,7 +66,7 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   tileLinkDisabled,
   tileLinkProps,
   tilePersistentActions,
-  priorityFirstTile,
+  startsInViewport,
 }: JustifiedAssetGridProps<TItem>) {
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -113,13 +113,16 @@ export function JustifiedAssetGrid<TItem extends AssetPreview>({
   const tabStopKey = focusedKey ?? state.collection.getFirstKey()
 
   const eagerCount = useMemo(
-    () => eagerTileCount(items.map((item) => toAspectRatio(item.image))),
-    [items],
+    () =>
+      startsInViewport
+        ? eagerTileCount(items.map((item) => toAspectRatio(item.image)))
+        : 0,
+    [items, startsInViewport],
   )
 
   // the first tile with a file to fetch; a record with no image would soak
   // up the priority
-  const priorityIndex = priorityFirstTile
+  const priorityIndex = startsInViewport
     ? items.findIndex((item) => item.image)
     : -1
 

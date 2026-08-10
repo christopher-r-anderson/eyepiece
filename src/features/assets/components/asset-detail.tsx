@@ -47,13 +47,14 @@ const viewerCss = css({
 })
 
 // contentMax less the surface wrapper's padding, which is as wide as the
-// picture can get. A portrait record is bounded by the height instead, so
-// its share is the ratio times imageCss's maxHeight, with vh standing in
-// for dvh since sizes resolves before layout.
+// picture can get
 const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
 const PADDING = 2 * parseFloat(token('spacing.4'))
 const DETAIL_MAX_SLOT = 16 * (CONTENT_MAX - PADDING)
 
+// a portrait is bounded by the height instead, so its share is the ratio
+// times imageCss's maxHeight, with vh standing in for dvh since sizes
+// resolves before layout
 function detailImageSizes(aspectRatio: number) {
   const heightBound = `calc(max(45vh, 100vh - 19rem) * ${aspectRatio.toFixed(4)})`
   return `(max-width: ${CONTENT_MAX}rem) min(calc(100vw - ${PADDING}rem), ${heightBound}), min(${CONTENT_MAX - PADDING}rem, ${heightBound})`

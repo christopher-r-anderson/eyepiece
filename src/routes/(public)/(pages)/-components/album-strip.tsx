@@ -22,6 +22,9 @@ import { toAspectRatio, toAssetKeyString } from '@/domain/asset/asset.utils'
 interface AlbumStripSectionProps {
   albumKey: AlbumKey
   title: string
+  // set on the strip that starts in the viewport: its visible tiles load
+  // eagerly
+  startsInViewport?: boolean
 }
 
 const stripCss = css.raw({
@@ -56,28 +59,26 @@ function stripTileImageGeometry(aspectRatio: number) {
   }
 }
 
-// the widest the unscrolled strip can be: the content column, or the
-// viewport below md
+// the widest the unscrolled strip can be: the content column. The count it
+// yields also covers narrow screens, whose tiles shrink faster than their
+// scrollport does.
 const SCROLLPORT_MAX = 16 * parseFloat(token('sizes.contentMax'))
-const SCROLLPORT_MAX_NARROW = 16 * parseFloat(token('breakpoints.md'))
 
 function eagerStripTileCount(aspectRatios: Array<number>) {
-  const count = (rowHeight: number, scrollport: number) => {
-    let offset = 0
-    let index = 0
-    while (index < aspectRatios.length && offset < scrollport) {
-      offset += aspectRatios[index] * rowHeight
-      index += 1
-    }
-    return index
+  let offset = 0
+  let index = 0
+  while (index < aspectRatios.length && offset < SCROLLPORT_MAX) {
+    offset += aspectRatios[index] * STRIP_ROW
+    index += 1
   }
-  return Math.max(
-    count(STRIP_ROW, SCROLLPORT_MAX),
-    count(STRIP_ROW_NARROW, SCROLLPORT_MAX_NARROW),
-  )
+  return index
 }
 
-export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
+export function AlbumStripSection({
+  albumKey,
+  title,
+  startsInViewport,
+}: AlbumStripSectionProps) {
   const headingId = useId()
   return (
     <section aria-labelledby={headingId}>
@@ -127,19 +128,28 @@ export function AlbumStripSection({ albumKey, title }: AlbumStripSectionProps) {
         }}
       >
         <Suspense fallback={<AlbumStripSkeleton />}>
-          <AlbumStripItems albumKey={albumKey} />
+          <AlbumStripItems
+            albumKey={albumKey}
+            startsInViewport={startsInViewport}
+          />
         </Suspense>
       </CapturedCatchBoundary>
     </section>
   )
 }
 
-function AlbumStripItems({ albumKey }: { albumKey: AlbumKey }) {
+function AlbumStripItems({
+  albumKey,
+  startsInViewport,
+}: {
+  albumKey: AlbumKey
+  startsInViewport?: boolean
+}) {
   const tileLinkProps = useViewingAssetTileLinkProps()
   const { data } = useSuspenseInfiniteAlbumAssets(albumKey)
-  const eagerCount = eagerStripTileCount(
-    data.items.map((item) => toAspectRatio(item.image)),
-  )
+  const eagerCount = startsInViewport
+    ? eagerStripTileCount(data.items.map((item) => toAspectRatio(item.image)))
+    : 0
   return (
     <ul
       // Safari drops list semantics with list-style: none

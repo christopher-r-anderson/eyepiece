@@ -118,7 +118,7 @@ function HomePage() {
           </ul>
         </nav>
       </section>
-      {FEATURED_ALBUMS.map((featured) => (
+      {FEATURED_ALBUMS.map((featured, index) => (
         <div
           key={featured.albumKey.externalId}
           className={css({ marginTop: 'sectionGap' })}
@@ -126,6 +126,7 @@ function HomePage() {
           <AlbumStripSection
             albumKey={featured.albumKey}
             title={featured.title}
+            startsInViewport={index === 0}
           />
         </div>
       ))}
