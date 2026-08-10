@@ -102,5 +102,5 @@ function PublicCollectionsSection({ profileId }: { profileId: string }) {
 
 function ProfileCollectionCards({ profileId }: { profileId: string }) {
   const cards = useSuspensePublicCollectionCards(profileId)
-  return <CollectionCardGrid cards={cards} />
+  return <CollectionCardGrid cards={cards} eagerFirstRow />
 }
