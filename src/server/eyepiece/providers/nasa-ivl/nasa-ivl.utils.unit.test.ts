@@ -157,6 +157,26 @@ describe('mapMediaItem renditions', () => {
     expect(result.image).toMatchObject({ width: 8000, height: 6000 })
   })
 
+  it('leaves out an alternate above the delivery source limit', () => {
+    const result = mapMediaItem(
+      withLinks([
+        link('preview', 'https://example.com/a~thumb.jpg', 640, 480, 40_000),
+        link(
+          'alternate',
+          'https://example.com/a~large.jpg',
+          1920,
+          1440,
+          5_000_000,
+        ),
+        link('alternate', 'https://example.com/a~medium.jpg', 1280, 960),
+      ]),
+    )
+
+    expect(result.image?.renditions.map((rendition) => rendition.href)).toEqual(
+      ['https://example.com/a~medium.jpg', 'https://example.com/a~thumb.jpg'],
+    )
+  })
+
   it('leaves out a TIFF original whatever it weighs', () => {
     const result = mapMediaItem(
       withLinks([

@@ -150,7 +150,7 @@ An asset carries at most one image: the master's width and height plus a renditi
 
 Where the ladder comes from:
 
-- NASA publishes fixed derivative files per record: the sized alternates, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
+- NASA publishes fixed derivative files per record: the sized alternates, excluding any whose declared size the delivery source would refuse, then the original when it is decodable and at most 3MB, then the preview, which is present on every record and keeps the ladder from coming back empty.
 - Smithsonian's delivery service is a IIIF Image API 2.0 server, so the ladder is scaled from the master at fixed widths up to 2560, never asking for an upscale. Records that declare no size anywhere (about one in nine) cost one `info.json` request for the master's dimensions.
 
 The byte cap on NASA originals bounds weight only, and NASA offers no size between the 1920 alternate and the original. An admitted original becomes the record's widest delivery source; only a build linking origin URLs directly still pays its full file on a 2x detail view. The sampled numbers are in #194.
