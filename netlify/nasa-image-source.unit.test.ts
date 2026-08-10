@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-// lives beside edge-functions/, not in it: Netlify bundles every file in
-// that directory as a function, and vitest imports do not survive that
+// beside edge-functions/, not in it: Netlify bundles every file there as a
+// function
 import handler from './edge-functions/nasa-image-source'
 
 function stubUpstream(response: Response) {

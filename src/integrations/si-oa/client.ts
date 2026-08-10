@@ -56,7 +56,7 @@ export async function search(params: SioaSearchParams, apiKey: string) {
 }
 
 // The delivery service is a IIIF Image API 2.0 level 2 server, so it reports
-// the master's real size and will cut any width from it. The Open Access
+// the master's real size and will serve any width of it. The Open Access
 // records themselves declare a size on the hi-res resources only.
 export const IDS_ROOT = 'https://ids.si.edu/ids/iiif'
 

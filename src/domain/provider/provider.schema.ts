@@ -52,24 +52,17 @@ export function providerSupportsMetadata(providerId: ProviderId) {
 }
 
 export type ImageDeliveryPolicy = {
-  // a rendition routes through the image CDN only when its href carries
-  // this prefix; anything else on the same host stays direct
+  // hrefs carrying this prefix route through the image CDN
   hrefPrefix: string
-  // 'remote': the image CDN fetches the provider origin itself. A path
-  // prefix instead routes the fetch through our same-site source at that
-  // prefix, whose cache headers the transformed responses then inherit.
+  // 'remote': the CDN fetches the origin directly. A path prefix routes the
+  // fetch through our same-site source, whose headers the transforms inherit.
   source: 'remote' | { pathPrefix: string }
 }
 
-// NASA cannot stay 'remote': its origin serves max-age=300, transforms
-// inherit it, and a headers rule on the transform path does not apply
-// (verified in the #253 spike). ids.si.edu serves two days and is fine.
-// The netlify.toml [images] allowlist and the edge function are the two
-// artifacts that cannot read this map; the sync test in
-// provider-image-delivery.unit.test.ts holds them together.
 export const PROVIDER_IMAGE_DELIVERY = {
   [NASA_IVL_PROVIDER_ID]: {
-    // origin-wide on purpose: renditions live under /image/ and /video/
+    // origin-wide since we include video records in results and their
+    // stills live under /video/
     hrefPrefix: NASA_IMAGE_HREF_PREFIX,
     source: { pathPrefix: NASA_IMAGE_SOURCE_PREFIX },
   },

@@ -38,7 +38,7 @@ export type SioaImageInfo = z.infer<typeof sioaImageInfoSchema>
 // forbids them, so nothing here can be trusted to arrive
 export const sioaMediaItemSchema = z.object({
   resources: z.array(sioaResourceItemSchema),
-  // addresses the master on the delivery service, which renditions are cut from
+  // addresses the master on the delivery service, which renditions are scaled from
   idsId: z.string().optional(),
   altTextAccessibility: z.string().optional(),
   extDescrAccessibility: z.string().optional(),

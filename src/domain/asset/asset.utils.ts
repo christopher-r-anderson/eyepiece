@@ -36,8 +36,7 @@ export const toAspectRatio = (image: AssetImage | undefined) =>
   image ? image.width / image.height : 1
 
 // scrapers cap what they fetch, and the widest rendition can be enormous.
-// Deliberately not routed through the image CDN: scrapers do not negotiate
-// formats, and og tags want a stable absolute provider URL.
+// Not routed through the image CDN: scrapers do not negotiate formats.
 export function toSocialImage(image: AssetImage) {
   const rendition =
     image.renditions.find((r) => r.width <= 1600) ??

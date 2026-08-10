@@ -121,7 +121,7 @@ describe('mapAssetItem', () => {
     })
   }
 
-  it('cuts the ladder from the delivery service at the declared size', () => {
+  it('scales the ladder from the delivery service at the declared size', () => {
     const result = mapAssetItem(
       withMedia({
         idsId: 'NASM-A19721168000',

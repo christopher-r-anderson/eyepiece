@@ -10,12 +10,8 @@ export function isImageCdnEnabled() {
   return import.meta.env.VITE_IMAGE_CDN_ENABLED !== 'false'
 }
 
-// Routes a rendition through the Netlify image CDN when its href carries a
-// configured provider prefix; anything else - old snapshot hrefs, unknown
-// hosts, same-host urls outside the prefix like SI's ids/download fallback -
-// passes through untouched. The requested width is the rendition's own, so
-// this changes format and caching, never geometry; width selection against
-// rendered slots is #245.
+// Maps an image's href into a CDN transform URL when matching a provider
+// prefix. Otherwise passes through untouched.
 export function toDeliveryHref(
   href: string,
   width: number,
