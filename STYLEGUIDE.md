@@ -52,6 +52,8 @@ Use plural suffixes for collections of exports and singular for architectural la
 - _Queries:_ Query modules should expose options factories (`getXOptions`, `getInfiniteXOptions`) plus hook wrappers. Runtime helpers (`ensureX`, `fetchX`, `prefetchX`) should be added only when they are used by loaders.
 - _Route Loaders:_ Prefer `await` in route loaders for query preloading so route-level pending/error handling works by default. Avoid returning loader data that duplicates query cache.
 - _SUspense and Error Boundaries:_ Use route-level pending/error handling for page-critical data. If a page has multiple high-level sections, use a boundary at the section level to limit breakage to the failing section.
+- _One-shot Status Params:_ Form-action redirects carry `status`/`formError` as one-shot params: seed page state from them, then strip them with a replace navigation (`useOneShotFormStatus`).
+- _Feature Component Props:_ Feature components expose curated props: forward `...props` into the underlying ui component or `Pick<>` exactly what is forwarded. Derive variant prop types from the ui type; never hand-copy unions.
 
 ## 5. Import Layering
 
@@ -73,4 +75,20 @@ When appropriate, always use TanStack Start import protection file naming conven
 - **`.client.ts`**: Code that _must_ only execute in the browser (`createBrowserOnlyFn`).
 - **`.functions.ts`**: Entry points for Server RPCs (`createServerFn`).
 - **No suffix**: Isomorphic code that runs in both environments.
+- **`.form-actions.ts`**: Server functions targeted by native (no-JS) form posts via `action={fn.url}`. They answer full-document POSTs only and must always end in a redirect; hydrated submits are intercepted before reaching them.
 - Note that `create*OnlyFn` is used even with file suffix import protection since some isomorphic import patterns can cause confusing errors otherwise.
+
+## 7. Styling
+
+Mechanics and reasoning: [docs/Styling.md](./docs/Styling.md). The rules:
+
+- Tokens and semantic tokens live in `panda/`; no raw `var(--x)` theme values in styles.
+- Variants live in config recipes in component-adjacent `*.recipe.ts` files; every variant axis carries scoped `staticCss`.
+- App code styles inline with `css()` and patterns; hoist only for reuse or genuinely unwieldy blocks.
+- A stored style object is wrapped in `css.raw(...)`; an inline object in a `css` prop is not.
+- ui components take `css` + `className` (`StyleProps`); wrappers merge defaults with `css.raw(defaults, css)`, never a spread.
+- Base styles use shorthands for commonly overridden properties; overrides use the base's exact keys.
+- ui components never carry external margins; parents own sibling spacing via `gap`.
+- Recurring patterns become variants; genuine one-offs stay `css` overrides.
+- `[bracketed]` values are the deliberate strictTokens exceptions; keep them rare.
+- Markup hooks added solely for audit tooling use a `data-audit-` prefix; `data-testid` exists only in unit-test mocks.
