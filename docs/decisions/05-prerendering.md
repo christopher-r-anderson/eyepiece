@@ -169,13 +169,14 @@ static file and the file is the origin: revalidation returns the same bytes,
 and only the next deploy changes them. Real regeneration here would mean taking
 pages off the static output so requests reach the server function, then caching
 its responses at the CDN. That trades the static guarantee for a second HTML
-freshness domain with its own invalidation story, and the gain is one first
-paint: the query layer refetches stale data right after hydration, so a baked
-page is current from the first interactive moment. Not worth a second
-invalidation story for one paint; revisit if first-paint freshness between
-deploys becomes a need the client refetch cannot cover, starting from the
-cache-header middleware in [the public caching decision](01-public-caching.md)
-rather than a new mechanism.
+freshness domain with its own invalidation story, and the gain is a narrower
+stale window on the first view: hydration starts a background refetch of stale
+data, so the baked content lasts until that request lands rather than until
+the next deploy. Not worth the second freshness domain for that window;
+revisit if first-view freshness between deploys becomes a need the client
+refetch cannot cover, starting from the cache-header middleware in
+[the public caching decision](01-public-caching.md) rather than a new
+mechanism.
 
 ### Other removal orderings
 
