@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
-import { formErrorCopy } from '@/components/form-errors'
+import { useCallback, useState } from 'react'
+import { formErrorCopy } from '@/lib/form-errors'
 import { UpdatePasswordForm } from '@/features/auth/forms/update-password-form'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { Link } from '@/components/ui/link'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { urlToNextParam } from '@/lib/utils'
+import { useOneShotFormStatus } from '@/lib/hooks/use-one-shot-form-status'
 
 export const Route = createFileRoute('/(private)/(auth)/auth/update-password')({
   component: UpdatePasswordPage,
@@ -25,21 +26,11 @@ function UpdatePasswordPage() {
     }
     setShowSuccessMessage(true)
   }, [next, navigate, queueToastMessage])
-  // a native (no-JS) update without a destination redirects back with the
-  // status param; seed the same success state and strip the one-shot param
-  // (with next, the action redirects straight there instead)
-  useEffect(() => {
-    if (status !== 'updated') return
-    setShowSuccessMessage(true)
-    void navigate({
-      search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
-      replace: true,
-    })
-  }, [status, navigate])
+  const seededStatus = useOneShotFormStatus(status)
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage || status === 'updated'}
+        showStatus={showSuccessMessage || seededStatus === 'updated'}
         status={<SuccessMessage />}
       >
         <UpdatePasswordForm

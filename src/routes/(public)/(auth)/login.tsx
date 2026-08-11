@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { formErrorCopy } from '@/components/form-errors'
+import { formErrorCopy } from '@/lib/form-errors'
 import { LoginForm } from '@/features/auth/forms/login-form'
 import { AuthAltAction } from '@/features/auth/components/auth-alt-action'
 import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect-authenticated-user'

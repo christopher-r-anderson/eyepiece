@@ -2,7 +2,7 @@ import { createFileRoute, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
 import { css } from 'styled-system/css'
-import { formErrorCopy } from '@/components/form-errors'
+import { formErrorCopy } from '@/lib/form-errors'
 import { Heading } from '@/components/ui/heading'
 import {
   ResendConfirmationForm,
@@ -16,6 +16,7 @@ import {
   ForgotPasswordSuccessMessage,
 } from '@/features/auth/forms/forgot-password-form'
 import { FormStatusSwitcher } from '@/components/ui/forms'
+import { useOneShotFormStatus } from '@/lib/hooks/use-one-shot-form-status'
 
 const ERR_CODE_OTP_EXPIRED = 'otp_expired'
 
@@ -50,6 +51,7 @@ function RecoveryOtpError() {
   // one-shot params so a stale error never rides along
   const backHref = urlToNextParam(useLocation({ select: (l) => l.href }))
   const [successfulResend, setSuccessfulResend] = useState(false)
+  const seededStatus = useOneShotFormStatus(status)
   return (
     <>
       <Heading level={1} css={pageTitleCss}>
@@ -60,7 +62,7 @@ function RecoveryOtpError() {
         a new reset password email.
       </p>
       <FormStatusSwitcher
-        showStatus={successfulResend || status === 'sent'}
+        showStatus={successfulResend || seededStatus === 'sent'}
         status={<ForgotPasswordSuccessMessage headingLevel={2} />}
       >
         <ForgotPasswordForm
@@ -79,6 +81,7 @@ function EmailOtpError() {
   const { formError, status, next } = Route.useSearch()
   const backHref = urlToNextParam(useLocation({ select: (l) => l.href }))
   const [successfulResend, setSuccessfulResend] = useState(false)
+  const seededStatus = useOneShotFormStatus(status)
   return (
     <>
       <Heading level={1} css={pageTitleCss}>
@@ -89,7 +92,7 @@ function EmailOtpError() {
         new confirmation email.
       </p>
       <FormStatusSwitcher
-        showStatus={successfulResend || status === 'sent'}
+        showStatus={successfulResend || seededStatus === 'sent'}
         status={<ResendConfirmationSuccessMessage headingLevel={2} />}
       >
         <ResendConfirmationForm

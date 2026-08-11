@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { formErrorCopy } from '@/components/form-errors'
+import { formErrorCopy } from '@/lib/form-errors'
 import {
   RegistrationForm,
   RegistrationSuccessMessage,
@@ -10,6 +10,7 @@ import { useRedirectAuthenticatedUser } from '@/features/auth/hooks/use-redirect
 import { Link } from '@/components/ui/link'
 import { FormStatusSwitcher } from '@/components/ui/forms'
 import { urlToNextParam } from '@/lib/utils'
+import { useOneShotFormStatus } from '@/lib/hooks/use-one-shot-form-status'
 
 export const Route = createFileRoute('/(public)/(auth)/register')({
   component: RegisterPage,
@@ -18,12 +19,13 @@ export const Route = createFileRoute('/(public)/(auth)/register')({
 function RegisterPage() {
   const { next, formError, status } = Route.useSearch()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const seededStatus = useOneShotFormStatus(status)
   useRedirectAuthenticatedUser(next)
 
   return (
     <>
       <FormStatusSwitcher
-        showStatus={showSuccessMessage || status === 'sent'}
+        showStatus={showSuccessMessage || seededStatus === 'sent'}
         status={<RegistrationSuccessMessage headingLevel={1} />}
       >
         <RegistrationForm

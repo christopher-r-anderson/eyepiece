@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
 import type { Profile } from '@/domain/profile/profile.schema'
-import { formErrorCopy } from '@/components/form-errors'
+import { formErrorCopy } from '@/lib/form-errors'
 import { PageHeader } from '@/components/page-header'
 import { useQueueToastMessage } from '@/components/ui/toast.hooks'
 import { UpsertProfileForm } from '@/features/profiles/forms/upsert-profile-form'
 import { ensureProfile } from '@/features/profiles/profiles.queries'
 import { formResultSearchParamsSchema } from '@/lib/route.schema'
+import { useOneShotFormStatus } from '@/lib/hooks/use-one-shot-form-status'
 
 type MaybeProfile = Partial<Profile> & Pick<Profile, 'id'>
 
@@ -33,19 +33,12 @@ export const Route = createFileRoute('/(private)/(pages)/settings/profile')({
 function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
   const { formError, status } = Route.useSearch()
-  const navigate = Route.useNavigate()
   const queueToastMessage = useQueueToastMessage()
-  // the native (no-JS) redirect's status is one-shot: the SSR'd notice
-  // below is the no-JS feedback; once hydrated, hand it to a toast and
-  // strip the param
-  useEffect(() => {
-    if (status !== 'updated') return
-    queueToastMessage({ title: 'Profile updated' })
-    void navigate({
-      search: (prev) => ({ ...prev, status: undefined, formError: undefined }),
-      replace: true,
-    })
-  }, [status, navigate, queueToastMessage])
+  useOneShotFormStatus(status, (oneShotStatus) => {
+    if (oneShotStatus === 'updated') {
+      queueToastMessage({ title: 'Profile updated' })
+    }
+  })
   return (
     <>
       <PageHeader title="Settings" />
@@ -56,6 +49,7 @@ function ProfilePage() {
         onSuccess={() => queueToastMessage({ title: 'Profile updated' })}
         headingLevel={2}
       />
+      {/* no-JS notice: gone once the hook strips the param */}
       {status === 'updated' && <p role="status">Profile updated.</p>}
     </>
   )
