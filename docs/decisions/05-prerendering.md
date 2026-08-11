@@ -161,12 +161,12 @@ improvements become a priority.
 ### Incremental regeneration
 
 TanStack Start documents an ISR pattern that keeps build-time prerendering and
-adds `stale-while-revalidate` cache headers, so a CDN re-renders expired pages
-in the background. The pattern works where the CDN's revalidation reaches
-something that can render - a Cloudflare Worker origin, for example, serves the
-prerendered output and re-renders on demand. On Netlify a prerendered page is a
-static file and the file is the origin: revalidation returns the same bytes,
-and only the next deploy changes them. Real regeneration here would mean taking
+adds `stale-while-revalidate` cache headers, so a CDN serves cached pages while
+revalidating them against the origin in the background. Regeneration happens
+only where that revalidation reaches an origin that re-renders the page
+instead of serving the baked file. On Netlify a prerendered page is a static
+file and the file is the origin: revalidation returns the same bytes, and only
+the next deploy changes them. Real regeneration here would mean taking
 pages off the static output so requests reach the server function, then caching
 its responses at the CDN. That trades the static guarantee for a second HTML
 freshness domain with its own invalidation story, and the gain is a narrower
