@@ -79,7 +79,7 @@ function PublicCollectionsSection({ profileId }: { profileId: string }) {
       <Heading
         level={2}
         id={headingId}
-        css={css.raw({ textStyle: 'title.md', marginBottom: '4' })}
+        css={{ textStyle: 'title.md', marginBottom: '4' }}
       >
         Public collections
       </Heading>

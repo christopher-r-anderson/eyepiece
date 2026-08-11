@@ -76,7 +76,7 @@ const Thumbnail = ({
       // the grid's row action opens the tile through this link so every
       // navigation shares one path
       data-tile-primary-link
-      css={css.raw({
+      css={{
         width: '100%',
         height: '100%',
         display: 'block',
@@ -96,7 +96,7 @@ const Thumbnail = ({
             boxShadow: 'focusHalo',
           },
         },
-      })}
+      }}
     >
       {/* no renderable file leaves the tile's own background showing, the
           same as a skeleton */}

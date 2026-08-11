@@ -5,7 +5,6 @@ import {
   Text,
 } from 'react-aria-components'
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
-import { css } from 'styled-system/css'
 import { toast as toastRecipe } from 'styled-system/recipes'
 import { Button } from './button'
 import { toastQueue } from './toast.hooks'
@@ -34,7 +33,7 @@ export function ToastRegion() {
             slot="close"
             aria-label="Close"
             variant="icon"
-            css={css.raw({ marginInlineStart: 'auto' })}
+            css={{ marginInlineStart: 'auto' }}
           >
             <XIcon aria-hidden="true" size={16} />
           </Button>

@@ -47,7 +47,7 @@ function DevObservabilityPage() {
 
   return (
     <div className={grid({ gap: 'sectionGap' })}>
-      <DevPanel css={css.raw({ maxWidth: 'readingMax' })}>
+      <DevPanel css={{ maxWidth: 'readingMax' }}>
         <DevTitleBlock
           title="Verification checklist"
           description="Use these scenarios to verify the current Sentry and error-boundary behavior in development."

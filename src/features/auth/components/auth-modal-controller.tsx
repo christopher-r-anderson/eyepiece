@@ -5,7 +5,6 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
-import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import { isPlainLeftClick, preservedMaskOptions } from '../auth.utils'
 import { LoginForm } from '../forms/login-form'
@@ -84,7 +83,7 @@ export function AuthModalController() {
           }
         }}
         aria-label="Authentication options"
-        css={css.raw({ maxWidth: 'formMax' })}
+        css={{ maxWidth: 'formMax' }}
       >
         <TabList>
           <Tab id="login">Log In</Tab>

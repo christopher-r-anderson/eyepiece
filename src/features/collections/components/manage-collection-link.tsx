@@ -1,5 +1,4 @@
 import { ClientOnly } from '@tanstack/react-router'
-import { css } from 'styled-system/css'
 import type { Collection } from '../collections.schema'
 import { useCurrentUserQuery } from '@/features/auth/auth.queries'
 import { Link } from '@/components/ui/link'
@@ -31,12 +30,12 @@ function ManageCollectionLinkContent({
     <Link
       to="/collections/$collectionId/manage"
       params={{ collectionId: collection.id }}
-      css={css.raw({
+      css={{
         textStyle: 'meta',
         textTransform: 'lowercase',
         // sits inline in muted meta text: color alone can't mark it as a link
         textDecoration: 'underline',
-      })}
+      }}
     >
       manage
     </Link>

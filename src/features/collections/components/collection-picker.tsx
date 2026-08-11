@@ -264,13 +264,13 @@ function InlineCreate({
           variant="primary"
           type="submit"
           isPending={createCollection.isPending}
-          css={css.raw({
+          css={{
             '&[data-pending]': {
               cursor: 'default',
               opacity: 0.7,
               color: 'accent.fg.muted',
             },
-          })}
+          }}
         >
           Create and add
         </Button>

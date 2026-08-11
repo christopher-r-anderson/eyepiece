@@ -82,11 +82,11 @@ function HomePage() {
         <SearchBar
           initialQuery=""
           scope={{ scope: 'all' }}
-          css={css.raw({
+          css={{
             marginTop: '6',
             maxWidth: '560px',
             fontSize: 'lg',
-          })}
+          }}
         />
         <nav
           aria-label="Suggested searches"
@@ -106,10 +106,10 @@ function HomePage() {
                 <Link
                   to="/search"
                   search={toSearchPageParams(query, { scope: 'all' })}
-                  css={css.raw({
+                  css={{
                     textStyle: 'meta',
                     textTransform: 'lowercase',
-                  })}
+                  }}
                 >
                   {query}
                 </Link>
@@ -144,7 +144,7 @@ function PublicCollectionsSection() {
       <Heading
         level={2}
         id={headingId}
-        css={css.raw({ textStyle: 'title.md', marginBottom: '4' })}
+        css={{ textStyle: 'title.md', marginBottom: '4' }}
       >
         <span
           className={css({

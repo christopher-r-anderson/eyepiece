@@ -1,7 +1,6 @@
 import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { useId } from 'react-aria'
-import { css } from 'styled-system/css'
 import { modalDialog } from 'styled-system/recipes'
 import { Button } from './button'
 import { Heading } from './heading'
@@ -45,12 +44,12 @@ export function ModalDialog({
             <Heading
               level={titleLevel}
               id={titleId}
-              css={css.raw({
+              css={{
                 flex: '1 1 auto',
                 minWidth: 0,
                 // dialogs are panels; their titles take the section voice
                 textStyle: 'title.md',
-              })}
+              }}
             >
               {title}
             </Heading>
