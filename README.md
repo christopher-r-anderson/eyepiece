@@ -2,9 +2,50 @@
 
 Eyepiece is a [multi-provider](./docs/Providers.md) image portal. It provides search and favoriting features for multiple open asset providers.
 
+![Search results for "nebula" scoped to NASA, shown as a justified grid of space photography](docs/assets/search-nasa-nebula.jpg)
+
 Visit the live site at <https://eyepiece.net>.
 
 Issues to be completed before official launch are listed at [Launch Milestones](https://github.com/christopher-r-anderson/eyepiece/milestone/1).
+
+## Architecture Highlights
+
+Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made. The short version:
+
+- [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, so a route cannot opt into CDN caching while reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
+- [Search scopes by provider and defaults to All](./docs/decisions/02-search.md) - one flat query grammar, provider scope tabs, and an all-providers view whose sections stream independently so one slow provider never blocks another.
+- [Styles compile at build time with Panda CSS](./docs/decisions/03-styling.md) - the site ported its original Emotion styling to build-time CSS, keeping design tokens as custom properties and dropping the runtime style engine.
+- [User lists read snapshots, not the providers](./docs/decisions/04-provider-data.md) - favorites and collections store asset snapshots, so lists render without fanning out to providers, and a weekly job revalidates stale snapshots.
+- [Entry pages prerender at build time](./docs/decisions/05-prerendering.md) - the home page, albums, and curated collections are baked in CI after provisioning, so a first visit serves static files instead of waiting on live provider calls.
+
+![The all-providers search view for "apollo", with NASA and Smithsonian result sections](docs/assets/search-all-apollo.jpg)
+
+### Layout Stability
+
+Content that arrives late is not allowed to move content that is already on screen:
+
+- image slots reserve their space from provided dimensions before the file loads
+- controls that swap labels (Star and Starred, Save and Saved) render both labels in the same grid cell so the control never changes width
+- hover and focus reveals animate `grid-template-rows` instead of inserting elements into the flow
+- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides), so the swap does not shift text vertically
+
+### Performance and Accessibility
+
+Every page template is audited with Lighthouse and axe-core, in both light and dark themes and with the WCAG 2.2 target-size rule enabled (axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production medians as of August 2026, three runs per template and form factor:
+
+| Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
+| ----------------- | ----------------------- | ------------- | -------------- | --- |
+| Home              | 80 / 100                | 100           | 100            | 100 |
+| Search (all)      | 90 / 100                | 100           | 100            | 66  |
+| Search (provider) | 99 / 100                | 100           | 100            | 66  |
+| Asset detail      | 91 / 100                | 100           | 100            | 100 |
+| Collection detail | 88 / 100                | 100           | 100            | 100 |
+| Album             | 98 / 100                | 100           | 100            | 100 |
+| Login             | 100 / 100               | 100           | 100            | 100 |
+
+- Accessibility scores 100 on every template with zero axe violations. The authenticated pages (favorites and settings) are not yet part of the audited set.
+- The SEO 66 on search templates is deliberate: results pages are noindexed.
+- Mobile performance is bound by provider image weight under lab throttling. Desktop CLS is 0.000 everywhere; the home hero can still shift on throttled mobile runs while its display font arrives.
 
 ## Project Setup
 
