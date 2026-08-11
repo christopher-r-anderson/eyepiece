@@ -28,6 +28,8 @@ export default defineConfig({
   jsxFramework: 'react',
   // styled components take only the css prop; no utility shorthand props
   jsxStyleProps: 'minimal',
+  strictTokens: true,
+  strictPropertyValues: true,
   globalCss,
   globalFontface,
   // the icon button and icon toggle-button per-instance theming channels,

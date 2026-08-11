@@ -25,7 +25,7 @@ export function AssetGridSkeleton({
           className={css(justifiedGridItemCss)}
         >
           <AssetTileSkeleton
-            className={css({ width: '100%', height: '100%' })}
+            className={css({ width: 'full', height: 'full' })}
           />
         </div>
       ))}

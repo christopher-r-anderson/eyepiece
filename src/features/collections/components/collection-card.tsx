@@ -53,7 +53,7 @@ export function CollectionCard({
           width={cover.image.width}
           height={cover.image.height}
           className={css({
-            width: '100%',
+            width: 'full',
             aspectRatio: 2.1,
             objectFit: 'cover',
             transitionFast: 'opacity',
@@ -62,7 +62,7 @@ export function CollectionCard({
       ) : (
         <div
           className={css({
-            width: '100%',
+            width: 'full',
             aspectRatio: 2.1,
             backgroundColor: 'bg.surface.1',
           })}
@@ -102,7 +102,7 @@ export function CollectionCard({
       params={{ collectionId: collection.id }}
       css={{
         display: 'block',
-        minWidth: 0,
+        minWidth: '0',
         color: 'text',
         textDecoration: 'none',
         _hover: { '& img': { opacity: 0.88 } },

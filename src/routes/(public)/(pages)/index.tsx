@@ -59,12 +59,12 @@ export const Route = createFileRoute('/(public)/(pages)/')({
 
 function HomePage() {
   return (
-    <div className={css({ width: '100%' })}>
+    <div className={css({ width: 'full' })}>
       <section
         className={css({
-          paddingTop: '40px',
-          paddingBottom: '44px',
-          maxWidth: '720px',
+          paddingTop: '[40px]',
+          paddingBottom: '[44px]',
+          maxWidth: '[720px]',
         })}
       >
         <h1 className={css({ textStyle: 'display.md' })}>
@@ -74,7 +74,7 @@ function HomePage() {
           className={css({
             marginTop: '4',
             color: 'text.muted',
-            maxWidth: '46ch',
+            maxWidth: '[46ch]',
           })}
         >
           Search the NASA and Smithsonian open collections
@@ -84,7 +84,7 @@ function HomePage() {
           scope={{ scope: 'all' }}
           css={{
             marginTop: '6',
-            maxWidth: '560px',
+            maxWidth: '[560px]',
             fontSize: 'lg',
           }}
         />

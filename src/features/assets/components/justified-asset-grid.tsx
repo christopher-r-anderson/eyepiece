@@ -27,19 +27,19 @@ export const justifiedGridCss = css.raw({
   gap: '3',
   '--row-h': 'token(sizes.assetGridRow)',
   mdDown: { gap: '2', '--row-h': 'token(sizes.assetGridRowNarrow)' },
-  _after: { content: '""', flex: '10000 1 0' },
+  _after: { content: '""', flex: '[10000 1 0]' },
 })
 
 export const justifiedGridItemCss = css.raw({
-  flex: 'calc(var(--ar) * 100) 1 calc(var(--ar) * var(--row-h))',
+  flex: '[calc(var(--ar) * 100) 1 calc(var(--ar) * var(--row-h))]',
   aspectRatio: 'var(--ar)',
   // caps how far a wide tile can stretch when its row is sparse
-  maxWidth: 'calc(2.4 * var(--row-h) * 1.6)',
+  maxWidth: '[calc(2.4 * var(--row-h) * 1.6)]',
   // lets tiles shrink below basis so a row always fits the line
-  minWidth: 0,
+  minWidth: '0',
 })
 
-const fillCss = css.raw({ width: '100%', height: '100%' })
+const fillCss = css.raw({ width: 'full', height: 'full' })
 
 interface JustifiedAssetGridProps<TItem extends AssetPreview> {
   items: Array<TItem>

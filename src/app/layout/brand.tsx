@@ -18,7 +18,7 @@ export function Brand({ fullWordmark, hideWordmarkWhenNarrow }: BrandProps) {
       css={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
+        gap: '[10px]',
         flexShrink: 0,
         color: 'text',
         _hovered: { color: 'accent.emphasis', textDecoration: 'none' },
@@ -43,7 +43,7 @@ export function Brand({ fullWordmark, hideWordmarkWhenNarrow }: BrandProps) {
         className={css({
           display: 'block',
           width: 'auto',
-          height: fullWordmark ? '22px' : '17px',
+          height: fullWordmark ? '[22px]' : '[17px]',
           overflow: 'visible',
           ...(hideWordmarkWhenNarrow && { mdDown: { display: 'none' } }),
         })}

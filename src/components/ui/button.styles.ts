@@ -1,12 +1,12 @@
-import { defineStyles } from '@pandacss/dev'
+import type { SystemStyleObject } from 'styled-system/types'
 
-// the ghost treatment, shared by definition between button.recipe.ts and
-// link.recipe.ts (a Link can't be a RAC Button, so ghost-looking links
-// reuse the same object instead of copying it). Keep this module free of
-// react or styled-system imports - it is evaluated inside panda.config.
+// evaluated inside panda.config: no runtime react or styled-system
+// imports (type-only imports are erased). satisfies keeps the literal
+// types the recipe spreads need; defineStyles widens them until recipe
+// type-checking fails.
 
-export const ghostVisualStyles = defineStyles({
-  border: '1px solid transparent',
+export const ghostVisualStyles = {
+  border: 'transparent',
   backgroundColor: 'transparent',
   color: 'text.muted',
   _hovered: {
@@ -14,21 +14,21 @@ export const ghostVisualStyles = defineStyles({
     border: 'control',
     backgroundColor: 'bg.surface.2',
   },
-})
+} as const satisfies SystemStyleObject
 
-export const ghostCompactGeometry = defineStyles({
+export const ghostCompactGeometry = {
   minHeight: 'controlHeightSm',
   paddingBlock: '2',
   paddingInline: '3',
-})
+} as const satisfies SystemStyleObject
 
 // extends the tap area to touchTargetMin without growing the visible box;
 // shared by the button and toggle-button icon variants
-export const touchHitAreaStyles = defineStyles({
+export const touchHitAreaStyles = {
   position: 'relative',
   _before: {
     content: '""',
     position: 'absolute',
-    inset: 'calc(50% - token(sizes.touchTargetMin) / 2)',
+    inset: '[calc(50% - token(sizes.touchTargetMin) / 2)]',
   },
-})
+} as const satisfies SystemStyleObject

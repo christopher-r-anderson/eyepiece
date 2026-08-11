@@ -14,10 +14,10 @@ function DevLayout() {
   return (
     <div
       className={grid({
-        width: '100%',
-        flex: 1,
+        width: 'full',
+        flex: '1',
         maxWidth: 'contentMax',
-        margin: '0 auto',
+        margin: '[0 auto]',
         paddingInline: 'contentInline',
         paddingBlock: 'contentBlock',
         alignContent: 'start',

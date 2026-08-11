@@ -25,15 +25,15 @@ export function HeaderSearch() {
   return (
     <div
       className={css({
-        flex: '1 1 auto',
-        minWidth: 0,
-        maxWidth: '460px',
+        flex: '[1 1 auto]',
+        minWidth: '0',
+        maxWidth: '[460px]',
         // the field's validation message must not grow the sticky header
         position: 'relative',
         '& [slot=errorMessage]': {
           position: 'absolute',
-          insetInlineStart: 0,
-          top: '100%',
+          insetInlineStart: '0',
+          top: '[100%]',
           backgroundColor: 'bg.surface.1',
           paddingInline: '2',
           paddingBlock: '1',
@@ -49,7 +49,7 @@ export function HeaderSearch() {
         id={SEARCH_FORM_ID}
         initialQuery={q}
         scope={scope}
-        css={{ maxWidth: 'none' }}
+        css={{ maxWidth: '[none]' }}
       />
     </div>
   )

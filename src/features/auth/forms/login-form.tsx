@@ -65,7 +65,7 @@ export function LoginForm({
       isPending={isPending}
       controls={
         <FormActions>
-          <div className={css({ minWidth: 0 })}>{forgotPasswordLink}</div>
+          <div className={css({ minWidth: '0' })}>{forgotPasswordLink}</div>
           <Button variant="primary" type="submit" isPending={isPending}>
             Log In
           </Button>

@@ -7,11 +7,11 @@ export function AuthPageLayout() {
   return (
     <main
       className={css({
-        width: '100%',
+        width: 'full',
         maxWidth: 'contentMax',
         flexGrow: 1,
-        margin: '0 auto',
-        paddingTop: 'clamp(token(spacing.6), 12vh, 10rem)',
+        margin: '[0 auto]',
+        paddingTop: '[clamp(token(spacing.6), 12vh, 10rem)]',
         paddingInline: '4',
         paddingBottom: '7',
       })}
@@ -20,9 +20,9 @@ export function AuthPageLayout() {
         className={cx(
           grid({
             gap: '4',
-            width: '100%',
+            width: 'full',
             maxWidth: 'formMax',
-            margin: '0 auto',
+            margin: '[0 auto]',
           }),
           css(panelSurfaceStyles),
         )}

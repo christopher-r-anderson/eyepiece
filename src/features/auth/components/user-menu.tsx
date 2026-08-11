@@ -30,7 +30,7 @@ export function UserMenu() {
           color: 'text',
           display: 'inline-grid',
           placeItems: 'center',
-          fontWeight: 600,
+          fontWeight: 'semibold',
           fontSize: 'sm',
           transitionFast: 'background-color',
           _hovered: { backgroundColor: 'bg.surface.4' },

@@ -40,10 +40,10 @@ export function MetadataDisclosure({
                 minHeight: 'touchTargetMin',
                 color: 'text.muted',
                 fontSize: 'base',
-                fontWeight: 600,
+                fontWeight: 'semibold',
                 _hovered: { color: 'text' },
                 '& svg': { transitionFast: 'rotate' },
-                '&[aria-expanded="true"] svg': { rotate: '90deg' },
+                '&[aria-expanded="true"] svg': { rotate: '[90deg]' },
               }}
             >
               <CaretRightIcon aria-hidden="true" size={16} weight="bold" />

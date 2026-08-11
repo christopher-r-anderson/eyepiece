@@ -11,7 +11,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         color: 'text',
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh',
+        minHeight: 'screen',
       })}
     >
       <Header />

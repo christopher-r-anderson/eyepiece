@@ -16,7 +16,7 @@ export type AssetDetailHeightModel = 'viewport' | 'container'
 
 // the surface's wrapper owns the content column
 const boxCss = css.raw({
-  width: '100%',
+  width: 'full',
   display: 'flex',
   flexDirection: 'column',
   gap: '3',
@@ -27,18 +27,18 @@ const viewportBoxCss = css(boxCss, {
   // the header and page padding sit above it; the last term leaves a sliver of
   // prose showing. Short viewports take the proportion instead.
   minHeight:
-    'max(60dvh, calc(100dvh - token(sizes.stickyHeader) - token(spacing.4) - token(spacing.8)))',
+    '[max(60dvh, calc(100dvh - token(sizes.stickyHeader) - token(spacing.4) - token(spacing.8)))]',
 })
 
 const containerBoxCss = css(boxCss, {
   // floored against the sheet scrollport so expanding the metadata cannot
   // reflow the viewer; the last term leaves the prose sliver
-  minHeight: 'calc(100cqh - token(spacing.8))',
+  minHeight: '[calc(100cqh - token(spacing.8))]',
 })
 
 const viewerCss = css({
-  flex: 1,
-  minHeight: 0,
+  flex: '1',
+  minHeight: '0',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -63,8 +63,8 @@ function detailImageSizes(aspectRatio: number) {
 // bounded by the viewport, not by what the title leaves. The subtraction
 // covers the chrome above and a caption of a line or two.
 const imageCss = css({
-  maxWidth: '100%',
-  maxHeight: 'max(45dvh, calc(100dvh - 19rem))',
+  maxWidth: 'full',
+  maxHeight: '[max(45dvh, calc(100dvh - 19rem))]',
   width: 'auto',
   height: 'auto',
   objectFit: 'contain',
@@ -74,7 +74,7 @@ const titleCss = css({
   textStyle: 'display.sm',
   textAlign: 'center',
   textWrap: 'balance',
-  maxWidth: '40ch',
+  maxWidth: '[40ch]',
   overflowWrap: 'anywhere',
   flexShrink: 0,
 })
@@ -85,7 +85,7 @@ const sourceCss = css({
   textAlign: 'center',
   textWrap: 'balance',
   '& a': {
-    color: 'inherit',
+    color: '[inherit]',
     _hovered: { color: 'text' },
   },
 })
@@ -141,7 +141,7 @@ export function AssetDetail({
         className={stack({
           gap: '4',
           alignItems: 'center',
-          width: '100%',
+          width: 'full',
         })}
       >
         <p className={sourceCss}>

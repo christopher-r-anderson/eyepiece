@@ -1,6 +1,9 @@
 import { defineTokens } from '@pandacss/dev'
 
 export const tokens = defineTokens({
+  colors: {
+    transparent: { value: 'transparent' },
+  },
   fonts: {
     display: {
       value: "'Zodiak', 'Zodiak Fallback', Georgia, serif",
@@ -31,7 +34,15 @@ export const tokens = defineTokens({
     tight: { value: '1.15' },
     base: { value: '1.6' },
   },
+  fontWeights: {
+    regular: { value: 400 },
+    medium: { value: 500 },
+    semibold: { value: 600 },
+    bold: { value: 700 },
+  },
   sizes: {
+    '0': { value: '0' },
+    full: { value: '100%' },
     pageMax: { value: '80rem' },
     contentMax: { value: '72rem' },
     readingMax: { value: '65ch' },
@@ -51,6 +62,7 @@ export const tokens = defineTokens({
     controlHeightSm: { value: 'calc({sizes.controlHeight} - {spacing.1})' },
   },
   spacing: {
+    '0': { value: '0' },
     pageInline: { value: '1.75rem' },
     '1': { value: '0.25rem' },
     '2': { value: '0.5rem' },
@@ -73,6 +85,7 @@ export const tokens = defineTokens({
     full: { value: '9999px' },
   },
   borders: {
+    transparent: { value: '1px solid transparent' },
     default: { value: '1px solid {colors.border}' },
     control: { value: '1px solid {colors.control.border}' },
     separator: { value: '1px solid {colors.separator}' },

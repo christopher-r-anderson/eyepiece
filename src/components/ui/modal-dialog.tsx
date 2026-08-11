@@ -45,7 +45,7 @@ export function ModalDialog({
               level={titleLevel}
               id={titleId}
               size="title-md"
-              css={{ flex: '1 1 auto', minWidth: 0 }}
+              css={{ flex: '[1 1 auto]', minWidth: '0' }}
             >
               {title}
             </Heading>

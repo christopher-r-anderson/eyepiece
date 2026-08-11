@@ -77,21 +77,21 @@ const Thumbnail = ({
       // navigation shares one path
       data-tile-primary-link
       css={{
-        width: '100%',
-        height: '100%',
+        width: 'full',
+        height: 'full',
         display: 'block',
         position: 'relative',
-        color: 'inherit',
+        color: '[inherit]',
         overflow: 'hidden',
         // the halo must paint above the thumbnail, so it lives on a pseudo
         // element; an inset shadow on the link would be covered by the image
         _focusVisible: {
           outline: 'focusRing',
-          outlineOffset: '-2px',
+          outlineOffset: '[-2px]',
           _after: {
             content: '""',
             position: 'absolute',
-            inset: 0,
+            inset: '0',
             pointerEvents: 'none',
             boxShadow: 'focusHalo',
           },
@@ -103,8 +103,8 @@ const Thumbnail = ({
       {assetPreview.image && (
         <img
           className={css({
-            width: '100%',
-            height: '100%',
+            width: 'full',
+            height: 'full',
             objectFit: 'cover',
           })}
           src={toFallbackSrc(assetPreview.image)}
@@ -134,7 +134,7 @@ const containerCss = css.raw({
   '&:is(:hover, :focus-within) [data-tile-reveal], [role="row"]:focus-within & [data-tile-reveal]':
     {
       opacity: 1,
-      translate: '0 0',
+      translate: '[0 0]',
     },
   // hidden controls must not be hit-testable: pointer-events re-enables
   // per element, so a tap on an unrevealed tile would hit the invisible
@@ -159,8 +159,8 @@ const revealCss = css.raw({
   pointerEvents: 'none',
   transitionFast: 'opacity, translate',
   _motionReduce: {
-    transition: 'none',
-    translate: '0 0',
+    transition: '[none]',
+    translate: '[0 0]',
   },
 })
 
@@ -188,21 +188,21 @@ const relatedLinksCss = css(revealCss, {
   left: '2',
   // leaves the action pill's corner alone
   maxWidth:
-    'calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))',
+    '[calc(100% - token(sizes.controlHeightSm) - 28px - (6 * token(spacing.2)))]',
   overflow: 'hidden',
   paddingBlock: '1',
   paddingInline: '2',
   backgroundColor: 'assetTile.captionBg',
   color: 'assetTile.captionText',
   fontSize: 'xs',
-  translate: '0 -4px',
+  translate: '[0 -4px]',
   [NARROW_TILE_QUERY]: {
-    maxWidth: 'calc(100% - (2 * token(spacing.2)))',
+    maxWidth: '[calc(100% - (2 * token(spacing.2)))]',
   },
 })
 
 const revealedActionsCss = css(actionPillCss, revealCss, {
-  translate: '0 -4px',
+  translate: '[0 -4px]',
   [NARROW_TILE_QUERY]: {
     display: 'none',
   },
@@ -212,23 +212,23 @@ const persistentActionsCss = css(actionPillCss)
 
 const veilCss = css(revealCss, {
   position: 'absolute',
-  insetInline: 0,
-  bottom: 0,
+  insetInline: '0',
+  bottom: '0',
   display: 'flex',
   alignItems: 'center',
   paddingBlock: '2',
   paddingInline: '3',
   backgroundColor: 'assetTile.captionBg',
   color: 'assetTile.captionText',
-  translate: '0 4px',
+  translate: '[0 4px]',
 })
 
 const titleCss = css({
-  flex: 1,
-  minWidth: 0,
+  flex: '1',
+  minWidth: '0',
   fontSize: 'sm',
-  lineHeight: 1.3,
-  display: '-webkit-box',
+  lineHeight: '[1.3]',
+  display: '[-webkit-box]',
   WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 2,
   overflow: 'hidden',

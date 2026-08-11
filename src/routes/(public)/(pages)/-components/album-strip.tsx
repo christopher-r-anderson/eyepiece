@@ -34,16 +34,16 @@ const stripCss = css.raw({
   paddingInlineStart: '0',
   overflowX: 'auto',
   scrollbarThin: true,
-  scrollSnapType: 'x proximity',
+  scrollSnapType: '[x proximity]',
   paddingBottom: '2',
   '--strip-h': 'token(sizes.albumStripRow)',
   mdDown: { gap: '2', '--strip-h': 'token(sizes.albumStripRowNarrow)' },
 })
 
 const stripTileCss = css.raw({
-  flex: '0 0 auto',
+  flex: '[0 0 auto]',
   scrollSnapAlign: 'start',
-  height: 'var(--strip-h)',
+  height: '[var(--strip-h)]',
   aspectRatio: 'var(--ar)',
 })
 
@@ -168,7 +168,7 @@ function AlbumStripItems({
             loading={index < eagerCount ? undefined : 'lazy'}
             actions={<FavoriteButton assetKey={item.key} />}
             linkProps={tileLinkProps(item)}
-            className={css({ width: '100%', height: '100%' })}
+            className={css({ width: 'full', height: 'full' })}
           />
         </li>
       ))}
@@ -186,7 +186,7 @@ function AlbumStripSkeleton() {
           className={css(stripTileCss)}
         >
           <AssetTileSkeleton
-            className={css({ width: '100%', height: '100%' })}
+            className={css({ width: 'full', height: 'full' })}
           />
         </li>
       ))}

@@ -23,7 +23,7 @@ export const linkRecipe = defineRecipe({
         alignItems: 'center',
         gap: '2',
         borderRadius: 'sm',
-        fontWeight: 600,
+        fontWeight: 'semibold',
         lineHeight: 'tight',
         _hovered: {
           ...ghostVisualStyles._hovered,

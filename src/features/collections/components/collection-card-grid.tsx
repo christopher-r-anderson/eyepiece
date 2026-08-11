@@ -34,7 +34,7 @@ export function CollectionCardGrid({
       })}
     >
       {cards.map((card, index) => (
-        <li key={card.collection.id} className={css({ minWidth: 0 })}>
+        <li key={card.collection.id} className={css({ minWidth: '0' })}>
           <CollectionCard
             card={card}
             curatedBy={curatedBy}
@@ -53,15 +53,15 @@ export function CollectionCardGridSkeleton() {
         <div key={index}>
           <div
             className={css({
-              width: '100%',
+              width: 'full',
               aspectRatio: 2.1,
               backgroundColor: 'assetTile.bg',
             })}
           />
           <div
             className={css({
-              height: '1.1875rem',
-              width: '60%',
+              height: '[1.1875rem]',
+              width: '[60%]',
               marginTop: '2',
               backgroundColor: 'bg.surface.1',
             })}

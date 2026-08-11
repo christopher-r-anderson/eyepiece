@@ -109,7 +109,7 @@ function CollectionsPage() {
           })}
         >
           {cards.map((card, index) => (
-            <li key={card.collection.id} className={css({ minWidth: 0 })}>
+            <li key={card.collection.id} className={css({ minWidth: '0' })}>
               <CollectionCard
                 card={card}
                 showVisibility

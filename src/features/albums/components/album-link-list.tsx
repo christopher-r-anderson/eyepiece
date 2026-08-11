@@ -6,7 +6,7 @@ import { toAlbumKeyString } from '@/domain/album/album.utils'
 
 const listCss = css({
   listStyleType: 'none',
-  padding: 0,
+  padding: '0',
 })
 
 const inlineListCss = wrap({ columnGap: '3', rowGap: '1' })

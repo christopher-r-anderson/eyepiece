@@ -22,8 +22,8 @@ const detailTriggerCss = css.raw({
   alignItems: 'center',
   gap: '2',
   minHeight: 'touchTargetMin',
-  borderBottom: 'none',
-  fontWeight: 400,
+  borderBottom: '[none]',
+  fontWeight: 'regular',
   color: 'text.muted',
   _hovered: { color: 'text', borderBottomColor: 'transparent' },
 })
@@ -99,7 +99,11 @@ function AddToCollectionButtonContent({
       <Popover placement="bottom start" containerPadding={20}>
         <Dialog
           aria-label="Add to collection"
-          className={css({ outline: 'none' })}
+          // invisible, not none: forced-colors mode keeps a focus indicator
+          className={css({
+            outline: '[2px solid transparent]',
+            outlineOffset: '[2px]',
+          })}
         >
           <CollectionPicker
             userId={user.id}

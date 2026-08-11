@@ -148,7 +148,7 @@ function CollectionPage() {
   const { total } = itemsResult.data
 
   return (
-    <div className={css({ width: '100%' })}>
+    <div className={css({ width: 'full' })}>
       <PageHeader
         title={collection.name}
         meta={
