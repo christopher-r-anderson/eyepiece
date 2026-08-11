@@ -49,8 +49,7 @@ function ProfilePage() {
         onSuccess={() => queueToastMessage({ title: 'Profile updated' })}
         headingLevel={2}
       />
-      {/* live param on purpose: the no-JS notice, replaced by the toast
-          once the hook strips the param */}
+      {/* no-JS notice: gone once the hook strips the param */}
       {status === 'updated' && <p role="status">Profile updated.</p>}
     </>
   )
