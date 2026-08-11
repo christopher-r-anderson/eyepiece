@@ -45,7 +45,9 @@ export function DevPageIntro({
 }: DevPageIntroProps) {
   return (
     <header className={grid({ gap: '4' })}>
-      {backLink ? <div className={css({ minWidth: 0 })}>{backLink}</div> : null}
+      {backLink ? (
+        <div className={css({ minWidth: '0' })}>{backLink}</div>
+      ) : null}
       <div className={css(devTextStackCss)}>
         <PageHeader title={title} meta="development only" />
         <p className={css({ maxWidth: 'readingMax', color: 'text.muted' })}>

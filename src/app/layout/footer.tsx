@@ -8,10 +8,10 @@ export function Footer(props: ComponentPropsWithoutRef<'footer'>) {
       className={cx(
         css({
           maxWidth: 'pageMax',
-          width: '100%',
+          width: 'full',
           marginInline: 'auto',
           paddingInline: 'pageInline',
-          paddingBlock: '28px 36px',
+          paddingBlock: '[28px 36px]',
           color: 'text.muted',
           textStyle: 'meta',
         }),

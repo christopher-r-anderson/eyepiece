@@ -47,7 +47,7 @@ export type FormProps = {
   UiProps<RacFormProps>
 
 export const formStatusPanelCss = css.raw({
-  width: '100%',
+  width: 'full',
   maxWidth: 'formMax',
   display: 'grid',
   gap: '3',

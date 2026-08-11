@@ -20,7 +20,7 @@ const scopeTabCss = css.raw({
   textDecoration: 'none',
   flexShrink: 0,
   paddingBlock: '1',
-  borderBottom: '1px solid transparent',
+  borderBottom: 'transparent',
   transitionFast: 'color, border-color',
   _hovered: {
     color: 'text',
@@ -31,7 +31,7 @@ const scopeTabCss = css.raw({
     borderBottomColor: 'accent',
   },
   _focusVisible: {
-    outlineOffset: '2px',
+    outlineOffset: '[2px]',
   },
 })
 

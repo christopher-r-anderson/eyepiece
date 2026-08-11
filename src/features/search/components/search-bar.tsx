@@ -64,7 +64,7 @@ export function SearchBar({
     <Form
       action="/search"
       css={css.raw(
-        { width: '100%', maxWidth: 'formMax', padding: 0, marginInline: 0 },
+        { width: 'full', maxWidth: 'formMax', padding: '0', marginInline: '0' },
         styles,
       )}
       onSubmit={(event) => {

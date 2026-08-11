@@ -26,7 +26,7 @@ export function MetadataTable({ data }: { data: Metadata }) {
       <table
         className={css({
           border: 'default',
-          width: '100%',
+          width: 'full',
           borderCollapse: 'collapse',
           '& thead': {
             borderBottom: 'default',

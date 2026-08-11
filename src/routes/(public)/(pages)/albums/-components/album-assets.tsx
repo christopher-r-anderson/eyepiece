@@ -45,7 +45,7 @@ export function AlbumAssets({ albumKey }: AlbumAssetsProps) {
       loadedCount={data.items.length}
       total={data.total}
       uiResetKey={uiResetKey}
-      className={css({ width: '100%' })}
+      className={css({ width: 'full' })}
     >
       <JustifiedAssetGrid
         startsInViewport

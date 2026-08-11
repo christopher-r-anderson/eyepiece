@@ -16,7 +16,7 @@ export function Header(props: ComponentPropsWithoutRef<'header'>) {
       className={cx(
         css({
           position: 'sticky',
-          top: 0,
+          top: '0',
           zIndex: 'sticky',
           backgroundColor: 'bg.canvas',
           borderBottom: 'default',
@@ -28,11 +28,11 @@ export function Header(props: ComponentPropsWithoutRef<'header'>) {
         className={css({
           display: 'flex',
           alignItems: 'center',
-          gap: '20px',
+          gap: '[20px]',
           maxWidth: 'pageMax',
-          width: '100%',
+          width: 'full',
           marginInline: 'auto',
-          paddingBlock: '16px 10px',
+          paddingBlock: '[16px 10px]',
           paddingInline: 'pageInline',
           mdDown: { gap: '3' },
         })}

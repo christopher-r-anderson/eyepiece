@@ -11,7 +11,7 @@ export const ghostTileCss = css({
   '& img': { opacity: 0.3 },
   '& [data-tile-reveal], & [data-tile-controls]': {
     opacity: 1,
-    translate: 'none',
+    translate: '[none]',
   },
   // the veil only enables its controls while hover-revealed; a ghost's undo
   // must stay clickable without hover (coarse pointers, keyboard-then-mouse)
@@ -61,9 +61,9 @@ export function GhostRemovedActions({ onUndo }: { onUndo: () => void }) {
         // the veil scrim owns its color pairs, so the prose voice keeps the
         // surrounding color instead of the text token
         css={{
-          fontSize: '1em',
-          color: 'inherit',
-          _hovered: { color: 'inherit' },
+          fontSize: '[1em]',
+          color: '[inherit]',
+          _hovered: { color: '[inherit]' },
         }}
         onPress={onUndo}
       >

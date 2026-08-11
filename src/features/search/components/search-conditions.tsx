@@ -53,7 +53,7 @@ export function SearchConditions({
     >
       <span
         className={css({
-          minWidth: 0,
+          minWidth: '0',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -123,7 +123,7 @@ function toYearValue(raw: string) {
 }
 
 const yearInputCss = css.raw({
-  width: '3.625rem',
+  width: '[3.625rem]',
   paddingBlock: '1',
   paddingInline: '1',
   textAlign: 'center',
@@ -144,7 +144,7 @@ const yearInputCss = css.raw({
   },
   _focusVisible: {
     outline: 'focusRing',
-    outlineOffset: '2px',
+    outlineOffset: '[2px]',
   },
 })
 

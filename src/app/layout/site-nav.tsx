@@ -24,7 +24,7 @@ export function SiteNav(props: ComponentPropsWithoutRef<'nav'>) {
         css({
           display: 'flex',
           alignItems: 'center',
-          gap: '18px',
+          gap: '[18px]',
           marginInlineStart: 'auto',
           flexShrink: 0,
           fontSize: 'control',

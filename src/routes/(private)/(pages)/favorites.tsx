@@ -235,7 +235,7 @@ function FavoritesPage() {
           (assetPreviewSnapshotsResult.data?.length ?? 0) - removedIds.size
         }
         uiResetKey="favorites"
-        className={css({ width: '100%' })}
+        className={css({ width: 'full' })}
       >
         <JustifiedAssetGrid
           startsInViewport

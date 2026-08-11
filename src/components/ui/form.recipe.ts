@@ -9,7 +9,7 @@ export const formRecipe = defineRecipe({
   base: {
     display: 'grid',
     gap: '4',
-    width: '100%',
+    width: 'full',
     maxWidth: 'formMax',
     padding: '4',
     margin: '0 auto',

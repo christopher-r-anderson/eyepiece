@@ -30,13 +30,13 @@ const checkboxCss = css({
   _hovered: { backgroundColor: 'bg.surface.3' },
   '&[data-focus-visible]': {
     outline: 'focusRing',
-    outlineOffset: '-2px',
+    outlineOffset: '[-2px]',
   },
   '& [data-box]': {
     display: 'inline-grid',
     placeItems: 'center',
-    width: '16px',
-    height: '16px',
+    width: '[16px]',
+    height: '[16px]',
     flexShrink: 0,
     border: 'control',
     borderRadius: 'sm',
@@ -101,9 +101,9 @@ export function CollectionPicker({
     <div
       className={stack({
         gap: '2',
-        minWidth: '260px',
-        maxWidth: '320px',
-        maxHeight: '340px',
+        minWidth: '[260px]',
+        maxWidth: '[320px]',
+        maxHeight: '[340px]',
         overflowY: 'auto',
         scrollbarThin: true,
         padding: '1',

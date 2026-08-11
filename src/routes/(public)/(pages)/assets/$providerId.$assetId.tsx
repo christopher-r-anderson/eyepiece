@@ -30,7 +30,7 @@ function AssetHeading({ name = 'Asset' }: { name?: string }) {
     <Heading
       level={1}
       css={{
-        minWidth: 0,
+        minWidth: '0',
         overflowWrap: 'anywhere',
       }}
     >

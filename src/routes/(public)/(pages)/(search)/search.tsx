@@ -226,7 +226,7 @@ function SearchPage() {
   }
 
   return (
-    <div className={css({ width: '100%' })}>
+    <div className={css({ width: 'full' })}>
       {hasQuery ? (
         // not keyed by the search state: the entrance plays on page
         // arrival, not on every scope or filter navigation

@@ -145,7 +145,7 @@ function ManageCollectionPage() {
           // it so the tab reflects the new name
           onSuccess={() => void router.invalidate()}
         />
-        <div className={css({ marginTop: '4', padding: '0 4' })}>
+        <div className={css({ marginTop: '4' })}>
           <Switch
             isSelected={collection.visibility === 'public'}
             onChange={(isSelected) => {
@@ -170,7 +170,7 @@ function ManageCollectionPage() {
             Public collection
           </Switch>
         </div>
-        <div className={css({ marginTop: '4', padding: '0 4' })}>
+        <div className={css({ marginTop: '4' })}>
           <Button variant="secondary" onPress={() => setIsDeleteOpen(true)}>
             Delete collection
           </Button>
@@ -299,7 +299,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
       return (
         <Button
           variant="icon"
-          css={{ color: 'inherit', _hovered: { color: 'inherit' } }}
+          css={{ color: '[inherit]', _hovered: { color: '[inherit]' } }}
           aria-label={`Remove ${item.title}`}
           onPress={() => {
             refocusTileControlAfterSwap(toAssetKeyString(edge.assetKey))
@@ -356,7 +356,7 @@ function CollectionItems({ collectionId }: { collectionId: string }) {
         hasNextPage={edgesResult.hasNextPage}
         loadedCount={snapshotsResult.data?.length ?? 0}
         uiResetKey={collectionId}
-        className={css({ width: '100%', marginTop: '4' })}
+        className={css({ width: 'full', marginTop: '4' })}
       >
         <JustifiedAssetGrid
           startsInViewport

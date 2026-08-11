@@ -13,7 +13,7 @@ import { toAssetKeyString } from '@/domain/asset/asset.utils'
 // the sheet body is a bare full-width scroller, so the surface owns its
 // content column in both hosts
 const surfaceCss = css.raw({
-  width: '100%',
+  width: 'full',
   maxWidth: 'contentMax',
   marginInline: 'auto',
   paddingInline: '4',
@@ -80,7 +80,7 @@ export function AssetDetailSurface({
             css={{
               color: 'text.muted',
               fontSize: 'base',
-              fontWeight: 600,
+              fontWeight: 'semibold',
             }}
           >
             Albums

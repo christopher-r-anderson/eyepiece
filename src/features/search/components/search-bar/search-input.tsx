@@ -24,18 +24,20 @@ export function SearchInput({ css: styles, ...props }: SearchFieldProps) {
         placeholder="e.g. Crab Nebula"
         className={css({
           background: 'transparent',
-          border: 0,
-          color: 'inherit',
-          fontSize: '1em',
-          width: '100%',
+          border: '[0]',
+          color: '[inherit]',
+          fontSize: '[1em]',
+          width: 'full',
           paddingBlock: '1',
+          // invisible, not none: forced-colors mode keeps a focus indicator
           '&:focus': {
-            outline: 'none',
+            outline: '[2px solid transparent]',
+            outlineOffset: '[2px]',
           },
           '&::-webkit-search-cancel-button': { display: 'none' },
           _autofill: {
-            boxShadow: 'inset 0 0 0 100px token(colors.bg.surface.3)',
-            WebkitTextFillColor: 'token(colors.text)',
+            boxShadow: '[inset 0 0 0 100px token(colors.bg.surface.3)]',
+            WebkitTextFillColor: 'text',
           },
         })}
       />

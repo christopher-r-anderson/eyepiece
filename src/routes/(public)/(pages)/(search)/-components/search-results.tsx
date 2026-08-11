@@ -33,7 +33,7 @@ export function SearchResults({ query, filters }: SearchResultsProps) {
       loadedCount={data.items.length}
       total={data.total}
       uiResetKey={uiResetKey}
-      className={css({ width: '100%' })}
+      className={css({ width: 'full' })}
     >
       <AssetResultsGrid items={data.items} startsInViewport />
     </InfiniteLoader>
