@@ -174,9 +174,9 @@ stale window on the first view: hydration starts a background refetch of stale
 data, so the baked content lasts until that request lands rather than until
 the next deploy. Not worth the second freshness domain for that window;
 revisit if first-view freshness between deploys becomes a need the client
-refetch cannot cover, starting from the cache-header middleware in
-[the public caching decision](01-public-caching.md) rather than a new
-mechanism.
+refetch cannot cover, starting from the public boundary's document cache
+headers in [the public caching decision](01-public-caching.md) rather than a
+new mechanism.
 
 ### Other removal orderings
 
