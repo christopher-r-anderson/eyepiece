@@ -187,23 +187,32 @@ jobs:
           retention-days: 30
 
   # a failed push run leaves its publish skipped, and a dispatch must not
-  # publish a commit that never validated
+  # publish a commit that never validated. The suite jobs decide, not the
+  # run: a push run that only failed at Publish is still a validated
+  # commit, and re-publishing it is what the dispatch is for.
   verify-green:
     name: Verify green push run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' }}
+    permissions:
+      actions: read
     steps:
-      - name: Require a successful push run for this commit
+      - name: Require green suites on this commit's push run
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?event=push&head_sha=${GITHUB_SHA}&status=completed&per_page=1" --jq '.workflow_runs[0].conclusion // empty')"
-          if [ "$conclusion" != "success" ]; then
-            echo "No successful push run for ${GITHUB_SHA} (found: ${conclusion:-none})" >&2
+          run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?event=push&head_sha=${GITHUB_SHA}&status=completed&per_page=1" --jq '.workflow_runs[0].id // empty')"
+          if [ -z "$run_id" ]; then
+            echo "No completed push run for ${GITHUB_SHA}" >&2
             exit 1
           fi
-          echo "Push run for ${GITHUB_SHA} concluded: ${conclusion}"
+          not_green="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" --jq '[.jobs[] | select(.name != "Publish" and .name != "Verify green push run") | select(.conclusion != "success" and .conclusion != "skipped") | .name] | join(", ")')"
+          if [ -n "$not_green" ]; then
+            echo "Push run ${run_id} has non-green suites: ${not_green}" >&2
+            exit 1
+          fi
+          echo "Push run ${run_id} suites are green"
 
   publish-netlify-prod:
     name: Publish
