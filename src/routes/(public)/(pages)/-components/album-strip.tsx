@@ -90,11 +90,7 @@ export function AlbumStripSection({
           marginBottom: '4',
         })}
       >
-        <Heading
-          level={2}
-          id={headingId}
-          css={css.raw({ textStyle: 'title.md' })}
-        >
+        <Heading level={2} id={headingId} css={{ textStyle: 'title.md' }}>
           <span
             className={css({
               display: 'block',
@@ -113,7 +109,7 @@ export function AlbumStripSection({
             providerId: albumKey.providerId,
             albumId: albumKey.externalId,
           }}
-          css={css.raw({ whiteSpace: 'nowrap' })}
+          css={{ whiteSpace: 'nowrap' }}
         >
           See the album
         </Link>

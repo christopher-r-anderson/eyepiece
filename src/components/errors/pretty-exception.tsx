@@ -121,7 +121,7 @@ export function PrettyException({
 
   return (
     <div className={exceptionStackCss}>
-      <Heading level={headingLevel} css={css.raw({ textStyle: 'title.md' })}>
+      <Heading level={headingLevel} css={{ textStyle: 'title.md' }}>
         {display.title}
       </Heading>
       {display.showDetails ? (

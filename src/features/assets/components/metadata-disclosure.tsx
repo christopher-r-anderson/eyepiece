@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr'
-import { css } from 'styled-system/css'
 import { usePrefetchMetadata, useSuspenseMetadata } from '../assets.queries'
 import { MetadataTable } from './metadata'
 import type { ReactNode } from 'react'
@@ -34,7 +33,7 @@ export function MetadataDisclosure({
               variant="bare"
               onHoverStart={prefetch}
               onFocus={prefetch}
-              css={css.raw({
+              css={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '2',
@@ -45,7 +44,7 @@ export function MetadataDisclosure({
                 _hovered: { color: 'text' },
                 '& svg': { transitionFast: 'rotate' },
                 '&[aria-expanded="true"] svg': { rotate: '90deg' },
-              })}
+              }}
             >
               <CaretRightIcon aria-hidden="true" size={16} weight="bold" />
               Metadata

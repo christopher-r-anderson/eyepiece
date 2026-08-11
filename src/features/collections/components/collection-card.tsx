@@ -100,13 +100,13 @@ export function CollectionCard({
           : '/collections/$collectionId'
       }
       params={{ collectionId: collection.id }}
-      css={css.raw({
+      css={{
         display: 'block',
         minWidth: 0,
         color: 'text',
         textDecoration: 'none',
         _hover: { '& img': { opacity: 0.88 } },
-      })}
+      }}
     >
       {content}
     </Link>

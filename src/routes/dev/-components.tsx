@@ -66,11 +66,11 @@ export function DevBackLink({
   return (
     <Link
       to={to}
-      css={css.raw({
+      css={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '2',
-      })}
+      }}
     >
       <ArrowLeftIcon aria-hidden="true" size={18} /> {children}
     </Link>
@@ -120,7 +120,7 @@ export function DevLinkCard({
   action: ReactNode
 }) {
   return (
-    <DevPanel as="article" css={css.raw({ color: 'text' })}>
+    <DevPanel as="article" css={{ color: 'text' }}>
       <DevTitleBlock title={title} description={description} />
       {action}
     </DevPanel>

@@ -60,11 +60,11 @@ export function GhostRemovedActions({ onUndo }: { onUndo: () => void }) {
         variant="text"
         // the veil scrim owns its color pairs, so the prose voice keeps the
         // surrounding color instead of the text token
-        css={css.raw({
+        css={{
           fontSize: '1em',
           color: 'inherit',
           _hovered: { color: 'inherit' },
-        })}
+        }}
         onPress={onUndo}
       >
         Undo

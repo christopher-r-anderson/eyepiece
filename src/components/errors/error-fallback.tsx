@@ -1,4 +1,3 @@
-import { css } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import { PrettyException } from './pretty-exception'
 import { useCaptureRouteError } from './error-capture'
@@ -25,11 +24,11 @@ export function ErrorFallback({
     <div className={grid({ gap: '4', justifyItems: 'start' })}>
       <Heading
         level={headingLevel}
-        css={css.raw(
+        css={
           headingLevel === 1
             ? { textStyle: 'display.md' }
-            : { textStyle: 'title.md' },
-        )}
+            : { textStyle: 'title.md' }
+        }
       >
         Something went wrong
       </Heading>

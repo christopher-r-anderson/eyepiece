@@ -77,11 +77,11 @@ export function AssetDetailSurface({
         >
           <Heading
             level={titleLevel === 1 ? 2 : 3}
-            css={css.raw({
+            css={{
               color: 'text.muted',
               fontSize: 'base',
               fontWeight: 600,
-            })}
+            }}
           >
             Albums
           </Heading>
