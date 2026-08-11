@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { makeProfilesCommands } from './profiles.commands'
-import { INVALID_INPUT_CODE } from '@/components/form-errors'
+import { INVALID_INPUT_CODE } from '@/lib/form-errors'
 import { nextSchema } from '@/lib/route.schema'
 import { redirectWithParams } from '@/lib/form-action-redirect'
 import { createUserSupabaseServerClient } from '@/integrations/supabase/user/server.server'

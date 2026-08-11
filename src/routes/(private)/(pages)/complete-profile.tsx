@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { css } from 'styled-system/css'
-import { formErrorCopy } from '@/components/form-errors'
+import { formErrorCopy } from '@/lib/form-errors'
 import { Heading } from '@/components/ui/heading'
 import { urlToNextParam } from '@/lib/utils'
 import {

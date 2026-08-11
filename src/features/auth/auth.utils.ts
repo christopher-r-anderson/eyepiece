@@ -1,5 +1,5 @@
 import type { ResultError } from '@/lib/result'
-import { FORM_ERROR_COPY } from '@/components/form-errors'
+import { FORM_ERROR_COPY } from '@/lib/form-errors'
 
 export function isPlainLeftClick({
   button,
