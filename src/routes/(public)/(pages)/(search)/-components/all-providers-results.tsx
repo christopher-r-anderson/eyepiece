@@ -62,7 +62,7 @@ function ProviderSection({
           marginBottom: '4',
         })}
       >
-        <Heading level={2} id={headingId} css={{ textStyle: 'title.md' }}>
+        <Heading level={2} id={headingId} size="title-md">
           {display.displayName}
         </Heading>
         <CatchBoundary

@@ -90,7 +90,7 @@ export function AlbumStripSection({
           marginBottom: '4',
         })}
       >
-        <Heading level={2} id={headingId} css={{ textStyle: 'title.md' }}>
+        <Heading level={2} id={headingId} size="title-md">
           <span
             className={css({
               display: 'block',

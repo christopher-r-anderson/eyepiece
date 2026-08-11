@@ -144,7 +144,8 @@ function PublicCollectionsSection() {
       <Heading
         level={2}
         id={headingId}
-        css={{ textStyle: 'title.md', marginBottom: '4' }}
+        size="title-md"
+        css={{ marginBottom: '4' }}
       >
         <span
           className={css({
