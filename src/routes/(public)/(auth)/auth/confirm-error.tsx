@@ -20,7 +20,6 @@ import { useOneShotFormStatus } from '@/lib/hooks/use-one-shot-form-status'
 
 const ERR_CODE_OTP_EXPIRED = 'otp_expired'
 
-const pageTitleCss = css.raw({ textStyle: 'title.lg' })
 const introCss = css({ color: 'text.muted' })
 
 export const Route = createFileRoute('/(public)/(auth)/auth/confirm-error')({
@@ -54,7 +53,7 @@ function RecoveryOtpError() {
   const seededStatus = useOneShotFormStatus(status)
   return (
     <>
-      <Heading level={1} css={pageTitleCss}>
+      <Heading level={1} size="title-lg">
         Password reset link expired
       </Heading>
       <p className={introCss}>
@@ -84,7 +83,7 @@ function EmailOtpError() {
   const seededStatus = useOneShotFormStatus(status)
   return (
     <>
-      <Heading level={1} css={pageTitleCss}>
+      <Heading level={1} size="title-lg">
         Confirmation link expired
       </Heading>
       <p className={introCss}>
@@ -110,7 +109,7 @@ function EmailOtpError() {
 function UnknownError() {
   return (
     <>
-      <Heading level={1} css={pageTitleCss}>
+      <Heading level={1} size="title-lg">
         Something went wrong
       </Heading>
       <p className={introCss}>

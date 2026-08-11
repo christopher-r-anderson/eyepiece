@@ -44,12 +44,8 @@ export function ModalDialog({
             <Heading
               level={titleLevel}
               id={titleId}
-              css={{
-                flex: '1 1 auto',
-                minWidth: 0,
-                // dialogs are panels; their titles take the section voice
-                textStyle: 'title.md',
-              }}
+              size="title-md"
+              css={{ flex: '1 1 auto', minWidth: 0 }}
             >
               {title}
             </Heading>

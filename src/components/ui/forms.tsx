@@ -53,19 +53,17 @@ export const formStatusPanelCss = css.raw({
   gap: '3',
 })
 
-export function FormHeading({ level, css: cssProp, ...props }: HeadingProps) {
+export function FormHeading({
+  level,
+  css: cssProp,
+  ...props
+}: Omit<HeadingProps, 'size'>) {
   return (
     <Heading
       {...props}
       level={level}
-      css={css.raw(
-        level === 1
-          ? { textStyle: 'title.lg' }
-          : level === 2
-            ? { textStyle: 'title.md' }
-            : {},
-        cssProp,
-      )}
+      size={level === 1 ? 'title-lg' : level === 2 ? 'title-md' : undefined}
+      css={cssProp}
     />
   )
 }

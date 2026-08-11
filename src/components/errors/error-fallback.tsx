@@ -24,11 +24,7 @@ export function ErrorFallback({
     <div className={grid({ gap: '4', justifyItems: 'start' })}>
       <Heading
         level={headingLevel}
-        css={
-          headingLevel === 1
-            ? { textStyle: 'display.md' }
-            : { textStyle: 'title.md' }
-        }
+        size={headingLevel === 1 ? 'display-md' : 'title-md'}
       >
         Something went wrong
       </Heading>
