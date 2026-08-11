@@ -158,6 +158,26 @@ still publishes the dead state first, and the complexity buys back part of one
 build's worth of time. Not deemed worth the cost; revisit if time-to-publish
 improvements become a priority.
 
+### Incremental regeneration
+
+TanStack Start documents an ISR pattern that keeps build-time prerendering and
+adds `stale-while-revalidate` cache headers, so a CDN serves cached pages while
+revalidating them against the origin in the background. Regeneration happens
+only where that revalidation reaches an origin that re-renders the page
+instead of serving the baked file. On Netlify a prerendered page is a static
+file and the file is the origin: revalidation returns the same bytes, and only
+the next deploy changes them. Real regeneration here would mean taking
+pages off the static output so requests reach the server function, then caching
+its responses at the CDN. That trades the static guarantee for a second HTML
+freshness domain with its own invalidation story, and the gain is a narrower
+stale window on the first view: hydration starts a background refetch of stale
+data, so the baked content lasts until that request lands rather than until
+the next deploy. Not worth the second freshness domain for that window;
+revisit if first-view freshness between deploys becomes a need the client
+refetch cannot cover, starting from the public boundary's document cache
+headers in [the public caching decision](01-public-caching.md) rather than a
+new mechanism.
+
 ### Other removal orderings
 
 Hiding removals only after publish bakes the removed collection into the new
