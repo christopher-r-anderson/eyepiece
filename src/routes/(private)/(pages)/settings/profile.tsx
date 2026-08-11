@@ -34,9 +34,11 @@ function ProfilePage() {
   const { maybeProfile } = Route.useLoaderData()
   const { formError, status } = Route.useSearch()
   const queueToastMessage = useQueueToastMessage()
-  useOneShotFormStatus(status, () =>
-    queueToastMessage({ title: 'Profile updated' }),
-  )
+  useOneShotFormStatus(status, (oneShotStatus) => {
+    if (oneShotStatus === 'updated') {
+      queueToastMessage({ title: 'Profile updated' })
+    }
+  })
   return (
     <>
       <PageHeader title="Settings" />
