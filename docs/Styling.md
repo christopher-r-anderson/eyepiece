@@ -44,11 +44,13 @@ contract:
 
 ## Overrides
 
-- ui components take `css` and `className` (`StyleProps`). Recipe-backed
-  components render `cx(recipe(...), css(cssProp), className)`: the css
-  prop beats the recipe by layer order. Components with plain utility bases
-  merge object-level - `css(base, cssProp)` - because conflicting classes
-  from separate `css()` calls resolve by stylesheet order, not merge order.
+- Overrideable ui primitives take `css` and `className` (`StyleProps`);
+  fixed-surface components (ModalDialog, Sheet) deliberately expose
+  neither. Recipe-backed primitives render
+  `cx(recipe(...), css(cssProp), className)`: the css prop beats the recipe
+  by layer order. Components with plain utility bases merge object-level -
+  `css(base, cssProp)` - because conflicting classes from separate `css()`
+  calls resolve by stylesheet order, not merge order.
 - Wrappers with defaults destructure `css` and merge
   `css.raw(defaults, css)`. A spread carrying the prop either clobbers the
   defaults or drops the caller's value.
@@ -98,17 +100,22 @@ contract:
 
 ## Container Queries
 
-- Unnamed `@/size` queries answer the nearest `containerType` ancestor: use
-  for pure space-adaptive layout (the search bar's internals are the
-  example).
+- The asset tile is the width-query user: it declares
+  `containerType: 'inline-size'` and hides its action pill under
+  `@container (max-width: 104px)`, so the behavior tracks the tile's own
+  width, not the viewport.
+- `containerType` is also declared where container units need to resolve:
+  the sheet sizes its content in `cqh` (a percentage cannot see the fixed
+  container's height), as does the asset-detail box.
 - Rule of thumb: kind is declared (variant), width is measured (query),
   context owns width, the component owns behavior within it.
 
 ## Spacing
 
-- ui components never carry external margins. Parents own sibling spacing
+- ui components never carry sibling-spacing margins. Parents own spacing
   via `gap`; heading space binds to what follows. Separator is the
-  exception: spacing is its role, and menus rely on its margins.
+  exception (spacing is its role, and menus rely on its margins);
+  self-centering like Form's `margin: '0 auto'` is placement, not spacing.
 - Globals keep element appearance only, never sibling-spacing rules.
 
 ## Headings

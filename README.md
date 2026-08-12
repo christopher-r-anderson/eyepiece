@@ -31,7 +31,7 @@ Content that arrives late is not allowed to move content that is already on scre
 
 ### Performance and Accessibility
 
-Every page template is audited with Lighthouse (mobile and desktop) and axe-core (light and dark themes, with the WCAG 2.2 target-size rule enabled - axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production Lighthouse medians as of August 2026, three runs per template and form factor:
+The core page templates - home, both search scopes, asset detail, collection detail, album, and login - are audited with Lighthouse (mobile and desktop) and axe-core (light and dark themes, with the WCAG 2.2 target-size rule enabled - axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production Lighthouse medians as of August 2026, three runs per template and form factor:
 
 | Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
 | ----------------- | ----------------------- | ------------- | -------------- | --- |
@@ -43,7 +43,7 @@ Every page template is audited with Lighthouse (mobile and desktop) and axe-core
 | Album             | 98 / 100                | 100           | 100            | 100 |
 | Login             | 100 / 100               | 100           | 100            | 100 |
 
-- Accessibility scores 100 on every template with zero axe violations. The authenticated pages (favorites and settings) are not yet part of the audited set.
+- Accessibility scores 100 on every audited template with zero axe violations. The public profile page and the authenticated pages (favorites and settings) are not yet part of the audited set.
 - The SEO 66 on search templates is deliberate: results pages are noindexed.
 - Mobile performance is bound by provider image weight under lab throttling. Desktop CLS is 0.000 everywhere; the home hero can still shift on throttled mobile runs while its display font arrives.
 
