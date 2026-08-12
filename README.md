@@ -27,11 +27,11 @@ Content that arrives late is not allowed to move content that is already on scre
 - image slots reserve their space from provided dimensions before the file loads
 - controls that swap labels (Star and Starred, Save and Saved) render both labels in the same grid cell so the control never changes width
 - hover and focus reveals animate `grid-template-rows` instead of inserting elements into the flow
-- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides), so the swap does not shift text vertically
+- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides), keeping line boxes stable through the swap; the two first-paint faces load as `font-display: optional` so a late arrival cannot rewrap the page
 
 ### Performance and Accessibility
 
-Every page template is audited with Lighthouse and axe-core, in both light and dark themes and with the WCAG 2.2 target-size rule enabled (axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production medians as of August 2026, three runs per template and form factor:
+Every page template is audited with Lighthouse (mobile and desktop) and axe-core (light and dark themes, with the WCAG 2.2 target-size rule enabled - axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production Lighthouse medians as of August 2026, three runs per template and form factor:
 
 | Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
 | ----------------- | ----------------------- | ------------- | -------------- | --- |

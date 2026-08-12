@@ -37,6 +37,10 @@ contract:
   generated.
 - Values must be literals. A computed value (`` `${ROW_HEIGHT}px` ``) is
   silently dropped; use the token bridge above instead.
+- Config-evaluated modules (`*.recipe.ts`, `*.styles.ts`) sit outside this
+  contract: they cannot import `styled-system`, so shared style objects
+  there are typed with `as const satisfies` instead (see
+  `button.styles.ts`).
 
 ## Overrides
 
@@ -71,34 +75,31 @@ contract:
 
 - Recurring, conventional patterns become variants even at one use; genuine
   one-offs stay `css` overrides, optionally wrapped in a named component.
-- Every variant axis carries scoped `staticCss` (`[{ axis: ['*'] }]`).
-  Variant props are runtime-forwardable, so JIT-by-literal can drop a
-  variant's CSS while the code still type-checks.
+- Variant values selected at runtime (a drilled or computed prop) carry
+  scoped `staticCss` for those values: JIT extraction only sees literal
+  call sites, so a runtime-only variant's CSS is silently missing while the
+  code still type-checks. Values that always appear as literals need
+  nothing (`button.recipe.ts` covers only its drilled `text` value).
 - Heading has two axes: `level` is semantic (the tag), `size` is visual
   scale (`title-lg` | `title-md` | `display-md`). The component skips the
   level scale when `size` is set.
-- Button spells icon-square as `size="icon"` (it composes with the variant
-  axis); ToggleButton spells it `variant="icon"`. The wordshare is
-  deliberate.
 
 ## States
 
 - React Aria states style through the named conditions (`_hovered`,
-  `_pressed`, `_focused`, `_selected`, `_entering`, `_exiting`).
-  `_pressed` and `_selected` bind to data attributes only: `aria-pressed`
-  reflects toggled state, not a momentary press.
-- Overlay entrance and exit animations scope to `[data-entering]` and
-  `[data-exiting]` on the element carrying the state.
+  `_pressed`, `_focused`, `_selected`). `_pressed` and `_selected` bind to
+  data attributes only: `aria-pressed` reflects toggled state, not a
+  momentary press.
+- Overlay entrance animations use literal `[data-entering]` selectors on
+  the element carrying the state.
 - Text inputs match `:focus-visible` on mouse focus; use
   `data-focus-visible`.
 
 ## Container Queries
 
 - Unnamed `@/size` queries answer the nearest `containerType` ancestor: use
-  for pure space-adaptive layout.
-- Named containers gate semantics: the form recipe's `layout=page` declares
-  the `form` container, so `@form/size` states exist only inside page
-  forms. Container names register in `panda.config.ts`.
+  for pure space-adaptive layout (the search bar's internals are the
+  example).
 - Rule of thumb: kind is declared (variant), width is measured (query),
   context owns width, the component owns behavior within it.
 
@@ -120,8 +121,7 @@ contract:
 
 ## Forms
 
-- `layout='action'` (default, stacked) vs `'page'` (named container: fields
-  go two-column and actions collapse to an end-aligned row at `@form/2xl`).
-  The kind is chosen per usage site.
+- Forms are stacked grids capped at `formMax`. The `surface` variant
+  (`plain` | `panel`) is drilled per usage site.
 - Layout never lives on a child in the parent's axis; `FormActions` owns
   the actions row.
