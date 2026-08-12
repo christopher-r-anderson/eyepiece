@@ -88,7 +88,7 @@ Mechanics and reasoning: [docs/Styling.md](./docs/Styling.md). The rules:
 - A stored style object is wrapped in `css.raw(...)`; an inline object in a `css` prop is not. Config-evaluated style modules use `as const satisfies` instead.
 - ui components take `css` + `className` (`StyleProps`); wrappers merge defaults with `css.raw(defaults, css)`, never a spread.
 - Base styles use shorthands for commonly overridden properties; overrides use the base's exact keys.
-- ui components never carry external margins; parents own sibling spacing via `gap`.
+- ui components never carry external margins (Separator, whose role is spacing, is the exception); parents own sibling spacing via `gap`.
 - Recurring patterns become variants; genuine one-offs stay `css` overrides.
 - `[bracketed]` values are the deliberate strictTokens exceptions; keep them rare.
 - Markup hooks added solely for audit tooling use a `data-audit-` prefix; `data-testid` exists only in unit-test mocks.

@@ -12,11 +12,11 @@ Issues to be completed before official launch are listed at [Launch Milestones](
 
 Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made. The short version:
 
-- [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, so a route cannot opt into CDN caching while reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
+- [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, with a middleware tripwire that catches a public route reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
 - [Search scopes by provider and defaults to All](./docs/decisions/02-search.md) - one flat query grammar, provider scope tabs, and an all-providers view whose sections stream independently so one slow provider never blocks another.
 - [Styles compile at build time with Panda CSS](./docs/decisions/03-styling.md) - the site ported its original Emotion styling to build-time CSS, keeping design tokens as custom properties and dropping the runtime style engine.
 - [User lists read snapshots, not the providers](./docs/decisions/04-provider-data.md) - favorites and collections store asset snapshots, so lists render without fanning out to providers, and a weekly job revalidates stale snapshots.
-- [Entry pages prerender at build time](./docs/decisions/05-prerendering.md) - the home page, albums, and curated collections are baked in CI after provisioning, so a first visit serves static files instead of waiting on live provider calls.
+- [Entry pages prerender at build time](./docs/decisions/05-prerendering.md) - the home page and its curated collections are baked in CI after provisioning, so a first visit serves static files instead of waiting on live provider calls.
 
 ![The all-providers search view for "apollo", with NASA and Smithsonian result sections](docs/assets/search-all-apollo.jpg)
 
@@ -25,8 +25,8 @@ Decision records live in [docs/decisions](./docs/decisions), one file per decisi
 Content that arrives late is not allowed to move content that is already on screen:
 
 - image slots reserve their space from provided dimensions before the file loads
-- controls that swap labels (Star and Starred, Save and Saved) render both labels in the same grid cell so the control never changes width
-- hover and focus reveals animate `grid-template-rows` instead of inserting elements into the flow
+- controls that swap labels (Star and Starred) render both labels in the same grid cell so the control never changes width
+- hover and focus reveals animate opacity and position on absolutely positioned layers, outside the normal flow
 - fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides), keeping line boxes stable through the swap; the two first-paint faces load as `font-display: optional` so a late arrival cannot rewrap the page
 
 ### Performance and Accessibility

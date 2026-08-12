@@ -44,10 +44,11 @@ contract:
 
 ## Overrides
 
-- ui components take `css` and `className` (`StyleProps`) and merge as
-  `cx(css(base, cssProp), className)`. Object-level `css(a, b)` is the only
-  merge that resolves conflicts by caller intent; conflicting classes from
-  separate `css()` calls resolve by stylesheet order.
+- ui components take `css` and `className` (`StyleProps`). Recipe-backed
+  components render `cx(recipe(...), css(cssProp), className)`: the css
+  prop beats the recipe by layer order. Components with plain utility bases
+  merge object-level - `css(base, cssProp)` - because conflicting classes
+  from separate `css()` calls resolve by stylesheet order, not merge order.
 - Wrappers with defaults destructure `css` and merge
   `css.raw(defaults, css)`. A spread carrying the prop either clobbers the
   defaults or drops the caller's value.
@@ -106,7 +107,8 @@ contract:
 ## Spacing
 
 - ui components never carry external margins. Parents own sibling spacing
-  via `gap`; heading space binds to what follows.
+  via `gap`; heading space binds to what follows. Separator is the
+  exception: spacing is its role, and menus rely on its margins.
 - Globals keep element appearance only, never sibling-spacing rules.
 
 ## Headings
