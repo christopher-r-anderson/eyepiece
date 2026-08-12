@@ -38,9 +38,9 @@ contract:
 - Values must be literals. A computed value (`` `${ROW_HEIGHT}px` ``) is
   silently dropped; use the token bridge above instead.
 - Config-evaluated modules (`*.recipe.ts`, `*.styles.ts`) sit outside this
-  contract: they cannot import `styled-system`, so shared style objects
-  there are typed with `as const satisfies` instead (see
-  `button.styles.ts`).
+  contract: they cannot import `styled-system` at runtime, so shared style
+  objects there are typed with `as const satisfies` against a type-only
+  import, which is erased before evaluation (see `button.styles.ts`).
 
 ## Overrides
 
