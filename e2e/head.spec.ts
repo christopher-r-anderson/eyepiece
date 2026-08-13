@@ -6,7 +6,7 @@ const DEFAULT_TITLE = 'eyepiece: NASA Media Explorer'
 function jsonLdNodes(html: string) {
   return [
     ...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs),
-  ].map((match) => JSON.parse(match[1]) as Record<string, unknown>)
+  ].map((match) => JSON.parse(match[1]!) as Record<string, unknown>)
 }
 
 test('routes without a specific title get the default', async ({ page }) => {

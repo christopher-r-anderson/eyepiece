@@ -80,8 +80,9 @@ export function imageObjectJsonLd({
   providerId: ProviderId
   url: string
 }) {
-  // width/height describe the contentUrl file, not the master dimensions
-  const widest = image.renditions[0]
+  // width/height describe the contentUrl file, not the master dimensions;
+  // the schema guarantees at least one rendition
+  const widest = image.renditions[0]!
   return {
     '@context': 'https://schema.org',
     '@type': 'ImageObject',
