@@ -10,7 +10,7 @@ Issues to be completed before official launch are listed at [Launch Milestones](
 
 ## Architecture Highlights
 
-Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made. The short version:
+Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made.
 
 - [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, with a middleware tripwire that catches a public route reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
 - [Search scopes by provider and defaults to All](./docs/decisions/02-search.md) - one flat query grammar, provider scope tabs, and an all-providers view whose sections stream independently so one slow provider never blocks another.
@@ -27,7 +27,7 @@ Content that arrives late is not allowed to move content that is already on scre
 - image slots reserve their space from provided dimensions before the file loads
 - controls that swap labels (Star and Starred) render both labels in the same grid cell so the control never changes width
 - hover and focus reveals animate opacity and position on absolutely positioned layers, outside the normal flow
-- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides), keeping line boxes stable through the swap; the two first-paint faces load as `font-display: optional` so a late arrival cannot rewrap the page
+- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides computed from the pinned files), so a swap holds line boxes; glyph widths cannot be matched, so the two first-paint faces load as `font-display: optional` and skip a late swap entirely rather than rewrap
 
 ### Performance and Accessibility
 
@@ -44,7 +44,7 @@ The core page templates - home, both search scopes, asset detail, collection det
 | Login             | 100 / 100               | 100           | 100            | 100 |
 
 - Accessibility scores 100 on every audited template with zero axe violations. The public profile page and the authenticated pages (favorites and settings) are not yet part of the audited set.
-- The SEO 66 on search templates is deliberate: results pages are noindexed.
+- The SEO 66 on the search templates is an accepted result of search results being `noindex`ed.
 - Mobile performance is bound by provider image weight under lab throttling. Desktop CLS is 0.000 everywhere; the home hero can still shift on throttled mobile runs while its display font arrives.
 
 ## Project Setup
