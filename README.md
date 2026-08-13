@@ -28,6 +28,7 @@ Content that arrives late is not allowed to move content that is already on scre
 - controls that swap labels (Star and Starred) render both labels in the same grid cell so the control never changes width
 - hover and focus reveals animate opacity and position on absolutely positioned layers, outside the normal flow
 - fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides computed from the pinned files), so a swap holds line boxes; glyph widths cannot be matched, so the two first-paint faces load as `font-display: optional` and skip a late swap entirely rather than rewrap
+- the hero heading reserves its webfont's line count at narrow widths, so a font arriving after first paint grows into reserved space instead of moving the page
 
 ### Performance and Accessibility
 
@@ -35,7 +36,7 @@ The core page templates - home, both search scopes, asset detail, collection det
 
 | Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
 | ----------------- | ----------------------- | ------------- | -------------- | --- |
-| Home              | 80 / 100                | 100           | 100            | 100 |
+| Home              | 83 / 100                | 100           | 100            | 100 |
 | Search (all)      | 90 / 100                | 100           | 100            | 66  |
 | Search (provider) | 99 / 100                | 100           | 100            | 66  |
 | Asset detail      | 91 / 100                | 100           | 100            | 100 |
@@ -45,7 +46,7 @@ The core page templates - home, both search scopes, asset detail, collection det
 
 - Accessibility scores 100 on every audited template with zero axe violations. The public profile page and the authenticated pages (favorites and settings) are not yet part of the audited set.
 - The SEO 66 on the search templates is an accepted result of search results being `noindex`ed.
-- Mobile performance is bound by provider image weight under lab throttling. Desktop CLS is 0.000 everywhere; the home hero can still shift on throttled mobile runs while its display font arrives.
+- Mobile performance is bound by provider image weight under lab throttling. CLS medians are 0.000 everywhere except asset detail's 0.002-0.016, well inside the good threshold.
 
 ## Project Setup
 
