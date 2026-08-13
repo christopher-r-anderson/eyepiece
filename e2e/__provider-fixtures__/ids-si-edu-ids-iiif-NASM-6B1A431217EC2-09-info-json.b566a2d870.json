@@ -1,0 +1,37 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/ld+json;charset=UTF-8",
+  "body": {
+    "@context": "http://iiif.io/api/image/2/context.json",
+    "@id": "https://ids.si.edu/ids/iiif/NASM-6B1A431217EC2_09",
+    "protocol": "http://iiif.io/api/image",
+    "width": 7488,
+    "height": 5504,
+    "tiles": [
+      {
+        "width": 512,
+        "scaleFactors": [
+          1,
+          2,
+          4,
+          8
+        ]
+      }
+    ],
+    "profile": [
+      "http://iiif.io/api/image/2/level2.json",
+      {
+        "formats": [
+          "jpg"
+        ],
+        "supports": [
+          "sizeByH",
+          "sizeByW",
+          "sizeByForcedWh"
+        ],
+        "maxWidth": 7488
+      }
+    ]
+  }
+}

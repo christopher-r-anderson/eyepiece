@@ -1,0 +1,438 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=utf-8",
+  "body": {
+    "status": 200,
+    "responseCode": 1,
+    "response": {
+      "id": "ld1-1643400021979-1643400026580-0",
+      "title": "Laser Ranging Retro-Reflector, Apollo",
+      "unitCode": "NASM",
+      "type": "edanmdm",
+      "url": "edanmdm:nasm_A19730063000",
+      "content": {
+        "freetext": {
+          "name": [
+            {
+              "label": "Manufacturer",
+              "content": "Bendix Aerospace Systems"
+            }
+          ],
+          "notes": [
+            {
+              "label": "Summary",
+              "content": "The Laser Ranging Retroreflector is a device that reflects light so that the paths of the reflected rays are parallel to those of the incident rays. Instruments placed on the lunar surface were used in experiments to reflect laser light back to Earth. The reflected light was used to provide precise measurements of the distance between the earth and the moon."
+            },
+            {
+              "label": "Summary",
+              "content": "The Bendix Corporation donated this traning unit to the Museum in 1972."
+            }
+          ],
+          "place": [
+            {
+              "label": "Country of Origin",
+              "content": "United States of America"
+            }
+          ],
+          "title": [
+            {
+              "label": "Title",
+              "content": "Laser Ranger Retro-Reflector, Apollo"
+            }
+          ],
+          "setName": [
+            {
+              "label": "See more items in",
+              "content": "National Air and Space Museum Collection"
+            },
+            {
+              "label": "Location",
+              "content": "National Air and Space Museum in Washington, DC"
+            },
+            {
+              "label": "Exhibition",
+              "content": "Destination Moon"
+            }
+          ],
+          "creditLine": [
+            {
+              "label": "Credit Line",
+              "content": "Transferred from the National Aeronautics and Space Administration"
+            }
+          ],
+          "dataSource": [
+            {
+              "label": "Data Source",
+              "content": "National Air and Space Museum"
+            }
+          ],
+          "identifier": [
+            {
+              "label": "Inventory Number",
+              "content": "A19730063000"
+            }
+          ],
+          "objectType": [
+            {
+              "label": "Type",
+              "content": "EQUIPMENT-Lunar"
+            }
+          ],
+          "objectRights": [
+            {
+              "label": "Restrictions & Rights",
+              "content": "CC0"
+            }
+          ],
+          "physicalDescription": [
+            {
+              "label": "Materials",
+              "content": "Glass, Aluminum Alloy, Copper Alloy, Synthetic Fiber Fabric (Beta Cloth), Plastic, Ink, Paint, Velcro, Phenolic Resin, Ferrous Alloy, Adhesive Tape"
+            },
+            {
+              "label": "Dimensions",
+              "content": "3-D (Overall): 82.5 × 68.6 × 43.2cm (2 ft. 8 1/2 in. × 2 ft. 3 in. × 1 ft. 5 in.)"
+            }
+          ]
+        },
+        "indexedStructured": {
+          "name": [
+            "Bendix Aerospace Systems"
+          ],
+          "place": [
+            "United States of America"
+          ],
+          "topic": [
+            "Moon",
+            "Outer space"
+          ],
+          "exhibition": [
+            {
+              "building": "NASM"
+            }
+          ],
+          "usage_flag": [
+            "Space",
+            "Equipment",
+            "Moon",
+            "Tools",
+            "Apollo Program",
+            "Human Spaceflight",
+            "Missions"
+          ],
+          "geoLocation": [
+            {
+              "L2": {
+                "type": "Country",
+                "content": "United States of America"
+              }
+            }
+          ],
+          "object_type": [
+            "Equipment"
+          ],
+          "onPhysicalExhibit": [
+            "Yes"
+          ],
+          "online_media_type": [
+            "Images"
+          ]
+        },
+        "descriptiveNonRepeating": {
+          "guid": "http://n2t.net/ark:/65665/nv959e6424d-b205-4f34-8530-c7d9bc32df8a",
+          "title": {
+            "label": "Object Name",
+            "content": "Laser Ranging Retro-Reflector, Apollo"
+          },
+          "record_ID": "nasm_A19730063000",
+          "unit_code": "NASM",
+          "title_sort": "LASER RANGING RETRO-REFLECTOR, APOLLO",
+          "data_source": "National Air and Space Museum",
+          "record_link": "http://n2t.net/ark:/65665/nv959e6424d-b205-4f34-8530-c7d9bc32df8a",
+          "online_media": {
+            "media": [
+              {
+                "id": "media:NASM-NASM2020-00364",
+                "guid": "http://n2t.net/ark:/65665/gf45e7cdb2c-a9d6-42b4-a12c-d101f52c7c2a",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00364",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00364",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00364",
+                "altTextAccessibility": "Corner-cube mirrors connected to base of a Laser Ranging Retroreflector.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00364.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00364.jpg",
+                    "width": 8272,
+                    "height": 6200,
+                    "dimensions": "8272x6200"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00364_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00364_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-NASM2020-00365",
+                "guid": "http://n2t.net/ark:/65665/gf4cf1dd221-b21f-48d0-b58d-63d8f9e85a11",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00365",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00365",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00365",
+                "altTextAccessibility": "Surface view of a ranger Retro-Reflector.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00365.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00365.jpg",
+                    "width": 8272,
+                    "height": 6200,
+                    "dimensions": "8272x6200"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00365_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00365_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-NASM2020-00366",
+                "guid": "http://n2t.net/ark:/65665/gf459f335f2-d939-440f-a086-17cb009b45dd",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00366",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00366",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00366",
+                "altTextAccessibility": "Side view of a white pallet with raised 100 lens laser reflector, training unit, Apollo 11.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00366.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00366.jpg",
+                    "width": 8272,
+                    "height": 6200,
+                    "dimensions": "8272x6200"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00366_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00366_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-NASM2020-00367",
+                "guid": "http://n2t.net/ark:/65665/gf4c62ac540-3bcf-474e-93c8-f808d000ebd4",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00367",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00367",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00367",
+                "altTextAccessibility": "Lift gears of a Retro-Reflector.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00367.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00367.jpg",
+                    "width": 8272,
+                    "height": 6200,
+                    "dimensions": "8272x6200"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00367_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00367_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-NASM2020-00369",
+                "guid": "http://n2t.net/ark:/65665/gf442befee7-5ca0-4514-bc21-00830b77df40",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00369",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00369",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00369",
+                "altTextAccessibility": "View of the Retro-reflector array.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth. Highlighted in this image is the Retro-reflector array of the Apollo Laser Ranger Retro-Reflector.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00369.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00369.jpg",
+                    "width": 8272,
+                    "height": 6200,
+                    "dimensions": "8272x6200"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00369_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00369_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-NASM2020-00370",
+                "guid": "http://n2t.net/ark:/65665/gf4dbbd3562-766f-4cf1-8a0d-63c6a9e46e12",
+                "type": "Images",
+                "idsId": "NASM-NASM2020-00370",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00370",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-NASM2020-00370",
+                "altTextAccessibility": "View of the Retro-reflector array attached to the base of the unit.",
+                "extDescrAccessibility": "The Laser Ranging Retroreflector experiment consists of a series of corner-cube mirrors designed to reflect an incoming light beam back to its source. Astronauts deployed this experiment on the lunar surface during the Apollo 11, 14, and 15 missions. From Earth, laser beams are aimed through large telescopes at the Retroreflector on the lunar surface, which then reflects the laser beam back to Earth. The Retroreflector provides precise measurements of the distance between the Earth and the Moon, the Moon’s orbit, and the rate at which the Moon is receding from the Earth. Highlighted in this image is the Retro-reflector array of the Apollo Laser Ranger Retro-Reflector.",
+                "resources": [
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00370_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-NASM2020-00370_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-SI-2009-4788",
+                "guid": "http://n2t.net/ark:/65665/gf475c479c3-3d6b-44af-b455-30a99b034218",
+                "type": "Images",
+                "idsId": "NASM-SI-2009-4788",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-SI-2009-4788",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-SI-2009-4788",
+                "altTextAccessibility": "A white box-shaped device with a series of mirrors inlaid into the top. There is a gray pole extending up to the left with a tan box on the end. The word Bendix is below the mirrors in black. ",
+                "extDescrAccessibility": "White pallet with raised 100 lens laser reflector, training unit, Apollo 11.",
+                "resources": [
+                  {
+                    "label": "High-resolution TIFF",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-SI-2009-4788.tif",
+                    "width": 0,
+                    "height": 0,
+                    "dimensions": "0x0"
+                  },
+                  {
+                    "label": "High-resolution JPEG",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-SI-2009-4788.jpg",
+                    "width": 3248,
+                    "height": 3776,
+                    "dimensions": "3248x3776"
+                  },
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-SI-2009-4788_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-SI-2009-4788_thumb"
+                  }
+                ]
+              },
+              {
+                "id": "media:NASM-A19730063000cp04",
+                "guid": "http://n2t.net/ark:/65665/gf440b36a3d-b670-4bd1-a7a4-3e8c3a3874a5",
+                "type": "Images",
+                "idsId": "NASM-A19730063000cp04",
+                "usage": {
+                  "access": "CC0"
+                },
+                "content": "https://ids.si.edu/ids/deliveryService?id=NASM-A19730063000cp04",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService?id=NASM-A19730063000cp04",
+                "altTextAccessibility": "",
+                "extDescrAccessibility": "White pallet with raised 100 lens laser reflector, training unit, Apollo 11.",
+                "resources": [
+                  {
+                    "label": "Screen Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-A19730063000cp04_screen"
+                  },
+                  {
+                    "label": "Thumbnail Image",
+                    "url": "https://ids.si.edu/ids/download?id=NASM-A19730063000cp04_thumb"
+                  }
+                ]
+              }
+            ],
+            "mediaCount": 8
+          },
+          "metadata_usage": {
+            "access": "CC0"
+          }
+        }
+      },
+      "hash": "e0f70014b4624ae6471c920c346c0b2a226ca1da",
+      "docSignature": "73157c57f78ae8648c65d16e81d11d54",
+      "timestamp": "1663784943",
+      "lastTimeUpdated": "1777710826",
+      "version": ""
+    }
+  }
+}

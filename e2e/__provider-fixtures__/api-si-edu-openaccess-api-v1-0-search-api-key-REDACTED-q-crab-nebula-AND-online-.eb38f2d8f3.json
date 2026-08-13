@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=utf-8",
+  "body": {
+    "status": 200,
+    "responseCode": 1,
+    "response": {
+      "rows": [],
+      "facets": {},
+      "rowCount": 0,
+      "message": "no results found"
+    }
+  }
+}
