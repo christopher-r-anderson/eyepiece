@@ -67,7 +67,19 @@ function HomePage() {
           maxWidth: '[720px]',
         })}
       >
-        <h1 className={css({ textStyle: 'display.md' })}>
+        <h1
+          className={css({
+            textStyle: 'display.md',
+            // Zodiak wraps one line past the metric-matched fallback in
+            // these bands, so reserve its line count against a late font
+            // apply. Edges are the lowest Zodiak boundaries across device
+            // scale factors - the reserve must never exceed the text
+            '@media (max-width: 316px)': { minHeight: '[4lh]' },
+            '@media (min-width: 317px) and (max-width: 476px)': {
+              minHeight: '[3lh]',
+            },
+          })}
+        >
           A personal view of public space photography
         </h1>
         <p
