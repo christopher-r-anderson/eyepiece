@@ -2,9 +2,51 @@
 
 Eyepiece is a [multi-provider](./docs/Providers.md) image portal. It provides search and favoriting features for multiple open asset providers.
 
+![Search results for "nebula" scoped to NASA, shown as a justified grid of space photography](docs/assets/search-nasa-nebula.jpg)
+
 Visit the live site at <https://eyepiece.net>.
 
 Issues to be completed before official launch are listed at [Launch Milestones](https://github.com/christopher-r-anderson/eyepiece/milestone/1).
+
+## Architecture Highlights
+
+Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made.
+
+- [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, with a middleware tripwire that catches a public route reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
+- [Search scopes by provider and defaults to All](./docs/decisions/02-search.md) - one flat query grammar, provider scope tabs, and an all-providers view whose sections stream independently so one slow provider never blocks another.
+- [Styles compile at build time with Panda CSS](./docs/decisions/03-styling.md) - the site ported its original Emotion styling to build-time CSS, keeping design tokens as custom properties and dropping the runtime style engine.
+- [User lists read snapshots, not the providers](./docs/decisions/04-provider-data.md) - favorites and collections store asset snapshots, so lists render without fanning out to providers, and a weekly job revalidates stale snapshots.
+- [Entry pages prerender at build time](./docs/decisions/05-prerendering.md) - the home page and its curated collections are baked in CI after provisioning, so a first visit serves static files instead of waiting on live provider calls.
+
+![The all-providers search view for "apollo", with NASA and Smithsonian result sections](docs/assets/search-all-apollo.jpg)
+
+### Layout Stability
+
+Content that arrives late is not allowed to move content that is already on screen:
+
+- image slots reserve their space from provided dimensions before the file loads
+- controls that swap labels (Star and Starred) render both labels in the same grid cell so the control never changes width
+- hover and focus reveals animate opacity and position on absolutely positioned layers, outside the normal flow
+- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides computed from the pinned files), so a swap holds line boxes; glyph widths cannot be matched, so the two first-paint faces load as `font-display: optional` and skip a late swap entirely rather than rewrap
+- the hero heading reserves its webfont's line count at narrow widths, so a font arriving after first paint grows into reserved space instead of moving the page
+
+### Performance and Accessibility
+
+The core page templates - home, both search scopes, asset detail, collection detail, album, and login - are audited with Lighthouse (mobile and desktop) and axe-core (light and dark themes, with the WCAG 2.2 target-size rule enabled - axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production Lighthouse medians as of August 2026, three runs per template and form factor:
+
+| Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
+| ----------------- | ----------------------- | ------------- | -------------- | --- |
+| Home              | 83 / 100                | 100           | 100            | 100 |
+| Search (all)      | 90 / 100                | 100           | 100            | 66  |
+| Search (provider) | 99 / 100                | 100           | 100            | 66  |
+| Asset detail      | 91 / 100                | 100           | 100            | 100 |
+| Collection detail | 88 / 100                | 100           | 100            | 100 |
+| Album             | 98 / 100                | 100           | 100            | 100 |
+| Login             | 100 / 100               | 100           | 100            | 100 |
+
+- Accessibility scores 100 on every audited template with zero axe violations. The public profile page and the authenticated pages (favorites and settings) are not yet part of the audited set.
+- The SEO 66 on the search templates is an accepted result of search results being `noindex`ed.
+- Mobile performance is bound by provider image weight under lab throttling. CLS medians are 0.000 everywhere except asset detail's 0.002-0.016, well inside the good threshold.
 
 ## Project Setup
 
