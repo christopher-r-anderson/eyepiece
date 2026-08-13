@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ZodError } from 'zod'
 import { stubFetchJsonOnce } from '../../test/utils/fetch-mock'
 import { getAlbum, getMetadata, search } from './client'
 import albumFixture from './__fixtures__/album.Apollo-at-50.json'
@@ -40,6 +41,21 @@ describe('nasa-ivl client search', () => {
     expect(parsed.collection.items).toHaveLength(1)
     expect(parsed.collection.items[0]?.data[0]?.nasa_id).toBe('PIA24439')
     expect(parsed.collection.items[0]?.data[0]?.title).toBe('Apollo Footprint')
+  })
+
+  it('rejects a response whose item has an empty data array', async () => {
+    const item = assetSearchFixture.collection.items[0]!
+    stubFetchJsonOnce({
+      json: {
+        ...assetSearchFixture,
+        collection: {
+          ...assetSearchFixture.collection,
+          items: [{ ...item, data: [] }],
+        },
+      },
+    })
+
+    await expect(search({ nasa_id: 'PIA24439' })).rejects.toThrow(ZodError)
   })
 
   it('serializes array params as a comma-separated list', async () => {

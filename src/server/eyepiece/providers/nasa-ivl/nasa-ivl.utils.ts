@@ -130,8 +130,9 @@ export function mapMediaItem({
   data: Array<NasaMediaItem>
   links: Array<NasaMediaLink>
 }) {
-  // upstream always sends exactly one entry and the schema enforces it, but
-  // this is third-party data: fail with a message, not a destructure TypeError
+  // upstream always sends exactly one entry and the schema enforces the
+  // non-empty floor, but this is third-party data: fail with a message, not
+  // a destructure TypeError
   const [item] = data
   if (!item) {
     throw new Error('NASA media item has an empty data array')
