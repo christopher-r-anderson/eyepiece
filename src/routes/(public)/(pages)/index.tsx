@@ -74,8 +74,8 @@ function HomePage() {
             // these bands, so reserve its line count against a late font
             // apply. Edges are the lowest Zodiak boundaries across device
             // scale factors - the reserve must never exceed the text
-            '@media (max-width: 316px)': { minHeight: '[4lh]' },
-            '@media (min-width: 317px) and (max-width: 476px)': {
+            '@media (width <= 316px)': { minHeight: '[4lh]' },
+            '@media (316px < width <= 476px)': {
               minHeight: '[3lh]',
             },
           })}
