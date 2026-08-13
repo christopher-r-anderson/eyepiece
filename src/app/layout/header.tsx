@@ -32,12 +32,12 @@ export function Header(props: ComponentPropsWithoutRef<'header'>) {
           maxWidth: 'pageMax',
           width: 'full',
           marginInline: 'auto',
-          paddingBlock: '[16px 10px]',
+          paddingBlock: '[13px]',
           paddingInline: 'pageInline',
           mdDown: { gap: '3' },
         })}
       >
-        <Brand fullWordmark={isHome} hideWordmarkWhenNarrow={hasSearch} />
+        <Brand hideWordmarkWhenNarrow={hasSearch} />
         {hasSearch && <HeaderSearch />}
         <SiteNav />
       </div>
