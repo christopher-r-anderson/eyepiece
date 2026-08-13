@@ -107,8 +107,10 @@ contract:
 - `containerType` is also declared where container units need to resolve:
   the sheet sizes its content in `cqh` (a percentage cannot see the fixed
   container's height), as does the asset-detail box.
-- Rule of thumb: kind is declared (variant), width is measured (query),
-  context owns width, the component owns behavior within it.
+- The ownership split behind both: the parent decides how wide a component
+  gets; the component decides what it does at that width (the tile hides
+  its own pill, parents never toggle it); and what a component _is_ stays a
+  declared prop, never inferred from measured space.
 
 ## Spacing
 
