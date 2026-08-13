@@ -5,10 +5,10 @@ Styles are Panda CSS, compiled at build time, with `strictTokens` and
 in the `/dev/ui` gallery through the real app shell; there is deliberately
 no Storybook. Why Panda: [the styling decision](./decisions/03-styling.md).
 
-The map: tokens and semantic tokens live in `panda/*.ts`, component
-variants in component-adjacent `*.recipe.ts` config recipes, and app-code
-styles inline in the JSX. The reviewer-facing rules distilled from this doc
-live in the [styleguide](../STYLEGUIDE.md).
+Tokens and semantic tokens are defined in `panda/*.ts`, component variants
+in component-adjacent `*.recipe.ts` config recipes, and app-code styles
+inline in the JSX. The rules themselves are in the
+[styleguide](../STYLEGUIDE.md).
 
 ## Extraction
 

@@ -89,7 +89,7 @@ Mechanics and reasoning: [docs/Styling.md](./docs/Styling.md). The rules:
 - Overrideable ui primitives take `css` + `className` (`StyleProps`); wrappers merge defaults with `css.raw(defaults, css)`, never a spread. Fixed-surface components (ModalDialog, Sheet) deliberately expose neither.
 - Base styles use shorthands for commonly overridden properties; overrides use the base's exact keys.
 - ui components never carry sibling-spacing margins (Separator, whose role is spacing, is the exception); parents own spacing via `gap`. Self-centering like Form's `margin: '0 auto'` is placement, not spacing.
-- Globals keep element appearance only, never sibling-spacing rules; heading space binds to the content that follows.
+- Globals keep element appearance only, never sibling-spacing rules. When a heading needs its own distance from the content it titles, the margin goes on the heading (`marginBottom`), never on the content below.
 - Recurring patterns become variants; genuine one-offs stay `css` overrides.
 - `[bracketed]` values are the deliberate strictTokens exceptions; keep them rare.
 - Markup hooks added solely for audit tooling use a `data-audit-` prefix; `data-testid` exists only in unit-test mocks.
