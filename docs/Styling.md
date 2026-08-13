@@ -5,22 +5,10 @@ Styles are Panda CSS, compiled at build time, with `strictTokens` and
 in the `/dev/ui` gallery through the real app shell; there is deliberately
 no Storybook. Why Panda: [the styling decision](./decisions/03-styling.md).
 
-The reviewer-facing rules distilled from this doc live in the
-[styleguide](../STYLEGUIDE.md).
-
-## Where Styles Live
-
-- Tokens and semantic tokens: `panda/*.ts` only. Raw `var(--x)` theme
-  values are banned in styles; compound values use `token(...)` refs.
-- Component variants: config recipes in component-adjacent `*.recipe.ts`
-  files. Multi-part components use slot recipes; logic-free components bind
-  with `styled()` one-liners.
-- App and page code styles inline with `css()` and patterns. Hoist only for
-  reuse or genuinely unwieldy blocks.
-- Runtime-computed values (virtualizer positions, view-transition names) go
-  to `style=`. A constant needed by both CSS and runtime code becomes a
-  token: `token(...)` in the style object, `token('...')` from
-  `styled-system/tokens` at runtime.
+The map: tokens and semantic tokens live in `panda/*.ts`, component
+variants in component-adjacent `*.recipe.ts` config recipes, and app-code
+styles inline in the JSX. The reviewer-facing rules distilled from this doc
+live in the [styleguide](../STYLEGUIDE.md).
 
 ## Extraction
 
@@ -36,7 +24,11 @@ contract:
   under that selector somewhere, or their conditioned classes are never
   generated.
 - Values must be literals. A computed value (`` `${ROW_HEIGHT}px` ``) is
-  silently dropped; use the token bridge above instead.
+  silently dropped; make the constant a token and read it from both sides:
+  `token(...)` in the style object, `token('...')` from
+  `styled-system/tokens` at runtime.
+- Runtime-computed values that cannot be tokens (virtualizer positions,
+  view-transition names) go to `style=`.
 - Config-evaluated modules (`*.recipe.ts`, `*.styles.ts`) sit outside this
   contract: they cannot import `styled-system` at runtime, so shared style
   objects there are typed with `as const satisfies` against a type-only
@@ -76,8 +68,8 @@ contract:
 
 ## Variants
 
-- Recurring, conventional patterns become variants even at one use; genuine
-  one-offs stay `css` overrides, optionally wrapped in a named component.
+- Multi-part components use slot recipes; logic-free components bind their
+  recipe with `styled()` one-liners.
 - Variant values selected at runtime (a drilled or computed prop) carry
   scoped `staticCss` for those values: JIT extraction only sees literal
   call sites, so a runtime-only variant's CSS is silently missing while the
@@ -111,14 +103,6 @@ contract:
   gets; the component decides what it does at that width (the tile hides
   its own pill, parents never toggle it); and what a component _is_ stays a
   declared prop, never inferred from measured space.
-
-## Spacing
-
-- ui components never carry sibling-spacing margins. Parents own spacing
-  via `gap`; heading space binds to what follows. Separator is the
-  exception (spacing is its role, and menus rely on its margins);
-  self-centering like Form's `margin: '0 auto'` is placement, not spacing.
-- Globals keep element appearance only, never sibling-spacing rules.
 
 ## Headings
 
