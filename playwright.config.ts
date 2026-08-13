@@ -21,9 +21,7 @@ export default defineConfig({
   forbidOnly: isCI,
   /* Retry on CI only */
   retries: isCI ? 2 : 0,
-  // CI runs one worker; locally the default scales to the machine. Provider
-  // traffic replays from recorded fixtures (#185), so parallelism no longer
-  // floods upstream.
+  // provider traffic replays from fixtures, so parallelism cannot flood upstream
   workers: isCI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',

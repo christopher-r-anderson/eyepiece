@@ -57,7 +57,7 @@ The core page templates - home, both search scopes, asset detail, collection det
 This is the guide for setting up local development for eyepiece.net. If you want to deploy this code to your own site, see [docs/NewProductionSite.md](docs/NewProductionSite.md) first.
 
 ```bash
-pnpm install # the prepare hook runs `panda codegen`, building the gitignored styled-system/ directory
+pnpm install
 pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
 
 # Set up your local env files by copying the examples and then updating them with your values.
