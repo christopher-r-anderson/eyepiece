@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  FIXTURE_MISS_LOG,
   getProviderFixtureMode,
   providerFixturePath,
   recordProviderFixture,
@@ -111,23 +112,58 @@ describe('replayProviderFixture', () => {
     }
   })
 
+  // misses append to the log the teardown guard reads, so they run from a
+  // temp directory to keep the repo's log untouched
+  async function inTempDir(run: () => Promise<void>) {
+    const { mkdtemp, mkdir } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const dir = await mkdtemp(join(tmpdir(), 'eyepiece-fixtures-'))
+    const cwd = process.cwd()
+    process.chdir(dir)
+    try {
+      await mkdir('e2e/__provider-fixtures__', { recursive: true })
+      await run()
+    } finally {
+      process.chdir(cwd)
+    }
+  }
+
   it('fails on a miss instead of reaching the network', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    await inTempDir(async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
-    await expect(
-      replayProviderFixture('https://images-api.nasa.gov/search?q=no-fixture'),
-    ).rejects.toThrow(/No provider fixture/)
-    expect(fetchSpy).not.toHaveBeenCalled()
+      await expect(
+        replayProviderFixture(
+          'https://images-api.nasa.gov/search?q=no-fixture',
+        ),
+      ).rejects.toThrow(/No provider fixture/)
+      expect(fetchSpy).not.toHaveBeenCalled()
 
-    fetchSpy.mockRestore()
+      fetchSpy.mockRestore()
+    })
+  })
+
+  it('logs the miss for the teardown guard', async () => {
+    await inTempDir(async () => {
+      const url = 'https://images-api.nasa.gov/search?q=no-fixture'
+      await replayProviderFixture(url).catch(() => {})
+
+      const { readFile } = await import('node:fs/promises')
+      const log = await readFile(FIXTURE_MISS_LOG, 'utf8')
+      expect(log).toContain(providerFixturePath(url))
+      expect(log).toContain(url)
+    })
   })
 
   it('keeps the api key out of the miss message', async () => {
-    const error = await replayProviderFixture(
-      'https://api.si.edu/openaccess/api/v1.0/search?q=moon&api_key=secret-key',
-    ).catch((thrown: unknown) => thrown)
+    await inTempDir(async () => {
+      const error = await replayProviderFixture(
+        'https://api.si.edu/openaccess/api/v1.0/search?q=moon&api_key=secret-key',
+      ).catch((thrown: unknown) => thrown)
 
-    expect(String(error)).not.toContain('secret-key')
-    expect(String(error)).toContain('api_key=REDACTED')
+      expect(String(error)).not.toContain('secret-key')
+      expect(String(error)).toContain('api_key=REDACTED')
+    })
   })
 })

@@ -11,6 +11,11 @@ import { createHash } from 'node:crypto'
 
 const FIXTURE_DIR = 'e2e/__provider-fixtures__'
 
+// misses accumulate here so the suite can fail loudly on them: the throw
+// below reaches specs only when a journey depends on the response, while a
+// tolerated path (an intent preload) would otherwise rot silently
+export const FIXTURE_MISS_LOG = 'e2e/.fixture-misses.log'
+
 let writeCounter = 0
 
 export type ProviderFixtureMode = 'record' | 'replay'
@@ -51,6 +56,12 @@ export async function replayProviderFixture(url: string): Promise<Response> {
   try {
     raw = await readFile(path, 'utf8')
   } catch {
+    const { appendFileSync } = await import('node:fs')
+    try {
+      appendFileSync(FIXTURE_MISS_LOG, `${path} <- ${redactProviderUrl(url)}\n`)
+    } catch {
+      // the log is best-effort; the throw below still reports the miss
+    }
     // falling through to the network would quietly restore the dependency
     // this mode exists to remove
     throw new Error(
