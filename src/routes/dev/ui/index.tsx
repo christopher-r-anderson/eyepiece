@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
+import { MagnifyingGlassIcon, StarIcon } from '@phosphor-icons/react/dist/ssr'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
@@ -18,6 +18,7 @@ import {
   InputGroup,
   TextField,
 } from '@/components/ui/forms'
+import { Heading } from '@/components/ui/heading'
 import { Link } from '@/components/ui/link'
 import { Menu, MenuItem, MenuTrigger } from '@/components/ui/menus'
 import { ModalDialog } from '@/components/ui/modal-dialog'
@@ -45,6 +46,8 @@ function DevUiGalleryPage() {
   const [searchValue, setSearchValue] = useState('Crab Nebula')
   const [switchSelected, setSwitchSelected] = useState(false)
   const [toggleSelected, setToggleSelected] = useState(true)
+  const [textToggleSelected, setTextToggleSelected] = useState(false)
+  const [iconToggleSelected, setIconToggleSelected] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const queueToast = useQueueToastMessage()
@@ -56,6 +59,43 @@ function DevUiGalleryPage() {
         description="Shared components and their variants, rendered with the production styles."
         backLink={<DevBackLink to="/dev">Back to dev</DevBackLink>}
       />
+
+      <DevPanel>
+        <DevTitleBlock
+          title="Headings"
+          description="Levels set the document outline; size decouples the visual scale from the level."
+        />
+        <div className={grid({ gap: '3' })}>
+          <Heading level={1}>Level 1</Heading>
+          <Heading level={2}>Level 2</Heading>
+          <Heading level={3}>Level 3</Heading>
+          <Heading level={2} size="display-md">
+            Level 2, display-md
+          </Heading>
+          <Heading level={2} size="title-lg">
+            Level 2, title-lg
+          </Heading>
+          <Heading level={2} size="title-md">
+            Level 2, title-md
+          </Heading>
+        </div>
+      </DevPanel>
+
+      <DevPanel>
+        <DevTitleBlock
+          title="Text styles"
+          description="The fluid display ladder, the title ladder, and the mono meta voice (callers add lowercase/muted)."
+        />
+        <div className={grid({ gap: '3' })}>
+          <p className={css({ textStyle: 'display.lg' })}>display.lg</p>
+          <p className={css({ textStyle: 'display.md' })}>display.md</p>
+          <p className={css({ textStyle: 'display.sm' })}>display.sm</p>
+          <p className={css({ textStyle: 'title.lg' })}>title.lg</p>
+          <p className={css({ textStyle: 'title.md' })}>title.md</p>
+          <p className={css({ textStyle: 'title.sm' })}>title.sm</p>
+          <p className={css({ textStyle: 'meta' })}>meta</p>
+        </div>
+      </DevPanel>
 
       <DevPanel>
         <DevTitleBlock title="Buttons" />
@@ -127,6 +167,34 @@ function DevUiGalleryPage() {
       </DevPanel>
 
       <DevPanel>
+        <DevTitleBlock
+          title="Panel form"
+          description="The panel surface variant used by the auth card."
+        />
+        <Form
+          surface="panel"
+          onSubmit={(event) => event.preventDefault()}
+          controls={
+            <FormActions>
+              <Button variant="primary" type="submit">
+                Log in
+              </Button>
+            </FormActions>
+          }
+        >
+          <FormHeading level={2}>Panel surface</FormHeading>
+          <InputGroup>
+            <TextField
+              label="Email"
+              name="panel-email"
+              type="email"
+              placeholder="astronomer@example.com"
+            />
+          </InputGroup>
+        </Form>
+      </DevPanel>
+
+      <DevPanel>
         <DevTitleBlock title="Search field" />
         <SearchInput
           aria-label="Search example"
@@ -151,6 +219,31 @@ function DevUiGalleryPage() {
             onChange={setToggleSelected}
           >
             {toggleSelected ? 'Selected' : 'Idle'}
+          </ToggleButton>
+          <ToggleButton
+            aria-label={textToggleSelected ? 'Starred' : 'Star'}
+            variant="text"
+            isSelected={textToggleSelected}
+            onChange={setTextToggleSelected}
+          >
+            <StarIcon
+              aria-hidden="true"
+              size={20}
+              weight={textToggleSelected ? 'fill' : 'regular'}
+            />
+            {textToggleSelected ? 'starred' : 'star'}
+          </ToggleButton>
+          <ToggleButton
+            aria-label="Star"
+            variant="icon"
+            isSelected={iconToggleSelected}
+            onChange={setIconToggleSelected}
+          >
+            <StarIcon
+              aria-hidden="true"
+              size={20}
+              weight={iconToggleSelected ? 'fill' : 'regular'}
+            />
           </ToggleButton>
         </div>
       </DevPanel>
