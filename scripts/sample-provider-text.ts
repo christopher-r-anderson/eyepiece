@@ -28,7 +28,7 @@ import { SHOWCASE_CURATION } from '@/features/collections/collections.showcase'
 interface Sample {
   id: string
   source: string
-  fields: Record<string, string>
+  fields: { title: string } & Record<string, string>
   // kept so awkward records can be lifted straight out as parsing fixtures
   raw: unknown
 }
@@ -235,7 +235,7 @@ function fieldStats(samples: Array<Sample>, field: string): FieldStats {
   const filled = values.filter((value) => value.trim().length > 0)
   const lengths = filled.map((value) => value.length).sort((a, b) => a - b)
   const at = (fraction: number) =>
-    lengths.length ? lengths[Math.floor((lengths.length - 1) * fraction)] : 0
+    lengths[Math.floor((lengths.length - 1) * fraction)] ?? 0
   return {
     field,
     present: filled.length,
@@ -273,7 +273,8 @@ interface EdgeRule {
   match: (sample: Sample) => boolean
 }
 
-const filled = (value: string | undefined) => Boolean(value && value.trim())
+const filled = (value: string | undefined): value is string =>
+  Boolean(value && value.trim())
 
 const NASA_EDGE_RULES: Array<EdgeRule> = [
   { name: 'no-description', match: (s) => !filled(s.fields.description) },
@@ -292,13 +293,14 @@ const NASA_EDGE_RULES: Array<EdgeRule> = [
   },
   {
     name: 'html-in-description',
-    match: (s) => HTML_PATTERN.test(s.fields.description),
+    match: (s) => HTML_PATTERN.test(s.fields.description ?? ''),
   },
   {
     name: 'distinct-508',
     match: (s) =>
       filled(s.fields.description_508) &&
-      normalize(s.fields.description_508) !== normalize(s.fields.description) &&
+      normalize(s.fields.description_508) !==
+        normalize(s.fields.description ?? '') &&
       normalize(s.fields.description_508) !== normalize(s.fields.title),
   },
   {
@@ -309,7 +311,7 @@ const NASA_EDGE_RULES: Array<EdgeRule> = [
   },
   {
     name: 'very-long-description',
-    match: (s) => s.fields.description.length > 2000,
+    match: (s) => (s.fields.description ?? '').length > 2000,
   },
 ]
 
@@ -370,7 +372,7 @@ const SI_EDGE_RULES: Array<EdgeRule> = [
   },
   {
     name: 'html-in-ext-descr',
-    match: (s) => HTML_PATTERN.test(s.fields.extDescrAccessibility),
+    match: (s) => HTML_PATTERN.test(s.fields.extDescrAccessibility ?? ''),
   },
 ]
 

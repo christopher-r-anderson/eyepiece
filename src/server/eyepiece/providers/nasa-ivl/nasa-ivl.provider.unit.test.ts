@@ -55,7 +55,7 @@ describe('makeNasaIvlAdapter', () => {
     )
     expect(footprint?.key.providerId).toBe(NASA_IVL_PROVIDER_ID)
     expect(footprint?.title).toBe('Apollo Footprint')
-    expect(footprint?.image?.renditions[0].href).toContain('/image/PIA24439/')
+    expect(footprint?.image?.renditions[0]?.href).toContain('/image/PIA24439/')
     expect(albumLogo?.albums).toEqual([
       {
         externalId: 'Apollo-at-50',
@@ -139,9 +139,9 @@ describe('makeNasaIvlAdapter', () => {
   })
 
   it('serves the exact id match among fuzzy extras', async () => {
-    const exactItem = assetSearchFixture.collection.items[0]
+    const exactItem = assetSearchFixture.collection.items[0]!
     const fuzzyItem = structuredClone(exactItem)
-    fuzzyItem.data[0].nasa_id = 'PIA24439-different'
+    fuzzyItem.data[0]!.nasa_id = 'PIA24439-different'
     mockSearch.mockResolvedValue({
       ...assetSearchFixture,
       collection: {

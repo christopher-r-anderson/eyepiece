@@ -126,13 +126,13 @@ describe('provisionShowcaseContent', () => {
       .order('position')
     expect(collections).toEqual([
       {
-        id: curation.collections[0].id,
+        id: curation.collections[0]!.id,
         name: 'first collection',
         visibility: 'public',
         position: 1,
       },
       {
-        id: curation.collections[1].id,
+        id: curation.collections[1]!.id,
         name: 'second collection',
         visibility: 'public',
         position: 2,
@@ -142,11 +142,11 @@ describe('provisionShowcaseContent', () => {
     const { data: items } = await adminClient
       .from('collection_items')
       .select('position, asset_preview_snapshots(external_id)')
-      .eq('collection_id', curation.collections[0].id)
+      .eq('collection_id', curation.collections[0]!.id)
       .order('position')
     expect(
       items?.map((item) => item.asset_preview_snapshots.external_id),
-    ).toEqual(curation.collections[0].items.map((item) => item.externalId))
+    ).toEqual(curation.collections[0]!.items.map((item) => item.externalId))
   })
 
   it('is idempotent and skips provider fetches for fresh snapshots', async ({
@@ -193,7 +193,7 @@ describe('provisionShowcaseContent', () => {
       email,
     })
 
-    const [first] = curation.collections
+    const first = curation.collections[0]!
     const editedEmail = `renamed-${email}`
     const edited: ShowcaseCuration = {
       user: {
@@ -205,7 +205,7 @@ describe('provisionShowcaseContent', () => {
           ...first,
           name: 'renamed collection',
           // drop the first item, reverse the rest
-          items: [first.items[2], first.items[1]],
+          items: [first.items[2]!, first.items[1]!],
         },
         // second collection dropped entirely
       ],
@@ -255,7 +255,7 @@ describe('provisionShowcaseContent', () => {
       .order('position')
     expect(
       items?.map((item) => item.asset_preview_snapshots.external_id),
-    ).toEqual([first.items[2].externalId, first.items[1].externalId])
+    ).toEqual([first.items[2]!.externalId, first.items[1]!.externalId])
   })
 
   it('reconciles an emptied curation by removing every collection', async ({
@@ -301,7 +301,7 @@ describe('provisionShowcaseContent', () => {
 
     const edited: ShowcaseCuration = {
       ...curation,
-      collections: [curation.collections[0]],
+      collections: [curation.collections[0]!],
     }
     const applySummary = await provisionShowcaseContent(
       adminClient,
@@ -326,8 +326,8 @@ describe('provisionShowcaseContent', () => {
       new Map(visibilities?.map((row) => [row.id, row.visibility])),
     ).toEqual(
       new Map([
-        [curation.collections[0].id, 'public'],
-        [curation.collections[1].id, 'private'],
+        [curation.collections[0]!.id, 'public'],
+        [curation.collections[1]!.id, 'private'],
       ]),
     )
 
@@ -365,7 +365,7 @@ describe('provisionShowcaseContent', () => {
 
     const edited: ShowcaseCuration = {
       ...curation,
-      collections: [curation.collections[0]],
+      collections: [curation.collections[0]!],
     }
     await provisionShowcaseContent(adminClient, stubFetchAsset, edited, {
       email,
@@ -383,7 +383,7 @@ describe('provisionShowcaseContent', () => {
     const { data: restored } = await adminClient
       .from('collections')
       .select('visibility')
-      .eq('id', curation.collections[1].id)
+      .eq('id', curation.collections[1]!.id)
       .single()
     expect(restored?.visibility).toBe('public')
   })
@@ -434,7 +434,7 @@ describe('provisionShowcaseContent', () => {
       .single()
 
     const curation = trackCuration(makeCuration())
-    curation.collections[0].id = theirCollection!.id
+    curation.collections[0]!.id = theirCollection!.id
 
     await expect(
       provisionShowcaseContent(adminClient, stubFetchAsset, curation, {

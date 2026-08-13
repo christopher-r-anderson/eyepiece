@@ -165,7 +165,7 @@ function dropBlobs(
 }
 
 function extractZodErrors(zodError: ZodError): {
-  formError: string
+  formError: string | undefined
   fieldErrors: Record<string, string>
 } {
   const flattenedErrors = z.flattenError(zodError)

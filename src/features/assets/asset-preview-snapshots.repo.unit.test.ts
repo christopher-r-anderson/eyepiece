@@ -130,7 +130,7 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data[0].title).toBe('No Title')
+        expect(result.data[0]?.title).toBe('No Title')
       }
     })
 
@@ -143,7 +143,7 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
 
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
-        expect(result.data[0].title).toBe('Hubble Deep Field')
+        expect(result.data[0]?.title).toBe('Hubble Deep Field')
       }
     })
 
@@ -160,8 +160,8 @@ describe('makeAssetPreviewSnapshotsRepo / getAssetPreviewSnapshots', () => {
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
         expect(result.data).toHaveLength(2)
-        expect(result.data[0].key.externalId).toBe('asset-001')
-        expect(result.data[1].key.externalId).toBe('asset-002')
+        expect(result.data[0]?.key.externalId).toBe('asset-001')
+        expect(result.data[1]?.key.externalId).toBe('asset-002')
       }
     })
 

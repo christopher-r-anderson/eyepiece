@@ -15,7 +15,7 @@ import { nasaMediaCollectionResponseSchema } from '@/integrations/nasa-ivl/types
 
 describe('mapMediaItem text', () => {
   function parseItem(fixture: unknown) {
-    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]
+    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]!
   }
 
   function createItem(data: Partial<NasaMediaItem>) {
@@ -86,11 +86,17 @@ describe('mapMediaItem text', () => {
 
     expect(result.albums).toBeUndefined()
   })
+
+  it('rejects an item with an empty data array', () => {
+    expect(() => mapMediaItem({ data: [], links: [] })).toThrow(
+      'NASA media item has an empty data array',
+    )
+  })
 })
 
 describe('mapMediaItem renditions', () => {
   function parseItem(fixture: unknown) {
-    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]
+    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]!
   }
 
   function withLinks(links: Array<NasaMediaLink>) {

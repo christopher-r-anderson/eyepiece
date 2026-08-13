@@ -39,7 +39,7 @@ describe('SHOWCASE_CURATION', () => {
 
 describe('validateShowcaseCuration', () => {
   it('rejects duplicate collection ids', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({ collections: [collection, { ...collection }] }),
@@ -48,7 +48,7 @@ describe('validateShowcaseCuration', () => {
   })
 
   it('rejects duplicate items within a collection', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({
@@ -64,7 +64,7 @@ describe('validateShowcaseCuration', () => {
   })
 
   it('rejects an empty collection', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({ collections: [{ ...collection, items: [] }] }),
@@ -85,7 +85,7 @@ describe('validateShowcaseCuration', () => {
   })
 
   it('rejects an empty item external id', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({
@@ -101,7 +101,7 @@ describe('validateShowcaseCuration', () => {
   })
 
   it('rejects a blank collection name', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({ collections: [{ ...collection, name: '  ' }] }),
@@ -112,7 +112,7 @@ describe('validateShowcaseCuration', () => {
   // the schemas trim before checking bounds but the reconcile persists the
   // curation verbatim, so padded values must fail validation, not the upsert
   it('rejects a collection name with surrounding whitespace', () => {
-    const collection = curationWith().collections[0]
+    const collection = curationWith().collections[0]!
     expect(() =>
       validateShowcaseCuration(
         curationWith({ collections: [{ ...collection, name: ' padded ' }] }),

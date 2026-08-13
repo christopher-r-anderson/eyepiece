@@ -35,9 +35,10 @@ export function toAssetImage(
       })
     }
   }
-  const renditions = [...byWidth.values()].sort((a, b) => b.width - a.width)
-  if (renditions.length === 0) return undefined
-  const [widest, ...rest] = renditions
+  const [widest, ...rest] = [...byWidth.values()].sort(
+    (a, b) => b.width - a.width,
+  )
+  if (!widest) return undefined
   return {
     width: master?.width ?? widest.width,
     height: master?.height ?? widest.height,

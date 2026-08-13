@@ -110,9 +110,9 @@ describe('getUserFavoritesEdges', () => {
     if (resultIsSuccess(result)) {
       const { items, pagination } = result.data
       expect(items).toHaveLength(1)
-      expect(items[0].assetPreviewSnapshotId).toBe(snapshotId)
-      expect(items[0].assetKey).toEqual({ providerId: 'nasa_ivl', externalId })
-      expect(typeof items[0].createdAt).toBe('string')
+      expect(items[0]?.assetPreviewSnapshotId).toBe(snapshotId)
+      expect(items[0]?.assetKey).toEqual({ providerId: 'nasa_ivl', externalId })
+      expect(typeof items[0]?.createdAt).toBe('string')
       expect(pagination.next).toBeNull()
     }
   })
@@ -147,8 +147,8 @@ describe('getUserFavoritesEdges', () => {
       const { items } = result.data
       expect(items).toHaveLength(2)
       // most recently created favorite first
-      expect(items[0].assetPreviewSnapshotId).toBe(id2)
-      expect(items[1].assetPreviewSnapshotId).toBe(id1)
+      expect(items[0]?.assetPreviewSnapshotId).toBe(id2)
+      expect(items[1]?.assetPreviewSnapshotId).toBe(id1)
     }
   })
 
@@ -186,8 +186,8 @@ describe('getUserFavoritesEdges', () => {
     )
     expect(page2.items).toHaveLength(1)
     expect(page2.pagination.next).toBeNull()
-    expect(page2.items[0].assetPreviewSnapshotId).not.toBe(
-      page1.items[0].assetPreviewSnapshotId,
+    expect(page2.items[0]?.assetPreviewSnapshotId).not.toBe(
+      page1.items[0]?.assetPreviewSnapshotId,
     )
   })
 
@@ -262,7 +262,7 @@ describe('getUserFavoritesEdges', () => {
       .from('favorites')
       .delete()
       .eq('owner_id', user.id)
-      .eq('asset_preview_snapshot_id', ids[3])
+      .eq('asset_preview_snapshot_id', ids[3]!)
     expect(error).toBeNull()
 
     const page2 = unwrapOrThrow(
@@ -319,7 +319,7 @@ describe('getUserFavoritesEdges', () => {
     expect(resultIsSuccess(result)).toBe(true)
     if (resultIsSuccess(result)) {
       expect(result.data.items).toHaveLength(1)
-      expect(result.data.items[0].assetPreviewSnapshotId).toBe(myId)
+      expect(result.data.items[0]?.assetPreviewSnapshotId).toBe(myId)
     }
   })
 })

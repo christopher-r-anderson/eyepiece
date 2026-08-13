@@ -54,7 +54,8 @@ export async function revalidateStaleSnapshots({
     if (error) {
       throw new Error(`Failed to read stale snapshots: ${error.message}`)
     }
-    if (data.length === 0) break
+    const last = data.at(-1)
+    if (!last) break
 
     for (const row of data) {
       candidates++
@@ -92,7 +93,6 @@ export async function revalidateStaleSnapshots({
       }
     }
 
-    const last = data[data.length - 1]
     after = { updatedAt: last.updated_at, id: last.id }
     if (data.length < pageSize) break
   }

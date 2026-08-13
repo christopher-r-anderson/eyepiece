@@ -67,8 +67,9 @@ const SCROLLPORT_MAX = 16 * parseFloat(token('sizes.contentMax'))
 function eagerStripTileCount(aspectRatios: Array<number>) {
   let offset = 0
   let index = 0
-  while (index < aspectRatios.length && offset < SCROLLPORT_MAX) {
-    offset += aspectRatios[index] * STRIP_ROW
+  for (const aspectRatio of aspectRatios) {
+    if (offset >= SCROLLPORT_MAX) break
+    offset += aspectRatio * STRIP_ROW
     index += 1
   }
   return index

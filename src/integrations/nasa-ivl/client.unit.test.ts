@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ZodError } from 'zod'
 import { stubFetchJsonOnce } from '../../test/utils/fetch-mock'
 import { getAlbum, getMetadata, search } from './client'
 import albumFixture from './__fixtures__/album.Apollo-at-50.json'
@@ -38,8 +39,23 @@ describe('nasa-ivl client search', () => {
 
     expect(parsed.collection.metadata.total_hits).toBe(1)
     expect(parsed.collection.items).toHaveLength(1)
-    expect(parsed.collection.items[0].data[0].nasa_id).toBe('PIA24439')
-    expect(parsed.collection.items[0].data[0].title).toBe('Apollo Footprint')
+    expect(parsed.collection.items[0]?.data[0]?.nasa_id).toBe('PIA24439')
+    expect(parsed.collection.items[0]?.data[0]?.title).toBe('Apollo Footprint')
+  })
+
+  it('rejects a response whose item has an empty data array', async () => {
+    const item = assetSearchFixture.collection.items[0]!
+    stubFetchJsonOnce({
+      json: {
+        ...assetSearchFixture,
+        collection: {
+          ...assetSearchFixture.collection,
+          items: [{ ...item, data: [] }],
+        },
+      },
+    })
+
+    await expect(search({ nasa_id: 'PIA24439' })).rejects.toThrow(ZodError)
   })
 
   it('serializes array params as a comma-separated list', async () => {
@@ -48,7 +64,7 @@ describe('nasa-ivl client search', () => {
     await search({ q: 'apollo', media_type: ['image', 'video'] })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const requestUrl = fetchMock.mock.calls[0][0] as string
+    const requestUrl = fetchMock.mock.calls[0]![0] as string
     expect(requestUrl).toContain('/search')
     expect(requestUrl).toContain('q=apollo')
     expect(requestUrl).toContain('media_type=image%2Cvideo')
@@ -96,7 +112,7 @@ describe('nasa-ivl client search', () => {
     expect(parsed.collection.items).toHaveLength(
       albumFixture.collection.items.length,
     )
-    expect(parsed.collection.items[0].data[0].album).toContain('Apollo-at-50')
+    expect(parsed.collection.items[0]?.data[0]?.album).toContain('Apollo-at-50')
   })
 
   it('uses API reason details in album errors', async () => {

@@ -305,12 +305,14 @@ export function makeCollectionsRepo(client: SupabaseClient) {
     }
     const hasMore = rows.length === probeLimit
     const items = rows.slice(0, pageSize).map(mapCollectionItemEdge)
+    const lastItem = items.at(-1)
     return Ok({
       items,
       pagination: {
-        next: hasMore
-          ? encodeCollectionItemEdgesCursor(items[items.length - 1])
-          : null,
+        next:
+          hasMore && lastItem
+            ? encodeCollectionItemEdgesCursor(lastItem)
+            : null,
         total: count ?? 0,
       },
     })
@@ -345,11 +347,11 @@ export function makeCollectionsRepo(client: SupabaseClient) {
       if (parseError) {
         return Err({ message: parseError.message, cause: parseError })
       }
-      if (rows.length === 0) {
+      const last = rows.at(-1)
+      if (!last) {
         break
       }
       ids.push(...rows.map((row) => row.id))
-      const last = rows[rows.length - 1]
       after = { createdAt: last.created_at, id: last.id }
     }
     return Ok(ids)

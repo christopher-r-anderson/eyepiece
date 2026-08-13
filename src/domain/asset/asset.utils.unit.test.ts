@@ -63,7 +63,7 @@ const nasaTransform = (width: number, name = 'large') =>
   )}&w=${width}`
 
 const widths = (srcSet: string) =>
-  srcSet.split(', ').map((candidate) => parseInt(candidate.split(' ')[1]))
+  srcSet.split(', ').map((candidate) => parseInt(candidate.split(' ')[1]!))
 
 describe('toSrcSet', () => {
   afterEach(() => {
