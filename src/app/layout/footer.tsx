@@ -23,23 +23,23 @@ export function Footer(props: ComponentPropsWithoutRef<'footer'>) {
       )}
     >
       <p>
-        &copy; 2026 christopher anderson &middot; imagery courtesy of{' '}
+        &copy; 2026 christopher anderson &middot; imagery courtesy of nasa (
         <a
           href="https://www.nasa.gov/nasa-brand-center/images-and-media/"
           target="_blank"
           rel="noreferrer"
         >
-          nasa
-        </a>{' '}
-        and{' '}
+          media guidelines
+        </a>
+        ) and the smithsonian institution (
         <a
           href="https://www.si.edu/openaccess"
           target="_blank"
           rel="noreferrer"
         >
-          the smithsonian institution
-        </a>{' '}
-        &mdash; public domain and cc0
+          open access, cc0
+        </a>
+        )
       </p>
     </footer>
   )
