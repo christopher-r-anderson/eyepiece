@@ -14,6 +14,25 @@ function trimDescription(text: string) {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 120))}…`
 }
 
+// Every indexable page is fully addressed by its path, so canonical URLs
+// carry no search params. Param segments embed encoded and case-preserved:
+// provider external ids are case-sensitive upstream, and a case-folded id
+// fetches as not-found (docs/decisions/05-prerendering.md).
+export function canonicalUrl(...segments: Array<string>) {
+  if (segments.length === 0) {
+    return `${SITE_ORIGIN}/`
+  }
+  return `${SITE_ORIGIN}/${segments.map(encodeURIComponent).join('/')}`
+}
+
+export function canonicalMeta(url: string) {
+  return [{ property: 'og:url', content: url }]
+}
+
+export function canonicalLinks(url: string) {
+  return [{ rel: 'canonical', href: url }]
+}
+
 export interface SocialImage {
   url: string
   width?: number

@@ -224,13 +224,51 @@ describe('asset page route', () => {
   })
 
   it('uses asset title in head metadata and falls back when missing', () => {
-    expect(route.head({ loaderData: { title: 'Apollo 11' } }).meta).toEqual([
+    const params = {
+      providerId: NASA_IVL_PROVIDER_ID,
+      assetId: 'AS17-148-22727',
+    }
+    const url = 'https://eyepiece.net/assets/nasa_ivl/AS17-148-22727'
+
+    const withTitle = route.head({ loaderData: { title: 'Apollo 11' }, params })
+    expect(withTitle.meta).toEqual([
       { title: 'Eyepiece | Apollo 11' },
+      { property: 'og:url', content: url },
       { property: 'og:title', content: 'Apollo 11' },
     ])
+    expect(withTitle.links).toEqual([{ rel: 'canonical', href: url }])
+    // no image, no ImageObject node
+    expect(withTitle.scripts).toEqual([])
 
-    expect(route.head({ loaderData: undefined }).meta).toEqual([
+    expect(route.head({ loaderData: undefined, params }).meta).toEqual([
       { title: 'Eyepiece | NASA Media' },
+      { property: 'og:url', content: url },
     ])
+  })
+
+  it('emits an ImageObject node once the asset has an image', () => {
+    const params = {
+      providerId: NASA_IVL_PROVIDER_ID,
+      assetId: 'AS17-148-22727',
+    }
+    const { scripts } = route.head({
+      loaderData: {
+        title: 'Apollo 11',
+        image: {
+          width: 100,
+          height: 50,
+          renditions: [{ href: 'https://x/y.jpg', width: 100, height: 50 }],
+        },
+      },
+      params,
+    })
+
+    expect(scripts).toHaveLength(1)
+    expect(scripts[0].type).toBe('application/ld+json')
+    expect(JSON.parse(scripts[0].children)).toMatchObject({
+      '@type': 'ImageObject',
+      contentUrl: 'https://x/y.jpg',
+      mainEntityOfPage: 'https://eyepiece.net/assets/nasa_ivl/AS17-148-22727',
+    })
   })
 })

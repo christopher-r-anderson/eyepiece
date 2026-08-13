@@ -30,7 +30,13 @@ import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/empty-state'
 import { AssetGridSkeleton } from '@/features/assets/components/asset-grid-skeleton'
 import { getTitleText } from '@/lib/utils'
-import { socialMeta } from '@/lib/social-meta'
+import {
+  canonicalLinks,
+  canonicalMeta,
+  canonicalUrl,
+  socialMeta,
+} from '@/lib/social-meta'
+import { collectionPageJsonLd, jsonLdScript } from '@/lib/structured-data'
 import { toSocialImage } from '@/domain/asset/asset.utils'
 
 // module-level so memoized grid rows see stable references
@@ -88,14 +94,23 @@ export const Route = createFileRoute(
       cover: cover && toSocialImage(cover),
     }
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: getTitleText(loaderData?.title ?? 'Collection') },
-      ...(loaderData
-        ? socialMeta({ title: loaderData.title, image: loaderData.cover })
-        : []),
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    // uuid case variants serve the same row; canonicalize to lowercase
+    const url = canonicalUrl('collections', params.collectionId.toLowerCase())
+    return {
+      meta: [
+        { title: getTitleText(loaderData?.title ?? 'Collection') },
+        ...canonicalMeta(url),
+        ...(loaderData
+          ? socialMeta({ title: loaderData.title, image: loaderData.cover })
+          : []),
+      ],
+      links: canonicalLinks(url),
+      scripts: loaderData
+        ? [jsonLdScript(collectionPageJsonLd({ name: loaderData.title, url }))]
+        : [],
+    }
+  },
   notFoundComponent: () => (
     <NotFound
       title="Collection not found"
