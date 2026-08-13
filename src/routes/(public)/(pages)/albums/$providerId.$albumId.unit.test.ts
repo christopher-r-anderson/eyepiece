@@ -122,17 +122,34 @@ describe('album page route', () => {
   })
 
   it('uses loader title for document metadata and falls back when missing', () => {
+    const params = {
+      providerId: NASA_IVL_PROVIDER_ID,
+      albumId: 'GSFC_MASTERFILE_STS-107',
+    }
+    const url = 'https://eyepiece.net/albums/nasa_ivl/GSFC_MASTERFILE_STS-107'
     const withTitle = route.head({
       loaderData: { title: 'Mission Highlights' },
+      params,
     })
-    const fallback = route.head({ loaderData: undefined })
+    const fallback = route.head({ loaderData: undefined, params })
 
     expect(withTitle.meta).toEqual([
       { title: 'Eyepiece | Mission Highlights Media' },
+      { property: 'og:url', content: url },
       { property: 'og:title', content: 'Mission Highlights' },
     ])
+    expect(withTitle.links).toEqual([{ rel: 'canonical', href: url }])
+    expect(JSON.parse(withTitle.scripts[0].children)).toMatchObject({
+      '@type': 'CollectionPage',
+      name: 'Mission Highlights',
+      url,
+    })
 
-    expect(fallback.meta).toEqual([{ title: 'Eyepiece | Album Media' }])
+    expect(fallback.meta).toEqual([
+      { title: 'Eyepiece | Album Media' },
+      { property: 'og:url', content: url },
+    ])
+    expect(fallback.scripts).toEqual([])
   })
 
   it('loader prefers collection title when available', async () => {

@@ -29,9 +29,19 @@ import {
 import { makeProfilesRepo } from '@/features/profiles/profiles.repo'
 import { CapturedCatchBoundary } from '@/components/errors/captured-errors'
 import { toSearchPageParams } from '@/features/search/search-page-params'
+import { canonicalLinks, canonicalMeta, canonicalUrl } from '@/lib/social-meta'
+import { jsonLdScript, webSiteJsonLd } from '@/lib/structured-data'
+
+const HOME_URL = canonicalUrl()
 
 export const Route = createFileRoute('/(public)/(pages)/')({
   component: HomePage,
+  head: () => ({
+    // title and social preview stay the root defaults
+    meta: canonicalMeta(HOME_URL),
+    links: canonicalLinks(HOME_URL),
+    scripts: [jsonLdScript(webSiteJsonLd())],
+  }),
   loader: ({
     context: { queryClient, eyepieceClient, publicSupabaseClient },
   }) => {

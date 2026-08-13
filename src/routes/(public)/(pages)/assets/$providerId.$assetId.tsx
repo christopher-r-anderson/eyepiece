@@ -11,7 +11,13 @@ import { AlbumLinkList } from '@/features/albums/components/album-link-list'
 import { AssetDetailSurface } from '@/features/assets/components/asset-detail-surface'
 import { Heading } from '@/components/ui/heading'
 import { getTitleText } from '@/lib/utils'
-import { socialMeta } from '@/lib/social-meta'
+import {
+  canonicalLinks,
+  canonicalMeta,
+  canonicalUrl,
+  socialMeta,
+} from '@/lib/social-meta'
+import { imageObjectJsonLd, jsonLdScript } from '@/lib/structured-data'
 import { toSocialImage } from '@/domain/asset/asset.utils'
 import { ensureAsset, useSuspenseAsset } from '@/features/assets/assets.queries'
 import { Link } from '@/components/ui/link'
@@ -71,6 +77,7 @@ export const Route = createFileRoute(
         title: asset.title,
         description: asset.description,
         image: asset.image,
+        sourceUrl: asset.sourceUrl,
       }
     } catch (error) {
       if (isNotFoundApiError(error)) {
@@ -79,18 +86,37 @@ export const Route = createFileRoute(
       throw error
     }
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: getTitleText(loaderData?.title || 'NASA Media') },
-      ...(loaderData
-        ? socialMeta({
-            title: loaderData.title,
-            description: loaderData.description,
-            image: loaderData.image && toSocialImage(loaderData.image),
-          })
-        : []),
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    const url = canonicalUrl('assets', params.providerId, params.assetId)
+    return {
+      meta: [
+        { title: getTitleText(loaderData?.title || 'NASA Media') },
+        ...canonicalMeta(url),
+        ...(loaderData
+          ? socialMeta({
+              title: loaderData.title,
+              description: loaderData.description,
+              image: loaderData.image && toSocialImage(loaderData.image),
+            })
+          : []),
+      ],
+      links: canonicalLinks(url),
+      scripts: loaderData?.image
+        ? [
+            jsonLdScript(
+              imageObjectJsonLd({
+                title: loaderData.title,
+                description: loaderData.description,
+                image: loaderData.image,
+                sourceUrl: loaderData.sourceUrl,
+                providerId: params.providerId,
+                url,
+              }),
+            ),
+          ]
+        : [],
+    }
+  },
   errorComponent: AssetRouteError,
   notFoundComponent: () => (
     <NotFound title="Asset not found" message="We couldn't find that asset." />

@@ -1,11 +1,38 @@
 import { describe, expect, it } from 'vitest'
-import { SITE_ORIGIN, socialMeta } from './social-meta'
+import {
+  SITE_ORIGIN,
+  canonicalLinks,
+  canonicalMeta,
+  canonicalUrl,
+  socialMeta,
+} from './social-meta'
 
 const contentOf = (
   meta: ReturnType<typeof socialMeta>,
   key: string,
 ): string | undefined =>
   meta.find((entry) => entry.property === key || entry.name === key)?.content
+
+describe('canonicalUrl', () => {
+  it('addresses the home page with a trailing slash', () => {
+    expect(canonicalUrl()).toBe(`${SITE_ORIGIN}/`)
+  })
+
+  it('embeds segments encoded and case-preserved', () => {
+    expect(canonicalUrl('assets', 'nasa_ivl', 'PIA14417')).toBe(
+      `${SITE_ORIGIN}/assets/nasa_ivl/PIA14417`,
+    )
+    expect(canonicalUrl('albums', 'nasa_ivl', 'Apollo 11')).toBe(
+      `${SITE_ORIGIN}/albums/nasa_ivl/Apollo%2011`,
+    )
+  })
+
+  it('pairs the canonical link with a matching og:url', () => {
+    const url = canonicalUrl('collections', 'abc')
+    expect(canonicalLinks(url)).toEqual([{ rel: 'canonical', href: url }])
+    expect(canonicalMeta(url)).toEqual([{ property: 'og:url', content: url }])
+  })
+})
 
 describe('socialMeta', () => {
   it('absolutizes a site-relative image url', () => {
