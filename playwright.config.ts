@@ -21,11 +21,10 @@ export default defineConfig({
   forbidOnly: isCI,
   /* Retry on CI only */
   retries: isCI ? 2 : 0,
-  // CI runs one worker. Locally the default scales to the machine, and the
-  // SSR paths e2e can't stub (#185) then hit the live providers once per
-  // concurrent test, which times out tests that have nothing to do with the
-  // provider. Four keeps the suite parallel without flooding upstream.
-  workers: isCI ? 1 : 4,
+  // CI runs one worker; locally the default scales to the machine. Provider
+  // traffic replays from recorded fixtures (#185), so parallelism no longer
+  // floods upstream.
+  workers: isCI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
