@@ -12,6 +12,7 @@ import { defineConfig, devices } from '@playwright/test'
  * See https://playwright.dev/docs/test-configuration.
  */
 const isCI = !!process.env.CI
+const isRecordMode = process.env.PROVIDER_FIXTURE_MODE === 'record'
 
 export default defineConfig({
   testDir: './e2e',
@@ -21,8 +22,8 @@ export default defineConfig({
   forbidOnly: isCI,
   /* Retry on CI only */
   retries: isCI ? 2 : 0,
-  // provider traffic replays from fixtures, so parallelism cannot flood upstream
-  workers: isCI ? 2 : undefined,
+  // replay traffic never leaves the machine; recording hits the live provider APIs
+  workers: isCI || isRecordMode ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
