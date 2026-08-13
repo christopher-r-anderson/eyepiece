@@ -86,6 +86,12 @@ describe('mapMediaItem text', () => {
 
     expect(result.albums).toBeUndefined()
   })
+
+  it('rejects an item with an empty data array', () => {
+    expect(() => mapMediaItem({ data: [], links: [] })).toThrow(
+      'NASA media item has an empty data array',
+    )
+  })
 })
 
 describe('mapMediaItem renditions', () => {

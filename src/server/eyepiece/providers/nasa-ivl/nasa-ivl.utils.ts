@@ -130,8 +130,13 @@ export function mapMediaItem({
   data: Array<NasaMediaItem>
   links: Array<NasaMediaLink>
 }) {
-  // Note data is an array but is always .length === 1
-  const { album, title, description, nasa_id } = data[0]!
+  // upstream always sends exactly one entry and the schema enforces it, but
+  // this is third-party data: fail with a message, not a destructure TypeError
+  const [item] = data
+  if (!item) {
+    throw new Error('NASA media item has an empty data array')
+  }
+  const { album, title, description, nasa_id } = item
   const albums = album
     ?.filter((albumId) => !HIDDEN_ALBUM_IDS.has(albumId))
     .map((albumId) =>

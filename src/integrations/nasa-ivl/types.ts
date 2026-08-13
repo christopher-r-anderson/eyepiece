@@ -60,8 +60,8 @@ const createCollectionSchema = <T extends z.ZodTypeAny>(itemDataSchema: T) =>
       items: z.array(
         z.object({
           href: z.url(),
-          // Note data is an array but is always .length === 1
-          data: z.array(itemDataSchema),
+          // data is an array but always carries exactly one entry
+          data: z.array(itemDataSchema).min(1),
           links: z.array(nasaMediaLinkSchema),
         }),
       ),
