@@ -1,4 +1,4 @@
-import { test as setup } from '@playwright/test'
+import { test as setup } from './fixtures'
 import { STORAGE_STATE_PATH } from './support/paths'
 
 setup('authenticate', async ({ page }) => {

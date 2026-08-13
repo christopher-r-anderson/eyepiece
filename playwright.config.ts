@@ -12,6 +12,7 @@ import { defineConfig, devices } from '@playwright/test'
  * See https://playwright.dev/docs/test-configuration.
  */
 const isCI = !!process.env.CI
+const isRecordMode = process.env.PROVIDER_FIXTURE_MODE === 'record'
 
 export default defineConfig({
   testDir: './e2e',
@@ -21,11 +22,8 @@ export default defineConfig({
   forbidOnly: isCI,
   /* Retry on CI only */
   retries: isCI ? 2 : 0,
-  // CI runs one worker. Locally the default scales to the machine, and the
-  // SSR paths e2e can't stub (#185) then hit the live providers once per
-  // concurrent test, which times out tests that have nothing to do with the
-  // provider. Four keeps the suite parallel without flooding upstream.
-  workers: isCI ? 1 : 4,
+  // replay traffic never leaves the machine; recording hits the live provider APIs
+  workers: isCI || isRecordMode ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

@@ -16,7 +16,7 @@ const wideSnapshot = snapshots[0]
 
 // client-side navigation fetches the asset through /api/v1 in the browser,
 // so these journeys serve it themselves; only the deep-link spec needs a
-// fresh document and has to hit the live provider during SSR
+// fresh document, whose SSR provider call replays from a recorded fixture
 async function stubAssetApi(page: Page) {
   const image = singleRenditionImage(
     `https://images-assets.nasa.gov/image/${wideSnapshot.externalId}/${wideSnapshot.externalId}~thumb.jpg`,
@@ -76,8 +76,8 @@ test('the metadata disclosure expands in place with no history entry', async ({
 test('a legacy #metadata deep link renders the page without a dialog', async ({
   page,
 }) => {
-  // a fresh document can't be stubbed from the page, so this uses a
-  // stable live NASA record (the same exposure the search specs carry);
+  // a fresh document can't be stubbed from the page, so SSR replays the
+  // recorded fixture for this record (the same one the search specs carry);
   // the dialog is retired, so the old hash spelling must land inert
   await page.goto('/assets/nasa_ivl/PIA14417#metadata')
   await expect(page.getByRole('button', { name: 'Metadata' })).toHaveAttribute(

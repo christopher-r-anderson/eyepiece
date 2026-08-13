@@ -10,6 +10,7 @@
   "type": "module",
   "scripts": {
     "prepare": "panda codegen",
+    "codegen": "panda codegen",
     "act": "act --secret-file .env.local",
     "supabase": "supabase",
     "require-supabase": "supabase status > /dev/null 2>&1 || { echo \"Error: Supabase is not running\" >&2; exit 1; }",
@@ -31,6 +32,7 @@
     "preview": "vite preview",
     "test": "pnpm require-supabase && vitest run",
     "test:unit": "vitest run --project unit",
+    "test:unit:watch": "vitest --project unit",
     "test:integration": "pnpm require-supabase && vitest run --project integration",
     "test:e2e": "pnpm require-supabase && playwright test",
     "test:e2e:record": "PROVIDER_FIXTURE_MODE=record pnpm test:e2e",
