@@ -18,7 +18,7 @@ describe('buildSioaSearchParams', () => {
     const params = buildSioaSearchParams('moon', {}, { page: 1, pageSize: 20 })
 
     expect(params).toEqual({
-      q: 'moon AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+      q: 'moon AND online_media_type:Images AND media_usage:CC0 AND data_source:"National Air and Space Museum"',
       start: 0,
       rows: 20,
     })
@@ -32,7 +32,7 @@ describe('buildSioaSearchParams', () => {
     )
 
     expect(params).toEqual({
-      q: 'apollo AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+      q: 'apollo AND online_media_type:Images AND media_usage:CC0 AND data_source:"National Air and Space Museum"',
       start: 10,
       rows: 10,
     })
@@ -42,7 +42,7 @@ describe('buildSioaSearchParams', () => {
     const params = buildSioaSearchParams('space', {}, { page: 3, pageSize: 50 })
 
     expect(params).toEqual({
-      q: 'space AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+      q: 'space AND online_media_type:Images AND media_usage:CC0 AND data_source:"National Air and Space Museum"',
       start: 100,
       rows: 50,
     })
@@ -56,6 +56,7 @@ describe('buildSioaSearchParams', () => {
     )
 
     expect(params.q).toContain('online_media_type:Images')
+    expect(params.q).toContain('media_usage:CC0')
     expect(params.q).toContain('data_source:"National Air and Space Museum"')
   })
 })
@@ -112,7 +113,7 @@ describe('mapAssetItem', () => {
           unit_code: 'NASM',
           data_source: 'National Air and Space Museum',
           online_media: {
-            media: [{ resources: [], ...media }],
+            media: [{ resources: [], usage: { access: 'CC0' }, ...media }],
             mediaCount: 1,
           },
           metadata_usage: { access: 'CC0' },
@@ -244,6 +245,33 @@ describe('mapAssetItem', () => {
     expect(result.image).toBeUndefined()
   })
 
+  it('skips restricted media in favor of the first CC0 one', () => {
+    const item = withMedia({})
+    item.content.descriptiveNonRepeating.online_media!.media = [
+      {
+        resources: [],
+        usage: { access: 'Usage conditions apply' },
+        idsId: 'restricted-id',
+      },
+      { resources: [], usage: { access: 'CC0' }, idsId: 'open-id' },
+    ]
+
+    const result = mapAssetItem(item, { width: 1000, height: 800 })
+
+    expect(result.image?.renditions[0]?.href).toContain('open-id')
+  })
+
+  it('leaves the image unset when every media item is restricted', () => {
+    const item = withMedia({
+      usage: { access: 'Usage conditions apply' },
+      idsId: 'restricted-id',
+    })
+
+    const result = mapAssetItem(item, { width: 1000, height: 800 })
+
+    expect(result.image).toBeUndefined()
+  })
+
   it('leaves the image unset when no resource can be laid out', () => {
     const result = mapAssetItem(
       withMedia({
@@ -288,7 +316,10 @@ describe('mapAssetItem text', () => {
           unit_code: 'NASM',
           data_source: 'National Air and Space Museum',
           online_media: media
-            ? { media: [{ resources: [], ...media }], mediaCount: 1 }
+            ? {
+                media: [{ resources: [], usage: { access: 'CC0' }, ...media }],
+                mediaCount: 1,
+              }
             : undefined,
           metadata_usage: { access: 'CC0' },
         },

@@ -40,6 +40,7 @@ export const sioaMediaItemSchema = z.object({
   resources: z.array(sioaResourceItemSchema),
   // addresses the master on the delivery service, which renditions are scaled from
   idsId: z.string().optional(),
+  usage: z.object({ access: z.string() }).optional(),
   altTextAccessibility: z.string().optional(),
   extDescrAccessibility: z.string().optional(),
 })
