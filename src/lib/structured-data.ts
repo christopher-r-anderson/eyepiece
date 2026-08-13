@@ -6,12 +6,9 @@ import {
   SI_OA_PROVIDER_ID,
 } from '@/domain/provider/provider.schema'
 
-// Builders for the JSON-LD nodes routes emit through the head() scripts
-// option, wrapped by jsonLdScript below. Values stay plain JSON.
-
-// Head scripts render raw, so provider-derived strings could otherwise
-// close the tag. \u escapes stay valid JSON and decode to the original
-// characters on parse.
+// Head scripts render raw, so \u-escape the JSON: still valid, and provider
+// strings cannot close the tag. The router does this natively for
+// 'script:ld+json' meta entries; swap once the installed types know the key.
 export function jsonLdScript(node: object) {
   return {
     type: 'application/ld+json',
@@ -22,8 +19,7 @@ export function jsonLdScript(node: object) {
   }
 }
 
-// Site-wide node, emitted by the home page only. The SearchAction is what
-// lets engines offer a sitelinks search box pointed at /search.
+// the SearchAction is what lets engines offer a sitelinks search box
 export function webSiteJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -57,9 +53,8 @@ export function collectionPageJsonLd({
   }
 }
 
-// Rights metadata is provider-level: Smithsonian open access is CC0, while
-// NASA imagery is public domain by policy with no canonical license URL, so
-// its node points at NASA's usage guidelines instead of claiming one.
+// Smithsonian declares CC0 per record; NASA publishes no license URL, so its
+// node points at the usage guidelines instead of claiming one
 const PROVIDER_RIGHTS = {
   [SI_OA_PROVIDER_ID]: {
     license: 'https://creativecommons.org/publicdomain/zero/1.0/',
@@ -80,14 +75,12 @@ export function imageObjectJsonLd({
 }: {
   title: string
   description?: string
-  // dimensions come from the rendition serving as contentUrl, not the
-  // master, so they describe the file the node points at
   image: AssetImage
-  // the record's page at the provider
   sourceUrl?: string
   providerId: ProviderId
   url: string
 }) {
+  // width/height describe the contentUrl file, not the master dimensions
   const widest = image.renditions[0]
   return {
     '@context': 'https://schema.org',

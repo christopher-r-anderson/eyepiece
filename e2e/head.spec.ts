@@ -2,8 +2,7 @@ import { expect, test } from './fixtures'
 
 const DEFAULT_TITLE = 'eyepiece: NASA Media Explorer'
 
-// jsonLdScript escapes angle brackets as \uXXXX inside the JSON, which
-// JSON.parse undoes; a parse failure means the tag leaked markup
+// a parse failure means the tag leaked markup
 function jsonLdNodes(html: string) {
   return [
     ...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs),

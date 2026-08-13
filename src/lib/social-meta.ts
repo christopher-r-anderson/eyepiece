@@ -14,10 +14,9 @@ function trimDescription(text: string) {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 120))}…`
 }
 
-// Every indexable page is fully addressed by its path, so canonical URLs
-// carry no search params. Param segments embed encoded and case-preserved:
-// provider external ids are case-sensitive upstream, and a case-folded id
-// fetches as not-found (docs/decisions/05-prerendering.md).
+// Indexable pages are fully addressed by their paths, so canonicals carry no
+// search params. Segments stay case-preserved: provider ids are case-sensitive
+// upstream and a folded id fetches as not-found (docs/decisions/05-prerendering.md)
 export function canonicalUrl(...segments: Array<string>) {
   if (segments.length === 0) {
     return `${SITE_ORIGIN}/`

@@ -37,8 +37,7 @@ const HOME_URL = canonicalUrl()
 export const Route = createFileRoute('/(public)/(pages)/')({
   component: HomePage,
   head: () => ({
-    // title and social preview stay the root defaults; the home page only
-    // pins its address and the site-wide WebSite node
+    // title and social preview stay the root defaults
     meta: canonicalMeta(HOME_URL),
     links: canonicalLinks(HOME_URL),
     scripts: [jsonLdScript(webSiteJsonLd())],
