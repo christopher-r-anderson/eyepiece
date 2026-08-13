@@ -166,6 +166,7 @@ Eyepiece supports multiple image asset providers.
 
 - [The Smithsonian Institution Open Access API](https://edan.si.edu/openaccess/apidocs/)
 - Used with permission under [The Smithsonian Institution Terms of Use](https://www.si.edu/termsofuse)
+- Imagery is dedicated to the public domain (CC0) through [Smithsonian Open Access](https://www.si.edu/openaccess)
 
 ### Provider Integration
 
