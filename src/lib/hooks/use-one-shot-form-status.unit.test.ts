@@ -36,7 +36,7 @@ describe('useOneShotFormStatus', () => {
       search: expect.any(Function),
       replace: true,
     })
-    const updateSearch = mockNavigate.mock.calls[0][0].search
+    const updateSearch = mockNavigate.mock.calls[0]![0].search
     expect(
       updateSearch({ next: '/favorites', status: 'sent', formError: 'code' }),
     ).toEqual({ next: '/favorites', status: undefined, formError: undefined })

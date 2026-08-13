@@ -131,7 +131,7 @@ export function mapMediaItem({
   links: Array<NasaMediaLink>
 }) {
   // Note data is an array but is always .length === 1
-  const { album, title, description, nasa_id } = data[0]
+  const { album, title, description, nasa_id } = data[0]!
   const albums = album
     ?.filter((albumId) => !HIDDEN_ALBUM_IDS.has(albumId))
     .map((albumId) =>

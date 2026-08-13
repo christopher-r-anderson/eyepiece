@@ -171,7 +171,7 @@ describe('useLoadMoreController', () => {
       )
 
       expect(observerInstances).toHaveLength(1)
-      expect(observerInstances[0].observe).toHaveBeenCalledOnce()
+      expect(observerInstances[0]!.observe).toHaveBeenCalledOnce()
     })
   })
 

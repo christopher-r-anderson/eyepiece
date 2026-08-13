@@ -15,7 +15,7 @@ function remoteImagePatterns() {
   expect(list, 'netlify.toml is missing [images] remote_images').toBeDefined()
   const patterns = [...list!.matchAll(/"([^"]+)"/g)].map(
     // TOML basic strings escape the backslashes the regexes need
-    (match) => new RegExp(`^${match[1].replaceAll('\\\\', '\\')}$`),
+    (match) => new RegExp(`^${match[1]!.replaceAll('\\\\', '\\')}$`),
   )
   expect(patterns.length).toBeGreaterThan(0)
   return patterns

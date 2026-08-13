@@ -143,9 +143,8 @@ export function percent(part: number, whole: number) {
 }
 
 export function quantile(values: Array<number>, fraction: number) {
-  if (values.length === 0) return 0
   const sorted = [...values].sort((a, b) => a - b)
-  return sorted[Math.floor((sorted.length - 1) * fraction)]
+  return sorted[Math.floor((sorted.length - 1) * fraction)] ?? 0
 }
 
 export function csvCell(value: string) {

@@ -137,12 +137,11 @@ export function makeUserFavoritesRepo(client: SupabaseClient) {
     const items = userFavoritesEdges
       .slice(0, pageSize)
       .map(mapUserFavoritesEdges)
+    const lastItem = items.at(-1)
     return Ok({
       items,
       pagination: {
-        next: hasMore
-          ? encodeFavoritesEdgesCursor(items[items.length - 1])
-          : null,
+        next: hasMore && lastItem ? encodeFavoritesEdgesCursor(lastItem) : null,
         total: count ?? 0,
       },
     })

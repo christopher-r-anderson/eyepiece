@@ -35,7 +35,8 @@ export function buildSioaSearchParams(
 // widths worth requesting from the master. The top of the ladder covers a
 // detail image on a 2x display; past that the file costs more than the
 // sharpness is worth, and the masters run to 12000px.
-const RENDITION_WIDTHS = [320, 640, 960, 1280, 1920, 2560]
+const MAX_RENDITION_WIDTH = 2560
+const RENDITION_WIDTHS = [320, 640, 960, 1280, 1920, MAX_RENDITION_WIDTH]
 
 export function usableDimensions(resource: SioaResourceItem | undefined) {
   if (
@@ -79,10 +80,7 @@ function buildImage(
   }
   const { idsId } = media
   // never ask for an upscale, and always offer the master itself
-  const cap = Math.min(
-    master.width,
-    RENDITION_WIDTHS[RENDITION_WIDTHS.length - 1],
-  )
+  const cap = Math.min(master.width, MAX_RENDITION_WIDTH)
   const widths = [...RENDITION_WIDTHS.filter((width) => width < cap), cap]
   return toAssetImage(
     widths.map((width) => ({

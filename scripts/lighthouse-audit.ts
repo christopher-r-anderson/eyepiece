@@ -83,11 +83,10 @@ function summarize(
   run: number,
   lhr: Result,
 ): RunSummary {
-  const metric = (id: string) =>
-    id in lhr.audits ? lhr.audits[id].numericValue : undefined
+  const metric = (id: string) => lhr.audits[id]?.numericValue
   const requestItems =
     (
-      lhr.audits['network-requests'].details as
+      lhr.audits['network-requests']?.details as
         | { items?: Array<Record<string, unknown>> }
         | undefined
     )?.items ?? []

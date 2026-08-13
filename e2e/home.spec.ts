@@ -38,7 +38,7 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
     }),
   ).toBeVisible()
 
-  const firstChip = SUGGESTED_SEARCHES[0]
+  const firstChip = SUGGESTED_SEARCHES[0]!
   await expect(
     page.getByRole('link', { name: firstChip, exact: true }),
   ).toHaveAttribute('href', `/search?q=${firstChip.replaceAll(' ', '+')}`)
@@ -55,7 +55,7 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
     )
   }
   const firstStrip = page.getByRole('region', {
-    name: `editor’s picks ${FEATURED_ALBUMS[0].title}`,
+    name: `editor’s picks ${FEATURED_ALBUMS[0]!.title}`,
   })
   await expect(firstStrip.getByRole('listitem').first()).toBeVisible()
 

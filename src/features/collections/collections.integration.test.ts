@@ -580,7 +580,7 @@ describe('collection items', () => {
       .from('collection_items')
       .delete()
       .eq('collection_id', collection.id)
-      .eq('asset_preview_snapshot_id', ids[0])
+      .eq('asset_preview_snapshot_id', ids[0]!)
     expect(deleteError).toBeNull()
 
     const page2 = unwrapOrThrow(
@@ -624,7 +624,7 @@ describe('collection items', () => {
             collectionId: collection.id,
             assetKey: { providerId: 'nasa_ivl', externalId },
           },
-          ids[index],
+          ids[index]!,
         ),
       )
     }
@@ -637,6 +637,7 @@ describe('collection items', () => {
       }),
     )
     const middle = before.items[1]
+    if (!middle) throw new Error('expected an item at index 1')
     expect(middle.assetPreviewSnapshotId).toBe(ids[1])
 
     unwrapOrThrow(
@@ -652,7 +653,7 @@ describe('collection items', () => {
           collectionId: collection.id,
           assetKey: middle.assetKey,
         },
-        ids[1],
+        ids[1]!,
         middle.position,
         middle.createdAt,
       ),
@@ -749,7 +750,7 @@ describe('collection items', () => {
       firstSnapshot,
       secondSnapshot,
     ])
-    expect(edges.items[0].assetKey).toEqual({
+    expect(edges.items[0]?.assetKey).toEqual({
       providerId: 'nasa_ivl',
       externalId: firstExternalId,
     })

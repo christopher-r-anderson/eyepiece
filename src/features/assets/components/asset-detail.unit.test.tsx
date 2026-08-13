@@ -49,7 +49,7 @@ describe('asset detail', () => {
     const portrait = {
       width: 640,
       height: 1280,
-      renditions: [image.renditions[0]],
+      renditions: [image.renditions[0]!],
     }
     render(
       <AssetDetail

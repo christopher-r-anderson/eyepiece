@@ -42,11 +42,9 @@ export function eagerTileCount(aspectRatios: Array<number>) {
   const budget = EAGER_ROWS * LINE_MAX
   let sum = 0
   let index = 0
-  while (index < aspectRatios.length && sum < budget) {
-    sum += Math.min(
-      aspectRatios[index] * ROW_HEIGHT,
-      ROW_HEIGHT * WIDTH_CAP_RATIO,
-    )
+  for (const aspectRatio of aspectRatios) {
+    if (sum >= budget) break
+    sum += Math.min(aspectRatio * ROW_HEIGHT, ROW_HEIGHT * WIDTH_CAP_RATIO)
     index += 1
   }
   return index

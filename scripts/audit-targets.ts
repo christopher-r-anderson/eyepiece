@@ -35,7 +35,7 @@ async function resolveAuditTargets(
       throw new Error(`sitemap fetch failed: ${response.status}`)
     const xml = await response.text()
     const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
-      (match) => new URL(match[1]).pathname,
+      (match) => new URL(match[1]!).pathname,
     )
     album = paths.find((pathname) => pathname.startsWith('/albums/')) ?? album
     // a reachable sitemap with no collections means the target has none;

@@ -16,13 +16,14 @@ export const assetKeyIsEqual = (a: AssetKey, b: AssetKey) => {
 
 // one candidate set across surfaces: shared widths keep the CDN's per-node
 // transform cache warm
-const DELIVERY_WIDTHS = [320, 480, 640, 960, 1280, 1920, 2560]
+const MAX_DELIVERY_WIDTH = 2560
+const DELIVERY_WIDTHS = [320, 480, 640, 960, 1280, 1920, MAX_DELIVERY_WIDTH]
 
 // the ladder tops out at 2x the slot (what denser screens get) and at the
 // source width, which the CDN would silently upscale past
 function toImageCandidates(image: AssetImage, maxSlotWidth: number) {
-  const widest = image.renditions[0]
-  if (!isCdnDelivered(widest.href)) {
+  const [widest] = image.renditions
+  if (!widest || !isCdnDelivered(widest.href)) {
     return image.renditions.map((rendition) => ({
       href: toDeliveryHref(rendition.href, rendition.width),
       width: rendition.width,
@@ -31,7 +32,7 @@ function toImageCandidates(image: AssetImage, maxSlotWidth: number) {
   const cap = Math.min(
     widest.width,
     DELIVERY_WIDTHS.find((width) => width >= 2 * maxSlotWidth) ??
-      DELIVERY_WIDTHS[DELIVERY_WIDTHS.length - 1],
+      MAX_DELIVERY_WIDTH,
   )
   return [...DELIVERY_WIDTHS.filter((width) => width < cap), cap]
     .reverse()
@@ -49,7 +50,8 @@ export function toSrcSet(image: AssetImage, maxSlotWidth: number) {
 // The narrowest is the cheaper thing to be wrong about, and serving it from
 // its own rendition keeps it usable when the widest file cannot be served.
 export function toFallbackSrc(image: AssetImage) {
-  const narrowest = image.renditions[image.renditions.length - 1]
+  // the schema guarantees at least one rendition
+  const narrowest = image.renditions.at(-1)!
   return toDeliveryHref(narrowest.href, narrowest.width)
 }
 
@@ -62,7 +64,8 @@ export const toAspectRatio = (image: AssetImage | undefined) =>
 export function toSocialImage(image: AssetImage) {
   const rendition =
     image.renditions.find((r) => r.width <= 1600) ??
-    image.renditions[image.renditions.length - 1]
+    // the schema guarantees at least one rendition
+    image.renditions.at(-1)!
   return {
     url: rendition.href,
     width: rendition.width,

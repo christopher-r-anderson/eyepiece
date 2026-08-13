@@ -70,7 +70,7 @@ interface RecordSample {
 }
 
 function extensionOf(href: string) {
-  const path = href.split('?')[0]
+  const path = href.split('?')[0]!
   const dot = path.lastIndexOf('.')
   return dot === -1 ? '' : path.slice(dot + 1).toLowerCase()
 }
@@ -196,14 +196,14 @@ function labelCoverage(samples: Array<RecordSample>) {
       }
     }
   }
-  return Object.keys(present)
-    .sort((a, b) => present[b] - present[a])
-    .map((label) => {
+  return Object.entries(present)
+    .sort(([, countA], [, countB]) => countB - countA)
+    .map(([label, count]) => {
       const widths = widthsByLabel[label] ?? []
       return [
         label,
-        present[label],
-        percent(present[label], samples.length),
+        count,
+        percent(count, samples.length),
         withDimensions[label] ?? 0,
         widths.length ? quantile(widths, 0) : '-',
         widths.length ? quantile(widths, 0.5) : '-',
@@ -305,11 +305,12 @@ async function auditFixtures() {
       for (const row of siRows) {
         const record = asRecord(row)
         const media = siMediaItems(record)
-        if (media.length === 0) continue
-        const id = asString(media[0].idsId) || asString(record.id)
+        const [firstMedia] = media
+        if (!firstMedia) continue
+        const id = asString(firstMedia.idsId) || asString(record.id)
         if (!id || seenSi.has(id)) continue
         seenSi.add(id)
-        const renditions = siRenditions(media[0])
+        const renditions = siRenditions(firstMedia)
         const declared = renditions.find(
           (rendition) => rendition.width && rendition.height,
         )
@@ -342,7 +343,8 @@ function readPixelSize(buffer: Buffer) {
         offset++
         continue
       }
-      const marker = buffer[offset + 1]
+      // the loop condition keeps offset + 1 in bounds
+      const marker = buffer[offset + 1]!
       const length = buffer.readUInt16BE(offset + 2)
       const isStartOfFrame =
         marker >= 0xc0 &&

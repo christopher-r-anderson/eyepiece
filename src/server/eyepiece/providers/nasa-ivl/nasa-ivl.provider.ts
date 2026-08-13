@@ -62,20 +62,23 @@ async function getAlbum(id: string, pagination: Pagination) {
   // Therefore, we need to calculate which NASA album pages to fetch
   // and slice the results accordingly
   const plans = calculateNasaAlbumRequests(pagination.page, pagination.pageSize)
-  const responses = await Promise.all(
-    plans.map((plan) => nasaIvlGetAlbum(id, { page: plan.page })),
+  const pages = await Promise.all(
+    plans.map(async (plan) => ({
+      plan,
+      response: await nasaIvlGetAlbum(id, { page: plan.page }),
+    })),
   )
 
-  const total = responses[0].collection.metadata.total_hits
-  const assets = []
-  for (const [index, response] of responses.entries()) {
-    const plan = plans[index]
-    assets.push(
-      ...response.collection.items
-        .slice(plan.sliceStart, plan.sliceEnd)
-        .map(mapMediaItem),
-    )
+  const [firstPage] = pages
+  if (!firstPage) {
+    throw new Error(`No album pages planned for: ${id}`)
   }
+  const total = firstPage.response.collection.metadata.total_hits
+  const assets = pages.flatMap(({ plan, response }) =>
+    response.collection.items
+      .slice(plan.sliceStart, plan.sliceEnd)
+      .map(mapMediaItem),
+  )
   const next = pageNumberCursor(calculateNextPage(pagination, total))
   const response: PaginatedCollection<Asset, AlbumCollectionMetadata> = {
     items: assets,
@@ -99,13 +102,14 @@ async function getAsset(id: string): Promise<Asset | null> {
   const matches = nasaResponse.collection.items.filter(
     (item) => item.data[0]?.nasa_id === id,
   )
-  if (matches.length === 0) {
+  const [match] = matches
+  if (!match) {
     return null
   }
   if (matches.length !== 1) {
     throw new Error(`Asset lookup returned multiple matches: ${id}`)
   }
-  return mapMediaItem(matches[0])
+  return mapMediaItem(match)
 }
 
 async function searchAssets(

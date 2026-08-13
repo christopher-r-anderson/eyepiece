@@ -15,7 +15,7 @@ import { nasaMediaCollectionResponseSchema } from '@/integrations/nasa-ivl/types
 
 describe('mapMediaItem text', () => {
   function parseItem(fixture: unknown) {
-    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]
+    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]!
   }
 
   function createItem(data: Partial<NasaMediaItem>) {
@@ -90,7 +90,7 @@ describe('mapMediaItem text', () => {
 
 describe('mapMediaItem renditions', () => {
   function parseItem(fixture: unknown) {
-    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]
+    return nasaMediaCollectionResponseSchema.parse(fixture).collection.items[0]!
   }
 
   function withLinks(links: Array<NasaMediaLink>) {

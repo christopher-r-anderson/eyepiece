@@ -149,7 +149,7 @@ test('unchecking the host collection keeps the picker and its tile in place', as
     const targetRow = page
       .getByRole('grid')
       .getByRole('row')
-      .filter({ has: page.getByRole('link', { name: items[0].title }) })
+      .filter({ has: page.getByRole('link', { name: items[0]!.title }) })
     await targetRow.hover()
     await targetRow.getByRole('button', { name: 'Add to collection' }).click()
     const dialog = page.getByRole('dialog')
@@ -164,7 +164,9 @@ test('unchecking the host collection keeps the picker and its tile in place', as
     await expect(hostCheckbox).not.toBeChecked({ timeout: 15_000 })
     await page.waitForTimeout(3000)
     await expect(dialog).toBeVisible()
-    await expect(page.getByRole('link', { name: items[0].title })).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: items[0]!.title }),
+    ).toBeVisible()
   } finally {
     await admin.from('collections').delete().eq('id', collectionId)
   }
@@ -193,8 +195,8 @@ test('favorites tiles unstar into ghosts with undo; removal sticks on reload', a
     await logInAsFixtureUser(page, '/favorites')
     // assertions scope to this project's own rows: the parallel browser
     // projects share the fixture user, so the page may show their rows too
-    const targetTitle = seeded[0].title
-    const siblingTitle = seeded[1].title
+    const targetTitle = seeded[0]!.title
+    const siblingTitle = seeded[1]!.title
     const targetRow = page
       .getByRole('grid')
       .getByRole('row')

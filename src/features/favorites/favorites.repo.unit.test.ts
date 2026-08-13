@@ -230,8 +230,8 @@ describe('makeUserFavoritesRepo / getUserFavoritesEdges', () => {
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
         expect(result.data.items).toHaveLength(2)
-        expect(result.data.items[0].assetKey.externalId).toBe('asset-001')
-        expect(result.data.items[1].assetKey.externalId).toBe('asset-002')
+        expect(result.data.items[0]?.assetKey.externalId).toBe('asset-001')
+        expect(result.data.items[1]?.assetKey.externalId).toBe('asset-002')
       }
     })
 
@@ -435,8 +435,8 @@ describe('makeUserFavoritesRepo / getUserFavoritesIndex', () => {
       expect(resultIsSuccess(result)).toBe(true)
       if (resultIsSuccess(result)) {
         expect(result.data).toHaveLength(2)
-        expect(result.data[0].externalId).toBe('asset-001')
-        expect(result.data[1].externalId).toBe('asset-002')
+        expect(result.data[0]?.externalId).toBe('asset-001')
+        expect(result.data[1]?.externalId).toBe('asset-002')
       }
     })
 

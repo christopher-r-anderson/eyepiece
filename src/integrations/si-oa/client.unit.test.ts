@@ -45,7 +45,7 @@ describe('si-oa client', () => {
       'key',
     )
 
-    const requestUrl = fetchMock.mock.calls[0][0] as string
+    const requestUrl = fetchMock.mock.calls[0]![0] as string
     expect(requestUrl).toContain('/search')
     expect(requestUrl).toContain('q=apollo+AND+online_media_type%3AImages')
     expect(requestUrl).toContain('start=0')
