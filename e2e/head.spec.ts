@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures'
+import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 
 const DEFAULT_TITLE = 'eyepiece: NASA Media Explorer'
 
@@ -94,6 +95,54 @@ test('an asset page carries its canonical address and ImageObject node', async (
   // NASA nodes point at usage guidelines rather than claiming a license
   expect(image?.acquireLicensePage).toContain('nasa.gov')
   expect(image).not.toHaveProperty('license')
+})
+
+test('a Smithsonian asset page claims the CC0 license', async ({ page }) => {
+  const response = await page.goto(
+    '/assets/si_oa/ld1-1643400021979-1643400026580-0',
+  )
+  const html = (await response?.text()) ?? ''
+
+  const image = jsonLdNodes(html).find(
+    (node) => node['@type'] === 'ImageObject',
+  )
+  expect(image?.license).toContain('creativecommons.org/publicdomain/zero')
+  expect(image).not.toHaveProperty('acquireLicensePage')
+})
+
+test('an album document carries its canonical address and CollectionPage node', async ({
+  page,
+}) => {
+  const response = await page.goto('/albums/nasa_ivl/Apollo-at-50')
+  const html = (await response?.text()) ?? ''
+  const canonical = 'https://eyepiece.net/albums/nasa_ivl/Apollo-at-50'
+
+  expect(html).toContain(`<link rel="canonical" href="${canonical}"/>`)
+  expect(html).toContain(`<meta property="og:url" content="${canonical}"/>`)
+
+  const collection = jsonLdNodes(html).find(
+    (node) => node['@type'] === 'CollectionPage',
+  )
+  expect(collection?.url).toBe(canonical)
+  expect(collection?.name).toBeTruthy()
+})
+
+test('a collection document carries its canonical address and CollectionPage node', async ({
+  page,
+}) => {
+  const { publicCollection } = COLLECTIONS_FIXTURE
+  const response = await page.goto(`/collections/${publicCollection.id}`)
+  const html = (await response?.text()) ?? ''
+  const canonical = `https://eyepiece.net/collections/${publicCollection.id}`
+
+  expect(html).toContain(`<link rel="canonical" href="${canonical}"/>`)
+  expect(html).toContain(`<meta property="og:url" content="${canonical}"/>`)
+
+  const collection = jsonLdNodes(html).find(
+    (node) => node['@type'] === 'CollectionPage',
+  )
+  expect(collection?.url).toBe(canonical)
+  expect(collection?.name).toBe(publicCollection.name)
 })
 
 test('the server document preloads the detail image', async ({ page }) => {

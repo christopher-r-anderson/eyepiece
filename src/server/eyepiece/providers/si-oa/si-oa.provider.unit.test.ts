@@ -232,7 +232,7 @@ describe('makeSiOaAdapter', () => {
 
       expect(mockSearch).toHaveBeenCalledWith(
         {
-          q: 'apollo AND online_media_type:Images AND data_source:"National Air and Space Museum"',
+          q: 'apollo AND online_media_type:Images AND media_usage:CC0 AND data_source:"National Air and Space Museum"',
           start: 0,
           rows: 20,
         },
@@ -258,6 +258,7 @@ describe('makeSiOaAdapter', () => {
               media: [
                 {
                   idsId: 'NASM-undeclared',
+                  usage: { access: 'CC0' },
                   resources: [
                     {
                       url: 'https://example.com/standard.jpg' as never,

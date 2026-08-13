@@ -27,3 +27,4 @@ Re-record when a spec starts requesting a URL that is not here yet, which shows 
 ## Captured
 
 - 2026-07-28, from a full suite run: NASA search and album responses for the homepage strips and the search specs, Smithsonian search responses for the all-scope and provider-scope specs, and empty results for the synthetic ids the not-found and seeded-fixture specs request.
+- 2026-08-13, Smithsonian only: search responses re-recorded under the media_usage:CC0 query term, plus the content and IIIF info.json responses the head specs' asset page requests.

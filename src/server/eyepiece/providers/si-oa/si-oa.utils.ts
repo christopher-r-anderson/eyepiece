@@ -26,7 +26,7 @@ export function buildSioaSearchParams(
 ): SioaSearchParams {
   const { start, end } = paginationToRange(pagination)
   return {
-    q: `${query} AND online_media_type:Images AND data_source:"National Air and Space Museum"`,
+    q: `${query} AND online_media_type:Images AND media_usage:CC0 AND data_source:"National Air and Space Museum"`,
     start,
     rows: end - start + 1,
   }
@@ -56,10 +56,12 @@ export function getDeclaredDimensions(media: SioaMediaItem | undefined) {
   return (media?.resources ?? []).map(usableDimensions).find(Boolean)
 }
 
-// records carry up to 94 media items; choosing among them is an open question
-// and every consumer reads the first
+// records carry up to 94 media items; every consumer reads the first CC0
+// one, since the site's rights claims cover everything it displays
 export function getPrimaryMedia(assetItem: SioaAssetItem) {
-  return assetItem.content.descriptiveNonRepeating.online_media?.media[0]
+  return assetItem.content.descriptiveNonRepeating.online_media?.media.find(
+    (media) => media.usage?.access === 'CC0',
+  )
 }
 
 function buildImage(
