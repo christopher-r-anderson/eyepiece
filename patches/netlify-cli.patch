@@ -1,21 +1,20 @@
 diff --git a/dist/commands/base-command.js b/dist/commands/base-command.js
-index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..cfa5d92127ee18970ccb3af58ac4edab95ea27cb 100644
+index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..d0b9c99735f62168dd11f3d95c993d27938ab232 100644
 --- a/dist/commands/base-command.js
 +++ b/dist/commands/base-command.js
-@@ -105,7 +105,17 @@ async function selectWorkspace(project, filter) {
+@@ -105,7 +105,16 @@ async function selectWorkspace(project, filter) {
      return selected.path;
  }
  async function getRepositoryRoot(cwd) {
 -    const res = await findUp('.git', { cwd, type: 'directory' });
-+    // The stock directory-only search walks past a linked git worktree's
-+    // `.git` file; from a worktree nested inside its repository the next hit
-+    // is the parent checkout's `.git` directory, so `netlify serve`/`dev`
-+    // anchor there and build the wrong tree's code. Accepting the file form
-+    // resolves the worktree itself. Same bug class as (filed against
-+    // @netlify/config, whose copy is not load-bearing here - it receives
-+    // this rootDir as an explicit option, as does the vite plugin's dev
-+    // server with its cwd; utils/get-repo-data.js repeats the pattern too
-+    // but only feeds deploy metadata):
++    // The stock directory-only search walks past a git worktree's `.git`
++    // file since it is not a directory. If the worktree is in a subdir of
++    // another git repo it hits the main repo's checkout and serves from
++    // there rather than the worktree. Patch this line so it recognizes a
++    // dir or a file. Only `serve` (and therefore e2e tests) affects us
++    // since vite and config get passed directories explicitly.
++    // `utils/get-repo-data.js` is only used in deploys, not worktrees.
++    // There is a similar bug filed against `@netlify/config`:
 +    // https://github.com/netlify/cli/issues/7868
 +    const res = await findUp('.git', { cwd });
      if (res) {
