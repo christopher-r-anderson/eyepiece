@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   netlify-cli:
-    hash: 06551a0e6be53bea5b1b2564c9795fed18bf1ae689b9fbde9c03743cdbc56623
+    hash: 7b831a58948228b1dfd5efb20322d1910427f7d3aed4d2f41e4b095de9958322
     path: patches/netlify-cli.patch
 
 importers:
@@ -139,7 +139,7 @@ importers:
         version: 13.4.1(yauzl@2.10.0)
       netlify-cli:
         specifier: ^24.0.1
-        version: 24.0.1(patch_hash=06551a0e6be53bea5b1b2564c9795fed18bf1ae689b9fbde9c03743cdbc56623)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0)
+        version: 24.0.1(patch_hash=7b831a58948228b1dfd5efb20322d1910427f7d3aed4d2f41e4b095de9958322)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0)
       png-to-ico:
         specifier: ^3.0.2
         version: 3.0.2
@@ -17221,7 +17221,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  netlify-cli@24.0.1(patch_hash=06551a0e6be53bea5b1b2564c9795fed18bf1ae689b9fbde9c03743cdbc56623)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0):
+  netlify-cli@24.0.1(patch_hash=7b831a58948228b1dfd5efb20322d1910427f7d3aed4d2f41e4b095de9958322)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0):
     dependencies:
       '@fastify/static': 9.0.0
       '@netlify/ai': 0.3.8
