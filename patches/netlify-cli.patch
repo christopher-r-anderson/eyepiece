@@ -1,3 +1,26 @@
+diff --git a/dist/commands/base-command.js b/dist/commands/base-command.js
+index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..cfa5d92127ee18970ccb3af58ac4edab95ea27cb 100644
+--- a/dist/commands/base-command.js
++++ b/dist/commands/base-command.js
+@@ -105,7 +105,17 @@ async function selectWorkspace(project, filter) {
+     return selected.path;
+ }
+ async function getRepositoryRoot(cwd) {
+-    const res = await findUp('.git', { cwd, type: 'directory' });
++    // The stock directory-only search walks past a linked git worktree's
++    // `.git` file; from a worktree nested inside its repository the next hit
++    // is the parent checkout's `.git` directory, so `netlify serve`/`dev`
++    // anchor there and build the wrong tree's code. Accepting the file form
++    // resolves the worktree itself. Same bug class as (filed against
++    // @netlify/config, whose copy is not load-bearing here - it receives
++    // this rootDir as an explicit option, as does the vite plugin's dev
++    // server with its cwd; utils/get-repo-data.js repeats the pattern too
++    // but only feeds deploy metadata):
++    // https://github.com/netlify/cli/issues/7868
++    const res = await findUp('.git', { cwd });
+     if (res) {
+         return join(res, '..');
+     }
 diff --git a/dist/utils/proxy.js b/dist/utils/proxy.js
 index fced1d1e451462e515fca39c8beb1301a264e32f..5d4341d913db63e5af0ef8b5ad638b040d17032d 100644
 --- a/dist/utils/proxy.js
