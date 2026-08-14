@@ -1,0 +1,22 @@
+diff --git a/dist/utils/proxy.js b/dist/utils/proxy.js
+index fced1d1e451462e515fca39c8beb1301a264e32f..5d4341d913db63e5af0ef8b5ad638b040d17032d 100644
+--- a/dist/utils/proxy.js
++++ b/dist/utils/proxy.js
+@@ -587,7 +587,16 @@ const initializeProxy = async function ({ config, configPath, distDir, env, host
+         web: (req, res, options) => {
+             const requestURL = new URL(req.url, 'http://127.0.0.1');
+             req.proxyOptions = options;
+-            req.alternativePaths = alternativePathsFor(requestURL.pathname).map((filePath) => filePath + requestURL.search);
++            // The stock CLI replays 404/403 responses with `.html`/`.htm`/`/index.html`
++            // path spellings. With the SSR function mounted at /* each replay is a
++            // fresh render, multiplying every not-found page into many invocations -
++            // slow local 404s, long e2e runs, and function-host contention in CI.
++            // Skip the replays for function-routed requests; the fallback is
++            // CLI-only, so skipping matches production:
++            // https://answers.netlify.com/t/netlify-is-invoking-404-functions-4-extra-times/127098
++            req.alternativePaths = options?.headers?.[NFFunctionName]
++                ? []
++                : alternativePathsFor(requestURL.pathname).map((filePath) => filePath + requestURL.search);
+             // Ref: https://nodejs.org/api/net.html#net_socket_remoteaddress
+             req.headers['x-forwarded-for'] = req.connection.remoteAddress || '';
+             proxy.web(req, res, options);

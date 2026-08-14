@@ -1,3 +1,5 @@
+# local/CI runs use the repo's patched Netlify CLI (patches/netlify-cli.patch,
+# see README "Running Locally"); production infrastructure is unaffected
 # no [dev] section since we use the netlify plugin for vite
 [build]
 command = "pnpm build"
