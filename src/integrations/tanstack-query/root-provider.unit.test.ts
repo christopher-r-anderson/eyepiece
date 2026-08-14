@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { shouldRetryQuery } from './root-provider'
+import { describe, expect, it, vi } from 'vitest'
+import { getContext, shouldRetryQuery } from './root-provider'
 import { EyepieceApiError } from '@/lib/eyepiece-api-client/client'
 
 describe('shouldRetryQuery', () => {
@@ -27,5 +27,48 @@ describe('shouldRetryQuery', () => {
     const error = new Error('network hiccup')
     expect(shouldRetryQuery(0, error)).toBe(true)
     expect(shouldRetryQuery(3, error)).toBe(false)
+  })
+})
+
+describe('imperative fetches stay fail-fast under the retry policy', () => {
+  it('fetchQuery makes a single attempt on a retryable error', async () => {
+    const { queryClient } = getContext()
+    const queryFn = vi
+      .fn()
+      .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+    await expect(
+      queryClient.fetchQuery({ queryKey: ['fail-fast'], queryFn }),
+    ).rejects.toThrow('upstream down')
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('prefetchInfiniteQuery makes a single attempt on a retryable error', async () => {
+    const { queryClient } = getContext()
+    const queryFn = vi
+      .fn()
+      .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: ['fail-fast-infinite'],
+      queryFn,
+      initialPageParam: 1,
+      getNextPageParam: () => undefined,
+    })
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('a call site passing its own retry still wins', async () => {
+    const { queryClient } = getContext()
+    const queryFn = vi
+      .fn()
+      .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ['fail-fast-opt-in'],
+        queryFn,
+        retry: 1,
+        retryDelay: 0,
+      }),
+    ).rejects.toThrow('upstream down')
+    expect(queryFn).toHaveBeenCalledTimes(2)
   })
 })
