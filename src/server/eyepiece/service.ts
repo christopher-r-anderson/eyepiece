@@ -46,8 +46,6 @@ function isNotFoundProviderError(error: unknown) {
   )
 }
 
-// 429s fail fast with every other upstream error: neither provider sends
-// Retry-After, so a special case would have nothing principled to wait on
 function toProviderAppException(
   providerId: ProviderId,
   operation: ProviderOperation,
