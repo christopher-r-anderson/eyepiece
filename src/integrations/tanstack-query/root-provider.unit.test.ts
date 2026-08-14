@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getContext, shouldRetryQuery } from './root-provider'
 import { EyepieceApiError } from '@/lib/eyepiece-api-client/client'
 
@@ -31,22 +31,37 @@ describe('shouldRetryQuery', () => {
 })
 
 describe('imperative fetches stay fail-fast under the retry policy', () => {
-  it('fetchQuery makes a single attempt on a retryable error', async () => {
-    const { queryClient } = getContext()
-    const queryFn = vi
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  const failingQueryFn = () =>
+    vi
       .fn()
       .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+
+  it('fetchQuery makes a single attempt on a retryable error', async () => {
+    const { queryClient } = getContext()
+    const queryFn = failingQueryFn()
     await expect(
       queryClient.fetchQuery({ queryKey: ['fail-fast'], queryFn }),
     ).rejects.toThrow('upstream down')
     expect(queryFn).toHaveBeenCalledTimes(1)
   })
 
+  it('prefetchQuery makes a single attempt on a retryable error', async () => {
+    const { queryClient } = getContext()
+    const queryFn = failingQueryFn()
+    await queryClient.prefetchQuery({
+      queryKey: ['fail-fast-prefetch'],
+      queryFn,
+    })
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
   it('prefetchInfiniteQuery makes a single attempt on a retryable error', async () => {
     const { queryClient } = getContext()
-    const queryFn = vi
-      .fn()
-      .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+    const queryFn = failingQueryFn()
     await queryClient.prefetchInfiniteQuery({
       queryKey: ['fail-fast-infinite'],
       queryFn,
@@ -56,11 +71,52 @@ describe('imperative fetches stay fail-fast under the retry policy', () => {
     expect(queryFn).toHaveBeenCalledTimes(1)
   })
 
+  it('ensureQueryData makes a single attempt on a cache miss', async () => {
+    const { queryClient } = getContext()
+    const queryFn = failingQueryFn()
+    await expect(
+      queryClient.ensureQueryData({ queryKey: ['fail-fast-ensure'], queryFn }),
+    ).rejects.toThrow('upstream down')
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('ensureInfiniteQueryData makes a single attempt on a cache miss', async () => {
+    const { queryClient } = getContext()
+    const queryFn = failingQueryFn()
+    await expect(
+      queryClient.ensureInfiniteQueryData({
+        queryKey: ['fail-fast-ensure-infinite'],
+        queryFn,
+        initialPageParam: 1,
+        getNextPageParam: () => undefined,
+      }),
+    ).rejects.toThrow('upstream down')
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
+  // the stale path hands already-defaulted options to prefetchQuery, past
+  // the fetchQuery guard - this pins the ensureQueryData override
+  it('ensureQueryData revalidateIfStale revalidates with a single attempt', async () => {
+    vi.useFakeTimers()
+    const { queryClient } = getContext()
+    const queryKey = ['fail-fast-revalidate']
+    queryClient.setQueryData(queryKey, 'cached')
+    const queryFn = failingQueryFn()
+    await expect(
+      queryClient.ensureQueryData({
+        queryKey,
+        queryFn,
+        revalidateIfStale: true,
+      }),
+    ).resolves.toBe('cached')
+    // run past the default backoff ladder (1s/2s/4s) a ladder would use
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(queryFn).toHaveBeenCalledTimes(1)
+  })
+
   it('a call site passing its own retry still wins', async () => {
     const { queryClient } = getContext()
-    const queryFn = vi
-      .fn()
-      .mockRejectedValue(new EyepieceApiError('upstream down', 502, undefined))
+    const queryFn = failingQueryFn()
     await expect(
       queryClient.fetchQuery({
         queryKey: ['fail-fast-opt-in'],
