@@ -1,5 +1,5 @@
 diff --git a/dist/commands/base-command.js b/dist/commands/base-command.js
-index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..d0b9c99735f62168dd11f3d95c993d27938ab232 100644
+index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..1527002ed279671d88057ee5adea0ffcd1afb028 100644
 --- a/dist/commands/base-command.js
 +++ b/dist/commands/base-command.js
 @@ -105,7 +105,16 @@ async function selectWorkspace(project, filter) {
@@ -16,7 +16,7 @@ index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..d0b9c99735f62168dd11f3d95c993d27
 +    // `utils/get-repo-data.js` is only used in deploys, not worktrees.
 +    // There is a similar bug filed against `@netlify/config`:
 +    // https://github.com/netlify/cli/issues/7868
-+    const res = await findUp('.git', { cwd });
++    const res = await findUp('.git', { cwd, type: 'both' });
      if (res) {
          return join(res, '..');
      }
