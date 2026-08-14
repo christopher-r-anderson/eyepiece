@@ -81,6 +81,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
+    // pnpm serve runs the repo's patched Netlify CLI (patches/netlify-cli.patch),
+    // which keeps not-found responses at one function invocation each
     command: 'pnpm serve --port 8888',
     url: 'http://localhost:8888',
     // provider calls made during SSR are out of page.route's reach, so they
