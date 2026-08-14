@@ -7,3 +7,6 @@ onlyBuiltDependencies:
   - supabase
   - unix-dgram
   - unrs-resolver
+
+patchedDependencies:
+  netlify-cli: patches/netlify-cli.patch

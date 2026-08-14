@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  netlify-cli:
+    hash: 498498f6779d8c08059cfec4ff05ca45e5e8c42e3f4683bd7875b626d0262c03
+    path: patches/netlify-cli.patch
+
 importers:
 
   .:
@@ -134,7 +139,7 @@ importers:
         version: 13.4.1(yauzl@2.10.0)
       netlify-cli:
         specifier: ^24.0.1
-        version: 24.0.1(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0)
+        version: 24.0.1(patch_hash=498498f6779d8c08059cfec4ff05ca45e5e8c42e3f4683bd7875b626d0262c03)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0)
       png-to-ico:
         specifier: ^3.0.2
         version: 3.0.2
@@ -161,7 +166,7 @@ importers:
         version: 7.3.1(@types/node@24.11.2)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.0.18
-        version: 4.0.18(@opentelemetry/api@1.9.1)(@types/node@24.11.2)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2)
+        version: 4.0.18(@opentelemetry/api@1.8.0)(@types/node@24.11.2)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2)
       web-vitals:
         specifier: ^5.1.0
         version: 5.1.0
@@ -17216,7 +17221,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  netlify-cli@24.0.1(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0):
+  netlify-cli@24.0.1(patch_hash=498498f6779d8c08059cfec4ff05ca45e5e8c42e3f4683bd7875b626d0262c03)(@types/node@24.11.2)(picomatch@4.0.5)(rollup@4.59.0):
     dependencies:
       '@fastify/static': 9.0.0
       '@netlify/ai': 0.3.8
@@ -19312,7 +19317,7 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@24.11.2)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2)
 
-  vitest@4.0.18(@opentelemetry/api@1.9.1)(@types/node@24.11.2)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2):
+  vitest@4.0.18(@opentelemetry/api@1.8.0)(@types/node@24.11.2)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
       '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@24.11.2)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2))
@@ -19335,7 +19340,7 @@ snapshots:
       vite: 7.3.1(@types/node@24.11.2)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api': 1.8.0
       '@types/node': 24.11.2
       jsdom: 28.1.0
     transitivePeerDependencies:

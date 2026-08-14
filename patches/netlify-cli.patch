@@ -1,0 +1,18 @@
+diff --git a/dist/utils/proxy.js b/dist/utils/proxy.js
+index fced1d1e451462e515fca39c8beb1301a264e32f..909816da4982ca871892081e5f67d481efe8c933 100644
+--- a/dist/utils/proxy.js
++++ b/dist/utils/proxy.js
+@@ -587,7 +587,12 @@ const initializeProxy = async function ({ config, configPath, distDir, env, host
+         web: (req, res, options) => {
+             const requestURL = new URL(req.url, 'http://127.0.0.1');
+             req.proxyOptions = options;
+-            req.alternativePaths = alternativePathsFor(requestURL.pathname).map((filePath) => filePath + requestURL.search);
++            // A request routed to a serverless function gets no alternative-path
++            // retries on 404/403: in production the CDN treats a function response
++            // as final and does not retry `.html`/`.htm` spellings of the path.
++            req.alternativePaths = options?.headers?.[NFFunctionName]
++                ? []
++                : alternativePathsFor(requestURL.pathname).map((filePath) => filePath + requestURL.search);
+             // Ref: https://nodejs.org/api/net.html#net_socket_remoteaddress
+             req.headers['x-forwarded-for'] = req.connection.remoteAddress || '';
+             proxy.web(req, res, options);
