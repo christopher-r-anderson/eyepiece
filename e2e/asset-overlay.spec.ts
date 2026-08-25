@@ -38,6 +38,27 @@ async function openOverlayFromCollection(page: Page) {
   await expect(page.getByRole('dialog')).toBeVisible()
 }
 
+function pageGeometry(page: Page) {
+  return page.evaluate(() => {
+    function horizontalBox(element: Element | null) {
+      if (!element) throw new Error('page geometry target did not render')
+      const { x, width } = element.getBoundingClientRect()
+      return { x, width }
+    }
+
+    return {
+      body: horizontalBox(document.body),
+      header: horizontalBox(document.querySelector('header')),
+      main: horizontalBox(document.querySelector('main')),
+      firstTile: horizontalBox(
+        document.querySelector('[data-tile-primary-link]'),
+      ),
+      rootScrollbarGutter: getComputedStyle(document.documentElement)
+        .scrollbarGutter,
+    }
+  })
+}
+
 test('opening a tile masks the URL above the still-mounted list', async ({
   page,
 }) => {
@@ -46,6 +67,9 @@ test('opening a tile masks the URL above the still-mounted list', async ({
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
   const rows = page.getByRole('grid').getByRole('row')
   await expect(rows).toHaveCount(3)
+  const closedPageGeometry = await pageGeometry(page)
+  expect(closedPageGeometry.header).toEqual(closedPageGeometry.body)
+  expect(closedPageGeometry.rootScrollbarGutter).toBe('stable')
 
   await expect(
     page.getByRole('link', { name: wideSnapshot.title }),
@@ -55,6 +79,7 @@ test('opening a tile masks the URL above the still-mounted list', async ({
   await page.getByRole('link', { name: wideSnapshot.title }).click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
+  expect(await pageGeometry(page)).toEqual(closedPageGeometry)
 
   await expect(page).toHaveURL(`/assets/nasa_ivl/${wideSnapshot.externalId}`)
   await expect(page).toHaveTitle(new RegExp(wideSnapshot.title))

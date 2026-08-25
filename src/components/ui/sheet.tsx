@@ -2,7 +2,6 @@ import { XIcon } from '@phosphor-icons/react/dist/ssr'
 import { Dialog, ModalOverlay, Modal as RacModal } from 'react-aria-components'
 import { sheet } from 'styled-system/recipes'
 import { Button } from './button'
-import { useModalOpenAttribute } from './modal-open-attribute'
 import type { ReactNode } from 'react'
 
 const slots = sheet()
@@ -18,7 +17,6 @@ export function Sheet({
   onOpenChange: (open: boolean) => void
   'aria-label': string
 }) {
-  useModalOpenAttribute(isOpen)
   return (
     <ModalOverlay
       isOpen={isOpen}

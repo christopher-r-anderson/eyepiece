@@ -70,3 +70,22 @@ test('homepage renders masthead, chips, strips, and collection cards', async ({
 
   expect(consoleErrors).toEqual([])
 })
+
+test('homepage and interior routes use the same header height', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const homeHeight = await page
+    .locator('header')
+    .evaluate((header) => header.getBoundingClientRect().height)
+
+  await page.goto('/search')
+  await expect(
+    page.getByRole('searchbox', { name: 'Search keywords' }),
+  ).toBeVisible()
+  const interiorHeight = await page
+    .locator('header')
+    .evaluate((header) => header.getBoundingClientRect().height)
+
+  expect(Math.abs(interiorHeight - homeHeight)).toBeLessThan(1)
+})

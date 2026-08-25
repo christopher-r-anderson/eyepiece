@@ -79,6 +79,8 @@ export const sheetRecipe = defineSlotRecipe({
       // through intermediate auto-height wrappers
       containerType: 'size',
       overflowY: 'auto',
+      scrollbarGutter: 'stable both-edges',
+      scrollbarThin: true,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',

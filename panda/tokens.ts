@@ -49,7 +49,7 @@ export const tokens = defineTokens({
     formMax: { value: '32rem' },
     pageColMax: { value: '40rem' },
     touchTargetMin: { value: '44px' },
-    // what the sticky header takes off the viewport, with a little slack
+    // minimum sticky-header height and shared anchor/viewport offset
     stickyHeader: { value: '4.5rem' },
     // controlHeight lives in semantic-tokens.ts (conditional value)
     // the justified grid's target row height, which is also what a tile
