@@ -4,7 +4,6 @@ import { useId } from 'react-aria'
 import { modalDialog } from 'styled-system/recipes'
 import { Button } from './button'
 import { Heading } from './heading'
-import { useModalOpenAttribute } from './modal-open-attribute'
 import type { HeadingLevel } from './heading'
 import type { ReactNode } from 'react'
 
@@ -28,9 +27,7 @@ export function ModalDialog({
   titleLevel = 2,
 }: ModalDialogProps) {
   const titleId = useId()
-  useModalOpenAttribute(isOpen)
 
-  // Note: gap on sides of overlay on chrome due to its handling of scrollbar gutters and react aria components not using dialog (for compatibility)
   return (
     <ModalOverlay
       isOpen={isOpen}

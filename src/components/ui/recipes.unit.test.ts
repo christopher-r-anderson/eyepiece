@@ -95,3 +95,9 @@ describe('every declared recipe variant has generated css', () => {
     }
   }
 })
+
+it('emits thin, symmetric stable scrollbar CSS for sheet bodies', () => {
+  const bodyRule = sheet.match(/\.sheet__body\s*\{[^}]*\}/)?.[0]
+  expect(bodyRule).toContain('scrollbar-width: thin')
+  expect(bodyRule).toContain('scrollbar-gutter: stable both-edges')
+})

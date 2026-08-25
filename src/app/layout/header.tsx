@@ -18,6 +18,8 @@ export function Header(props: ComponentPropsWithoutRef<'header'>) {
           position: 'sticky',
           top: '0',
           zIndex: 'sticky',
+          display: 'flex',
+          minHeight: 'stickyHeader',
           backgroundColor: 'bg.canvas',
           borderBottom: 'default',
         }),

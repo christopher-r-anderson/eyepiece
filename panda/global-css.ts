@@ -8,15 +8,15 @@ export const globalCss = defineGlobalStyles({
     '--global-color-placeholder': 'token(colors.text.muted)',
   },
   html: {
-    // react aria sets stable (not stable both-edges) which causes a jump in layout when a popover shows
-    scrollbarGutter: 'stable both-edges !important',
+    // Reserve the one-sided gutter even on short pages. React Aria currently
+    // writes the same value inline while scroll locking when it detects a
+    // classic gutter; `!important` keeps this app-owned contract authoritative
+    // if that behavior ever diverges.
+    scrollbarGutter: 'stable !important',
     // keyboard focus and anchor jumps must land below the sticky header
     scrollPaddingTop: 'token(sizes.stickyHeader)',
     background: 'bg.canvas',
     color: 'text',
-  },
-  "html[data-modal-open='true']": {
-    scrollbarGutter: 'auto !important',
   },
   body: {
     fontSize: 'base',
