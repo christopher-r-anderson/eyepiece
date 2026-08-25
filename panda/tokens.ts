@@ -51,6 +51,11 @@ export const tokens = defineTokens({
     touchTargetMin: { value: '44px' },
     // minimum sticky-header height and shared anchor/viewport offset
     stickyHeader: { value: '4.5rem' },
+    // Asset detail balances a useful image floor with approximate room for
+    // surface chrome, title, actions, and a hint of the content below.
+    detailImageHeightLimit: {
+      value: 'max(45dvh, 100dvh - 19rem)',
+    },
     // controlHeight lives in semantic-tokens.ts (conditional value)
     // the justified grid's target row height, which is also what a tile
     // reports as its laid-out width

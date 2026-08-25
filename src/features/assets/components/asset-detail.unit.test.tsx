@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AssetDetail } from './asset-detail'
 import type { Asset } from '@/domain/asset/asset.schema'
@@ -41,7 +41,7 @@ describe('asset detail', () => {
     )
 
     expect(screen.getByRole('img').getAttribute('sizes')).toBe(
-      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45vh, 100vh - 19rem) * 2.0000)), min(70rem, calc(max(45vh, 100vh - 19rem) * 2.0000))',
+      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45dvh, 100dvh - 19rem) * 2.0000)), min(70rem, calc(max(45dvh, 100dvh - 19rem) * 2.0000))',
     )
   })
 
@@ -60,8 +60,205 @@ describe('asset detail', () => {
     )
 
     expect(screen.getByRole('img').getAttribute('sizes')).toBe(
-      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45vh, 100vh - 19rem) * 0.5000)), min(70rem, calc(max(45vh, 100vh - 19rem) * 0.5000))',
+      '(max-width: 72rem) min(calc(100vw - 2rem), calc(max(45dvh, 100dvh - 19rem) * 0.5000)), min(70rem, calc(max(45dvh, 100dvh - 19rem) * 0.5000))',
     )
+  })
+
+  it('keeps the provider ratio when rendition rounding is immaterial', () => {
+    const roundedImage = {
+      width: 4070,
+      height: 2268,
+      renditions: [
+        {
+          href: 'https://images-assets.nasa.gov/image/DSC07878/DSC07878~medium.jpg',
+          width: 1280,
+          height: 713,
+        },
+        {
+          href: 'https://images-assets.nasa.gov/image/DSC07878/DSC07878~small.jpg',
+          width: 640,
+          height: 356,
+        },
+      ],
+    }
+    render(
+      <AssetDetail
+        asset={asset({ image: roundedImage })}
+        titleLevel={1}
+        heightModel="viewport"
+      />,
+    )
+    const renderedImage = screen.getByRole('img')
+    Object.defineProperties(renderedImage, {
+      complete: { configurable: true, value: true },
+      naturalWidth: { configurable: true, value: 640 },
+      naturalHeight: { configurable: true, value: 356 },
+    })
+
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'provider',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('1.7945')
+  })
+
+  it('keeps an intrinsic ratio through immaterial candidate rounding', () => {
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+    const renderedImage = screen.getByRole('img')
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 17978 },
+      naturalHeight: { configurable: true, value: 10000 },
+    })
+
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'intrinsic',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('1.7978')
+
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 17952 },
+      naturalHeight: { configurable: true, value: 10000 },
+    })
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'intrinsic',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('1.7978')
+  })
+
+  it('returns to provider sizing when a later candidate confirms it', () => {
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+    const renderedImage = screen.getByRole('img')
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 3 },
+      naturalHeight: { configurable: true, value: 2 },
+    })
+
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'intrinsic',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('1.5000')
+
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 2 },
+      naturalHeight: { configurable: true, value: 1 },
+    })
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'provider',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('2.0000')
+  })
+
+  it('keeps the image node while a new asset starts loading', () => {
+    const { rerender } = render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+    const firstImage = screen.getByRole('img')
+
+    const nextImage = {
+      ...image,
+      renditions: image.renditions.map((rendition) => ({
+        ...rendition,
+        href: rendition.href.replace('PIA14417', 'PIA14418'),
+      })),
+    }
+    rerender(
+      <AssetDetail
+        asset={asset({
+          key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'PIA14418' },
+          image: nextImage,
+        })}
+        titleLevel={1}
+        heightModel="viewport"
+      />,
+    )
+
+    expect(screen.getByRole('img')).toBe(firstImage)
+  })
+
+  it('does not apply the previous image ratio to a new source', () => {
+    const { rerender } = render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+    const renderedImage = screen.getByRole('img')
+    Object.defineProperties(renderedImage, {
+      complete: { configurable: true, value: true },
+      naturalWidth: { configurable: true, value: 640 },
+      naturalHeight: { configurable: true, value: 1280 },
+    })
+    fireEvent.load(renderedImage)
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('0.5000')
+
+    const nextImage = {
+      width: 900,
+      height: 600,
+      renditions: [
+        {
+          href: 'https://images-assets.nasa.gov/image/PIA14418/PIA14418~large.jpg',
+          width: 900,
+          height: 600,
+        },
+      ],
+    }
+    rerender(
+      <AssetDetail
+        asset={asset({
+          key: { providerId: NASA_IVL_PROVIDER_ID, externalId: 'PIA14418' },
+          image: nextImage,
+        })}
+        titleLevel={1}
+        heightModel="viewport"
+      />,
+    )
+
+    expect(screen.getByRole('img')).toBe(renderedImage)
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'provider',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('1.5000')
+
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 600 },
+      naturalHeight: { configurable: true, value: 800 },
+    })
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'intrinsic',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('0.7500')
+  })
+
+  it('keeps candidate sizing on provider dimensions after measuring the file', () => {
+    render(
+      <AssetDetail asset={asset()} titleLevel={1} heightModel="viewport" />,
+    )
+    const renderedImage = screen.getByRole('img')
+    const sizes = renderedImage.getAttribute('sizes')
+    Object.defineProperties(renderedImage, {
+      naturalWidth: { configurable: true, value: 640 },
+      naturalHeight: { configurable: true, value: 1280 },
+    })
+
+    fireEvent.load(renderedImage)
+
+    expect(renderedImage.getAttribute('data-test-ratio-source')).toBe(
+      'intrinsic',
+    )
+    expect(renderedImage.style.getPropertyValue('--ar')).toBe('0.5000')
+    expect(renderedImage.getAttribute('sizes')).toBe(sizes)
   })
 
   it('renders the image ahead of the title and the prose under it', () => {

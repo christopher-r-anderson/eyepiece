@@ -1,7 +1,8 @@
 import { css } from 'styled-system/css'
 import { stack } from 'styled-system/patterns'
 import { token } from 'styled-system/tokens'
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { Asset } from '@/domain/asset/asset.schema'
 import { Heading } from '@/components/ui/heading'
 import { PROVIDER_DISPLAY } from '@/domain/provider/provider.schema'
@@ -51,24 +52,121 @@ const viewerCss = css({
 const CONTENT_MAX = parseFloat(token('sizes.contentMax'))
 const PADDING = 2 * parseFloat(token('spacing.4'))
 const DETAIL_MAX_SLOT = 16 * (CONTENT_MAX - PADDING)
+const DETAIL_IMAGE_HEIGHT_LIMIT = token('sizes.detailImageHeightLimit')
+const ASPECT_RATIO_RELATIVE_TOLERANCE = 0.01
+
+type AspectRatioStyle = CSSProperties & { '--ar': string }
+
+function aspectRatioStyle(aspectRatio: number): AspectRatioStyle {
+  return { '--ar': aspectRatio.toFixed(4) }
+}
 
 // a portrait is bounded by the height instead, so its share is the ratio
-// times imageCss's maxHeight, with vh standing in for dvh since sizes
-// resolves before layout
+// times imageCss's height limit. Dynamic viewport units work directly in the
+// sizes hint, so it follows the same approximate composition budget.
 function detailImageSizes(aspectRatio: number) {
-  const heightBound = `calc(max(45vh, 100vh - 19rem) * ${aspectRatio.toFixed(4)})`
+  const heightBound = `calc(${DETAIL_IMAGE_HEIGHT_LIMIT} * ${aspectRatio.toFixed(4)})`
   return `(max-width: ${CONTENT_MAX}rem) min(calc(100vw - ${PADDING}rem), ${heightBound}), min(${CONTENT_MAX - PADDING}rem, ${heightBound})`
 }
 
-// bounded by the viewport, not by what the title leaves. The subtraction
-// covers the chrome above and a caption of a line or two.
+// The provider ratio reserves the box before image bytes arrive. React swaps
+// in a materially different decoded ratio after hydration so the rendered
+// geometry recovers from bad provider dimensions. Responsive candidate hints
+// remain provider-based; the stable width-driven model keeps those candidates
+// from deciding the rendered size in WebKit.
 const imageCss = css({
-  maxWidth: 'full',
-  maxHeight: '[max(45dvh, calc(100dvh - 19rem))]',
-  width: 'auto',
+  width: '[min(100%, calc(token(sizes.detailImageHeightLimit) * var(--ar)))]',
   height: 'auto',
+  aspectRatio: 'var(--ar)',
   objectFit: 'contain',
 })
+
+function measuredAspectRatio(element: HTMLImageElement | null) {
+  if (!element || element.naturalWidth <= 0 || element.naturalHeight <= 0) {
+    return null
+  }
+  return element.naturalWidth / element.naturalHeight
+}
+
+type IntrinsicRatio = { src: string; value: number }
+
+function aspectRatiosAgree(a: number, b: number) {
+  return Math.abs(a / b - 1) <= ASPECT_RATIO_RELATIVE_TOLERANCE
+}
+
+function reconciledIntrinsicRatio(
+  current: IntrinsicRatio | null,
+  element: HTMLImageElement | null,
+  src: string,
+  providerRatio: number,
+) {
+  const value = measuredAspectRatio(element)
+  // Master metadata and resized renditions commonly differ by a rounded
+  // pixel. Only reconcile differences large enough to affect the layout.
+  if (value === null) return current
+  if (aspectRatiosAgree(value, providerRatio)) {
+    return current?.src === src ? null : current
+  }
+  if (current?.src === src && aspectRatiosAgree(current.value, value)) {
+    return current
+  }
+  return { src, value }
+}
+
+function DetailImage({
+  asset,
+  image,
+}: {
+  asset: Asset
+  image: NonNullable<Asset['image']>
+}) {
+  const src = toFallbackSrc(image)
+  const imageRef = useRef<HTMLImageElement>(null)
+  const [intrinsicRatio, setIntrinsicRatio] = useState<IntrinsicRatio | null>(
+    null,
+  )
+  const providerRatio = toAspectRatio(image)
+  const usesIntrinsicRatio = intrinsicRatio?.src === src
+  const aspectRatio = usesIntrinsicRatio ? intrinsicRatio.value : providerRatio
+
+  // React does not replay a load event that fires before hydration. Reconcile
+  // the initially decoded element afterward so a warm-cache visit still
+  // replaces bad provider dimensions. Later sources reconcile through load.
+  useEffect(() => {
+    const element = imageRef.current
+    if (element?.complete) {
+      setIntrinsicRatio((current) =>
+        reconciledIntrinsicRatio(current, element, src, providerRatio),
+      )
+    }
+    // This is a hydration-only check and intentionally captures the first
+    // source. Re-running it after a src change could measure the old bitmap.
+  }, [])
+
+  return (
+    <img
+      ref={imageRef}
+      className={imageCss}
+      style={aspectRatioStyle(aspectRatio)}
+      data-test-ratio-source={usesIntrinsicRatio ? 'intrinsic' : 'provider'}
+      src={src}
+      srcSet={toSrcSet(image, DETAIL_MAX_SLOT)}
+      sizes={detailImageSizes(providerRatio)}
+      // the LCP element on asset pages
+      fetchPriority="high"
+      decoding="async"
+      onLoad={(event) => {
+        const element = event.currentTarget
+        setIntrinsicRatio((current) =>
+          reconciledIntrinsicRatio(current, element, src, providerRatio),
+        )
+      }}
+      alt={asset.alt ?? asset.title}
+      width={image.width}
+      height={image.height}
+    />
+  )
+}
 
 const titleCss = css({
   textStyle: 'display.sm',
@@ -118,20 +216,7 @@ export function AssetDetail({
         {chrome}
         <div className={viewerCss}>
           {/* an empty alt would drop the image out of the accessibility tree */}
-          {asset.image && (
-            <img
-              className={imageCss}
-              src={toFallbackSrc(asset.image)}
-              srcSet={toSrcSet(asset.image, DETAIL_MAX_SLOT)}
-              sizes={detailImageSizes(toAspectRatio(asset.image))}
-              // the LCP element on asset pages
-              fetchPriority="high"
-              decoding="async"
-              alt={asset.alt ?? asset.title}
-              width={asset.image.width}
-              height={asset.image.height}
-            />
-          )}
+          {asset.image && <DetailImage asset={asset} image={asset.image} />}
           <Heading level={titleLevel} className={titleCss}>
             {asset.title}
           </Heading>
