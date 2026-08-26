@@ -95,11 +95,11 @@ Sentry user context is kept in sync with Supabase auth on both sides of the app.
 
 Client user syncing is handled in:
 
-- `src/features/auth/auth.provider.tsx`
+- `src/features/auth/auth.state-sync.ts`
 - `src/features/auth/auth.queries.ts`
 - `src/features/auth/auth.sentry.ts`
 
-The auth provider applies the bootstrap user and later auth events to Sentry, and the auth query path also updates Sentry when current-user data is fetched.
+`AuthStateSync` applies the bootstrap user and later auth events to Sentry, and the auth query path also updates Sentry when current-user data is fetched.
 
 ### Server
 

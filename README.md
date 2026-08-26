@@ -137,7 +137,7 @@ There will be an existing user you can log in to the local site with:
 
 You can use `pnpm fix` instead of `pnpm lint` and `pnpm format` to run them both and autofix any issues found (when possible).
 
-E2E tests may generate a `deno.lock` file the first time because the `netlify` cli is used to serve the project. This file can be safely deleted since the project does not use edge functions. If they are used in the future, remove the entry from `.gitignore` and track the file.
+E2E tests may generate a `deno.lock` file the first time because the Netlify CLI is used to serve the project. The file remains ignored because the current edge function imports only repository-local modules and web-platform APIs; there are no external Deno dependencies for it to lock.
 
 ### New Production Site
 
