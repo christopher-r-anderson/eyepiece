@@ -1,6 +1,7 @@
 import { css } from 'styled-system/css'
 import { Header } from './header'
 import { Footer } from './footer'
+import { SkipLink } from './skip-link'
 import type { ReactNode } from 'react'
 
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         minHeight: 'screen',
       })}
     >
+      <SkipLink />
       <Header />
 
       {children}

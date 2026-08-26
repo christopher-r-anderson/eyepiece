@@ -1,5 +1,7 @@
 import { css } from 'styled-system/css'
 
+export const MAIN_CONTENT_ID = 'main-content'
+
 // the shared top-level <main> treatment for (public) and (private) pages
 export const pageMainCss = css.raw({
   width: 'full',

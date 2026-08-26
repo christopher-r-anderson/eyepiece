@@ -1,12 +1,12 @@
 import { css } from 'styled-system/css'
 import { Link } from '@/components/ui/link'
 import { NotFound } from '@/components/errors/not-found'
-import { pageMainCss } from '@/components/page-main'
+import { MAIN_CONTENT_ID, pageMainCss } from '@/components/page-main'
 import { toSearchPageParams } from '@/features/search/search-page-params'
 
 export function NotFoundPage() {
   return (
-    <main className={css(pageMainCss)}>
+    <main id={MAIN_CONTENT_ID} tabIndex={-1} className={css(pageMainCss)}>
       <NotFound
         title="Page not found"
         meta="404"

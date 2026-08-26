@@ -2,10 +2,13 @@ import { Outlet } from '@tanstack/react-router'
 import { css, cx } from 'styled-system/css'
 import { grid } from 'styled-system/patterns'
 import { panelSurfaceStyles } from '@/components/ui/surface.styles'
+import { MAIN_CONTENT_ID } from '@/components/page-main'
 
 export function AuthPageLayout() {
   return (
     <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
       className={css({
         width: 'full',
         maxWidth: 'contentMax',
