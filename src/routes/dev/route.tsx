@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, notFound } from '@tanstack/react-router'
 import { grid } from 'styled-system/patterns'
+import { MAIN_CONTENT_ID } from '@/components/page-main'
 
 export const Route = createFileRoute('/dev')({
   beforeLoad: () => {
@@ -12,7 +13,9 @@ export const Route = createFileRoute('/dev')({
 
 function DevLayout() {
   return (
-    <div
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
       className={grid({
         width: 'full',
         flex: '1',
@@ -25,6 +28,6 @@ function DevLayout() {
       })}
     >
       <Outlet />
-    </div>
+    </main>
   )
 }
