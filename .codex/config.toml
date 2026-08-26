@@ -1,0 +1,7 @@
+[mcp_servers.panda]
+command = "pnpm"
+args = [
+    "exec",
+    "panda",
+    "mcp",
+]
