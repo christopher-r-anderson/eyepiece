@@ -84,6 +84,8 @@ const crossFeatureAllowlist = [
 export default [
   {
     ignores: [
+      '.agents/**',
+      '.codex/**',
       '.netlify/**',
       './src/integrations/supabase/database.types.ts',
       'playwright-report/**',
