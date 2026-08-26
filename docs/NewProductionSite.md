@@ -52,7 +52,7 @@ Create or select the Sentry organization and project you want this site to repor
 
 ## Netlify - Part One
 
-Note that `deno.lock` is ignored in `.gitignore` because edge functions are not used. If you do use them, remove that ignore entry.
+`deno.lock` is ignored in `.gitignore`. The current NASA image-source edge function imports only repository-local modules and web-platform APIs, so it has no external Deno dependencies to lock.
 
 1. Create a Netlify project and connect it to your GitHub repository.
 2. Note the project name under `Project Configuration -> General -> Project information -> Project name`. You will need it during Supabase setup.
