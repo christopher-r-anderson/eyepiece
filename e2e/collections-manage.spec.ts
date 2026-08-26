@@ -66,6 +66,9 @@ test(
 test('owner manages: rename, visibility, ghost removal with undo, delete', async ({
   page,
 }) => {
+  // seven sequential server-fn round trips plus a reload; each one costs
+  // seconds on the CI runner, which lands the default budget at ~30s
+  test.slow()
   const name = `e2e manage ${Date.now()}`
   const collectionId = await seedManageCollection(name)
   try {
