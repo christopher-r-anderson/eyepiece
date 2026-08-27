@@ -1,178 +1,217 @@
-# Eyepiece - Space and Astronomy Image Portal
+# Eyepiece
 
-Eyepiece is a [multi-provider](./docs/Providers.md) image portal. It provides search and favoriting features for multiple open asset providers.
+Eyepiece is an astronomy image search and collections website built around
+the NASA Image and Video Library and the Smithsonian's National Air and Space
+Museum collection. Users can search and browse across both providers in one
+accessible interface, with filters and metadata tailored to each archive.
+Signed-in visitors can save favorites and organize images into public or
+private collections.
 
-![Search results for "nebula" scoped to NASA, shown as a justified grid of space photography](docs/assets/search-nasa-nebula.jpg)
+Opening a result shows its details in an overlay and leaves the search in place
+underneath. The address still changes to the asset's own URL. Opening that URL
+directly or refreshing it renders the detail as a full page.
 
-Visit the live site at <https://eyepiece.net>.
+Public pages are built to load quickly and stay visually stable. Curated entry
+pages are generated ahead of time. Other public routes use cacheable server
+rendering, and known image dimensions reserve space before files arrive.
 
-Issues to be completed before official launch are listed at [Launch Milestones](https://github.com/christopher-r-anderson/eyepiece/milestone/1).
+[eyepiece.net](https://eyepiece.net) ·
+[Project write-up](https://christopheranderson.net/projects/eyepiece)
 
-## Architecture Highlights
+![Eyepiece search results for "crab nebula" scoped to NASA, shown as a justified grid of space photography](docs/assets/search-nasa-crab-nebula.jpg)
 
-Decision records live in [docs/decisions](./docs/decisions), one file per decision, dated when the decision was made.
+## Contents
 
-- [Cache policy follows route audience](./docs/decisions/01-public-caching.md) - the route tree is split into public, private, and token-callback roots that couple cache headers to authentication, with a middleware tripwire that catches a public route reading a session. The [Authentication and Caching](#authentication-and-caching) section below covers the mechanics.
-- [Search scopes by provider and defaults to All](./docs/decisions/02-search.md) - one flat query grammar, provider scope tabs, and an all-providers view whose sections stream independently so one slow provider never blocks another.
-- [Styles compile at build time with Panda CSS](./docs/decisions/03-styling.md) - the site ported its original Emotion styling to build-time CSS, keeping design tokens as custom properties and dropping the runtime style engine.
-- [User lists read snapshots, not the providers](./docs/decisions/04-provider-data.md) - favorites and collections store asset snapshots, so lists render without fanning out to providers, and a weekly job revalidates stale snapshots.
-- [Entry pages prerender at build time](./docs/decisions/05-prerendering.md) - the home page and its curated collections are baked in CI after provisioning, so a first visit serves static files instead of waiting on live provider calls.
+- [Using Eyepiece](#using-eyepiece)
+- [Local development](#local-development)
+- [Stack and architecture](#stack-and-architecture)
+- [Testing and verification](#testing-and-verification)
+- [Project documentation](#project-documentation)
+- [Data sources and usage](#data-sources-and-usage)
 
-![The all-providers search view for "apollo", with NASA and Smithsonian result sections](docs/assets/search-all-apollo.jpg)
+## Using Eyepiece
 
-### Layout Stability
+Start from the homepage search or one of its curated links. Search All libraries
+to browse NASA and Smithsonian at once. Choose one provider to use that
+archive's own filters and metadata. The current search and filters are stored in
+the URL, which can be bookmarked or shared.
 
-Content that arrives late is not allowed to move content that is already on screen:
+![The All libraries search view for "apollo", with separate NASA and Smithsonian result sections](docs/assets/search-all-apollo.jpg)
 
-- image slots reserve their space from provided dimensions before the file loads
-- controls that swap labels (Star and Starred) render both labels in the same grid cell so the control never changes width
-- hover and focus reveals animate opacity and position on absolutely positioned layers, outside the normal flow
-- fallback fonts are metric-matched to the webfonts (`size-adjust` plus ascent, descent, and line-gap overrides computed from the pinned files), so a swap holds line boxes; glyph widths cannot be matched, so the two first-paint faces load as `font-display: optional` and skip a late swap entirely rather than rewrap
-- the hero heading reserves its webfont's line count at narrow widths, so a font arriving after first paint grows into reserved space instead of moving the page
+Select an image to open its details. Search results work with a pointer,
+touchscreen, or keyboard. The Arrow keys move through the grid. Home, End, Page
+Up, and Page Down provide larger jumps. Longer result sets pause at `Load more`
+checkpoints, keeping the footer within reach.
 
-### Performance and Accessibility
+Use `Log In` in the site header to sign in or register. Once signed in, the
+actions on each image let you add favorites and organize images into public or
+private collections. The user menu includes links to Favorites, Your
+Collections, View Profile, and Edit Profile. Public collections appear on your
+profile, and profile settings control the public display name.
 
-The core page templates - home, both search scopes, asset detail, collection detail, album, and login - are audited with Lighthouse (mobile and desktop) and axe-core (light and dark themes, with the WCAG 2.2 target-size rule enabled - axe ships it disabled). The audits run on demand with `pnpm audit:lighthouse` and `pnpm audit:axe`. Production Lighthouse medians as of August 2026, three runs per template and form factor:
+## Local development
 
-| Template          | Perf (mobile / desktop) | Accessibility | Best Practices | SEO |
-| ----------------- | ----------------------- | ------------- | -------------- | --- |
-| Home              | 83 / 100                | 100           | 100            | 100 |
-| Search (all)      | 90 / 100                | 100           | 100            | 66  |
-| Search (provider) | 99 / 100                | 100           | 100            | 66  |
-| Asset detail      | 91 / 100                | 100           | 100            | 100 |
-| Collection detail | 88 / 100                | 100           | 100            | 100 |
-| Album             | 98 / 100                | 100           | 100            | 100 |
-| Login             | 100 / 100               | 100           | 100            | 100 |
+### Requirements
 
-- Accessibility scores 100 on every audited template with zero axe violations. The public profile page and the authenticated pages (favorites and settings) are not yet part of the audited set.
-- The SEO 66 on the search templates is an accepted result of search results being `noindex`ed.
-- Mobile performance is bound by provider image weight under lab throttling. CLS medians are 0.000 everywhere except asset detail's 0.002-0.016, well inside the good threshold.
+- Node.js 24
+- pnpm 10.30.3
+- a Docker-compatible runtime for local Supabase
+- a Smithsonian Open Access API key for live Smithsonian requests (automated
+  browser tests use recorded fixtures and do not need the key)
 
-## Project Setup
-
-### Local Development
-
-#### Setup
-
-This is the guide for setting up local development for eyepiece.net. If you want to deploy this code to your own site, see [docs/NewProductionSite.md](docs/NewProductionSite.md) first.
+### Setup
 
 ```bash
 pnpm install
-pnpm supabase start # note "Project URL" and "Authentication Keys -> Publishable"
+pnpm supabase start
 
-# Set up your local env files by copying the examples and then updating them with your values.
-# `.env.local` is used for local app and build configuration.
-# `.env.test` is used for test-mode runs like Vitest.
 cp .env.example .env.local
 cp .env.test.example .env.test
-
-# You can get your local supabase related values to use by running
 pnpm print-supabase-env
+```
 
-# `SI_OA_API_KEY` is your Smithsonian Institute Open Access API Key from https://api.data.gov/signup/
+Copy the emitted Supabase values into `.env.local` and `.env.test`. Then add an
+`SI_OA_API_KEY` to `.env.local`. Sentry is disabled unless its optional values
+are configured. See [Environment Variables](docs/EnvironmentVariables.md) for
+the full configuration reference.
 
-# Sentry env vars are optional for local development and tests.
-# Leave `VITE_SENTRY_ENABLED=false` unless you are intentionally verifying the Sentry integration.
-# See "Local Development" in `docs/EnvironmentVariables.md` for further details.
+Install Playwright's shared browser binaries before running end-to-end tests:
 
-# To be able to run e2e tests, use one of the following:
-# Note that this is over 400MB of downloads, though they will be shared with other local projects that use the same versions
+```bash
 pnpm playwright install
-# If you are on Linux and do not already have playwright OS dependencies installed, use this instead
+# Linux systems that also need the browser OS packages:
 pnpm playwright install --with-deps
 ```
 
-#### Running Locally
+Start the application:
 
 ```bash
-pnpm supabase start # if not already started
+pnpm supabase start # if it is not already running
 pnpm dev
 ```
 
-Note that the Netlify CLI is patched ([patches/netlify-cli.patch](patches/netlify-cli.patch)) for two issues in `netlify serve` that impact CI and e2e tests, so run it through the package scripts (`pnpm netlify`, `pnpm serve`) rather than a global install:
-
-1. Stock `serve` replays 404/403 responses with `.html`/`.htm` path spellings, multiplying every not-found page into many function invocations ([Netlify discussion](https://answers.netlify.com/t/netlify-is-invoking-404-functions-4-extra-times/127098)).
-2. Stock `serve` resolves the project root to the parent checkout when run from a git worktree nested inside the repository, building and serving the wrong tree's code ([netlify/cli#7868](https://github.com/netlify/cli/issues/7868)); `pnpm dev` is unaffected.
-
-Styling is generated by Panda CSS. If `styled-system/` is missing or stale — after editing `panda.config.ts` or files in `panda/` — rebuild it with `pnpm codegen` (it is also rebuilt on every `pnpm install`).
-
-### Observability
-
-Eyepiece uses Sentry for client-side and server-side observability.
-
-- Client-side observability is initialized from the router and includes route-aware tracing and Replay when enabled.
-- Server-side observability is initialized from the server entry and captures request and server-function failures through shared middleware.
-- Shared error observability rules keep expected errors, such as handled form errors and 400 responses, out of Sentry.
-- When a user is signed in, both client and server events are associated with the authenticated user id.
-
-For the main integration points and development guidance, see [docs/Observability.md](docs/Observability.md).
-
-#### Local Observability Verification
-
-To verify the Sentry integration locally:
-
-1. Set `VITE_SENTRY_ENABLED=true` and provide a valid `VITE_SENTRY_DSN` in `.env.local`.
-2. Start the app with `pnpm dev` and visit `/dev/observability`.
-3. Confirm that the client render error reaches Sentry with route and boundary metadata.
-4. Confirm that handled form errors remain visible in the UI but do not show up in Sentry.
-5. Use the full-reload server-error control and confirm that the request is captured on the server.
-6. Confirm that the handled 400 response renders in the boundary UI but does not show up in Sentry.
-7. If you are signed in locally, confirm client-side and server-side events are associated with the authenticated user id.
-
-#### Site authentication
-
-There will be an existing user you can log in to the local site with:
+The local database includes a test account:
 
 - email: `user1@example.com`
 - password: `hunter2`
 
-#### Pre-commit Checklist
+### Checks
 
-- `pnpm lint` runs `eslint`
-- `pnpm format` runs `prettier`
-- `pnpm typecheck` runs `tsc`
-- `pnpm test:unit` runs `vitest run --project unit` (use `pnpm test:unit:watch` for watch mode while developing)
-- `pnpm test:integration` runs `vitest --project integration` (integration tests against local Supabase require `pnpm supabase start`)
-- `pnpm test:e2e` runs `playwright test` (e2e tests against local Supabase require `pnpm supabase start`)
+```bash
+pnpm lint
+pnpm format
+pnpm typecheck
+pnpm test:unit
+pnpm test:integration # requires local Supabase
+pnpm test:e2e         # requires local Supabase
+pnpm build
+```
 
-You can use `pnpm fix` instead of `pnpm lint` and `pnpm format` to run them both and autofix any issues found (when possible).
+`pnpm preflight` runs the complete local gate, including autofixes, all tests,
+and the production build.
 
-E2E tests may generate a `deno.lock` file the first time because the Netlify CLI is used to serve the project. The file remains ignored because the current edge function imports only repository-local modules and web-platform APIs; there are no external Deno dependencies for it to lock.
+### Local tooling notes
 
-### New Production Site
+Panda generates `styled-system/` during installation. Run `pnpm codegen` after
+changing `panda.config.ts` or files in `panda/`.
 
-If you would like to set up a new production site using this codebase or just wish to understand the setup, you can refer to the [New production site setup](docs/NewProductionSite.md) guide.
+End-to-end tests use `netlify serve` through the repository's package scripts.
+The installed Netlify CLI is patched in
+[`patches/netlify-cli.patch`](patches/netlify-cli.patch) to prevent repeated
+404/403 function invocations and to resolve the correct root from linked Git
+worktrees. Use `pnpm serve` rather than a global Netlify installation.
 
-## Authentication and Caching
+E2E runs may generate a `deno.lock`. The file is ignored because the current
+edge function has no external Deno dependencies.
 
-Eyepiece uses a three-root route tree that enforces authentication requirements and cache policy at the boundary level:
+## Stack and architecture
 
-- **Public routes** (`/(public)/`) are unauthenticated. Server-side rendering never branches on user identity, so responses are CDN-cacheable by default. User-specific UI is rendered as client-only islands after hydration.
-- **Private routes** (`/(private)/`) require an authenticated session and always respond with `private, no-store`.
-- **Token-callback routes** (`/(token-callbacks)/`) handle sensitive one-time tokens (email confirmation, password reset, OAuth returns). No session is established on load, so responses are `private, no-store` and never cached.
+- React 19, TypeScript, and TanStack Start, Router, and Query
+- Supabase authentication and Postgres persistence
+- Panda CSS with build-time extraction and React Aria Components
+- Netlify SSR, prerendering, CDN caching, Image CDN, and an image-source edge
+  function
+- Vitest, Playwright, Lighthouse, axe-core, and Sentry
 
-Cache policy and authentication enforcement are applied at each root and inherited by all descendants. Route files in each subtree cannot override policy, set raw `Cache-Control` headers, or access the user Supabase client outside the authenticated scope.
+Route files define URL and request-policy boundaries. Product behavior lives in
+`src/features`, and provider-neutral types live in `src/domain`. External
+clients live in `src/integrations`. `src/server/eyepiece` composes the provider
+adapters behind one internal service.
 
-For the full policy reference, including route classes, guard behavior, cache profiles, and client auth commands, see [docs/RoutePolicy.md](docs/RoutePolicy.md).
+Search results use justified rows to preserve image aspect ratios. React Aria
+handles grid semantics and focus management. A spatial keyboard delegate follows
+the visible row layout.
 
-## Providers
+Public, signed-in, and token-callback route roots each define their authentication
+and cache policies. Public server rendering never reads visitor identity.
+Personal controls and account data load after hydration. Native and hydrated
+forms call the same command layer.
 
-Eyepiece supports multiple image asset providers.
+Favorites and collection items store enough provider data to render each saved
+asset. A list can load without requesting every item from NASA or Smithsonian
+again. If a source record is removed later, the saved entry remains, though
+its media can still depend on provider-hosted files.
 
-### Current Providers
+Supported NASA and Smithsonian image URLs go through Netlify's Image CDN for
+responsive AVIF or WebP output. Other URLs use the providers' own renditions. A
+small edge function gives NASA source images a longer browser cache policy and a
+durable cache across deploys. The homepage and curated entry pages are
+prerendered after their database content is provisioned. Other public routes use
+cacheable server rendering.
 
-#### NASA Image and Video Library
+## Testing and verification
 
-- [NASA API portal](https://api.nasa.gov/) NASA Image and Video Library
-- [NASA IVL API Documentation (PDF)](https://images.nasa.gov/docs/images.nasa.gov_api_docs.pdf)
-- Used with permission under the [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/)
+Unit tests cover domain rules, parsing, policies, and component behavior.
+Integration tests run against a local Supabase instance. Playwright runs the
+main workflows in Chromium, Firefox, and WebKit with recorded NASA and
+Smithsonian responses. A missing fixture fails the test instead of silently
+reaching a live provider.
 
-#### The Smithsonian Institution Open Access - National Air and Space Museum
+Audit scripts run Lighthouse and axe against core templates on mobile and
+desktop, in both light and dark themes. In the current audit set, every covered
+template scored 100 for accessibility and had no axe violations, including the
+WCAG 2.2 target-size rule. The audits do not yet cover the public profile,
+favorites, or settings pages, and they do not represent real-user experience.
 
-- [The Smithsonian Institution Open Access API](https://edan.si.edu/openaccess/apidocs/)
-- Used with permission under [The Smithsonian Institution Terms of Use](https://www.si.edu/termsofuse)
-- Imagery is dedicated to the public domain (CC0) through [Smithsonian Open Access](https://www.si.edu/openaccess)
+<details>
+<summary>August 2026 Lighthouse medians</summary>
 
-### Provider Integration
+| Template          | Performance (mobile / desktop) | Accessibility | Best Practices | SEO |
+| ----------------- | ------------------------------ | ------------- | -------------- | --- |
+| Home              | 83 / 100                       | 100           | 100            | 100 |
+| Search (all)      | 90 / 100                       | 100           | 100            | 66  |
+| Search (provider) | 99 / 100                       | 100           | 100            | 66  |
+| Asset detail      | 91 / 100                       | 100           | 100            | 100 |
+| Collection detail | 88 / 100                       | 100           | 100            | 100 |
+| Album             | 98 / 100                       | 100           | 100            | 100 |
+| Login             | 100 / 100                      | 100           | 100            | 100 |
 
-To understand the provider integration points or how to add a new provider, see the documentation in the [Providers Guide](./docs/Providers.md).
+Search results are deliberately `noindex`, which accounts for their SEO score.
+Mobile performance on image-heavy templates varies with provider image weight
+and first-time Image CDN transforms.
+
+</details>
+
+Run the audits with `pnpm audit:lighthouse` and `pnpm audit:axe`.
+
+## Project documentation
+
+- [Architecture decision records](docs/decisions/)
+- [Search behavior and URL state](docs/Search.md)
+- [Provider model and integration guide](docs/Providers.md)
+- [Route, authentication, and caching policy](docs/RoutePolicy.md)
+- [Styling conventions](docs/Styling.md)
+- [Environment variables](docs/EnvironmentVariables.md)
+- [Observability and local Sentry verification](docs/Observability.md)
+- [Setting up a separate production site](docs/NewProductionSite.md)
+
+## Data sources and usage
+
+- [NASA Image and Video Library](https://images.nasa.gov/): used under the
+  [NASA Images and Media Usage
+  Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/)
+- [Smithsonian Open Access
+  API](https://edan.si.edu/openaccess/apidocs/): National Air and Space Museum
+  imagery is provided by [Smithsonian Open Access](https://www.si.edu/openaccess).
+  Eyepiece filters by [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.en)
+  licensed media.
