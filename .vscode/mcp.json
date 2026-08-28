@@ -2,7 +2,7 @@
   "servers": {
     "panda": {
       "command": "pnpm",
-      "args": ["exec", "panda", "mcp"]
+      "args": ["exec", "panda-mcp"]
     }
   }
 }
