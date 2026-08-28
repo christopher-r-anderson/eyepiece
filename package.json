@@ -75,6 +75,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@pandacss/dev": "^1.11.4",
+    "@pandacss/mcp": "1.12.0",
     "@playwright/test": "^1.58.2",
     "@tanstack/cli": "^0.69.6",
     "@tanstack/devtools-vite": "^0.5.3",
