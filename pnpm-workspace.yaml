@@ -1,12 +1,12 @@
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@sentry/cli'
-  - esbuild
-  - netlify-cli
-  - sharp
-  - supabase
-  - unix-dgram
-  - unrs-resolver
-
 patchedDependencies:
   netlify-cli: patches/netlify-cli.patch
+engineStrict: true
+allowBuilds:
+  '@parcel/watcher': true
+  '@sentry/cli': true
+  esbuild: true
+  netlify-cli: true
+  sharp: true
+  supabase: true
+  unix-dgram: true
+  unrs-resolver: true
