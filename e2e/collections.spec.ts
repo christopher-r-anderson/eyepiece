@@ -40,9 +40,7 @@ test('public collection renders name, meta line, and justified tiles', async ({
 
   expect(response?.status()).toBe(200)
   expect(response?.headers()['cache-control']).toContain('public')
-  await expect(page).toHaveTitle(
-    `${publicCollection.name} | eyepiece: NASA Media Explorer`,
-  )
+  await expect(page).toHaveTitle(`${publicCollection.name} | Eyepiece`)
   await expect(
     page.getByRole('heading', { level: 1, name: publicCollection.name }),
   ).toBeVisible()

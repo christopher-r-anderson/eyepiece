@@ -7,8 +7,8 @@ export const STRIP_PARAMS = ['next', 'formError', 'status'] as const
 
 export const getTitleText = (title: string | undefined) => {
   return title
-    ? `${title} | eyepiece: NASA Media Explorer`
-    : 'eyepiece: NASA Media Explorer'
+    ? `${title} | Eyepiece`
+    : 'Eyepiece: astronomy image search and collections'
 }
 
 export function urlToNextParam(url: string) {
