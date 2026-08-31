@@ -79,6 +79,13 @@ const config = defineConfig(({ mode }) => {
           },
         }),
     ],
+    ssr: {
+      // sanitize-html 2.17.6+ depends on ESM-only htmlparser2, and the
+      // netlify-cli local function host loads externalized deps with a CJS
+      // loader that cannot require() ES modules; bundling it into the server
+      // build resolves the interop at build time instead
+      noExternal: ['sanitize-html'],
+    },
     test: {
       // tried moving this to just in the unit test settings but it did not filter them.
       onConsoleLog(log: string) {
