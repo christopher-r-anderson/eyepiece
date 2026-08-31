@@ -54,7 +54,7 @@ profile, and profile settings control the public display name.
 ### Requirements
 
 - Node.js 24
-- pnpm 10.30.3
+- pnpm 11.24.0
 - a Docker-compatible runtime for local Supabase
 - a Smithsonian Open Access API key for live Smithsonian requests (automated
   browser tests use recorded fixtures and do not need the key)
