@@ -1,7 +1,8 @@
 // Link-preview meta: scrapers read only the SSR document, and og:image
 // must be an absolute URL.
 export const SITE_ORIGIN = 'https://eyepiece.net'
-export const SITE_DESCRIPTION = 'A personal view of public space photography'
+export const SITE_DESCRIPTION =
+  'Astronomy image search and collections across the NASA and Smithsonian archives'
 
 const DESCRIPTION_MAX = 200
 

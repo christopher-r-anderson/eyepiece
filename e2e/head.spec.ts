@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
 
-const DEFAULT_TITLE = 'eyepiece: NASA Media Explorer'
+const DEFAULT_TITLE = 'Eyepiece: astronomy image search and collections'
 
 // a parse failure means the tag leaked markup
 function jsonLdNodes(html: string) {
@@ -25,7 +25,7 @@ test('routes with their own title override the default', async ({ page }) => {
   // no q, so nothing is prefetched during SSR and no provider requests fire
   await page.goto('/search')
 
-  await expect(page).toHaveTitle(`Search | ${DEFAULT_TITLE}`)
+  await expect(page).toHaveTitle('Search | Eyepiece')
 })
 
 test('the server document carries the default social preview', async ({
