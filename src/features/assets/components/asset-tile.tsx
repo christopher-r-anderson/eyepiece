@@ -13,11 +13,9 @@ import {
   toSrcSet,
 } from '@/domain/asset/asset.utils'
 
-// navigation overrides for the primary link (target, state, mask);
-// presentation props stay owned by the tile
-export type TileLinkProps = Omit<
+export type TileLinkProps = Pick<
   ComponentPropsWithoutRef<typeof Link>,
-  'children' | 'className' | 'style' | 'css'
+  'onClick'
 >
 
 interface AssetTileProps extends Omit<
@@ -60,10 +58,6 @@ const Thumbnail = ({
   linkProps?: TileLinkProps
 }) => {
   const { href } = useLocation()
-  // the object widening keeps the spread from re-binding Link's params
-  // generic; without it tsc rejects the params prop
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  const spreadableLinkProps = linkProps as object | undefined
   return (
     <Link
       isDisabled={isLinkDisabled}
@@ -73,7 +67,7 @@ const Thumbnail = ({
         assetId: assetPreview.key.externalId,
       }}
       state={(prev) => ({ ...prev, returnUrl: href })}
-      {...spreadableLinkProps}
+      {...linkProps}
       data-asset-key={toAssetKeyString(assetPreview.key)}
       // the visible title sits in the veil outside the link
       aria-label={assetPreview.title}
