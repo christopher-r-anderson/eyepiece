@@ -95,7 +95,7 @@ describe('useEnsureProfile cache sync', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useProfilesRepo).mockReturnValue({ getProfile: vi.fn() } as any)
+    vi.mocked(useProfilesRepo).mockReturnValue({ getProfile: vi.fn() })
     vi.mocked(useQueryClient).mockReturnValue(mockQueryClient as any)
     vi.mocked(useQuery).mockReturnValue({
       data: undefined,

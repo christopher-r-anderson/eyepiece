@@ -17,6 +17,6 @@ export function stubFetchJsonOnce({
     statusText,
     json: vi.fn().mockResolvedValue(json),
   })
-  vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch)
+  vi.stubGlobal('fetch', fetchMock as unknown)
   return fetchMock
 }

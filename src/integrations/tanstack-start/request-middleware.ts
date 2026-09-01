@@ -86,7 +86,7 @@ function forcePrivateNoStoreCacheControl(response: Response) {
 function getMiddlewareResponse(result: unknown): Response | null {
   if (result instanceof Response) return result
   if (result && typeof result === 'object' && 'response' in result) {
-    const response = (result as { response: unknown }).response
+    const response = result.response
     if (response instanceof Response) return response
   }
   return null

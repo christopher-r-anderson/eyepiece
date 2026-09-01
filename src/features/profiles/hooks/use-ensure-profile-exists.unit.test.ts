@@ -41,7 +41,7 @@ describe('useEnsureProfileExists', () => {
     vi.mocked(useQueryClient).mockReturnValue(mockQueryClient as any)
     vi.mocked(useProfilesRepo).mockReturnValue({
       getProfile: mockGetProfile,
-    } as any)
+    })
     vi.mocked(errorLogging.logErrorWithObservability).mockReturnValue(undefined)
 
     vi.mocked(useLocation).mockReturnValue({

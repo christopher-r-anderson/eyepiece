@@ -261,7 +261,7 @@ describe('makeSiOaAdapter', () => {
                   usage: { access: 'CC0' },
                   resources: [
                     {
-                      url: 'https://example.com/standard.jpg' as never,
+                      url: 'https://example.com/standard.jpg',
                       label: 'Screen Image',
                     },
                   ],

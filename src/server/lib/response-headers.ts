@@ -8,7 +8,7 @@ export function getSetCookieAccessor(
     return null
   }
 
-  return maybeGetSetCookie.bind(headers) as () => Array<string>
+  return maybeGetSetCookie.bind(headers)
 }
 
 export function getSetCookieHeaders(headers: Headers) {

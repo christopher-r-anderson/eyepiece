@@ -52,7 +52,7 @@ describe('requireAuthenticated', () => {
   })
 
   it('returns the user when authenticated', async () => {
-    mockGetUser.mockResolvedValue(USER as any)
+    mockGetUser.mockResolvedValue(USER)
 
     const result = await requireAuthenticated({
       location: makeLocation('/settings'),
@@ -134,11 +134,11 @@ describe('userHasProfile', () => {
   })
 
   it('does not throw when the user already has a profile', async () => {
-    mockFetchCurrentUser.mockResolvedValue(USER as any)
+    mockFetchCurrentUser.mockResolvedValue(USER)
     mockFetchProfile.mockResolvedValue({
       id: USER.id,
       displayName: 'Ada',
-    } as any)
+    })
 
     await expect(
       userHasProfile({ context, location: makeLocation('/favorites') }),
@@ -146,7 +146,7 @@ describe('userHasProfile', () => {
   })
 
   it('redirects to /complete-profile when the user has no profile', async () => {
-    mockFetchCurrentUser.mockResolvedValue(USER as any)
+    mockFetchCurrentUser.mockResolvedValue(USER)
     mockFetchProfile.mockResolvedValue(null)
 
     await expect(
@@ -155,7 +155,7 @@ describe('userHasProfile', () => {
   })
 
   it('includes the current path as the next param when redirecting to complete-profile', async () => {
-    mockFetchCurrentUser.mockResolvedValue(USER as any)
+    mockFetchCurrentUser.mockResolvedValue(USER)
     mockFetchProfile.mockResolvedValue(null)
 
     await expect(
