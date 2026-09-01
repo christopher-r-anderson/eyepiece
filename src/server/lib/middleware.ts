@@ -6,8 +6,7 @@ import type { PublicDocumentCacheProfile } from '@/lib/route-policy'
 import type { z } from 'zod'
 
 type PublicApiCacheMiddlewareResult =
-  | Response
-  | RequestServerResult<{}, undefined, undefined>
+  Response | RequestServerResult<{}, undefined, undefined>
 
 // Only successful (2xx/3xx) responses are publicly cacheable. A cached error
 // keeps serving failure for its full TTL after the upstream recovers, and

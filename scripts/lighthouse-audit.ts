@@ -87,8 +87,7 @@ function summarize(
   const requestItems =
     (
       lhr.audits['network-requests']?.details as
-        | { items?: Array<Record<string, unknown>> }
-        | undefined
+        { items?: Array<Record<string, unknown>> } | undefined
     )?.items ?? []
   const failedRequests = requestItems
     .filter(
