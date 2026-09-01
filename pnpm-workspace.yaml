@@ -1,5 +1,11 @@
 patchedDependencies:
   netlify-cli: patches/netlify-cli.patch
+
+# the tanstack devtools' solid-js 1.9.10 pins seroval ~1.3.0, below the
+# 1.5.3 fix for GHSA-mv8w-475r-vwqw; solid-js 1.9.15 pins the fixed line.
+# drop once the lockfile resolves solid-js >=1.9.15 on its own
+overrides:
+  solid-js: '^1.9.15'
 engineStrict: true
 allowBuilds:
   '@parcel/watcher': true
