@@ -45,7 +45,7 @@ describe('useOneShotFormStatus', () => {
   it('keeps the seeded status after the param is stripped', () => {
     const { result, rerender } = renderHook(
       (status: 'sent' | undefined) => useOneShotFormStatus(status),
-      { initialProps: 'sent' as 'sent' | undefined },
+      { initialProps: 'sent' },
     )
 
     rerender(undefined)

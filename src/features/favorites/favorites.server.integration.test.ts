@@ -237,7 +237,7 @@ describe('resolveSnapshotForRefavorite', () => {
     const externalId = `INTEG-REFAV-AT-${Date.now()}`
     const snapshotId = await seedAssetPreviewSnapshot(adminClient, externalId)
     const createdAt = '2026-01-02T03:04:05+00:00'
-    vi.mocked(getUser).mockResolvedValue({ id: user.id } as never)
+    vi.mocked(getUser).mockResolvedValue({ id: user.id })
     vi.mocked(createUserSupabaseClient).mockReturnValue(client)
     try {
       const result = await refavoriteUserFavoriteAt({

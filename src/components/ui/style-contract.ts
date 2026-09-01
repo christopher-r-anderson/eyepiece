@@ -26,7 +26,5 @@ export function uiStyled<
   component: TComponent,
   recipe: TRecipe,
 ): ComponentType<UiProps<ComponentProps<TComponent>> & TRecipe['__type']> {
-  return styled(component, recipe as never) as unknown as ComponentType<
-    UiProps<ComponentProps<TComponent>> & TRecipe['__type']
-  >
+  return styled(component, recipe as never)
 }

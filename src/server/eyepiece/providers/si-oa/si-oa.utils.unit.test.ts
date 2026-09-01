@@ -69,7 +69,7 @@ describe('mapAssetItem', () => {
     height: number = 480,
   ): SioaResourceItem {
     return {
-      url: url as any,
+      url: url,
       label,
       width,
       height,
@@ -179,7 +179,7 @@ describe('mapAssetItem', () => {
         idsId: 'NASM-undeclared',
         resources: [
           {
-            url: 'https://example.com/standard.jpg' as SioaResourceItem['url'],
+            url: 'https://example.com/standard.jpg',
             label: 'Screen Image',
           },
         ],
@@ -277,7 +277,7 @@ describe('mapAssetItem', () => {
       withMedia({
         resources: [
           {
-            url: 'https://example.com/standard.jpg' as SioaResourceItem['url'],
+            url: 'https://example.com/standard.jpg',
             label: 'Screen Image',
           },
         ],
