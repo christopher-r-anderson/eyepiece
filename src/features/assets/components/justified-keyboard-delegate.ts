@@ -1,6 +1,6 @@
 import { ListKeyboardDelegate } from 'react-aria'
 import type { Key } from 'react-aria'
-import type { ListState } from '@react-stately/list'
+import type { ListState } from 'react-stately'
 import type { RefObject } from 'react'
 
 // Tiles in a justified grid share a row top but their left edges never
