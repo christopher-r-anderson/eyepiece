@@ -86,13 +86,19 @@ async function requireUser(
 async function nextPosition(
   client: SupabaseClient,
   table: 'collections' | 'collection_items',
-  scopeColumn: 'owner_id' | 'collection_id',
   scopeId: string,
 ): Promise<Result<number>> {
-  const { data, error } = await client
-    .from(table)
-    .select('position')
-    .eq(scopeColumn, scopeId)
+  // per-table queries: supabase-js scopes .eq() columns to the named
+  // table, so a shared query over the table union only admits columns
+  // both tables have
+  const query =
+    table === 'collections'
+      ? client.from('collections').select('position').eq('owner_id', scopeId)
+      : client
+          .from('collection_items')
+          .select('position')
+          .eq('collection_id', scopeId)
+  const { data, error } = await query
     .order('position', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -107,7 +113,7 @@ async function createCollectionForUser(
   userId: string,
   input: CreateCollectionInput,
 ): Promise<Result<Collection, CollectionsErrorCode>> {
-  const position = await nextPosition(client, 'collections', 'owner_id', userId)
+  const position = await nextPosition(client, 'collections', userId)
   if (position.error) {
     return Err(unknownError('create.position', position.error.cause))
   }
@@ -231,7 +237,6 @@ async function addCollectionItemForUser(
     const nextResult = await nextPosition(
       client,
       'collection_items',
-      'collection_id',
       input.collectionId,
     )
     if (nextResult.error) {

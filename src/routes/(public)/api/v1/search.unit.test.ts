@@ -280,7 +280,8 @@ describe('GET /api/v1/search handler', () => {
           issues: [
             {
               code: 'invalid_union',
-              message: 'Invalid input',
+              message:
+                "Invalid discriminator value. Expected 'nasa_ivl' | 'si_oa'",
               path: 'providerId',
             },
           ],

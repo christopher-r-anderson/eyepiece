@@ -44,7 +44,7 @@
     "preflight": "pnpm fix && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build"
   },
   "engines": {
-    "node": "24.x"
+    "node": "^24.15.0"
   },
   "packageManager": "pnpm@11.24.0",
   "dependencies": {
@@ -52,8 +52,8 @@
     "@phosphor-icons/react": "^2.1.10",
     "@react-aria/optimize-locales-plugin": "^2.0.1",
     "@sentry/tanstackstart-react": "^10.72.0",
-    "@supabase/ssr": "^0.9.0",
-    "@supabase/supabase-js": "^2.98.0",
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.112.4",
     "@tanstack/react-devtools": "^0.10.12",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-query-devtools": "^5.102.8",
@@ -69,13 +69,13 @@
     "react-stately": "^3.49.0",
     "sanitize-html": "^2.17.7",
     "vite-tsconfig-paths": "^6.1.1",
-    "zod": "^4.3.6"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@pandacss/dev": "^1.12.0",
     "@pandacss/mcp": "1.12.0",
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.62.1",
     "@tanstack/cli": "^0.70.2",
     "@tanstack/devtools-vite": "^0.8.5",
     "@tanstack/eslint-config": "^0.4.0",
@@ -88,19 +88,18 @@
     "@types/sanitize-html": "^2.16.1",
     "@vitejs/plugin-react": "^5.1.4",
     "chrome-launcher": "^1.2.1",
-    "eslint": "^10.0.2",
-    "jsdom": "^28.1.0",
+    "eslint": "^10.9.1",
+    "jsdom": "^30.0.1",
     "lighthouse": "^13.4.1",
-    "netlify-cli": "^24.0.1",
+    "netlify-cli": "^27.4.1",
     "png-to-ico": "^3.0.2",
-    "prettier": "^3.8.1",
-    "prettier-plugin-sql-cst": "^0.18.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-sql-cst": "^0.22.1",
     "sharp": "^0.35.4",
-    "supabase": "^2.76.17",
+    "supabase": "^2.116.0",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
-    "vitest": "^4.1.11",
-    "web-vitals": "^5.1.0"
+    "vitest": "^4.1.11"
   }
 }

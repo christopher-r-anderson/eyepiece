@@ -1,8 +1,8 @@
 diff --git a/dist/commands/base-command.js b/dist/commands/base-command.js
-index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..1527002ed279671d88057ee5adea0ffcd1afb028 100644
+index cb8b30f23b270933350dcaec6cb9a336ebf72390..7ebc11d11a009b8ed3eb4e0a8e7946ca08a5ca11 100644
 --- a/dist/commands/base-command.js
 +++ b/dist/commands/base-command.js
-@@ -105,7 +105,16 @@ async function selectWorkspace(project, filter) {
+@@ -114,7 +114,16 @@ async function selectWorkspace(project, filter) {
      return selected.path;
  }
  async function getRepositoryRoot(cwd) {
@@ -21,10 +21,10 @@ index 83ded7f5709db6a50b1458a4ead218a9c7418ec6..1527002ed279671d88057ee5adea0ffc
          return join(res, '..');
      }
 diff --git a/dist/utils/proxy.js b/dist/utils/proxy.js
-index fced1d1e451462e515fca39c8beb1301a264e32f..5d4341d913db63e5af0ef8b5ad638b040d17032d 100644
+index 216ad849d6584565860d9a909a4e02e126fa9d2c..b80e44b83f377e497e84ba0da99687863dab97a6 100644
 --- a/dist/utils/proxy.js
 +++ b/dist/utils/proxy.js
-@@ -587,7 +587,16 @@ const initializeProxy = async function ({ config, configPath, distDir, env, host
+@@ -595,7 +595,16 @@ const initializeProxy = async function ({ config, configPath, distDir, env, host
          web: (req, res, options) => {
              const requestURL = new URL(req.url, 'http://127.0.0.1');
              req.proxyOptions = options;
