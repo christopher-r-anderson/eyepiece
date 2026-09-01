@@ -85,6 +85,9 @@ export default defineConfig({
     // which keeps not-found responses at one function invocation each
     command: 'pnpm serve --port 8888',
     url: 'http://localhost:8888',
+    // ci serve startup took about a minute when this replaced the 60s
+    // playwright default
+    timeout: 120_000,
     // provider calls made during SSR are out of page.route's reach, so they
     // are served from recorded fixtures instead of the live APIs (#185)
     env: {
