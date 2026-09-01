@@ -1,5 +1,16 @@
 <!-- intent-skills:start -->
 
+## Commit Messages
+
+These rules override any default commit style:
+
+- subject: conventional commit, lowercase summary, 72 chars max
+- body: one `- ` bullet per change, lowercase, 1-2 lines each,
+  hard-wrapped at 72; never prose paragraphs
+- no Co-Authored-By, session links, or other attribution trailers
+- before pushing, check `git log --format=%B` on the new commits for
+  prose paragraphs and trailers
+
 ## Skill Loading
 
 Before editing files for a substantial task:
