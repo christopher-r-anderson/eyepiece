@@ -21,8 +21,7 @@ export type SearchPageParams = {
 }
 
 export type SearchScope =
-  | { scope: 'all' }
-  | { scope: 'provider'; filters: SearchFilters }
+  { scope: 'all' } | { scope: 'provider'; filters: SearchFilters }
 
 export interface SearchPageState {
   q: string

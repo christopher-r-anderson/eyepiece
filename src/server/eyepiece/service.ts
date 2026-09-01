@@ -32,10 +32,7 @@ function getProvider<TProviderId extends ProviderId>(providerId: TProviderId) {
 }
 
 type ProviderOperation =
-  | 'album.fetch'
-  | 'asset.fetch'
-  | 'metadata.fetch'
-  | 'search.fetch'
+  'album.fetch' | 'asset.fetch' | 'metadata.fetch' | 'search.fetch'
 
 type ProviderOperationContext = Record<string, string | number | boolean | null>
 

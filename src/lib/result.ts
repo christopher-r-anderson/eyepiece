@@ -7,10 +7,7 @@ export type ResultErrorObservabilityKind = 'expected' | 'operational'
 export type ResultErrorObservabilityLevel = 'info' | 'warning' | 'error'
 
 export type ResultErrorObservabilityContextValue =
-  | string
-  | number
-  | boolean
-  | null
+  string | number | boolean | null
 
 export type ResultErrorObservability = {
   kind?: ResultErrorObservabilityKind
@@ -66,8 +63,7 @@ export function Ok<TData>(data: TData): SuccessResult<TData> {
 }
 
 export type Result<TData, TErrorCode extends ErrorCode = undefined> =
-  | ErrorResult<TErrorCode>
-  | SuccessResult<TData>
+  ErrorResult<TErrorCode> | SuccessResult<TData>
 
 export function resultIsError<TData, TErrorCode extends ErrorCode = undefined>(
   result: Result<TData, TErrorCode>,

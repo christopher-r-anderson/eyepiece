@@ -19,8 +19,7 @@ export class ProviderClientError extends Error {
   readonly kind: 'not_found' | undefined
   readonly url: string
   readonly context:
-    | Record<string, ResultErrorObservabilityContextValue>
-    | undefined
+    Record<string, ResultErrorObservabilityContextValue> | undefined
 
   constructor(options: ProviderClientErrorOptions) {
     super(
