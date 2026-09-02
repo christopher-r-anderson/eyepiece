@@ -108,7 +108,7 @@ const config = defineConfig(({ mode }) => {
           test: {
             name: 'integration',
             environment: 'node',
-            include: '**/*.integration.test.ts',
+            include: ['**/*.integration.test.ts'],
             testTimeout: 20_000,
             hookTimeout: 20_000,
           },
