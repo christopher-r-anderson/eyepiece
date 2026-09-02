@@ -7,6 +7,7 @@ import {
   redactProviderUrl,
   replayProviderFixture,
 } from './provider-fixtures'
+import { runWithRequestAttribution } from '@/server/lib/request-attribution'
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -153,6 +154,26 @@ describe('replayProviderFixture', () => {
       const log = await readFile(FIXTURE_MISS_LOG, 'utf8')
       expect(log).toContain(providerFixturePath(url))
       expect(log).toContain(url)
+    })
+  })
+
+  it('names the request that caused the miss when one is in scope', async () => {
+    await inTempDir(async () => {
+      const url = 'https://images-api.nasa.gov/search?nasa_id=iss034e010322'
+      const request = new Request(
+        'https://localhost:8888/api/v1/asset/nasa_ivl/iss034e010322',
+        { headers: { referer: 'https://localhost:8888/favorites' } },
+      )
+      const error = await runWithRequestAttribution(request, () =>
+        replayProviderFixture(url).catch((thrown: unknown) => thrown),
+      )
+
+      const attribution =
+        'during GET /api/v1/asset/nasa_ivl/iss034e010322 referer=https://localhost:8888/favorites'
+      expect(String(error)).toContain(attribution)
+      const { readFile } = await import('node:fs/promises')
+      const log = await readFile(FIXTURE_MISS_LOG, 'utf8')
+      expect(log).toContain(`${url} ${attribution}`)
     })
   })
 

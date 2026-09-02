@@ -5,6 +5,7 @@ import {
   NETLIFY_CDN_CACHE_CONTROL_HEADER_NAME,
   getPrivateDocumentCacheControlHeader,
 } from '@/lib/route-policy'
+import { runWithRequestAttribution } from '@/server/lib/request-attribution'
 import {
   getSessionReadReasons,
   runWithSessionReadTracking,
@@ -111,6 +112,14 @@ function hasPrivateNoStoreCacheControl(response: Response) {
   const cacheControl = response.headers.get('cache-control')?.toLowerCase()
   if (!cacheControl) return false
   return cacheControl.includes('private') || cacheControl.includes('no-store')
+}
+
+// Puts the request in scope for side effects logged far from the handler,
+// such as a provider fixture miss during an SSR loader or an API route.
+export function createRequestAttributionMiddleware() {
+  return createMiddleware().server(({ next, request }) =>
+    runWithRequestAttribution(request, () => next()),
+  )
 }
 
 /**

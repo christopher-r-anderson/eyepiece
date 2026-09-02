@@ -2,9 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   createDevelopmentServerErrorLoggingMiddleware,
   createErrorResponseCacheSafetyMiddleware,
+  createRequestAttributionMiddleware,
   createSessionReadTripwireMiddleware,
   createSetCookieSafetyNetMiddleware,
 } from './request-middleware'
+import { describeCurrentRequest } from '@/server/lib/request-attribution'
 import { markSessionRead } from '@/server/lib/session-read-sentinel'
 
 vi.mock('@tanstack/react-start', () => ({
@@ -21,6 +23,29 @@ function nextWithResponse(response: Response) {
   const ctx = { request: undefined, response, context: {} }
   return { ctx, next: vi.fn().mockResolvedValue(ctx) }
 }
+
+describe('createRequestAttributionMiddleware', () => {
+  it('scopes the request around the rest of the chain', async () => {
+    const middleware = createRequestAttributionMiddleware() as any
+    let seen = ''
+    const next = vi.fn(() => {
+      seen = describeCurrentRequest()
+      return Promise.resolve({ response: new Response(null) })
+    })
+
+    await middleware({
+      request: new Request('https://example.com/api/v1/asset/nasa_ivl/x', {
+        headers: { referer: 'https://example.com/favorites' },
+      }),
+      next,
+    })
+
+    expect(seen).toBe(
+      'during GET /api/v1/asset/nasa_ivl/x referer=https://example.com/favorites',
+    )
+    expect(describeCurrentRequest()).toBe('')
+  })
+})
 
 describe('createDevelopmentServerErrorLoggingMiddleware', () => {
   it('does not log successful 2xx responses in development', async () => {

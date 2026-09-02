@@ -19,6 +19,9 @@ vi.mock('@/integrations/tanstack-start/request-middleware', () => ({
   createErrorResponseCacheSafetyMiddleware: vi.fn(
     () => 'error-response-cache-safety-middleware',
   ),
+  createRequestAttributionMiddleware: vi.fn(
+    () => 'request-attribution-middleware',
+  ),
   createSessionReadTripwireMiddleware: vi.fn(
     () => 'session-read-tripwire-middleware',
   ),
@@ -36,6 +39,7 @@ describe('startInstance', () => {
       requestMiddleware: [
         'sentry-request-middleware',
         'csrf-middleware',
+        'request-attribution-middleware',
         'session-read-tripwire-middleware',
         'development-logging-middleware',
         'error-response-cache-safety-middleware',

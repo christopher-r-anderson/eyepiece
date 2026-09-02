@@ -8,6 +8,7 @@
 // Fixtures are read from the working directory, which is the repo root for
 // every way we run the suite.
 import { createHash } from 'node:crypto'
+import { describeCurrentRequest } from '@/server/lib/request-attribution'
 
 const FIXTURE_DIR = 'e2e/__provider-fixtures__'
 
@@ -57,15 +58,19 @@ export async function replayProviderFixture(url: string): Promise<Response> {
     raw = await readFile(path, 'utf8')
   } catch {
     const { appendFileSync } = await import('node:fs')
+    // the request that caused a miss is the part a preload or another
+    // tolerated fetch would otherwise hide
+    const attribution = describeCurrentRequest()
+    const miss = `${path} <- ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''}`
     try {
-      appendFileSync(FIXTURE_MISS_LOG, `${path} <- ${redactProviderUrl(url)}\n`)
+      appendFileSync(FIXTURE_MISS_LOG, `${miss}\n`)
     } catch {
       // the log is best-effort; the throw below still reports the miss
     }
     // falling through to the network would quietly restore the dependency
     // this mode exists to remove
     throw new Error(
-      `No provider fixture for ${redactProviderUrl(url)} (expected ${path}). Record one with pnpm test:e2e:record.`,
+      `No provider fixture for ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''} (expected ${path}). Record one with pnpm test:e2e:record.`,
     )
   }
   const fixture = JSON.parse(raw) as ProviderFixture
