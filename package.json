@@ -42,7 +42,8 @@
     "fix": "prettier --write . && eslint --fix",
     "typecheck": "tsc --noEmit",
     "preflight": "pnpm fix && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build",
-    "knip": "knip"
+    "knip": "knip",
+    "intent": "intent"
   },
   "engines": {
     "node": "^24.15.0"
@@ -76,10 +77,10 @@
     "@pandacss/dev": "^1.12.0",
     "@pandacss/mcp": "1.12.0",
     "@playwright/test": "^1.62.1",
-    "@tanstack/cli": "^0.70.2",
     "@tanstack/devtools-vite": "^0.8.5",
     "@tanstack/eslint-config": "^0.4.0",
     "@tanstack/eslint-plugin-query": "^5.102.8",
+    "@tanstack/intent": "^0.3.8",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^24.13.3",
