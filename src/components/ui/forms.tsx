@@ -30,11 +30,9 @@ import type {
 
 const textFieldSlots = textField()
 
-export { FieldError, Input, Label }
+export { FieldError, Input }
 
-export type { FormState, FormErrorState } from './forms.types'
-
-export function FormError({ error }: { error?: string }) {
+function FormError({ error }: { error?: string }) {
   if (error) {
     return <p>{error}</p>
   }

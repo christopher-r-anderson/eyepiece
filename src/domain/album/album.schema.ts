@@ -14,8 +14,6 @@ export type AlbumCollectionMetadata = z.infer<
 
 export const externalAlbumIdSchema = z.string().min(1)
 
-export type ExternalAlbumId = z.infer<typeof externalAlbumIdSchema>
-
 export const albumKeyStringSchema = z.templateLiteral([
   providerIdSchema,
   z.literal(PROVIDER_KEY_DELIMITER),

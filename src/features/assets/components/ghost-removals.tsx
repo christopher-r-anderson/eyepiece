@@ -6,7 +6,7 @@ import { useItemOperationQueue } from '@/lib/hooks/use-item-operation-queue'
 // The dim-ghost removal idiom: a removed tile keeps its slot dimmed with an
 // always-visible veil so justified rows never re-break and undo stays in
 // place. Ghosts are page-local view state - they clear on the next visit.
-export const ghostTileCss = css({
+const ghostTileCss = css({
   '& [data-tile-primary-link]': { pointerEvents: 'none' },
   '& img': { opacity: 0.3 },
   '& [data-tile-reveal], & [data-tile-controls]': {

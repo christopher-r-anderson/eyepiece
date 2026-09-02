@@ -3,7 +3,7 @@ import { snapshotImageColumns } from './asset-image'
 
 // the seeded login user (supabase/seeds/users.sql); favorites specs seed
 // their own uniquely-titled rows so parallel workers never share a tile
-export const SEED_USER_ID = '7e5dfb34-a0ad-41bb-ac2a-bb159c270ee3'
+const SEED_USER_ID = '7e5dfb34-a0ad-41bb-ac2a-bb159c270ee3'
 
 export interface FavoriteFixture {
   id: string

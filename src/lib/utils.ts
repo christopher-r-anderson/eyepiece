@@ -3,7 +3,7 @@ import { getRequest } from '@tanstack/react-start/server'
 
 const PARSE_BASE = 'http://parse.local'
 
-export const STRIP_PARAMS = ['next', 'formError', 'status'] as const
+const STRIP_PARAMS = ['next', 'formError', 'status'] as const
 
 export const getTitleText = (title: string | undefined) => {
   return title

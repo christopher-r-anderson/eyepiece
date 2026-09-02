@@ -13,11 +13,11 @@ import { searchQuerySchema } from '@/domain/search/search.schema'
 import { nasaIvlSearchFiltersSchema } from '@/domain/search/providers/nasa-ivl-filters'
 import { sioaSearchFiltersSchema } from '@/domain/search/providers/si-oa-filters'
 
-export const searchQueryParamSchema = z.object({
+const searchQueryParamSchema = z.object({
   q: searchQuerySchema,
 })
 
-export const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
+const searchFiltersParamsSchema = z.discriminatedUnion('providerId', [
   // safeExtend: the NASA schema's cross-field refinement must survive
   nasaIvlSearchFiltersSchema.safeExtend({
     providerId: z.literal(NASA_IVL_PROVIDER_ID),

@@ -54,10 +54,3 @@ export function useShowLoginModal() {
     showAuthModal('login')
   }, [showAuthModal])
 }
-
-export function useShowRegisterModal() {
-  const showAuthModal = useShowAuthModal()
-  return useCallback(() => {
-    showAuthModal('register')
-  }, [showAuthModal])
-}

@@ -8,7 +8,7 @@ export type AuthChangeSession = {
   } | null
 } | null
 
-export type OnAuthStateChange = (
+type OnAuthStateChange = (
   callback: (event: AuthChangeEvent, session: AuthChangeSession) => void,
 ) => {
   data: {

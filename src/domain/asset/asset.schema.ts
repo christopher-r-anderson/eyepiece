@@ -7,8 +7,6 @@ import { albumKeySchema } from '../album/album.schema'
 
 export const externalAssetIdSchema = z.string().min(1)
 
-export type ExternalAssetId = z.infer<typeof externalAssetIdSchema>
-
 export const assetKeyStringSchema = z.templateLiteral([
   providerIdSchema,
   z.literal(PROVIDER_KEY_DELIMITER),
@@ -32,7 +30,7 @@ export const renditionSchema = z.object({
 
 export type Rendition = z.infer<typeof renditionSchema>
 
-export const assetImageSchema = z.object({
+const assetImageSchema = z.object({
   // the master's dimensions: every surface lays out on this aspect ratio,
   // whichever rendition it ends up fetching
   width: z.number().int().positive(),
@@ -68,7 +66,7 @@ export type AssetPreviewSnapshotId = z.infer<
   typeof assetPreviewSnapshotIdSchema
 >
 
-export const assetPreviewSchema = assetCommonSchema
+const assetPreviewSchema = assetCommonSchema
 
 export type AssetPreview = z.infer<typeof assetPreviewSchema>
 

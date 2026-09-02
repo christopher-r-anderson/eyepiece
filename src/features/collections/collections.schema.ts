@@ -15,7 +15,7 @@ export type CollectionId = z.infer<typeof collectionIdSchema>
 // bounds mirror the DB checks (nonempty, <= 120)
 export const collectionNameSchema = z.string().trim().min(1).max(120)
 
-export const collectionSchema = z.object({
+const collectionSchema = z.object({
   id: collectionIdSchema,
   ownerId: z.uuid(),
   name: collectionNameSchema,
@@ -26,7 +26,7 @@ export const collectionSchema = z.object({
 
 export type Collection = z.infer<typeof collectionSchema>
 
-export const collectionCardSchema = z.object({
+const collectionCardSchema = z.object({
   collection: collectionSchema,
   itemCount: z.number().int().nonnegative(),
   cover: assetPreviewSnapshotSchema.nullable(),
@@ -34,7 +34,7 @@ export const collectionCardSchema = z.object({
 
 export type CollectionCard = z.infer<typeof collectionCardSchema>
 
-export const collectionItemEdgeSchema = z.object({
+const collectionItemEdgeSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),
   assetPreviewSnapshotId: z.uuid(),
   assetKey: assetKeySchema,

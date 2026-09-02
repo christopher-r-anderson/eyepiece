@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // https://edan.si.edu/openaccess/apidocs/#api-search-search
 
-export const sioaSearchParamsSchema = z.object({
+const sioaSearchParamsSchema = z.object({
   q: z.string(),
   start: z.number().optional(), // default 0
   rows: z.number().min(0).max(1000).optional(), // default: 10
@@ -16,7 +16,7 @@ export const sioaSearchParamsSchema = z.object({
 
 export type SioaSearchParams = z.infer<typeof sioaSearchParamsSchema>
 
-export const sioaResourceItemSchema = z.object({
+const sioaResourceItemSchema = z.object({
   url: z.url(),
   label: z.string().optional(),
   width: z.number().optional(),
@@ -32,11 +32,9 @@ export const sioaImageInfoSchema = z.object({
   height: z.number().int().positive(),
 })
 
-export type SioaImageInfo = z.infer<typeof sioaImageInfoSchema>
-
 // the accessibility fields are undocumented and the published EDAN schema
 // forbids them, so nothing here can be trusted to arrive
-export const sioaMediaItemSchema = z.object({
+const sioaMediaItemSchema = z.object({
   resources: z.array(sioaResourceItemSchema),
   // addresses the master on the delivery service, which renditions are scaled from
   idsId: z.string().optional(),
@@ -58,7 +56,7 @@ const sioaFreetextEntrySchema = z.object({
   content: sioaFreetextValueSchema,
 })
 
-export const sioaFreetextSchema = z.record(
+const sioaFreetextSchema = z.record(
   z.string(),
   z.array(sioaFreetextEntrySchema).catch([]),
 )
@@ -121,11 +119,3 @@ export const sioaAssetItemResponseSchema = z.object({
 
 export const sioaAssetCollectionResponseSchema =
   createCollectionSchema(sioaAssetItemSchema)
-
-export type SioaAssetCollectionResponse = z.infer<
-  typeof sioaAssetCollectionResponseSchema
->
-
-export const sioaMetadataSchema = z.record(z.string(), z.any())
-
-export type SioaMetadata = z.infer<typeof sioaMetadataSchema>

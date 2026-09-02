@@ -101,7 +101,7 @@ export function useSuspensePublicCollectionCards(ownerId: string) {
   return data
 }
 
-export function getCollectionOptions({
+function getCollectionOptions({
   collectionId,
   repo,
 }: {
@@ -259,7 +259,7 @@ export function useSuspenseUserCollectionCards(userId: string) {
   return data
 }
 
-export function getUserCollectionOptions({
+function getUserCollectionOptions({
   collectionId,
   repo,
 }: {
@@ -346,9 +346,7 @@ export async function ensureInfiniteUserCollectionItemEdges({
   )
 }
 
-export function collectionItemPagesToEdgesView(
-  data: CollectionItemEdgesInfinite,
-) {
+function collectionItemPagesToEdgesView(data: CollectionItemEdgesInfinite) {
   return {
     edges: data.pages.flatMap((page) => page.items),
     total: data.pages[0]?.pagination.total ?? 0,

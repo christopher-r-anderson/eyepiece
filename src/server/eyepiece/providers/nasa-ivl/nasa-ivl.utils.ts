@@ -21,7 +21,7 @@ import { NASA_ALBUM_PAGE_SIZE } from '@/integrations/nasa-ivl/client'
 // /search 400s any request whose window extends past its first 10,000
 // results - including one that merely straddles the cap - while still
 // reporting the full total_hits, so the walk has to stop early.
-export const NASA_IVL_SEARCH_MAX_RESULTS = 10_000
+const NASA_IVL_SEARCH_MAX_RESULTS = 10_000
 
 export function clampNextPageToSearchDepthCap(
   next: number | null,
