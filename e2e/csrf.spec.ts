@@ -22,12 +22,6 @@ test(
       await page.route('**/image/e2e-csrf-*/**', (route) =>
         route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
       )
-      // hovering the row intent-preloads the detail route, whose loader
-      // would ask the provider for an asset that only exists as a seeded
-      // snapshot; the preload is tolerated when it fails, so drop it
-      await page.route('**/api/v1/asset/nasa_ivl/e2e-csrf-*', (route) =>
-        route.abort(),
-      )
       const serverFnUrl = new Promise<string>((resolve) => {
         page.on('request', (request) => {
           // the endpoint path spelling differs between dev and prod

@@ -166,7 +166,8 @@ Unit tests cover domain rules, parsing, policies, and component behavior.
 Integration tests run against a local Supabase instance. Playwright runs the
 main workflows in Chromium, Firefox, and WebKit with recorded NASA and
 Smithsonian responses. A missing fixture fails the test instead of silently
-reaching a live provider.
+reaching a live provider, and a fixture nothing read fails the run so
+recordings do not accumulate.
 
 Audit scripts run Lighthouse and axe against core templates on mobile and
 desktop, in both light and dark themes. In the current audit set, every covered

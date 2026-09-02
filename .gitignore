@@ -29,6 +29,7 @@ deno.lock
 /test-results/
 /playwright-report/
 /e2e/.fixture-misses.log
+/e2e/.fixture-hits.log
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/

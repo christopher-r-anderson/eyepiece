@@ -46,7 +46,12 @@ export const getRouter = () => {
       ...eyepieceClientContext,
       ...publicSupabaseContext,
     },
-    defaultPreload: 'intent',
+    // e2e builds set 'false': a hover preload's loader reaches the provider
+    // through pages no spec asserts on, and no spec exercises preloading
+    defaultPreload:
+      import.meta.env.VITE_ROUTER_PRELOAD_ENABLED === 'false'
+        ? false
+        : 'intent',
     parseSearch: parseSearchParams,
     stringifySearch: stringifyCanonicalSearchParams,
     scrollRestoration: true,

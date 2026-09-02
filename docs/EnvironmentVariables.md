@@ -17,6 +17,7 @@ Reference for every environment variable the project uses: the table shows where
 | `VITE_SUPABASE_URL`                        | derived        | yes      | yes          |
 | `VITE_SUPABASE_PUBLISHABLE_KEY`            | variable       | yes      | yes          |
 | `VITE_IMAGE_CDN_ENABLED`                   |                |          | optional     |
+| `VITE_ROUTER_PRELOAD_ENABLED`              |                |          | optional     |
 | `VITE_SENTRY_ENABLED`                      | variable       | yes      | yes          |
 | `VITE_SENTRY_DSN`                          | variable       | yes      | optional     |
 | `VITE_SENTRY_ENVIRONMENT`                  | variable       | yes      | optional     |
@@ -124,6 +125,12 @@ The publish workflow builds the production site in CI and uploads it with `netli
 ### `VITE_IMAGE_CDN_ENABLED`
 
 Routes provider images through the Netlify Image CDN (see the Image Delivery section of [Providers.md](Providers.md)). On unless explicitly `false`, so no deployed environment needs it set for standard behavior. The e2e suite sets `false` in `playwright.config.ts` since tests are written against origin URLs. Set `false` in `.env.local` to use direct provider URLs locally.
+
+## Router
+
+### `VITE_ROUTER_PRELOAD_ENABLED`
+
+Hover-intent preloading of route loaders. On unless explicitly `false`. The e2e suite sets `false` in `playwright.config.ts`: a preload's loader would ask the provider for seeded assets no fixture covers, and no spec exercises preloading itself.
 
 ## Providers
 

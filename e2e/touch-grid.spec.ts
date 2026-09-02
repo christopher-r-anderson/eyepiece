@@ -1,10 +1,7 @@
 import { devices } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { COLLECTIONS_FIXTURE } from './support/collections-fixture'
-import {
-  logInAsFixtureUser,
-  stubSeededAssetApi,
-} from './support/collections-helpers'
+import { logInAsFixtureUser } from './support/collections-helpers'
 
 const { publicCollection } = COLLECTIONS_FIXTURE
 
@@ -15,10 +12,6 @@ test.skip(
   'firefox does not support isMobile emulation',
 )
 test.use({ ...devices['Pixel 7'] })
-
-test.beforeEach(async ({ page }) => {
-  await stubSeededAssetApi(page)
-})
 
 test('touch grids are bare: no veil, title, or tile controls', async ({
   page,

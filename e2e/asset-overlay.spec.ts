@@ -145,7 +145,13 @@ test('reloading while open lands on the full detail page', async ({ page }) => {
   // the reload produces a fresh document, so this journey goes through the
   // SSR loader and its recorded provider fixture rather than a page.route stub
   await page.goto('/')
-  const firstTileLink = page.locator('a[data-tile-primary-link]').first()
+  // the strips stream in independently, so the document's first tile can
+  // change between reading the href and clicking; stay inside one strip
+  const firstTileLink = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: /Apollo, at fifty/ }) })
+    .locator('a[data-tile-primary-link]')
+    .first()
   await expect(firstTileLink).toBeVisible()
   await expect(page.getByRole('button', { name: 'Star' }).first()).toBeEnabled()
   const maskedHref = await firstTileLink.getAttribute('href')
