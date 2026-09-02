@@ -1,9 +1,5 @@
 import { expect, test } from './fixtures'
-import {
-  TINY_PNG,
-  nextServerPost,
-  stubSeededAssetApi,
-} from './support/collections-helpers'
+import { TINY_PNG, nextServerPost } from './support/collections-helpers'
 import {
   deleteUserFavorite,
   seedUserFavorite,
@@ -25,7 +21,6 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.route('**/image/e2e-favorites-*/**', (route) =>
     route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
   )
-  await stubSeededAssetApi(page)
 })
 
 test.afterEach(async () => {

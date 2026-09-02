@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  FIXTURE_HIT_LOG,
   FIXTURE_MISS_LOG,
   getProviderFixtureMode,
   providerFixturePath,
@@ -108,6 +109,10 @@ describe('replayProviderFixture', () => {
       await expect(response.json()).resolves.toEqual({
         reason: 'No assets found',
       })
+      const { readFile } = await import('node:fs/promises')
+      await expect(readFile(FIXTURE_HIT_LOG, 'utf8')).resolves.toContain(
+        providerFixturePath(url),
+      )
     } finally {
       process.chdir(cwd)
     }

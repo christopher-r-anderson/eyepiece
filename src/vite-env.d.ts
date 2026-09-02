@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_IMAGE_CDN_ENABLED?: string
+  readonly VITE_ROUTER_PRELOAD_ENABLED?: string
   readonly VITE_SENTRY_DSN?: string
   readonly VITE_SENTRY_ENABLED?: string
   readonly VITE_SENTRY_ENVIRONMENT?: string
