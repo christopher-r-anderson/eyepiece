@@ -101,6 +101,7 @@ The local database includes a test account:
 pnpm lint
 pnpm format
 pnpm typecheck
+pnpm knip
 pnpm test:unit
 pnpm test:integration # requires local Supabase
 pnpm test:e2e         # requires local Supabase

@@ -42,6 +42,9 @@ jobs:
       - name: Format Check
         run: pnpm run format
 
+      - name: Knip
+        run: pnpm knip
+
   type-check:
     name: Type Check
     runs-on: ubuntu-latest

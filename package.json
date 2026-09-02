@@ -41,7 +41,7 @@
     "format": "prettier -c .",
     "fix": "prettier --write . && eslint --fix",
     "typecheck": "tsc --noEmit",
-    "preflight": "pnpm fix && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build",
+    "preflight": "pnpm fix && pnpm typecheck && pnpm knip && pnpm test && pnpm test:e2e && pnpm build",
     "knip": "knip",
     "intent": "intent"
   },
