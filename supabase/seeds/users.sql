@@ -107,11 +107,18 @@ SELECT
 FROM auth.users AS u;
 
 WITH
-  new_asset_preview_snapshots AS (
-    INSERT INTO public.asset_preview_snapshots
-      (provider_id, external_id, title, image_width, image_height, renditions)
+  seed_rows(
+    ordinal,
+    provider_id,
+    external_id,
+    title,
+    image_width,
+    image_height,
+    renditions
+  ) AS (
     VALUES
       (
+        1,
         'nasa_ivl',
         'iss034e010322',
         'Open Food Packet',
@@ -129,6 +136,7 @@ WITH
         )
       ),
       (
+        2,
         'nasa_ivl',
         'KSC-06pd1454',
         NULL,
@@ -146,6 +154,7 @@ WITH
         )
       ),
       (
+        3,
         'nasa_ivl',
         '7026024',
         'Skylab',
@@ -163,6 +172,7 @@ WITH
         )
       ),
       (
+        4,
         'nasa_ivl',
         'iss033e018991',
         'Hair Cut',
@@ -180,6 +190,7 @@ WITH
         )
       ),
       (
+        5,
         'nasa_ivl',
         'PIA16416',
         'A Game of Shadows',
@@ -196,9 +207,28 @@ WITH
           )
         )
       )
-    RETURNING id
+  ),
+  new_asset_preview_snapshots AS (
+    INSERT INTO public.asset_preview_snapshots
+      (provider_id, external_id, title, image_width, image_height, renditions)
+    SELECT
+      provider_id::public.provider_id,
+      external_id,
+      title,
+      image_width,
+      image_height,
+      renditions
+    FROM seed_rows
+    RETURNING id, external_id
   )
-INSERT INTO favorites (owner_id, asset_preview_snapshot_id)
-SELECT '7e5dfb34-a0ad-41bb-ac2a-bb159c270ee3', id
-FROM new_asset_preview_snapshots;
+-- favorites list newest first; the offsets keep the seeded order the same on
+-- every reset instead of falling back to random snapshot ids
+INSERT INTO favorites (owner_id, asset_preview_snapshot_id, created_at)
+SELECT
+  '7e5dfb34-a0ad-41bb-ac2a-bb159c270ee3',
+  s.id,
+  now() - r.ordinal * INTERVAL '1 minute'
+FROM
+  new_asset_preview_snapshots AS s
+  JOIN seed_rows AS r USING (external_id);
 COMMIT;
