@@ -6,6 +6,7 @@ import {
 import {
   createDevelopmentServerErrorLoggingMiddleware,
   createErrorResponseCacheSafetyMiddleware,
+  createRequestAttributionMiddleware,
   createSessionReadTripwireMiddleware,
   createSetCookieSafetyNetMiddleware,
 } from '@/integrations/tanstack-start/request-middleware'
@@ -15,6 +16,7 @@ import {
 const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === 'serverFn',
 })
+const requestAttributionMiddleware = createRequestAttributionMiddleware()
 const sessionReadTripwireMiddleware = createSessionReadTripwireMiddleware()
 const developmentServerErrorLoggingMiddleware =
   createDevelopmentServerErrorLoggingMiddleware()
@@ -33,6 +35,7 @@ export const startInstance = createStart(() => {
     requestMiddleware: [
       sentryRequestMiddleware,
       csrfMiddleware,
+      requestAttributionMiddleware,
       sessionReadTripwireMiddleware,
       developmentServerErrorLoggingMiddleware,
       errorResponseCacheSafetyMiddleware,
