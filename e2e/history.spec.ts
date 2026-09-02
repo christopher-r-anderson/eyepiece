@@ -160,12 +160,6 @@ test(
       await page.route('**/image/e2e-history-auth-*/**', (route) =>
         route.fulfill({ body: TINY_PNG, contentType: 'image/png' }),
       )
-      // hovering the row intent-preloads the detail route, whose loader
-      // would ask the provider for an asset that only exists as a seeded
-      // snapshot; the preload is tolerated when it fails, so drop it
-      await page.route('**/api/v1/asset/nasa_ivl/e2e-history-auth-*', (route) =>
-        route.abort(),
-      )
       await page.goto('/favorites')
       const row = page.getByRole('row', { name: fixture.title })
       await expect(row.getByRole('button', { name: 'Star' })).toBeEnabled()
