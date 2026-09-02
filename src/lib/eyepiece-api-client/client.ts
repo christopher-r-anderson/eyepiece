@@ -30,7 +30,7 @@ type ApiErrorBody = {
   }
 }
 
-export function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
+function flattenAssetsSelector<TData extends { items: Array<Asset> }>({
   pages,
   ...rest
 }: InfiniteData<TData, string>) {

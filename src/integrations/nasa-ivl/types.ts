@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-export const YEAR_MIN = 1920
-export const YEAR_MAX = new Date().getFullYear()
+const YEAR_MIN = 1920
+const YEAR_MAX = new Date().getFullYear()
 
 const nasaMediaSchema = z.enum(['image', 'video', 'audio'])
 const commaListTransform = (val: string) => val.split(',').map((s) => s.trim())
 
-export const nasaSearchParamsSchema = z.object({
+const nasaSearchParamsSchema = z.object({
   q: z.string().optional(),
   center: z.string().optional(),
   description: z.string().optional(),
@@ -30,7 +30,7 @@ export const nasaSearchParamsSchema = z.object({
 
 export type NasaSearchParams = z.infer<typeof nasaSearchParamsSchema>
 
-export const nasaMediaLinkSchema = z.object({
+const nasaMediaLinkSchema = z.object({
   href: z.url(),
   rel: z.string(),
   render: z.string().optional(),
@@ -48,8 +48,6 @@ const collectionLinkSchema = z.object({
   href: z.url(),
   prompt: z.string(),
 })
-
-export type NasaCollectionLink = z.infer<typeof collectionLinkSchema>
 
 const createCollectionSchema = <T extends z.ZodTypeAny>(itemDataSchema: T) =>
   z.object({
@@ -90,15 +88,9 @@ export type NasaMediaItem = z.infer<typeof nasaMediaItemSchema>
 export const nasaMediaCollectionResponseSchema =
   createCollectionSchema(nasaMediaItemSchema)
 
-export type NasaMediaCollectionResponse = z.infer<
-  typeof nasaMediaCollectionResponseSchema
->
-
 export const nasaMetadataSchema = z.record(z.string(), z.any())
 
-export type NasaMetadata = z.infer<typeof nasaMetadataSchema>
-
-export const nasaAlbumParamsSchema = z.object({
+const nasaAlbumParamsSchema = z.object({
   page: z.number().min(1).optional(),
 })
 

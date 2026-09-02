@@ -36,7 +36,7 @@ function mergeObservability(
   }
 }
 
-export function withHandledErrorContext<TErrorCode extends string | undefined>(
+function withHandledErrorContext<TErrorCode extends string | undefined>(
   error: ResultError<TErrorCode>,
   augment: ObservabilityAugment,
 ): ResultError<TErrorCode> {

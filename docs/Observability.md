@@ -72,13 +72,15 @@ When an error already carries observability metadata, the server `beforeSend` ho
 
 ## Route and Boundary Capture
 
-The shared UI capture helpers live in `src/app/layout/route-error.tsx`.
+The shared UI capture helpers live in `src/app/layout/route-error.tsx` and
+`src/components/errors/captured-errors.tsx`.
 
 Use these helpers for route-level and catch-boundary error UI:
 
 - `RouteError`
 - `CapturedPrettyError`
-- `CapturedAlertError`
+- `CapturedCatchBoundary`, a `CatchBoundary` whose error component is a
+  captured alert
 
 These helpers keep two things consistent:
 

@@ -20,7 +20,7 @@ export function CapturedPrettyError({
   return <PrettyException error={error} headingLevel={headingLevel} />
 }
 
-export function CapturedAlertError({
+function CapturedAlertError({
   error,
   message,
   captureContext,

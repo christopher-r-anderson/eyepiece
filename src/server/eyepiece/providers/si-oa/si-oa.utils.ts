@@ -38,7 +38,7 @@ export function buildSioaSearchParams(
 const MAX_RENDITION_WIDTH = 2560
 const RENDITION_WIDTHS = [320, 640, 960, 1280, 1920, MAX_RENDITION_WIDTH]
 
-export function usableDimensions(resource: SioaResourceItem | undefined) {
+function usableDimensions(resource: SioaResourceItem | undefined) {
   if (
     resource &&
     typeof resource.width === 'number' &&

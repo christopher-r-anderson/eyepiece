@@ -15,7 +15,7 @@ import { ASSET_PREVIEW_SNAPSHOT_STALE_TIME } from '@/features/assets/asset-previ
 // deploy). It sits outside the app's server surface, so failures throw plain
 // errors for the script to report instead of going through Result plumbing.
 
-export interface ShowcaseAssetPreview {
+interface ShowcaseAssetPreview {
   title: string
   image?: AssetImage
 }

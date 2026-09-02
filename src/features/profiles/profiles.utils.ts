@@ -1,6 +1,4 @@
-import { z } from 'zod'
 import type { PostgrestError } from '@supabase/supabase-js'
-import type { ZodError } from 'zod'
 import type { ResultError } from '@/lib/result'
 import type { Database } from '@/integrations/supabase/database.types'
 import type { Profile } from '@/domain/profile/profile.schema'
@@ -9,28 +7,6 @@ export const INVALID_INPUT_ERROR = 'invalid_input' as const
 export const UNKNOWN_ERROR = 'unknown_error' as const
 
 export type ProfileErrorCode = typeof INVALID_INPUT_ERROR | typeof UNKNOWN_ERROR
-
-export function errorFromZodError<T>(
-  zodError: ZodError<T>,
-): ResultError<ProfileErrorCode> {
-  const flattenedErrors = z.flattenError(zodError)
-  const error = {
-    code: INVALID_INPUT_ERROR,
-    message: flattenedErrors.formErrors[0] || 'Invalid input',
-    fieldErrors: {} as Record<string, string>,
-  }
-  Object.entries(flattenedErrors.fieldErrors).forEach(([key, value]) => {
-    if (
-      value &&
-      Array.isArray(value) &&
-      value.length > 0 &&
-      typeof value[0] === 'string'
-    ) {
-      error.fieldErrors[key] = value[0]
-    }
-  })
-  return error
-}
 
 const validationMap: Record<string, Record<string, string> | undefined> = {
   profile_display_name_nonempty_chk: {

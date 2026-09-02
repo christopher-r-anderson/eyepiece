@@ -61,13 +61,13 @@ export const sleep = (ms: number) =>
     setTimeout(resolve, ms)
   })
 
-export function redact(url: string) {
+function redact(url: string) {
   return url.replace(/api_key=[^&]+/, 'api_key=REDACTED')
 }
 
 // the api key is redacted before both the digest and the label, so a rotated
 // or per-developer key still hits the same cache entry
-export function cacheName(url: string) {
+function cacheName(url: string) {
   const redacted = redact(url)
   const digest = createHash('sha1').update(redacted).digest('hex').slice(0, 10)
   const label = redacted

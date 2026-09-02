@@ -6,7 +6,7 @@ const policies: Array<ImageDeliveryPolicy> = Object.values(
 )
 
 // e2e builds set 'false': tests are written against origin URLs
-export function isImageCdnEnabled() {
+function isImageCdnEnabled() {
   return import.meta.env.VITE_IMAGE_CDN_ENABLED !== 'false'
 }
 

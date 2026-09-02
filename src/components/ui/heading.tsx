@@ -7,7 +7,7 @@ import type { UiProps } from './style-contract'
 // widen alongside the recipe if deeper sections ever exist
 export type HeadingLevel = 1 | 2 | 3
 
-export type HeadingSize = 'title-lg' | 'title-md' | 'display-md'
+type HeadingSize = 'title-lg' | 'title-md' | 'display-md'
 
 export type HeadingProps = {
   level: HeadingLevel

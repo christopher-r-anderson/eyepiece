@@ -9,7 +9,7 @@ export const authKeys = {
   user: () => [...authKeys.all, 'user'] as const,
 }
 
-export function getCurrentUserQueryOptions() {
+function getCurrentUserQueryOptions() {
   return queryOptions({
     queryKey: authKeys.user(),
     queryFn: async (): Promise<User | null> => {

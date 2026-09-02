@@ -168,9 +168,7 @@ export function userFavoritesPagesToAssetIds({
   )
 }
 
-export function userFavoritesPagesToEdgesView(
-  data: UserFavoritesEdgesInfinite,
-) {
+function userFavoritesPagesToEdgesView(data: UserFavoritesEdgesInfinite) {
   return {
     edges: data.pages.flatMap((page) => page.items),
     total: data.pages[0]?.pagination.total ?? 0,

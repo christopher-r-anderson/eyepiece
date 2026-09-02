@@ -126,5 +126,3 @@ export const it = base.extend<{
     await use(client)
   },
 })
-
-export { describe, expect, beforeEach, afterEach } from 'vitest'
