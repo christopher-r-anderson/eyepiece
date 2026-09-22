@@ -45,7 +45,10 @@ export default async function failOnFixtureDrift() {
   if (process.env.PROVIDER_FIXTURE_AUDIT !== '1') return
   if (process.env.PROVIDER_FIXTURE_MODE === 'record') return
 
-  const hits = new Set(await readLogLines(FIXTURE_HIT_LOG))
+  // each hit line is the fixture path, then the request that read it
+  const hits = new Set(
+    (await readLogLines(FIXTURE_HIT_LOG)).map((line) => line.split(' <- ')[0]),
+  )
   const recorded = (await readdir(FIXTURE_DIR))
     .filter((name) => name.endsWith('.json'))
     .map((name) => join(FIXTURE_DIR, name))

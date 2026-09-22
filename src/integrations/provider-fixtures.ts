@@ -16,7 +16,9 @@ const FIXTURE_DIR = 'e2e/__provider-fixtures__'
 // below reaches specs only when a journey depends on the response, while a
 // tolerated path (an intent preload) would otherwise rot silently
 export const FIXTURE_MISS_LOG = 'e2e/.fixture-misses.log'
-// reads accumulate here so the teardown can name fixtures nothing used
+// reads accumulate here, each with the request behind it, so the teardown
+// can name fixtures nothing used and a run can be checked for reads a
+// client-side stub should have answered
 export const FIXTURE_HIT_LOG = 'e2e/.fixture-hits.log'
 
 let writeCounter = 0
@@ -44,6 +46,14 @@ export function providerFixturePath(url: string) {
   return `${FIXTURE_DIR}/${label}.${digest}.json`
 }
 
+// one log line per fixture access: the file, the upstream url, and the
+// request that asked for it. A read attributed to a browser fetch a spec
+// had stubbed with page.route is a stub the browser let through
+function describeFixtureAccess(path: string, url: string) {
+  const attribution = describeCurrentRequest()
+  return `${path} <- ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''}`
+}
+
 interface ProviderFixture {
   status: number
   statusText: string
@@ -62,22 +72,21 @@ export async function replayProviderFixture(url: string): Promise<Response> {
     const { appendFileSync } = await import('node:fs')
     // the request that caused a miss is the part a preload or another
     // tolerated fetch would otherwise hide
-    const attribution = describeCurrentRequest()
-    const miss = `${path} <- ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''}`
     try {
-      appendFileSync(FIXTURE_MISS_LOG, `${miss}\n`)
+      appendFileSync(FIXTURE_MISS_LOG, `${describeFixtureAccess(path, url)}\n`)
     } catch {
       // the log is best-effort; the throw below still reports the miss
     }
     // falling through to the network would quietly restore the dependency
     // this mode exists to remove
+    const attribution = describeCurrentRequest()
     throw new Error(
       `No provider fixture for ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''} (expected ${path}). Record one with pnpm test:e2e:record.`,
     )
   }
   try {
     const { appendFileSync } = await import('node:fs')
-    appendFileSync(FIXTURE_HIT_LOG, `${path}\n`)
+    appendFileSync(FIXTURE_HIT_LOG, `${describeFixtureAccess(path, url)}\n`)
   } catch {
     // best-effort, like the miss log
   }
