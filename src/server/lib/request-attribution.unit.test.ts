@@ -25,6 +25,22 @@ describe('request attribution', () => {
     )
   })
 
+  it('names the user agent and the running spec when the request carries them', () => {
+    const request = new Request('https://example.com/api/v1/search?q=moon', {
+      headers: {
+        referer: 'https://example.com/search?q=moon',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Firefox/140.0',
+        'x-e2e-spec': 'search.spec.ts > a year edit applies on blur',
+      },
+    })
+
+    expect(
+      runWithRequestAttribution(request, () => describeCurrentRequest()),
+    ).toBe(
+      'during GET /api/v1/search?q=moon referer=https://example.com/search?q=moon ua="Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Firefox/140.0" spec="search.spec.ts > a year edit applies on blur"',
+    )
+  })
+
   it('omits the referer when the request has none', () => {
     const request = new Request('https://example.com/favorites')
 

@@ -1,29 +1,13 @@
 import { expect, test } from './fixtures'
-import { singleRenditionImage } from './support/asset-image'
 import type { Page } from '@playwright/test'
 
 const NASA_PROVIDER_ID = 'nasa_ivl'
 
-function stubAsset(externalId: string, title: string) {
-  return {
-    key: { providerId: NASA_PROVIDER_ID, externalId },
-    title,
-    description: `${title} description`,
-    image: singleRenditionImage(
-      `https://images-assets.nasa.gov/image/${externalId}/${externalId}~thumb.jpg`,
-      640,
-      480,
-    ),
-  }
-}
-
-const stubSearchResponse = {
-  items: [
-    stubAsset('apollo-11-capsule', 'Apollo 11 Capsule'),
-    stubAsset('apollo-11-crew', 'Apollo 11 Crew'),
-  ],
-  pagination: { next: null, total: 2 },
-}
+// every search these specs make is answered server-side from a recording
+// in e2e/__provider-fixtures__ (a client-side stub can be bypassed by the
+// browser, and a recording exercises our parsing of a real response);
+// the first NASA result of the recorded q=moon search
+const FIRST_MOON_RESULT = 'Go Forward to the Moon'
 
 function collectConsoleErrors(page: Page) {
   const errors: Array<string> = []
@@ -56,10 +40,6 @@ test('all scope renders publicly cacheable with sections and no console errors',
   page,
 }) => {
   const consoleErrors = collectConsoleErrors(page)
-  // stub client refetches so the test does not depend on provider health
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
 
   const response = await page.goto('/search?q=moon')
 
@@ -227,9 +207,6 @@ test('provider scope and explicit filters survive a pre-hydration submit', async
 test('an inverted year range is blocked natively after hydration', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(
     `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=2000&yearStart=1960`,
   )
@@ -265,9 +242,6 @@ test('year filters survive a pre-hydration submit from an empty-query NASA page'
 })
 
 test('typing that lands before hydration survives it', async ({ page }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   // hold scripts until the fill lands, so the typing is strictly pre-hydration
   let releaseScripts = () => {}
   const scriptsReleased = new Promise<void>((resolve) => {
@@ -291,9 +265,6 @@ test('typing that lands before hydration survives it', async ({ page }) => {
 test('a draft typed in the next field survives the blur commit', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -310,9 +281,6 @@ test('a draft typed in the next field survives the blur commit', async ({
 test('a year edit applies on blur and keeps focus for the next field', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -335,9 +303,6 @@ test('a year edit applies on blur and keeps focus for the next field', async ({
 test('a year blur and the submit click land a single history entry', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -360,9 +325,6 @@ test('a year blur and the submit click land a single history entry', async ({
 test('keyboard focus on a result row reveals the tile veil', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -377,9 +339,6 @@ test('keyboard focus on a result row reveals the tile veil', async ({
 test('pressing Enter in a year field submits the form with the query', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -399,9 +358,6 @@ test('pressing Enter in a year field submits the form with the query', async ({
 test('a year blur submits the current draft query with the filter', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
   await page.goto(`/search?providerId=${NASA_PROVIDER_ID}&q=moon`)
   await waitForHydratedResults(page)
 
@@ -424,10 +380,6 @@ test('a year blur submits the current draft query with the filter', async ({
 test('an inverted year range in the URL is dropped as a pair', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-
   const response = await page.goto(
     `/search?providerId=${NASA_PROVIDER_ID}&q=moon&yearEnd=1990&yearStart=2000`,
   )
@@ -502,10 +454,7 @@ test('all-view sections load once and "See all" reuses the cache', async ({
   page,
 }) => {
   const searchRequests = trackSearchApiRequests(page)
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-  // start from the prompt state so all fetching goes through the stub
+  // start from the prompt state so every fetch is the client's
   await page.goto('/search')
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
@@ -520,7 +469,7 @@ test('all-view sections load once and "See all" reuses the cache', async ({
   const nasaSection = page.getByRole('region', {
     name: 'NASA Image and Video Library',
   })
-  await expect(nasaSection.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  await expect(nasaSection.getByText(FIRST_MOON_RESULT).first()).toBeVisible()
   const requestsAfterSections = searchRequests.length
   expect(requestsAfterSections).toBeGreaterThan(0)
 
@@ -531,7 +480,7 @@ test('all-view sections load once and "See all" reuses the cache', async ({
       url.searchParams.get('providerId') === NASA_PROVIDER_ID
     )
   })
-  await expect(page.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  await expect(page.getByText(FIRST_MOON_RESULT).first()).toBeVisible()
   // the scoped tab shares the section's query cache: no new fetch
   expect(searchRequests.length).toBe(requestsAfterSections)
 
@@ -550,13 +499,15 @@ test('all-view sections load once and "See all" reuses the cache', async ({
 })
 
 test('a failing provider only takes down its own section', async ({ page }) => {
-  await page.route('**/api/v1/search*', (route) => {
-    const url = new URL(route.request().url())
-    if (url.searchParams.get('providerId') === 'si_oa') {
-      return route.fulfill({ status: 502, json: { error: 'upstream down' } })
-    }
-    return route.fulfill({ json: stubSearchResponse })
-  })
+  // a provider outage is the one search response no recording can stand
+  // in for, so the Smithsonian fetch alone is answered here; the NASA
+  // fetch reaches the server and its recording
+  await page.route(
+    (url) =>
+      url.pathname === '/api/v1/search' &&
+      url.searchParams.get('providerId') === 'si_oa',
+    (route) => route.fulfill({ status: 502, json: { error: 'upstream down' } }),
+  )
   await page.goto('/search')
 
   const searchbox = page.getByRole('searchbox', { name: 'Search keywords' })
@@ -570,7 +521,7 @@ test('a failing provider only takes down its own section', async ({ page }) => {
   const nasaSection = page.getByRole('region', {
     name: 'NASA Image and Video Library',
   })
-  await expect(nasaSection.getByText('Apollo 11 Capsule').first()).toBeVisible()
+  await expect(nasaSection.getByText(FIRST_MOON_RESULT).first()).toBeVisible()
   const siSection = page.getByRole('region', {
     name: 'Smithsonian National Air and Space Museum',
   })
@@ -583,10 +534,6 @@ test('a legacy mediaType URL loads and canonicalizes without the key', async ({
   page,
 }) => {
   const consoleErrors = collectConsoleErrors(page)
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-
   const response = await page.goto(
     `/search?mediaType=image&providerId=${NASA_PROVIDER_ID}&q=moon&yearStart=1990`,
   )
@@ -608,10 +555,6 @@ test('a legacy mediaType URL loads and canonicalizes without the key', async ({
 test('exactly one scope tab is marked current in provider scope', async ({
   page,
 }) => {
-  await page.route('**/api/v1/search*', (route) =>
-    route.fulfill({ json: stubSearchResponse }),
-  )
-
   await page.goto(`/search?q=moon&providerId=${NASA_PROVIDER_ID}`)
 
   const scopeNav = page.getByRole('navigation', { name: 'Search scope' })

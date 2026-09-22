@@ -3,6 +3,13 @@ import { STORAGE_STATE_PATH } from './support/paths'
 import { TINY_PNG } from './support/collections-helpers'
 
 export const test = base.extend({
+  // names the running test on every request the browser makes, so a
+  // server-side log (a provider fixture read or miss) can be traced back
+  // to the spec that caused it
+  // eslint-disable-next-line no-empty-pattern
+  extraHTTPHeaders: async ({}, use, testInfo) => {
+    await use({ 'x-e2e-spec': testInfo.titlePath.join(' > ') })
+  },
   context: async ({ context }, use) => {
     // no assertion needs real image bytes; keep the suite off the live image hosts
     await context.route(/images-assets\.nasa\.gov|ids\.si\.edu/, (route) =>

@@ -111,7 +111,7 @@ describe('replayProviderFixture', () => {
       })
       const { readFile } = await import('node:fs/promises')
       await expect(readFile(FIXTURE_HIT_LOG, 'utf8')).resolves.toContain(
-        providerFixturePath(url),
+        `${providerFixturePath(url)} <- ${url}`,
       )
     } finally {
       process.chdir(cwd)
@@ -179,6 +179,42 @@ describe('replayProviderFixture', () => {
       const { readFile } = await import('node:fs/promises')
       const log = await readFile(FIXTURE_MISS_LOG, 'utf8')
       expect(log).toContain(`${url} ${attribution}`)
+    })
+  })
+
+  it('names the request behind a read when one is in scope', async () => {
+    await inTempDir(async () => {
+      const url = 'https://images-api.nasa.gov/search?q=moon&page_size=24'
+      const { mkdir, readFile, writeFile } = await import('node:fs/promises')
+      const { dirname } = await import('node:path')
+      const path = providerFixturePath(url)
+      await mkdir(dirname(path), { recursive: true })
+      await writeFile(
+        path,
+        JSON.stringify({
+          status: 200,
+          statusText: 'OK',
+          contentType: 'application/json',
+          body: {},
+        }),
+      )
+      const request = new Request(
+        'https://localhost:8888/api/v1/search?providerId=nasa_ivl&q=moon',
+        {
+          headers: {
+            referer: 'https://localhost:8888/search?q=moon',
+            'user-agent': 'Firefox/140.0',
+            'x-e2e-spec': 'search.spec.ts > all scope renders',
+          },
+        },
+      )
+
+      await runWithRequestAttribution(request, () => replayProviderFixture(url))
+
+      const log = await readFile(FIXTURE_HIT_LOG, 'utf8')
+      expect(log).toContain(
+        `${path} <- ${url} during GET /api/v1/search?providerId=nasa_ivl&q=moon referer=https://localhost:8888/search?q=moon ua="Firefox/140.0" spec="search.spec.ts > all scope renders"`,
+      )
     })
   })
 
