@@ -36,7 +36,7 @@
     "test:integration": "pnpm require-supabase && vitest run --project integration",
     "test:e2e": "pnpm require-supabase && playwright test",
     "test:e2e:record": "PROVIDER_FIXTURE_MODE=record pnpm test:e2e",
-    "serve": "netlify serve",
+    "serve": "netlify serve --offline",
     "lint": "eslint",
     "format": "prettier -c .",
     "fix": "prettier --write . && eslint --fix",

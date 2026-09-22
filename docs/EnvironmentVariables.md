@@ -40,6 +40,7 @@ Reading the table:
 - `.env.test` is generated (`pnpm -s print-supabase-env > .env.test`) and keeps `VITE_SENTRY_ENABLED=false`; nothing in it is provisioned by hand.
 - `NODE_VERSION` lives in `netlify.toml`; the Netlify UI Node version setting is kept matching it.
 - `PRERENDER` and `PROVIDER_FIXTURE_MODE` are workflow and script flags, set where they are used and never provisioned.
+- `pnpm serve` runs `netlify serve --offline`. A checkout that is linked to the Netlify site and logged in would otherwise have the site's project settings injected into the local build, and the client bundle would carry the production `VITE_SUPABASE_*` values while the server runtime used `.env.local`. The e2e login then fails against production. CI is unaffected; the e2e job has no Netlify token.
 
 ## Sentry
 
