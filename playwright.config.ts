@@ -26,8 +26,8 @@ export default defineConfig({
   workers: isCI || isRecordMode ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  globalSetup: './e2e/support/fixture-miss-guard.setup.ts',
-  globalTeardown: './e2e/support/fixture-miss-guard.teardown.ts',
+  globalSetup: './e2e/support/fixture-guard.setup.ts',
+  globalTeardown: './e2e/support/fixture-guard.teardown.ts',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -94,6 +94,9 @@ export default defineConfig({
       PROVIDER_FIXTURE_MODE: process.env.PROVIDER_FIXTURE_MODE ?? 'replay',
       // tests are written against origin URLs
       VITE_IMAGE_CDN_ENABLED: 'false',
+      // a hover preload's loader would ask the provider for seeded assets no
+      // fixture covers; no spec exercises preloading
+      VITE_ROUTER_PRELOAD_ENABLED: 'false',
     },
     // currently always using false since we are running a prod-like server for tests which we don't normally run locally
     reuseExistingServer: false, // !process.env.CI,

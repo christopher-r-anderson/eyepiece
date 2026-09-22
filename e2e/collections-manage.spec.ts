@@ -7,12 +7,7 @@ import {
 import {
   logInAsFixtureUser,
   nextServerPost,
-  stubSeededAssetApi,
 } from './support/collections-helpers'
-
-test.beforeEach(async ({ page }) => {
-  await stubSeededAssetApi(page)
-})
 
 const { publicCollection, snapshots, user } = COLLECTIONS_FIXTURE
 

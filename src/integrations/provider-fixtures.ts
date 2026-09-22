@@ -16,6 +16,8 @@ const FIXTURE_DIR = 'e2e/__provider-fixtures__'
 // below reaches specs only when a journey depends on the response, while a
 // tolerated path (an intent preload) would otherwise rot silently
 export const FIXTURE_MISS_LOG = 'e2e/.fixture-misses.log'
+// reads accumulate here so the teardown can name fixtures nothing used
+export const FIXTURE_HIT_LOG = 'e2e/.fixture-hits.log'
 
 let writeCounter = 0
 
@@ -72,6 +74,12 @@ export async function replayProviderFixture(url: string): Promise<Response> {
     throw new Error(
       `No provider fixture for ${redactProviderUrl(url)}${attribution ? ` ${attribution}` : ''} (expected ${path}). Record one with pnpm test:e2e:record.`,
     )
+  }
+  try {
+    const { appendFileSync } = await import('node:fs')
+    appendFileSync(FIXTURE_HIT_LOG, `${path}\n`)
+  } catch {
+    // best-effort, like the miss log
   }
   const fixture = JSON.parse(raw) as ProviderFixture
   const body = fixture.text ?? JSON.stringify(fixture.body)
