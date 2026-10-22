@@ -115,6 +115,9 @@ jobs:
       - name: Start Supabase (local)
         run: pnpm supabase start
 
+      - name: Check database grants and RLS
+        run: pnpm supabase test db
+
       - name: Generate .env.test from Supabase
         run: pnpm -s print-supabase-env > .env.test
 
