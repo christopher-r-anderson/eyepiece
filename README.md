@@ -203,6 +203,7 @@ Run the audits with `pnpm audit:lighthouse` and `pnpm audit:axe`.
 - [Route, authentication, and caching policy](docs/RoutePolicy.md)
 - [Styling conventions](docs/Styling.md)
 - [Environment variables](docs/EnvironmentVariables.md)
+- [Database grants, RLS, and migration testing](docs/DatabaseAccess.md)
 - [Observability and local Sentry verification](docs/Observability.md)
 - [Setting up a separate production site](docs/NewProductionSite.md)
 
